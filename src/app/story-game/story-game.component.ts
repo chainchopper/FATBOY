@@ -23,6 +23,10 @@ export class StoryGameComponent {
   }
 
   choose(storyId: number): void {
-    this.currentStoryId = storyId;
+    if (this.stories.some((story) => story.id === storyId)) {
+      this.currentStoryId = storyId;
+    } else {
+      console.error(`Story with ID ${storyId} does not exist.`);
+    }
   }
 }
