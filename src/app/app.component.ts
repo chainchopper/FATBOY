@@ -1,13 +1,13 @@
 import { Component } from '@angular/core';
-import { HelloComponent } from './hello/hello.component';
+import { StoryGameComponent } from './story-game/story-game.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [HelloComponent],
+  imports: [StoryGameComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
 export class AppComponent {
-  title = 'dyad-angular-template';
+  title = 'interactive-story';
 }

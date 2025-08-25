@@ -1,0 +1,15 @@
+.story-game {
+  max-width: 600px;
+  margin: auto;
+}
+
+.story-game h2 {
+  font-size: 1.5em;
+  margin-bottom: 1em;
+}
+
+.story-game button {
+  display: block;
+  padding: 0.5em;
+  margin-bottom: 0.5em;
+}
