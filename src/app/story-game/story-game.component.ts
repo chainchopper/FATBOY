@@ -15,10 +15,18 @@ interface Choice {
 export class StoryGameComponent {
   currentStoryId = 0;
   stories: { id: number; text: string; choices: Choice[] }[] = [
+    {
+      id: 0,
+      text: 'You find yourself in a dark forest. You can go left or right.',
+      choices: [
+        { text: 'Go left', nextStoryId: 1 },
+        { text: 'Go right', nextStoryId: 2 }
+      ]
+    },
     // Add more stories here...
   ];
 
-  get currentStory(): { id: number; text: string; choices: Choice[] } | undefined {
+  get currentStory(): { id: number; text: string; choices: Choice[] } {
     return this.stories.find((story) => story.id === this.currentStoryId);
   }
 
