@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 
 interface Choice {
   text: string;
@@ -12,7 +12,7 @@ interface Choice {
   templateUrl: './story-game.component.html',
   styleUrl: './story-game.component.css'
 })
-export class StoryGameComponent implements OnInit {
+export class StoryGameComponent {
   currentStoryId = 0;
   stories: { id: number; text: string; choices: Choice[] }[] = [
     // ... (existing stories)
@@ -23,12 +23,6 @@ export class StoryGameComponent implements OnInit {
   }
 
   choose(storyId: number): void {
-    if (!this.currentStory || !this.currentStory.choices.some(choice => choice.nextStoryId === storyId)) {
-      alert('Invalid choice! Please try again.');
-      return;
-    }
     this.currentStoryId = storyId;
   }
-
-  ngOnInit(): void {}
 }
