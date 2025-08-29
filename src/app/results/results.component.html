@@ -1,66 +1,33 @@
-<div class="results-container" [class.good]="analysis?.verdict === 'good'" 
-                             [class.bad]="analysis?.verdict === 'bad'"
-                             [class.neutral]="analysis?.verdict === 'neutral'">
+<div class="results-container" [class.good]="verdict === 'good'" [class.bad]="verdict === 'bad'">
   <div class="verdict-card">
     <div class="verdict-icon">
-      <span *ngIf="analysis?.verdict === 'good'">✓</span>
-      <span *ngIf="analysis?.verdict === 'bad'">✗</span>
-      <span *ngIf="analysis?.verdict === 'neutral'">~</span>
+      <span *ngIf="verdict === 'good'">✓</span>
+      <span *ngIf="verdict === 'bad'">✗</span>
     </div>
-    <h2 *ngIf="analysis?.verdict === 'good'">Fat Boy Approved!</h2>
-    <h2 *ngIf="analysis?.verdict === 'bad'">Contains Items You Avoid</h2>
-    <h2 *ngIf="analysis?.verdict === 'neutral'">Needs Consideration</h2>
-    
-    <div class="nutritional-score" *ngIf="analysis">
-      <div class="score-circle" [style.background]="getNutritionalScoreColor(analysis.nutritionalScore)">
-        {{analysis.nutritionalScore.toFixed(0)}}
-      </div>
-      <span>Nutritional Score</span>
-    </div>
+    <h2 *ngIf="verdict === 'good'">Fat Boy Approved!</h2>
+    <h2 *ngIf="verdict === 'bad'">Contains Items You Avoid</h2>
   </div>
 
   <div class="product-info">
     <img [src]="product.image" alt="{{product.name}}" class="product-image">
     <h3>{{product.name}}</h3>
     <p>{{product.brand}}</p>
-    <p *ngIf="product.calories" class="calories">{{product.calories}} calories per serving</p>
   </div>
 
-  <div class="insight-section">
-    <h3>AI Insight</h3>
-    <p>{{insightSummary}}</p>
-    <p class="confidence" *ngIf="analysis">Analysis confidence: {{(analysis.confidence * 100).toFixed(0)}}%</p>
-  </div>
-
-  <div class="ingredient-breakdown" *ngIf="analysis && analysis.flaggedIngredients.length > 0">
-    <h3>Flagged Ingredients:</h3>
+  <div class="ingredient-breakdown">
+    <h3>Why this rating?</h3>
     <ul>
-      <li *ngFor="let ingredient of analysis.flaggedIngredients" class="bad-ingredient">
+      <li *ngFor="let ingredient of flaggedIngredients" class="bad-ingredient">
         ⚠️ {{ingredient}}
       </li>
-    </ul>
-  </div>
-
-  <div class="warnings-section" *ngIf="analysis && analysis.warnings.length > 0">
-    <h3>Warnings:</h3>
-    <ul>
-      <li *ngFor="let warning of analysis.warnings" class="warning-item">
-        ⚠️ {{warning}}
-      </li>
-    </ul>
-  </div>
-
-  <div class="recommendations-section" *ngIf="analysis && analysis.recommendations.length > 0">
-    <h3>Recommendations:</h3>
-    <ul>
-      <li *ngFor="let recommendation of analysis.recommendations" class="recommendation-item">
-        💡 {{recommendation}}
+      <li *ngIf="flaggedIngredients.length === 0" class="good-ingredient">
+        No ingredients match your avoid list
       </li>
     </ul>
   </div>
 
   <div class="action-buttons">
     <button (click)="scanAgain()" class="outline-btn">Scan Again</button>
-    <button *ngIf="analysis?.verdict === 'good'" (click)="saveProduct()" class="filled-btn">Save Product</button>
+    <button *ngIf="verdict === 'good'" (click)="saveProduct()" class="filled-btn">Save Product</button>
   </div>
 </div>

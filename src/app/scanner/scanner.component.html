@@ -4,20 +4,13 @@
     <button routerLink="/ocr-scanner" class="switch-mode-btn">Switch to Label Scan</button>
   </div>
   
-  <div class="scanner-content">
-    <div *ngIf="isLoading" class="loading-overlay">
-      <div class="loading-spinner"></div>
-      <p>Looking up product information...</p>
-    </div>
-    
-    <div id="reader" #reader class="scanner-viewport">
-      <div class="viewfinder"></div>
-    </div>
+  <div id="reader" #reader class="scanner-viewport">
+    <div class="viewfinder"></div>
   </div>
   
   <div class="scanner-controls">
     <button 
-      *ngIf="!isScanning && !isLoading" 
+      *ngIf="!isScanning" 
       (click)="startScanning()" 
       class="scan-btn"
       [class.pulse]="!isScanning">
