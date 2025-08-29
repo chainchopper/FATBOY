@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { IngredientParserService } from '../services/ingredient-parser.service';
 import { ProductDbService, Product } from '../services/product-db.service';
+import { AudioService } from '../services/audio.service';
 
 @Component({
   selector: 'app-results',
@@ -19,7 +20,8 @@ export class ResultsComponent implements OnInit {
   constructor(
     private router: Router,
     private ingredientParser: IngredientParserService,
-    private productDb: ProductDbService
+    private productDb: ProductDbService,
+    private audioService: AudioService
   ) {}
 
   ngOnInit() {
@@ -41,6 +43,12 @@ export class ResultsComponent implements OnInit {
     
     this.verdict = evaluation.verdict;
     this.flaggedItems = evaluation.flaggedIngredients;
+
+    if (this.verdict === 'good') {
+      this.audioService.playSuccessSound();
+    } else {
+      this.audioService.playErrorSound();
+    }
   }
 
   private addToHistory(): void {

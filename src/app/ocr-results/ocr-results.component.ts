@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { Product } from '../services/product-db.service';
 import { IngredientParserService } from '../services/ingredient-parser.service';
+import { AudioService } from '../services/audio.service';
 
 @Component({
   selector: 'app-ocr-results',
@@ -18,7 +19,8 @@ export class OcrResultsComponent implements OnInit {
 
   constructor(
     private router: Router,
-    private ingredientParser: IngredientParserService
+    private ingredientParser: IngredientParserService,
+    private audioService: AudioService
   ) {}
 
   ngOnInit(): void {
@@ -39,6 +41,12 @@ export class OcrResultsComponent implements OnInit {
 
     this.verdict = evaluation.verdict;
     this.flaggedItems = evaluation.flaggedIngredients;
+
+    if (this.verdict === 'good') {
+      this.audioService.playSuccessSound();
+    } else {
+      this.audioService.playErrorSound();
+    }
   }
 
   isIngredientFlagged(ingredient: string): boolean {

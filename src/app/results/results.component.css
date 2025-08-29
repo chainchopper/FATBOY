@@ -16,15 +16,27 @@
   padding: 30px;
   border-radius: 12px;
   margin-bottom: 20px;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .results-container.good .verdict-card {
-  background-color: #4CAF50;
+  background: linear-gradient(135deg, #4CAF50, #66BB6A);
   color: white;
 }
 
 .results-container.bad .verdict-card {
-  background-color: #F44336;
+  background: linear-gradient(135deg, #F44336, #EF5350);
   color: white;
 }
 
