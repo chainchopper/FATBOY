@@ -1,49 +1,65 @@
+# Fat Boy 🥦 → ✅
 
+**Scan. Know. Choose.** Stop reading labels. Start scanning them.
 
-```bash
-npm run dev
-# or
-npm start
-```
+Fat Boy is an open-source, AI-powered mobile app that instantly tells you if a food product aligns with your health goals. Scan a barcode, and get a simple **Yes** or **No** verdict based on your personalized filters for natural ingredients, harmful chemicals, and calories.
 
-The application will be available at `http://localhost:4200/` and will automatically reload when you make changes.
+[![React Native](https://img.shields.io/badge/React%20Native-0.72-blue?style=flat&logo=react)](https://reactnative.dev/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg?style=flat)](https://opensource.org/licenses/MIT)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat)](http://makeapullrequest.com)
+[![Open Food Facts](https://img.shields.io/badge/Data-Open%20Food%20Facts-yellow)](https://world.openfoodfacts.org/)
 
-## Building for Production
+<p align="center">
+  <img src="https://via.placeholder.com/300x600/4CAF50/ffffff?text=Fat+Boy+App" alt="Fat Boy App Mockup" width="300"/>
+</p>
 
-To create a production build:
+## ✨ Features
 
-```bash
-npm run build
-```
+*   **⚡ Instant Barcode Scans:** Get a clear, color-coded verdict (Green ✅ or Red ❌) in seconds.
+*   **🧠 AI-Powered Analysis:** Our fine-tuned NLP model parses and understands complex ingredient lists against your personal rules.
+*   **🔧 Personalized Filters:** Tailor your "avoid list" – no artificial sweeteners, no MSG, no specific chemicals, calorie limits, etc.
+*   **💾 Save Favorites:** Build a personal catalog of "approved" products for quick shopping.
+*   **🌐 Community Driven:** Contribute by submitting products missing from our database.
+*   **📊 Detailed Breakdown:** Don't just get a verdict; see *why* an ingredient was flagged.
 
-The build artifacts will be stored in the `dist/` directory, ready for deployment.
+## 🚀 Getting Started
 
-## Project Structure
+### Prerequisites
 
-```
-src/
-├── app/
-│   ├── app.component.ts    # Main component logic
-│   ├── app.component.html  # Main component template
-│   └── app.component.css   # Main component styles
-├── index.html             # Application entry point
-├── main.ts               # Application bootstrap
-└── styles.css            # Global styles
-```
+*   Node.js (v16 or newer)
+*   npm, yarn, or bun
+*   iOS (Xcode) and/or Android (Android Studio) development environments setup for React Native.
+*   A keen eye for healthy living! 🥗
 
-## Getting Started
+### Installation
 
-1. Edit `src/app/app.component.ts` to add your component logic
-2. Modify `src/app/app.component.html` for your template
-3. Update `src/app/app.component.css` for component-specific styles
-4. Add global styles in `src/styles.css`
+1.  **Clone the repository**
+    ```bash
+    git clone https://github.com/your-username/fat-boy-app.git
+    cd fat-boy-app
+    ```
 
-## Technologies
+2.  **Install dependencies**
+    ```bash
+    npm install
+    # or
+    yarn install
+    ```
 
-- Angular 17
-- TypeScript
-- CSS
+3.  **Install pods (iOS only)**
+    ```bash
+    cd ios && pod install && cd ..
+    ```
 
-## License
+4.  **Run the application**
+    *   For iOS:
+        ```bash
+        npx react-native run-ios
+        ```
+    *   For Android:
+        ```bash
+        npx react-native run-android
+        ```
 
-This template is open source and available for use in your Dyad.sh projects.
+## 📁 Project Structure
+
