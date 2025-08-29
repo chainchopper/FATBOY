@@ -1,6 +1,6 @@
 import { Component, ElementRef, ViewChild, AfterViewInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
-import { Html5Qrcode } from 'html5-qrcode';
+import Tesseract from 'tesseract.js';
 import { OcrEnhancerService } from '../services/ocr-enhancer.service';
 import { IngredientParserService } from '../services/ingredient-parser.service';
 import { ProductDbService, Product } from '../services/product-db.service';
@@ -12,9 +12,11 @@ import { ProductDbService, Product } from '../services/product-db.service';
   styleUrls: ['./ocr-scanner.component.css']
 })
 export class OcrScannerComponent implements AfterViewInit, OnDestroy {
-  @ViewChild('reader') reader!: ElementRef;
-  private html5QrcodeScanner!: Html5Qrcode;
-  isScanning = false;
+  @ViewChild('videoElement', { static: false }) videoElement!: ElementRef<HTMLVideoElement>;
+  @ViewChild('canvasElement', { static: false }) canvasElement!: ElementRef<HTMLCanvasElement>;
+
+  private mediaStream: MediaStream | null = null;
+  isProcessing = false;
 
   constructor(
     private router: Router,
@@ -25,84 +27,97 @@ export class OcrScannerComponent implements AfterViewInit, OnDestroy {
 
   async ngAfterViewInit() {
     try {
-      this.html5QrcodeScanner = new Html5Qrcode("reader");
+      this.mediaStream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'environment' },
+        audio: false
+      });
+      const video = this.videoElement.nativeElement;
+      video.srcObject = this.mediaStream;
+      await video.play();
     } catch (error) {
-      console.error('Error initializing scanner:', error);
+      console.error('Error accessing camera for OCR:', error);
+      alert('Unable to access camera. Please allow camera permissions and try again.');
+    }
+  }
+
+  async captureImage(): Promise<void> {
+    if (this.isProcessing) return;
+    const video = this.videoElement.nativeElement;
+    const canvas = this.canvasElement.nativeElement;
+
+    if (!video.videoWidth || !video.videoHeight) {
+      alert('Camera not ready yet. Please try again in a moment.');
+      return;
+    }
+
+    // Capture current frame
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    this.isProcessing = true;
+
+    try {
+      const dataUrl = canvas.toDataURL('image/png');
+
+      // Run OCR with Tesseract
+      const result = await Tesseract.recognize(dataUrl, 'eng');
+      const text = result.data?.text || '';
+
+      if (!text || text.trim().length === 0) {
+        alert('No text detected. Please adjust lighting and try again.');
+        this.isProcessing = false;
+        return;
+      }
+
+      this.processExtractedText(text);
+    } catch (err) {
+      console.error('OCR error:', err);
+      alert('Failed to process the image. Please try again.');
+      this.isProcessing = false;
     }
   }
 
   private processExtractedText(text: string): void {
-    // Use enhanced OCR processing
+    // Enhanced OCR processing
     const enhancedIngredients = this.ocrEnhancer.enhanceIngredientDetection(text);
     const productName = this.ocrEnhancer.detectProductName(text);
     const brand = this.ocrEnhancer.detectBrand(text);
 
-    // Parse ingredients
+    // Categorize and evaluate
     const categories = this.ingredientParser.categorizeProduct(enhancedIngredients);
 
-    // Get user preferences
-    const preferences = JSON.parse(localStorage.getItem('fatBoyPreferences') || '{}');
+    // Evaluate ingredients using parser (simple rules for now)
+    const flaggedIngredients = this.ingredientParser.evaluateIngredients(enhancedIngredients, {});
+    const verdict: 'good' | 'bad' = flaggedIngredients.length === 0 ? 'good' : 'bad';
 
-    // Evaluate product based on preferences
-    const flaggedIngredients = this.evaluateIngredients(enhancedIngredients, preferences);
-    const verdict = flaggedIngredients.length === 0 ? 'good' : 'bad';
-
-    // Prepare product info
+    // Build product info
     const productInfo: Omit<Product, 'id' | 'scanDate'> = {
       name: productName,
       brand: brand,
       ingredients: enhancedIngredients,
-      categories: categories,
-      verdict: verdict,
-      flaggedIngredients: flaggedIngredients,
+      categories,
+      verdict,
+      flaggedIngredients,
       ocrText: text
     };
 
-    // Add to database
+    // Save to local DB (History)
     const product = this.productDb.addProduct(productInfo);
 
-    // Navigate to results
+    // Navigate to OCR results
     sessionStorage.setItem('viewingProduct', JSON.stringify(product));
+    this.isProcessing = false;
     this.router.navigate(['/ocr-results']);
   }
 
-  private evaluateIngredients(ingredients: string[], preferences: any): string[] {
-    const flagged: string[] = [];
-    ingredients.forEach(ingredient => {
-      const analysis = this.ingredientParser.analyzeIngredient(ingredient);
-      if (analysis.flagged) {
-        flagged.push(ingredient);
-      }
-    });
-    return flagged;
-  }
-
-  async startScanning(): Promise<void> {
-    try {
-      this.isScanning = true;
-      await this.html5QrcodeScanner.start(
-        { facingMode: "environment" },
-        { fps: 10, qrbox: { width: 250, height: 250 } },
-        (decodedText: string) => this.processExtractedText(decodedText),
-        (error: string) => console.error('Scan failed:', error)
-      );
-    } catch (error) {
-      console.error('Error starting scanner:', error);
-      this.isScanning = false;
-    }
-  }
-
-  stopScanning(): void {
-    this.html5QrcodeScanner.stop().then(() => {
-      this.isScanning = false;
-    }).catch((error) => {
-      console.error('Error stopping scanner:', error);
-    });
-  }
-
   ngOnDestroy(): void {
-    if (this.html5QrcodeScanner && this.isScanning) {
-      this.stopScanning();
+    if (this.mediaStream) {
+      this.mediaStream.getTracks().forEach(t => t.stop());
+      this.mediaStream = null;
     }
   }
 }
