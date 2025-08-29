@@ -1,37 +1,44 @@
-# Fat Boy 🥦 → ✅
+# 🔮 Fat Boy: Your Personal Food Matrix
 
-**Scan. Know. Choose.** Stop reading labels. Start scanning them.
+**Scan. Know. Choose.** Instantly decipher food labels with your AI-powered nutritional co-pilot.
 
-Fat Boy is an open-source, AI-powered mobile app that instantly tells you if a food product aligns with your health goals. Scan a barcode, and get a simple **Yes** or **No** verdict based on your personalized filters for natural ingredients, harmful chemicals, and calories.
+Fat Boy is a cutting-edge mobile app that uses your phone's camera to analyze food products in real-time. Get an immediate **Approve ✅** or **Deny ❌** verdict based on your personalized health goals, saving you from the cryptic maze of ingredient lists.
 
-[![React Native](https://img.shields.io/badge/React%20Native-0.72-blue?style=flat&logo=react)](https://reactnative.dev/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg?style=flat)](https://opensource.org/licenses/MIT)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat)](http://makeapullrequest.com)
-[![Open Food Facts](https://img.shields.io/badge/Data-Open%20Food%20Facts-yellow)](https://world.openfoodfacts.org/)
+[![Angular](https://img.shields.io/badge/Angular-DD0031?style=for-the-badge&logo=angular&logoColor=white)](https://angular.io/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.io/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 
 <p align="center">
-  <img src="https://via.placeholder.com/300x600/4CAF50/ffffff?text=Fat+Boy+App" alt="Fat Boy App Mockup" width="300"/>
+  <pre>
+  ███████╗ █████╗ ████████╗  ██████╗  ██████╗ ██╗   ██╗
+  ██╔════╝██╔══██╗╚══██╔══╝ ██╔═══██╗██╔═══██╗╚██╗ ██╔╝
+  █████╗  ███████║   ██║    ██║   ██║██║   ██║ ╚████╔╝ 
+  ██╔══╝  ██╔══██║   ██║    ██║   ██║██║   ██║  ╚██╔╝  
+  ██║     ██║  ██║   ██║    ╚██████╔╝╚██████╔╝   ██║   
+  ╚═╝     ╚═╝  ╚═╝   ╚═╝     ╚═════╝  ╚═════╝    ╚═╝   
+  </pre>
 </p>
 
-## ✨ Features
+## ✨ Core Features
 
-*   **⚡ Instant Barcode Scans:** Get a clear, color-coded verdict (Green ✅ or Red ❌) in seconds.
-*   **🧠 AI-Powered Analysis:** Our fine-tuned NLP model parses and understands complex ingredient lists against your personal rules.
-*   **🔧 Personalized Filters:** Tailor your "avoid list" – no artificial sweeteners, no MSG, no specific chemicals, calorie limits, etc.
-*   **💾 Save Favorites:** Build a personal catalog of "approved" products for quick shopping.
-*   **🌐 Community Driven:** Contribute by submitting products missing from our database.
-*   **📊 Detailed Breakdown:** Don't just get a verdict; see *why* an ingredient was flagged.
+*   **⚡ Instant Analysis:** Use **Label Scan (OCR)** or **Barcode Scan** to get a clear, color-coded verdict in seconds.
+*   **🧠 AI-Powered Rule Engine:** Our system evaluates complex ingredient lists against your personal rules.
+*   **🔧 Personalized Filters:** Fine-tune your "avoid list" – no artificial sweeteners, no MSG, calorie limits, etc.
+*   **💾 Save Your Arsenal:** Build a personal gallery of "approved" products for quick shopping.
+*   **🏆 Gamified Progress:** Unlock achievements and badges for making healthy choices and helping the community.
+*   **🛒 Smart Shopping List:** Create and manage a shopping list directly from approved products.
+*   **🤝 Community Driven:** Contribute products not yet in our database to help everyone.
 
 ## 🚀 Getting Started
 
 ### Prerequisites
 
-*   Node.js (v16 or newer)
-*   npm, yarn, or bun
-*   iOS (Xcode) and/or Android (Android Studio) development environments setup for React Native.
-*   A keen eye for healthy living! 🥗
+*   Node.js (v18 or newer)
+*   Angular CLI (`npm install -g @angular/cli`)
+*   A passion for deciphering the food matrix! 🥗
 
-### Installation
+### Installation & Launch
 
 1.  **Clone the repository**
     ```bash
@@ -42,66 +49,33 @@ Fat Boy is an open-source, AI-powered mobile app that instantly tells you if a f
 2.  **Install dependencies**
     ```bash
     npm install
-    # or
-    yarn install
     ```
 
-3.  **Install pods (iOS only)**
+3.  **Launch the development server**
     ```bash
-    cd ios && pod install && cd ..
+    ng serve
     ```
+    Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
 
-4.  **Run the application**
-    *   For iOS:
-        ```bash
-        npx react-native run-ios
-        ```
-    *   For Android:
-        ```bash
-        npx react-native run-android
-        ```
+## 🤖 How It Works: The Fat Boy Protocol
 
-## 📁 Project Structure
-
-fat-boy-app/
-├── tests/ # Unit and integration tests
-├── android/ # Android native code
-├── ios/ # iOS native code
-├── src/
-│ ├── components/ # Reusable UI components (Button, ScannerView, ProductCard)
-│ ├── constants/ # App colors, themes, and fixed data
-│ ├── contexts/ # React Contexts for state management (e.g., UserPreferences)
-│ ├── hooks/ # Custom React Hooks
-│ ├── navigation/ # App navigation setup
-│ ├── screens/ # Main app screens (Scanner, Results, Saved)
-│ ├── services/ # API calls (Open Food Facts, our backend)
-│ ├── utils/ # Helper functions (AI rule engine, data parsers)
-│ └── assets/ # Images, fonts, and icons
-├── App.js # Main application component
-└── index.js # Entry point
-
-
-## 🤖 How the AI Works
-
-1.  **Scan:** User scans a barcode.
-2.  **Fetch:** Product data (especially ingredients) is fetched from the Open Food Facts API.
-3.  **Parse & Classify:** Our fine-tuned model classifies each ingredient in the list (e.g., `"ascorbic acid"` -> `vitamin_c`, `"natural"`).
-4.  **Judge:** A rule engine compares the classified ingredients against the user's personalized "avoid list."
-5.  **Verdict:** A final verdict is generated and displayed to the user with a detailed breakdown.
+1.  **SCAN:** The user points their device at a product label or barcode. The camera feed is live.
+2.  **CAPTURE:** On user command, an image is captured. For barcodes, the code is decoded. For labels, our **Tesseract.js** integration performs Optical Character Recognition (OCR) to extract the text.
+3.  **ANALYZE:** The extracted ingredients and nutritional data are processed through our custom **Rule Engine**, which compares them against the user's personalized preferences.
+4.  **VERDICT:** A final verdict—**Approve** or **Deny**—is generated and displayed with a detailed breakdown and immersive audio-visual cues. All scans are automatically logged to the user's private history.
 
 ## 🛠️ Tech Stack
 
-*   **Frontend:** React Native
-*   **State Management:** React Context API / Redux Toolkit
-*   **Backend:** Node.js with Express
-*   **Database:** PostgreSQL (user data), Redis (caching)
-*   **AI/ML:** Python (PyTorch/TensorFlow) for model training, TensorFlow Lite for on-device inference (future)
-*   **API:** Open Food Facts
-*   **Testing:** Jest, React Native Testing Library
+*   **Frontend:** Angular & TypeScript
+*   **Styling:** Custom CSS with a Cyberpunk Aesthetic
+*   **Authentication:** Supabase (OAuth for Google, Facebook, etc.)
+*   **OCR:** Tesseract.js
+*   **Notifications:** ngx-toastr
+*   **Deployment:** Docker & Nginx
 
 ## 🤝 How to Contribute
 
-We love contributions! Whether you're fixing a bug, improving the docs, or proposing a new feature, your help is welcome.
+We welcome all agents to contribute to the mission.
 
 1.  Fork the Project.
 2.  Create your Feature Branch (`git checkout -b feature/AmazingFeature`).
@@ -109,27 +83,8 @@ We love contributions! Whether you're fixing a bug, improving the docs, or propo
 4.  Push to the Branch (`git push origin feature/AmazingFeature`).
 5.  Open a Pull Request.
 
-Please read our `CONTRIBUTING.md` for details on our code of conduct and the process for submitting pull requests.
-
-## 📜 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-*   Data provided by the amazing [Open Food Facts](https://world.openfoodfacts.org/) community.
-*   Icons from [Material Design Icons](https://material.io/resources/icons/).
-*   The React Native community for incredible tools and support.
-
-## 📫 Contact
-
-**Your Name** - [@yourTwitter](https://twitter.com/yourTwitter) - email@example.com
-
-Project Link: [https://github.com/your-username/fat-boy-app](https://github.com/your-username/fat-boy-app)
-
 ---
 
 <p align="center">
 Made with ❤️ and a desire for cleaner eating.
 </p>
-
