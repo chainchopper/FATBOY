@@ -1,0 +1,32 @@
+<div class="ocr-container">
+  <div class="scanner-header">
+    <h2>Scan Product Label</h2>
+    <button routerLink="/scanner" class="switch-mode-btn">Switch to Barcode</button>
+  </div>
+  
+  <div class="camera-preview">
+    <video #videoElement autoplay playsinline class="video-element"></video>
+    <canvas #canvasElement class="capture-canvas" style="display: none;"></canvas>
+    
+    <div class="viewfinder">
+      <div class="scan-area"></div>
+      <p>Position the product label within this area</p>
+    </div>
+  </div>
+  
+  <div class="controls">
+    <button (click)="captureImage()" [disabled]="isProcessing" class="capture-btn">
+      {{ isProcessing ? 'Processing...' : 'Capture Label' }}
+    </button>
+  </div>
+  
+  <div class="instructions">
+    <h3>How to scan:</h3>
+    <ul>
+      <li>Ensure good lighting on the product label</li>
+      <li>Position the label within the frame</li>
+      <li>Hold steady and tap "Capture Label"</li>
+      <li>We'll extract and analyze the ingredients</li>
+    </ul>
+  </div>
+</div>

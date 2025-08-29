@@ -1,0 +1,91 @@
+.results-container {
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.results-container.good {
+  background-color: #E8F5E9;
+}
+
+.results-container.bad {
+  background-color: #FFEBEE;
+}
+
+.verdict-card {
+  text-align: center;
+  padding: 30px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+}
+
+.results-container.good .verdict-card {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.results-container.bad .verdict-card {
+  background-color: #F44336;
+  color: white;
+}
+
+.verdict-icon {
+  font-size: 64px;
+  margin-bottom: 15px;
+}
+
+.product-info {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.ingredient-breakdown, .flagged-items {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.ingredient-breakdown ul, .flagged-items ul {
+  padding-left: 20px;
+}
+
+.ingredient-breakdown li, .flagged-items li {
+  margin: 8px 0;
+}
+
+.bad-ingredient {
+  color: #F44336;
+  font-weight: bold;
+}
+
+.action-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.outline-btn, .filled-btn, .text-btn {
+  padding: 12px 24px;
+  border-radius: 30px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.outline-btn {
+  border: 2px solid #4CAF50;
+  background: transparent;
+  color: #4CAF50;
+}
+
+.filled-btn {
+  border: none;
+  background-color: #4CAF50;
+  color: white;
+}
+
+.text-btn {
+  border: 2px solid #757575;
+  background: transparent;
+  color: #757575;
+}

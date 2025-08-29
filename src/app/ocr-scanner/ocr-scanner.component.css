@@ -1,0 +1,107 @@
+.ocr-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-color: #000;
+}
+
+.scanner-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  background-color: #212121;
+  color: white;
+}
+
+.switch-mode-btn {
+  background: none;
+  border: 1px solid #4CAF50;
+  color: #4CAF50;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.camera-preview {
+  flex: 1;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+.video-element {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.viewfinder {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  pointer-events: none;
+}
+
+.scan-area {
+  width: 300px;
+  height: 200px;
+  border: 2px dashed #4CAF50;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.viewfinder p {
+  color: white;
+  text-align: center;
+  background-color: rgba(0, 0, 0, 0.5);
+  padding: 8px 16px;
+  border-radius: 4px;
+}
+
+.controls {
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+}
+
+.capture-btn {
+  padding: 15px 30px;
+  border: none;
+  border-radius: 30px;
+  font-size: 18px;
+  background-color: #4CAF50;
+  color: white;
+  cursor: pointer;
+}
+
+.capture-btn:disabled {
+  background-color: #757575;
+  cursor: not-allowed;
+}
+
+.instructions {
+  padding: 20px;
+  background-color: #212121;
+  color: white;
+}
+
+.instructions h3 {
+  margin-bottom: 10px;
+}
+
+.instructions ul {
+  padding-left: 20px;
+}
+
+.instructions li {
+  margin-bottom: 5px;
+}
