@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "4200:80"
+    restart: unless-stopped
+    container_name: fatboy-frontend
+    # env_file:
+    #   - .env # This will be used when we add backend services that need environment variables
