@@ -52,8 +52,8 @@
 }
 
 .scan-area {
-  width: 300px;
-  height: 200px;
+  width: 90vw; /* Make it 90% of the viewport width */
+  height: 300px; /* Increase the height */
   border: 2px dashed #f038ff;
   box-shadow: 0 0 15px #f038ff;
   border-radius: 8px;
@@ -75,7 +75,7 @@
 
 @keyframes sweep-ocr {
   0% { transform: translateY(0); }
-  50% { transform: translateY(197px); }
+  50% { transform: translateY(297px); } /* Updated for new height */
   100% { transform: translateY(0); }
 }
 
