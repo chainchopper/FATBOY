@@ -11,6 +11,7 @@ import { CommunityComponent } from './community/community.component';
 import { ShoppingListComponent } from './shopping-list/shopping-list.component';
 import { AchievementsComponent } from './achievements/achievements.component';
 import { LoginComponent } from './login/login.component';
+import { FoodDiaryComponent } from './food-diary/food-diary.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/ocr-scanner', pathMatch: 'full' },
@@ -25,5 +26,6 @@ export const routes: Routes = [
   { path: 'suggestions', component: SuggestionsComponent },
   { path: 'community', component: CommunityComponent },
   { path: 'shopping-list', component: ShoppingListComponent },
-  { path: 'achievements', component: AchievementsComponent }
+  { path: 'achievements', component: AchievementsComponent },
+  { path: 'food-diary', component: FoodDiaryComponent }
 ];

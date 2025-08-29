@@ -1,0 +1,52 @@
+<div class="diary-container">
+  <div class="diary-header">
+    <h2>Today's Diary</h2>
+    <!-- Placeholder for future date picker -->
+  </div>
+
+  <div class="diary-grid">
+    <div class="meal-section">
+      <h3>🍳 Breakfast</h3>
+      <div *ngIf="(breakfast$ | async) as entries" class="meal-list">
+        <div *ngFor="let entry of entries" class="diary-item">
+          <span>{{ entry.product.name }}</span>
+          <span class="brand">{{ entry.product.brand }}</span>
+        </div>
+        <p *ngIf="entries.length === 0" class="empty-meal">No breakfast items logged.</p>
+      </div>
+    </div>
+
+    <div class="meal-section">
+      <h3>🥗 Lunch</h3>
+      <div *ngIf="(lunch$ | async) as entries" class="meal-list">
+        <div *ngFor="let entry of entries" class="diary-item">
+          <span>{{ entry.product.name }}</span>
+          <span class="brand">{{ entry.product.brand }}</span>
+        </div>
+        <p *ngIf="entries.length === 0" class="empty-meal">No lunch items logged.</p>
+      </div>
+    </div>
+
+    <div class="meal-section">
+      <h3>🍲 Dinner</h3>
+      <div *ngIf="(dinner$ | async) as entries" class="meal-list">
+        <div *ngFor="let entry of entries" class="diary-item">
+          <span>{{ entry.product.name }}</span>
+          <span class="brand">{{ entry.product.brand }}</span>
+        </div>
+        <p *ngIf="entries.length === 0" class="empty-meal">No dinner items logged.</p>
+      </div>
+    </div>
+
+    <div class="meal-section">
+      <h3>🍎 Snacks</h3>
+      <div *ngIf="(snacks$ | async) as entries" class="meal-list">
+        <div *ngFor="let entry of entries" class="diary-item">
+          <span>{{ entry.product.name }}</span>
+          <span class="brand">{{ entry.product.brand }}</span>
+        </div>
+        <p *ngIf="entries.length === 0" class="empty-meal">No snack items logged.</p>
+      </div>
+    </div>
+  </div>
+</div>
