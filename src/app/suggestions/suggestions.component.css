@@ -2,12 +2,13 @@
   padding: 20px;
   max-width: 1000px;
   margin: 0 auto;
+  color: #e0e0e0;
 }
 
 .loading, .empty-state {
   text-align: center;
   padding: 40px;
-  color: #757575;
+  color: #a0a0c0;
 }
 
 .suggestions-grid {
@@ -18,20 +19,26 @@
 }
 
 .suggestion-card {
-  background: white;
+  background: rgba(15, 15, 30, 0.8);
+  border: 1px solid #4a4a6e;
   border-radius: 8px;
   padding: 20px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
   position: relative;
   display: flex;
   flex-direction: column;
+  transition: all 0.3s;
+}
+.suggestion-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 0 15px #f038ff;
+  border-color: #f038ff;
 }
 
 .similarity-badge {
   position: absolute;
   top: 10px;
   right: 10px;
-  background: linear-gradient(135deg, #4CAF50, #45a049);
+  background: linear-gradient(135deg, #f038ff, #9c27b0);
   color: white;
   padding: 4px 8px;
   border-radius: 12px;
@@ -44,15 +51,8 @@
   margin-bottom: 15px;
 }
 
-.product-categories {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin: 10px 0;
-}
-
 .category-tag {
-  background-color: #e8f5e9;
+  background-color: #2a2a4e;
   padding: 4px 8px;
   border-radius: 12px;
   font-size: 12px;
@@ -61,19 +61,19 @@
 .ingredient-preview {
   margin-top: 10px;
   font-size: 14px;
-  color: #757575;
+  color: #a0a0c0;
 }
 
 .save-btn {
-  background-color: #2196F3;
-  color: white;
-  border: none;
+  background-color: transparent;
+  border: 1px solid #0abdc6;
+  color: #0abdc6;
   padding: 8px 16px;
   border-radius: 4px;
   cursor: pointer;
   align-self: flex-start;
 }
-
 .save-btn:hover {
-  background-color: #0b7dda;
+  background-color: rgba(10, 189, 198, 0.1);
+  box-shadow: 0 0 10px #0abdc6;
 }

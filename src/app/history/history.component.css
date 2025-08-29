@@ -2,6 +2,7 @@
   padding: 20px;
   max-width: 1000px;
   margin: 0 auto;
+  color: #e0e0e0;
 }
 
 .history-header {
@@ -12,19 +13,20 @@
 }
 
 .clear-btn {
-  background-color: #F44336;
-  color: white;
-  border: none;
+  background: transparent;
+  border: 1px solid #F44336;
+  color: #F44336;
   padding: 8px 16px;
   border-radius: 4px;
   cursor: pointer;
 }
 
 .stats-section {
-  background-color: #f5f5f5;
+  background-color: rgba(15, 15, 30, 0.8);
   padding: 20px;
   border-radius: 8px;
   margin-bottom: 20px;
+  border: 1px solid #4a4a6e;
 }
 
 .stats-grid {
@@ -35,23 +37,23 @@
 }
 
 .stat-item {
-  background: white;
+  background: #1a1a2e;
   padding: 15px;
   border-radius: 8px;
   text-align: center;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  border: 1px solid #4a4a6e;
 }
 
 .stat-count {
   display: block;
   font-size: 24px;
   font-weight: bold;
-  color: #4CAF50;
+  color: #0abdc6;
 }
 
 .stat-ingredient {
   font-size: 14px;
-  color: #757575;
+  color: #a0a0c0;
 }
 
 .category-filters {
@@ -63,17 +65,19 @@
 
 .category-btn {
   padding: 8px 16px;
-  border: 1px solid #ddd;
+  border: 1px solid #4a4a6e;
   border-radius: 20px;
-  background: white;
+  background: #1a1a2e;
+  color: #e0e0e0;
   cursor: pointer;
   transition: all 0.3s;
 }
 
 .category-btn.active {
-  background-color: #4CAF50;
-  color: white;
-  border-color: #4CAF50;
+  background-color: #f038ff;
+  color: #1a1a2e;
+  border-color: #f038ff;
+  box-shadow: 0 0 10px #f038ff;
 }
 
 .products-list {
@@ -83,18 +87,18 @@
 }
 
 .product-card {
-  background: white;
+  background: rgba(15, 15, 30, 0.8);
   padding: 20px;
   border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  border: 1px solid #4a4a6e;
 }
 
 .product-card.bad {
-  border-left: 4px solid #F44336;
+  border-left: 4px solid #f038ff;
 }
 
 .product-card:not(.bad) {
-  border-left: 4px solid #4CAF50;
+  border-left: 4px solid #0abdc6;
 }
 
 .product-header {
@@ -112,16 +116,15 @@
   justify-content: center;
   margin-right: 10px;
   font-weight: bold;
+  color: #1a1a2e;
 }
 
 .verdict-badge.good {
-  background-color: #4CAF50;
-  color: white;
+  background-color: #0abdc6;
 }
 
 .verdict-badge:not(.good) {
-  background-color: #F44336;
-  color: white;
+  background-color: #f038ff;
 }
 
 .product-header h3 {
@@ -134,16 +137,16 @@
   border: none;
   font-size: 24px;
   cursor: pointer;
-  color: #757575;
+  color: #a0a0c0;
 }
 
 .product-brand {
-  color: #757575;
+  color: #a0a0c0;
   margin: 5px 0;
 }
 
 .scan-date {
-  color: #9e9e9e;
+  color: #888;
   font-size: 12px;
   margin: 5px 0;
 }
@@ -156,25 +159,15 @@
 }
 
 .category-tag {
-  background-color: #e8f5e9;
+  background-color: #2a2a4e;
   padding: 4px 8px;
   border-radius: 12px;
   font-size: 12px;
 }
 
-.more-categories {
-  color: #757575;
-  font-size: 12px;
-}
-
-.product-actions {
-  display: flex;
-  justify-content: flex-end;
-}
-
 .view-btn {
-  background-color: #2196F3;
-  color: white;
+  background-color: #0abdc6;
+  color: #1a1a2e;
   border: none;
   padding: 8px 16px;
   border-radius: 4px;
@@ -184,5 +177,5 @@
 .empty-state {
   text-align: center;
   padding: 40px;
-  color: #757575;
+  color: #a0a0c0;
 }

@@ -2,12 +2,13 @@
   padding: 20px;
   max-width: 1200px;
   margin: 0 auto;
+  color: #e0e0e0;
 }
 
 .empty-state {
   text-align: center;
   padding: 40px;
-  color: #757575;
+  color: #a0a0c0;
 }
 
 .products-grid {
@@ -18,22 +19,29 @@
 }
 
 .product-card {
-  background: white;
+  background: rgba(15, 15, 30, 0.8);
+  border: 1px solid #4a4a6e;
   border-radius: 8px;
   padding: 15px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
   position: relative;
+  transition: all 0.3s;
+}
+.product-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 0 15px #0abdc6;
+  border-color: #0abdc6;
 }
 
 .approved-badge {
   position: absolute;
   top: 10px;
   right: 10px;
-  background: #4CAF50;
-  color: white;
+  background: #0abdc6;
+  color: #1a1a2e;
   padding: 4px 8px;
   border-radius: 4px;
   font-size: 12px;
+  font-weight: bold;
 }
 
 .product-thumb {
@@ -45,11 +53,16 @@
 }
 
 .remove-btn {
-  background: #F44336;
-  color: white;
-  border: none;
+  background: transparent;
+  border: 1px solid #f038ff;
+  color: #f038ff;
   padding: 8px 12px;
   border-radius: 4px;
   cursor: pointer;
   margin-top: 10px;
+  transition: all 0.3s;
+}
+.remove-btn:hover {
+  background: rgba(240, 56, 255, 0.1);
+  box-shadow: 0 0 10px #f038ff;
 }
