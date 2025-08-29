@@ -13,7 +13,7 @@ import { AchievementsComponent } from './achievements/achievements.component';
 import { LoginComponent } from './login/login.component';
 
 export const routes: Routes = [
-  { path: '', redirectTo: '/scanner', pathMatch: 'full' },
+  { path: '', redirectTo: '/ocr-scanner', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
   { path: 'scanner', component: ScannerComponent },
   { path: 'results', component: ResultsComponent },
