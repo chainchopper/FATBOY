@@ -1,4 +1,4 @@
-<div class="results-container" [class.good]="verdict === 'good'" [class.bad]="verdict === 'bad'">
+<div *ngIf="product" class="results-container" [class.good]="verdict === 'good'" [class.bad]="verdict === 'bad'">
   <div class="verdict-card">
     <div class="verdict-icon">
       <span *ngIf="verdict === 'good'">✓</span>
