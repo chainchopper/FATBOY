@@ -117,3 +117,15 @@
     box-shadow: 0 0 0 0 rgba(240, 56, 255, 0);
   }
 }
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 400px) {
+  .scan-btn, .stop-btn {
+    padding: 12px 24px;
+    font-size: 16px;
+  }
+  .switch-mode-btn {
+    padding: 6px 12px;
+    font-size: 14px;
+  }
+}
