@@ -63,3 +63,22 @@ Fat Boy is an open-source, AI-powered mobile app that instantly tells you if a f
 
 ## 📁 Project Structure
 
+fat-boy-app/
+├── tests/ # Unit and integration tests
+├── android/ # Android native code
+├── ios/ # iOS native code
+├── src/
+│ ├── components/ # Reusable UI components (Button, ScannerView, ProductCard)
+│ ├── constants/ # App colors, themes, and fixed data
+│ ├── contexts/ # React Contexts for state management (e.g., UserPreferences)
+│ ├── hooks/ # Custom React Hooks
+│ ├── navigation/ # App navigation setup
+│ ├── screens/ # Main app screens (Scanner, Results, Saved)
+│ ├── services/ # API calls (Open Food Facts, our backend)
+│ ├── utils/ # Helper functions (AI rule engine, data parsers)
+│ └── assets/ # Images, fonts, and icons
+├── App.js # Main application component
+└── index.js # Entry point
+
+
+
