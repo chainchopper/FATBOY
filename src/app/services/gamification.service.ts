@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { ProductDbService } from './product-db.service';
+import { NotificationService } from './notification.service';
+import { AuthService } from './auth.service';
 
 export interface Badge {
   id: string;
@@ -28,15 +30,24 @@ export class GamificationService {
     { id: 'natural_warrior', name: 'Natural Warrior', description: 'Scan 5 products with a "good" verdict.', icon: '🌿' }
   ];
 
-  constructor(private productDb: ProductDbService) {
-    this.loadProgress();
+  private currentUserId: string | null = null;
+
+  constructor(
+    private productDb: ProductDbService,
+    private notificationService: NotificationService,
+    private authService: AuthService
+  ) {
+    this.authService.currentUser$.subscribe(user => {
+      this.currentUserId = user?.id || null;
+      this.loadProgress(); // Reload data when user changes
+    });
     this.productDb.products$.subscribe(() => this.checkAndUnlockAchievements());
   }
 
   checkAndUnlockAchievements() {
-    const scanHistory = JSON.parse(localStorage.getItem('fatBoyProducts') || '[]');
-    const savedProducts = JSON.parse(localStorage.getItem('savedProducts') || '[]');
-    const contributions = JSON.parse(localStorage.getItem('communityContributions') || '[]');
+    const scanHistory = JSON.parse(localStorage.getItem(this.getProductsStorageKey()) || '[]');
+    const savedProducts = JSON.parse(localStorage.getItem(this.getSavedProductsStorageKey()) || '[]');
+    const contributions = JSON.parse(localStorage.getItem(this.getContributionsStorageKey()) || '[]');
     let newAchievementUnlocked = false;
 
     // Check scan-based achievements
@@ -80,10 +91,12 @@ export class GamificationService {
   }
 
   private unlockBadge(id: string) {
+    if (this.unlockedBadges.has(id)) return;
     this.unlockedBadges.add(id);
     const badge = this.allBadges.find(b => b.id === id);
-    // In a real app, we'd use a toast notification here.
-    alert(`🏆 Achievement Unlocked: ${badge?.name}!`);
+    if (badge) {
+      this.notificationService.showSuccess(`You've unlocked the "${badge.name}" badge!`, '🏆 Achievement Unlocked!');
+    }
   }
 
   private updateBadgesState() {
@@ -94,14 +107,32 @@ export class GamificationService {
     this.badgesSubject.next(updatedBadges);
   }
 
+  private getUnlockedBadgesStorageKey(): string {
+    return this.currentUserId ? `fatBoyUnlockedBadges_${this.currentUserId}` : 'fatBoyUnlockedBadges_anonymous';
+  }
+
+  private getProductsStorageKey(): string {
+    return this.currentUserId ? `fatBoyProducts_${this.currentUserId}` : 'fatBoyProducts_anonymous';
+  }
+
+  private getSavedProductsStorageKey(): string {
+    return this.currentUserId ? `savedProducts_${this.currentUserId}` : 'savedProducts_anonymous';
+  }
+
+  private getContributionsStorageKey(): string {
+    return this.currentUserId ? `communityContributions_${this.currentUserId}` : 'communityContributions_anonymous';
+  }
+
   private saveProgress() {
-    localStorage.setItem('fatBoyUnlockedBadges', JSON.stringify(Array.from(this.unlockedBadges)));
+    localStorage.setItem(this.getUnlockedBadgesStorageKey(), JSON.stringify(Array.from(this.unlockedBadges)));
   }
 
   private loadProgress() {
-    const saved = localStorage.getItem('fatBoyUnlockedBadges');
+    const saved = localStorage.getItem(this.getUnlockedBadgesStorageKey());
     if (saved) {
       this.unlockedBadges = new Set(JSON.parse(saved));
+    } else {
+      this.unlockedBadges = new Set();
     }
     this.updateBadgesState();
   }

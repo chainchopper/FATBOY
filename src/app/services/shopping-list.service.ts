@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { Product } from './product-db.service';
+import { AuthService } from './auth.service';
 
 export interface ShoppingListItem extends Product {
   purchased: boolean;
@@ -14,9 +15,13 @@ export class ShoppingListService {
   private listSubject = new BehaviorSubject<ShoppingListItem[]>([]);
   
   public list$ = this.listSubject.asObservable();
+  private currentUserId: string | null = null;
 
-  constructor() {
-    this.loadFromStorage();
+  constructor(private authService: AuthService) {
+    this.authService.currentUser$.subscribe(user => {
+      this.currentUserId = user?.id || null;
+      this.loadFromStorage(); // Reload data when user changes
+    });
   }
 
   addItem(product: Product): void {
@@ -53,15 +58,22 @@ export class ShoppingListService {
     this.listSubject.next([]);
   }
 
+  private getStorageKey(): string {
+    return this.currentUserId ? `fatBoyShoppingList_${this.currentUserId}` : 'fatBoyShoppingList_anonymous';
+  }
+
   private loadFromStorage(): void {
-    const stored = localStorage.getItem('fatBoyShoppingList');
+    const stored = localStorage.getItem(this.getStorageKey());
     if (stored) {
       this.shoppingList = JSON.parse(stored);
       this.listSubject.next([...this.shoppingList]);
+    } else {
+      this.shoppingList = [];
+      this.listSubject.next([]);
     }
   }
 
   private saveToStorage(): void {
-    localStorage.setItem('fatBoyShoppingList', JSON.stringify(this.shoppingList));
+    localStorage.setItem(this.getStorageKey(), JSON.stringify(this.shoppingList));
   }
 }

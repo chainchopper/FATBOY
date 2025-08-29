@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { GamificationService } from '../services/gamification.service';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-community',
@@ -20,18 +21,24 @@ export class CommunityComponent {
   };
 
   isSubmitted = false;
+  private currentUserId: string | null = null;
 
-  constructor(private gamificationService: GamificationService) {}
+  constructor(private gamificationService: GamificationService, private authService: AuthService) {
+    this.authService.currentUser$.subscribe(user => {
+      this.currentUserId = user?.id || null;
+    });
+  }
 
   submitContribution() {
-    const contributions = JSON.parse(localStorage.getItem('communityContributions') || '[]');
+    const storageKey = this.currentUserId ? `communityContributions_${this.currentUserId}` : 'communityContributions_anonymous';
+    const contributions = JSON.parse(localStorage.getItem(storageKey) || '[]');
     contributions.push({
       ...this.contribution,
       timestamp: new Date(),
       status: 'pending'
     });
     
-    localStorage.setItem('communityContributions', JSON.stringify(contributions));
+    localStorage.setItem(storageKey, JSON.stringify(contributions));
     this.isSubmitted = true;
     
     this.contribution = {
