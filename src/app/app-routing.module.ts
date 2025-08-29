@@ -6,6 +6,7 @@ import { SavedComponent } from './saved/saved.component';
 import { PreferencesComponent } from './preferences/preferences.component';
 import { OcrScannerComponent } from './ocr-scanner/ocr-scanner.component';
 import { OcrResultsComponent } from './ocr-results/ocr-results.component';
+import { HistoryComponent } from './history/history.component';
 
 const routes: Routes = [
   { path: '', redirectTo: '/scanner', pathMatch: 'full' },
@@ -14,7 +15,8 @@ const routes: Routes = [
   { path: 'saved', component: SavedComponent },
   { path: 'preferences', component: PreferencesComponent },
   { path: 'ocr-scanner', component: OcrScannerComponent },
-  { path: 'ocr-results', component: OcrResultsComponent }
+  { path: 'ocr-results', component: OcrResultsComponent },
+  { path: 'history', component: HistoryComponent }
 ];
 
 @NgModule({

@@ -1,0 +1,64 @@
+<div class="history-container">
+  <div class="history-header">
+    <h2>Scan History</h2>
+    <button (click)="clearHistory()" class="clear-btn">Clear All</button>
+  </div>
+
+  <div class="stats-section" *ngIf="stats.length > 0">
+    <h3>Most Frequently Avoided Ingredients</h3>
+    <div class="stats-grid">
+      <div *ngFor="let stat of stats.slice(0, 5)" class="stat-item">
+        <span class="stat-count">{{stat.count}}</span>
+        <span class="stat-ingredient">{{stat.ingredient}}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="category-filters">
+    <button 
+      (click)="filterByCategory(null)" 
+      [class.active]="selectedCategory === null"
+      class="category-btn">
+      All Scans
+    </button>
+    <button 
+      *ngFor="let category of ['natural', 'artificialSweeteners', 'artificialColors', 'preservatives']"
+      (click)="filterByCategory(category)" 
+      [class.active]="selectedCategory === category"
+      class="category-btn">
+      {{getCategoryIcon(category)}} {{category}}
+    </button>
+  </div>
+
+  <div class="products-list">
+    <div *ngFor="let product of filteredProducts" class="product-card" [class.bad]="product.verdict === 'bad'">
+      <div class="product-header">
+        <span class="verdict-badge" [class.good]="product.verdict === 'good'">
+          {{product.verdict === 'good' ? '✓' : '✗'}}
+        </span>
+        <h3>{{product.name}}</h3>
+        <button (click)="removeProduct(product.id)" class="remove-btn">×</button>
+      </div>
+      
+      <p class="product-brand">{{product.brand}}</p>
+      <p class="scan-date">{{product.scanDate | date:'medium'}}</p>
+      
+      <div class="product-categories">
+        <span *ngFor="let category of product.categories.slice(0, 3)" class="category-tag">
+          {{getCategoryIcon(category)}} {{category}}
+        </span>
+        <span *ngIf="product.categories.length > 3" class="more-categories">
+          +{{product.categories.length - 3}} more
+        </span>
+      </div>
+      
+      <div class="product-actions">
+        <button (click)="viewProduct(product)" class="view-btn">View Details</button>
+      </div>
+    </div>
+    
+    <div *ngIf="filteredProducts.length === 0" class="empty-state">
+      <p>No scan history yet. Start scanning products to build your history!</p>
+    </div>
+  </div>
+</div>

@@ -1,6 +1,8 @@
 import { Component, ElementRef, ViewChild, AfterViewInit } from '@angular/core';
 import { Router } from '@angular/router';
 import Tesseract from 'tesseract.js';
+import { IngredientParserService } from '../services/ingredient-parser.service';
+import { ProductDbService } from '../services/product-db.service';
 
 @Component({
   selector: 'app-ocr-scanner',
@@ -17,7 +19,11 @@ export class OcrScannerComponent implements AfterViewInit {
   isProcessing = false;
   stream: MediaStream | null = null;
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private ingredientParser: IngredientParserService,
+    private productDb: ProductDbService
+  ) {}
 
   async ngAfterViewInit() {
     await this.setupCamera();
@@ -67,61 +73,66 @@ export class OcrScannerComponent implements AfterViewInit {
   }
 
   processExtractedText(text: string) {
-    // Simple parsing logic - this would be enhanced with ML/NLP in production
-    const lines = text.split('\n').filter(line => line.trim().length > 0);
+    // Parse ingredients using our improved service
+    const ingredients = this.ingredientParser.parseIngredientList(text);
+    const categories = this.ingredientParser.categorizeProduct(ingredients);
     
-    // Try to identify product name, brand, and ingredients
+    // Get user preferences
+    const preferences = JSON.parse(localStorage.getItem('fatBoyPreferences') || '{}');
+    
+    // Evaluate product
+    const flaggedIngredients = this.evaluateIngredients(ingredients, preferences);
+    const verdict = flaggedIngredients.length === 0 ? 'good' : 'bad';
+    
+    // Create product object
     const productInfo = {
-      name: this.findProductName(lines),
-      brand: this.findBrand(lines),
-      ingredients: this.findIngredients(lines),
-      rawText: text
+      name: this.findProductName(text),
+      brand: this.findBrand(text),
+      ingredients,
+      verdict,
+      flaggedIngredients,
+      categories,
+      ocrText: text
     };
 
+    // Add to database
+    const product = this.productDb.addProduct(productInfo);
+    
     // Store for results page
-    sessionStorage.setItem('ocrProduct', JSON.stringify(productInfo));
+    sessionStorage.setItem('viewingProduct', JSON.stringify(product));
     this.router.navigate(['/ocr-results']);
   }
 
-  findProductName(lines: string[]): string {
-    // Simple heuristic - often the first non-empty line
+  evaluateIngredients(ingredients: string[], preferences: any): string[] {
+    const flagged: string[] = [];
+    
+    if (preferences.avoidArtificialSweeteners) {
+      ingredients.forEach(ingredient => {
+        const analysis = this.ingredientParser.analyzeIngredient(ingredient);
+        if (analysis.categories.includes('artificialSweeteners') && analysis.flagged) {
+          flagged.push(ingredient);
+        }
+      });
+    }
+    
+    // Add similar checks for other preference categories
+    
+    return flagged;
+  }
+
+  findProductName(text: string): string {
+    const lines = text.split('\n').filter(line => line.trim().length > 0);
     return lines[0] || 'Unknown Product';
   }
 
-  findBrand(lines: string[]): string {
-    // Look for common brand indicators
+  findBrand(text: string): string {
+    const lines = text.split('\n').filter(line => line.trim().length > 0);
     for (const line of lines) {
       if (line.match(/(inc|llc|co\.|corporation|company)/i)) {
         return line;
       }
     }
     return lines[1] || 'Unknown Brand';
-  }
-
-  findIngredients(lines: string[]): string[] {
-    // Look for ingredients section
-    let ingredientsStarted = false;
-    const ingredients: string[] = [];
-    
-    for (const line of lines) {
-      if (line.toLowerCase().includes('ingredients')) {
-        ingredientsStarted = true;
-        continue;
-      }
-      
-      if (ingredientsStarted) {
-        // Split by commas, semicolons, or other separators
-        const items = line.split(/[,;]/).map(item => item.trim()).filter(item => item);
-        ingredients.push(...items);
-        
-        // Stop if we hit another section (nutrition facts, etc.)
-        if (line.match(/(nutrition|allergen|contains)/i)) {
-          break;
-        }
-      }
-    }
-    
-    return ingredients.length > 0 ? ingredients : ['Ingredients not found'];
   }
 
   ngOnDestroy() {
