@@ -1,20 +1,4 @@
-# Dyad Angular Template
 
-A minimal Angular template for Dyad.sh - a clean starting point for building Angular applications.
-
-## Overview
-
-This template provides a minimal, unopinionated Angular application setup that's fully compatible with Dyad.sh's JavaScript-based environment. It includes:
-
-- Latest stable Angular (v17)
-- TypeScript support
-- CSS styling
-- Development server with hot reload
-- Production build configuration
-
-## Development
-
-To start the development server:
 
 ```bash
 npm run dev
