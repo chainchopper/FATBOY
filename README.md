@@ -81,4 +81,55 @@ fat-boy-app/
 └── index.js # Entry point
 
 
+## 🤖 How the AI Works
+
+1.  **Scan:** User scans a barcode.
+2.  **Fetch:** Product data (especially ingredients) is fetched from the Open Food Facts API.
+3.  **Parse & Classify:** Our fine-tuned model classifies each ingredient in the list (e.g., `"ascorbic acid"` -> `vitamin_c`, `"natural"`).
+4.  **Judge:** A rule engine compares the classified ingredients against the user's personalized "avoid list."
+5.  **Verdict:** A final verdict is generated and displayed to the user with a detailed breakdown.
+
+## 🛠️ Tech Stack
+
+*   **Frontend:** React Native
+*   **State Management:** React Context API / Redux Toolkit
+*   **Backend:** Node.js with Express
+*   **Database:** PostgreSQL (user data), Redis (caching)
+*   **AI/ML:** Python (PyTorch/TensorFlow) for model training, TensorFlow Lite for on-device inference (future)
+*   **API:** Open Food Facts
+*   **Testing:** Jest, React Native Testing Library
+
+## 🤝 How to Contribute
+
+We love contributions! Whether you're fixing a bug, improving the docs, or proposing a new feature, your help is welcome.
+
+1.  Fork the Project.
+2.  Create your Feature Branch (`git checkout -b feature/AmazingFeature`).
+3.  Commit your Changes (`git commit -m 'Add some AmazingFeature'`).
+4.  Push to the Branch (`git push origin feature/AmazingFeature`).
+5.  Open a Pull Request.
+
+Please read our `CONTRIBUTING.md` for details on our code of conduct and the process for submitting pull requests.
+
+## 📜 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+*   Data provided by the amazing [Open Food Facts](https://world.openfoodfacts.org/) community.
+*   Icons from [Material Design Icons](https://material.io/resources/icons/).
+*   The React Native community for incredible tools and support.
+
+## 📫 Contact
+
+**Your Name** - [@yourTwitter](https://twitter.com/yourTwitter) - email@example.com
+
+Project Link: [https://github.com/your-username/fat-boy-app](https://github.com/your-username/fat-boy-app)
+
+---
+
+<p align="center">
+Made with ❤️ and a desire for cleaner eating.
+</p>
 
