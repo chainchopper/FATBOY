@@ -25,4 +25,19 @@ export class SuggestionsComponent implements OnInit {
     localStorage.setItem('savedProducts', JSON.stringify(savedProducts));
     alert('Product saved to your list!');
   }
+
+  getCategoryIcon(category: string): string {
+    const icons: {[key: string]: string} = {
+      artificialSweeteners: '🧪',
+      artificialColors: '🎨',
+      preservatives: '🧴',
+      hfcs: '🌽',
+      msg: '🍜',
+      transFats: '🍔',
+      natural: '🌿',
+      allergens: '⚠️'
+    };
+    
+    return icons[category] || '📋';
+  }
 }

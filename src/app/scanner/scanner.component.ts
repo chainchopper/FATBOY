@@ -1,11 +1,13 @@
 import { Component, ElementRef, ViewChild, AfterViewInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
+import { CommonModule } from '@angular/common';
 import { Html5Qrcode } from 'html5-qrcode';
 import { OpenFoodFactsService } from '../services/open-food-facts.service';
 
 @Component({
   selector: 'app-scanner',
   standalone: true,
+  imports: [CommonModule, RouterLink],
   templateUrl: './scanner.component.html',
   styleUrls: ['./scanner.component.css']
 })
