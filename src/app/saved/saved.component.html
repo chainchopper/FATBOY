@@ -1,22 +1,24 @@
 <div class="saved-container">
   <h2>Your Saved Products</h2>
   
-  <div *ngIf="savedProducts.length === 0" class="empty-state">
-    <p>Your healthy pantry is waiting! Go scan some products.</p>
-  </div>
-  
-  <div class="products-grid">
-    <div *ngFor="let product of savedProducts; let i = index" class="product-card">
-      <span class="approved-badge">Approved</span>
-      <img [src]="product.image" alt="{{product.name}}" class="product-thumb">
-      <div class="product-info">
-        <h3>{{product.name}}</h3>
-        <p>{{product.brand}}</p>
-      </div>
-      <div class="product-actions">
-        <button class="action-btn" title="Star">⭐️</button>
-        <button class="action-btn" title="Share">🔗</button>
-        <button class="action-btn remove-btn" (click)="removeProduct(i)" title="Remove">🗑️</button>
+  <div *ngIf="(savedProducts$ | async) as products">
+    <div *ngIf="products.length === 0" class="empty-state">
+      <p>Your healthy pantry is waiting! Go scan some products.</p>
+    </div>
+    
+    <div class="products-grid">
+      <div *ngFor="let product of products" class="product-card">
+        <span class="approved-badge">Approved</span>
+        <img [src]="product.image" alt="{{product.name}}" class="product-thumb">
+        <div class="product-info">
+          <h3>{{product.name}}</h3>
+          <p>{{product.brand}}</p>
+        </div>
+        <div class="product-actions">
+          <button class="action-btn" title="Star">⭐️</button>
+          <button class="action-btn" title="Share">🔗</button>
+          <button class="action-btn remove-btn" (click)="removeProduct(product.id)" title="Remove">🗑️</button>
+        </div>
       </div>
     </div>
   </div>

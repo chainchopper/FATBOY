@@ -5,6 +5,7 @@ import { IngredientParserService } from '../services/ingredient-parser.service';
 import { ProductDbService, Product } from '../services/product-db.service';
 import { AudioService } from '../services/audio.service';
 import { ShoppingListService } from '../services/shopping-list.service';
+import { NotificationService } from '../services/notification.service';
 
 @Component({
   selector: 'app-results',
@@ -23,7 +24,8 @@ export class ResultsComponent implements OnInit {
     private ingredientParser: IngredientParserService,
     private productDb: ProductDbService,
     private audioService: AudioService,
-    private shoppingListService: ShoppingListService
+    private shoppingListService: ShoppingListService,
+    private notificationService: NotificationService
   ) {}
 
   ngOnInit() {
@@ -77,10 +79,10 @@ export class ResultsComponent implements OnInit {
   }
 
   saveProduct() {
-    const savedProducts = JSON.parse(localStorage.getItem('savedProducts') || '[]');
-    savedProducts.push(this.product);
-    localStorage.setItem('savedProducts', JSON.stringify(savedProducts));
-    alert('Product saved!');
+    // This function now effectively "stars" an item, as it's already in the history.
+    // In a real backend, this would set a `is_saved` flag.
+    // For now, we just show a notification.
+    this.notificationService.showSuccess(`${this.product.name} saved to your gallery!`);
   }
 
   addToShoppingList() {

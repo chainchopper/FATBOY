@@ -1,5 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ProductDbService, Product } from '../services/product-db.service';
+import { map } from 'rxjs/operators';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-saved',
@@ -9,17 +12,17 @@ import { CommonModule } from '@angular/common';
   styleUrls: ['./saved.component.css']
 })
 export class SavedComponent implements OnInit {
-  savedProducts: any[] = [];
+  savedProducts$!: Observable<Product[]>;
+
+  constructor(private productDb: ProductDbService) {}
 
   ngOnInit() {
-    const saved = localStorage.getItem('savedProducts');
-    if (saved) {
-      this.savedProducts = JSON.parse(saved);
-    }
+    this.savedProducts$ = this.productDb.products$.pipe(
+      map(products => products.filter(p => p.verdict === 'good'))
+    );
   }
 
-  removeProduct(index: number) {
-    this.savedProducts.splice(index, 1);
-    localStorage.setItem('savedProducts', JSON.stringify(this.savedProducts));
+  removeProduct(id: string) {
+    this.productDb.removeProduct(id);
   }
 }
