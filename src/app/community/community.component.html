@@ -1,0 +1,37 @@
+<div class="community-container">
+  <h2>Contribute to the Community</h2>
+  <p>Help others by submitting products not yet in our database.</p>
+  
+  <div *ngIf="isSubmitted" class="success-message">
+    <p>Thank you for your contribution! Your submission will be reviewed.</p>
+  </div>
+  
+  <form (ngSubmit)="submitContribution()" class="contribution-form">
+    <div class="form-group">
+      <label for="productName">Product Name</label>
+      <input type="text" id="productName" [(ngModel)]="contribution.productName" name="productName" required>
+    </div>
+    
+    <div class="form-group">
+      <label for="brand">Brand</label>
+      <input type="text" id="brand" [(ngModel)]="contribution.brand" name="brand" required>
+    </div>
+    
+    <div class="form-group">
+      <label for="barcode">Barcode (if available)</label>
+      <input type="text" id="barcode" [(ngModel)]="contribution.barcode" name="barcode">
+    </div>
+    
+    <div class="form-group">
+      <label for="ingredients">Ingredients (comma separated)</label>
+      <textarea id="ingredients" [(ngModel)]="contribution.ingredients" name="ingredients" rows="4" required></textarea>
+    </div>
+    
+    <div class="form-group">
+      <label for="notes">Additional Notes</label>
+      <textarea id="notes" [(ngModel)]="contribution.notes" name="notes" rows="3"></textarea>
+    </div>
+    
+    <button type="submit" class="submit-btn">Submit Contribution</button>
+  </form>
+</div>

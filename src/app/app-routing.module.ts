@@ -7,6 +7,8 @@ import { PreferencesComponent } from './preferences/preferences.component';
 import { OcrScannerComponent } from './ocr-scanner/ocr-scanner.component';
 import { OcrResultsComponent } from './ocr-results/ocr-results.component';
 import { HistoryComponent } from './history/history.component';
+import { CommunityComponent } from './community/community.component';
+import { SuggestionsComponent } from './suggestions/suggestions.component';
 
 const routes: Routes = [
   { path: '', redirectTo: '/scanner', pathMatch: 'full' },
@@ -16,7 +18,9 @@ const routes: Routes = [
   { path: 'preferences', component: PreferencesComponent },
   { path: 'ocr-scanner', component: OcrScannerComponent },
   { path: 'ocr-results', component: OcrResultsComponent },
-  { path: 'history', component: HistoryComponent }
+  { path: 'history', component: HistoryComponent },
+  { path: 'community', component: CommunityComponent },
+  { path: 'suggestions', component: SuggestionsComponent }
 ];
 
 @NgModule({

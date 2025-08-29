@@ -1,0 +1,35 @@
+<div class="suggestions-container">
+  <h2>Product Suggestions</h2>
+  <p>Based on your preferences and scanning history, here are some products you might like:</p>
+  
+  <div *ngIf="isLoading" class="loading">
+    <p>Finding the best products for you...</p>
+  </div>
+  
+  <div *ngIf="!isLoading && suggestions.length === 0" class="empty-state">
+    <p>Scan more products to get personalized suggestions!</p>
+  </div>
+  
+  <div class="suggestions-grid">
+    <div *ngFor="let suggestion of suggestions" class="suggestion-card">
+      <div class="similarity-badge">{{suggestion.similarity}}% match</div>
+      
+      <div class="suggestion-info">
+        <h3>{{suggestion.product.name}}</h3>
+        <p>{{suggestion.product.brand}}</p>
+        
+        <div class="product-categories">
+          <span *ngFor="let category of suggestion.product.categories.slice(0, 3)" class="category-tag">
+            {{getCategoryIcon(category)}} {{category}}
+          </span>
+        </div>
+        
+        <div class="ingredient-preview">
+          <p><strong>Ingredients:</strong> {{suggestion.product.ingredients.slice(0, 3).join(', ')}}...</p>
+        </div>
+      </div>
+      
+      <button (click)="saveSuggestion(suggestion.product)" class="save-btn">Save Product</button>
+    </div>
+  </div>
+</div>
