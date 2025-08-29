@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { NotificationService } from '../services/notification.service';
 
 @Component({
   selector: 'app-preferences',
@@ -21,9 +22,11 @@ export class PreferencesComponent {
     goal: 'avoidChemicals' // 'strictlyNatural', 'avoidChemicals', 'calorieCount'
   };
 
+  constructor(private notificationService: NotificationService) {}
+
   savePreferences() {
     localStorage.setItem('fatBoyPreferences', JSON.stringify(this.preferences));
-    alert('Preferences saved!');
+    this.notificationService.showSuccess('Preferences saved!');
   }
 
   ngOnInit() {

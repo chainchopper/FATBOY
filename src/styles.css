@@ -1,4 +1,4 @@
-/* You can add global styles to this file, and also import other style files */
+@import 'ngx-toastr/toastr.css';
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Roboto+Mono&display=swap');
 
 * {
@@ -17,4 +17,33 @@ body {
   background-color: #1a1a2e; /* Dark blue/purple background */
   color: #e0e0e0;
   font-family: 'Inter', sans-serif;
+}
+
+/* Custom Toastr Styling */
+.toast-container .ngx-toastr {
+  background-color: #1a1a2e;
+  border: 1px solid #f038ff;
+  color: #e0e0e0;
+  box-shadow: 0 0 15px rgba(240, 56, 255, 0.5);
+  backdrop-filter: blur(5px);
+  border-radius: 8px;
+}
+
+.toast-success {
+  border-color: #0abdc6 !important;
+  box-shadow: 0 0 15px rgba(10, 189, 198, 0.5) !important;
+}
+
+.toast-error {
+  border-color: #F44336 !important;
+  box-shadow: 0 0 15px rgba(244, 67, 54, 0.5) !important;
+}
+
+.toast-title {
+  color: #e0e0e0;
+  font-weight: bold;
+}
+
+.toast-message {
+  color: #a0a0c0;
 }

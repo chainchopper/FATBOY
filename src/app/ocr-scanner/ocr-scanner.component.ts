@@ -5,6 +5,7 @@ import Tesseract from 'tesseract.js';
 import { OcrEnhancerService } from '../services/ocr-enhancer.service';
 import { IngredientParserService } from '../services/ingredient-parser.service';
 import { ProductDbService, Product } from '../services/product-db.service';
+import { NotificationService } from '../services/notification.service';
 
 @Component({
   selector: 'app-ocr-scanner',
@@ -28,12 +29,15 @@ export class OcrScannerComponent implements AfterViewInit, OnDestroy {
     private router: Router,
     private ocrEnhancer: OcrEnhancerService,
     private ingredientParser: IngredientParserService,
-    private productDb: ProductDbService
+    private productDb: ProductDbService,
+    private notificationService: NotificationService
   ) {}
 
   async ngAfterViewInit() {
     await this.setupCameras();
-    this.startCamera();
+    if (this.cameras.length > 0) {
+      this.startCamera();
+    }
   }
 
   private async setupCameras() {
@@ -41,7 +45,7 @@ export class OcrScannerComponent implements AfterViewInit, OnDestroy {
       const devices = await navigator.mediaDevices.enumerateDevices();
       this.cameras = devices.filter(device => device.kind === 'videoinput');
       if (this.cameras.length === 0) {
-        alert('No cameras found.');
+        this.notificationService.showError('No cameras found on this device.');
         return;
       }
       
@@ -53,6 +57,7 @@ export class OcrScannerComponent implements AfterViewInit, OnDestroy {
 
     } catch (error) {
       console.error('Error setting up cameras:', error);
+      this.notificationService.showError('Could not enumerate camera devices.');
     }
   }
 
@@ -72,7 +77,7 @@ export class OcrScannerComponent implements AfterViewInit, OnDestroy {
       await video.play();
     } catch (error) {
       console.error('Error accessing camera for OCR:', error);
-      alert('Unable to access camera. Please allow camera permissions and try again.');
+      this.notificationService.showError('Unable to access camera. Please allow permissions.');
     }
   }
 
@@ -87,7 +92,39 @@ export class OcrScannerComponent implements AfterViewInit, OnDestroy {
 
   async captureImage(): Promise<void> {
     if (this.isProcessing) return;
-    // ... (rest of the captureImage method is unchanged)
+    const video = this.videoElement.nativeElement;
+    const canvas = this.canvasElement.nativeElement;
+
+    if (!video.videoWidth || !video.videoHeight) {
+      this.notificationService.showWarning('Camera not ready yet. Please try again.');
+      return;
+    }
+
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    this.isProcessing = true;
+
+    try {
+      const dataUrl = canvas.toDataURL('image/png');
+      const result = await Tesseract.recognize(dataUrl, 'eng');
+      const text = result.data?.text || '';
+
+      if (!text || text.trim().length === 0) {
+        this.notificationService.showWarning('No text detected. Please adjust lighting and try again.');
+        this.isProcessing = false;
+        return;
+      }
+
+      this.processExtractedText(text);
+    } catch (err) {
+      console.error('OCR error:', err);
+      this.notificationService.showError('Failed to process the image. Please try again.');
+      this.isProcessing = false;
+    }
   }
 
   private processExtractedText(text: string): void {
