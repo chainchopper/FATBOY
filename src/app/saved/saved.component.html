@@ -9,9 +9,15 @@
     <div *ngFor="let product of savedProducts; let i = index" class="product-card">
       <span class="approved-badge">Approved</span>
       <img [src]="product.image" alt="{{product.name}}" class="product-thumb">
-      <h3>{{product.name}}</h3>
-      <p>{{product.brand}}</p>
-      <button (click)="removeProduct(i)" class="remove-btn">Remove</button>
+      <div class="product-info">
+        <h3>{{product.name}}</h3>
+        <p>{{product.brand}}</p>
+      </div>
+      <div class="product-actions">
+        <button class="action-btn" title="Star">⭐️</button>
+        <button class="action-btn" title="Share">🔗</button>
+        <button class="action-btn remove-btn" (click)="removeProduct(i)" title="Remove">🗑️</button>
+      </div>
     </div>
   </div>
 </div>

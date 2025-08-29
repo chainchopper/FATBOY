@@ -5,6 +5,14 @@
   color: #e0e0e0;
 }
 
+h2 {
+  text-align: center;
+  margin-bottom: 2rem;
+  font-size: 1.8rem;
+  color: #0abdc6;
+  text-shadow: 0 0 8px #0abdc6;
+}
+
 .empty-state {
   text-align: center;
   padding: 40px;
@@ -13,29 +21,31 @@
 
 .products-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 25px;
   margin-top: 20px;
 }
 
 .product-card {
   background: rgba(15, 15, 30, 0.8);
   border: 1px solid #4a4a6e;
-  border-radius: 8px;
+  border-radius: 12px;
   padding: 15px;
   position: relative;
-  transition: all 0.3s;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
 }
 .product-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 0 15px #0abdc6;
+  box-shadow: 0 0 20px rgba(10, 189, 198, 0.6);
   border-color: #0abdc6;
 }
 
 .approved-badge {
   position: absolute;
-  top: 10px;
-  right: 10px;
+  top: 15px;
+  right: 15px;
   background: #0abdc6;
   color: #1a1a2e;
   padding: 4px 8px;
@@ -46,23 +56,57 @@
 
 .product-thumb {
   width: 100%;
-  height: 150px;
+  height: 180px;
   object-fit: cover;
-  border-radius: 4px;
-  margin-bottom: 10px;
+  border-radius: 8px;
+  margin-bottom: 15px;
 }
 
-.remove-btn {
+.product-info {
+  flex-grow: 1;
+  margin-bottom: 15px;
+}
+
+.product-info h3 {
+  margin: 0 0 5px 0;
+}
+
+.product-info p {
+  color: #a0a0c0;
+  font-size: 0.9rem;
+  text-align: left;
+}
+
+.product-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  border-top: 1px solid #4a4a6e;
+  padding-top: 15px;
+}
+
+.action-btn {
   background: transparent;
-  border: 1px solid #f038ff;
-  color: #f038ff;
-  padding: 8px 12px;
-  border-radius: 4px;
+  border: 1px solid #4a4a6e;
+  color: #a0a0c0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
   cursor: pointer;
-  margin-top: 10px;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   transition: all 0.3s;
 }
+.action-btn:hover {
+  background: rgba(10, 189, 198, 0.1);
+  border-color: #0abdc6;
+  color: #0abdc6;
+}
+
 .remove-btn:hover {
   background: rgba(240, 56, 255, 0.1);
-  box-shadow: 0 0 10px #f038ff;
+  border-color: #f038ff;
+  color: #f038ff;
 }
