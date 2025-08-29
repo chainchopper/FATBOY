@@ -6,6 +6,7 @@ import { ScannerComponent } from './scanner/scanner.component';
 import { ResultsComponent } from './results/results.component';
 import { SavedComponent } from './saved/saved.component';
 import { PreferencesComponent } from './preferences/preferences.component';
+import { HttpClientModule } from '@angular/common/http';
 
 @NgModule({
   declarations: [
@@ -17,7 +18,8 @@ import { PreferencesComponent } from './preferences/preferences.component';
   ],
   imports: [
     BrowserModule,
-    AppRoutingModule
+    AppRoutingModule,
+    HttpClientModule
   ],
   providers: [],
   bootstrap: [AppComponent]
