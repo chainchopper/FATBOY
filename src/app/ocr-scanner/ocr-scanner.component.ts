@@ -1,5 +1,6 @@
 import { Component, ElementRef, ViewChild, AfterViewInit, OnDestroy } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
+import { CommonModule } from '@angular/common';
 import Tesseract from 'tesseract.js';
 import { OcrEnhancerService } from '../services/ocr-enhancer.service';
 import { IngredientParserService } from '../services/ingredient-parser.service';
@@ -8,7 +9,7 @@ import { ProductDbService, Product } from '../services/product-db.service';
 @Component({
   selector: 'app-ocr-scanner',
   standalone: true,
-  imports: [RouterLink],
+  imports: [CommonModule, RouterLink],
   templateUrl: './ocr-scanner.component.html',
   styleUrls: ['./ocr-scanner.component.css']
 })

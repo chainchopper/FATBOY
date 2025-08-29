@@ -35,6 +35,14 @@
   font-size: 64px;
   margin-bottom: 15px;
   text-shadow: 0 0 15px;
+  transform: scale(0);
+  animation: popIn 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55) 0.3s forwards;
+}
+
+@keyframes popIn {
+  to {
+    transform: scale(1);
+  }
 }
 
 .product-info {
