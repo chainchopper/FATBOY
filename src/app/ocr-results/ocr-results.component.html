@@ -17,7 +17,7 @@
     <h3>Detected Ingredients:</h3>
     <ul>
       <li *ngFor="let ingredient of product.ingredients" 
-          [class.bad-ingredient]="flaggedIngredients.some(fi => ingredient.toLowerCase().includes(fi.toLowerCase()))">
+          [class.bad-ingredient]="isIngredientFlagged(ingredient)">
         {{ingredient}}
       </li>
     </ul>
