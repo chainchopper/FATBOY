@@ -14,7 +14,7 @@ import { ProductDbService, Product } from '../services/product-db.service';
 export class ResultsComponent implements OnInit {
   product: any;
   verdict: 'good' | 'bad' = 'bad';
-  flaggedIngredients: string[] = [];
+  flaggedItems: { ingredient: string, reason: string }[] = [];
 
   constructor(
     private router: Router,
@@ -34,45 +34,13 @@ export class ResultsComponent implements OnInit {
   }
 
   evaluateProduct() {
-    // Get user preferences
     const preferences = JSON.parse(localStorage.getItem('fatBoyPreferences') || '{}');
+    const ingredients = Array.isArray(this.product.ingredients) ? this.product.ingredients : [];
     
-    // Start clean
-    this.flaggedIngredients = [];
-
-    // Check common preferences
-    if (preferences.avoidArtificialSweeteners) {
-      const artificialSweeteners = ['aspartame', 'sucralose', 'saccharin'];
-      artificialSweeteners.forEach((sweetener: string) => {
-        if (this.product.ingredients?.some((ing: string) => 
-          String(ing).toLowerCase().includes(sweetener))) {
-          this.flaggedIngredients.push(sweetener);
-        }
-      });
-    }
+    const evaluation = this.ingredientParser.evaluateProduct(ingredients, this.product.calories, preferences);
     
-    if (preferences.avoidHFCS && this.product.ingredients?.some((ing: string) => 
-        String(ing).toLowerCase().includes('high-fructose corn syrup'))) {
-      this.flaggedIngredients.push('High-Fructose Corn Syrup');
-    }
-    
-    if (preferences.maxCalories && typeof this.product.calories === 'number' && this.product.calories > preferences.maxCalories) {
-      this.flaggedIngredients.push(`High calories (${this.product.calories})`);
-    }
-
-    // Also use parser's simple rules for broader coverage
-    const parserFlagged = this.ingredientParser.evaluateIngredients(
-      Array.isArray(this.product.ingredients) ? this.product.ingredients : [],
-      preferences
-    );
-    parserFlagged.forEach((f) => {
-      if (!this.flaggedIngredients.includes(f)) {
-        this.flaggedIngredients.push(f);
-      }
-    });
-    
-    // Determine verdict
-    this.verdict = this.flaggedIngredients.length === 0 ? 'good' : 'bad';
+    this.verdict = evaluation.verdict;
+    this.flaggedItems = evaluation.flaggedIngredients;
   }
 
   private addToHistory(): void {
@@ -91,7 +59,7 @@ export class ResultsComponent implements OnInit {
       image: this.product.image,
       categories,
       verdict: this.verdict,
-      flaggedIngredients: this.flaggedIngredients
+      flaggedIngredients: this.flaggedItems.map(f => f.ingredient)
     };
 
     const saved = this.productDb.addProduct(productInfo);

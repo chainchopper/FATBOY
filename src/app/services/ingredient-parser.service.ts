@@ -6,65 +6,99 @@ export interface IngredientAnalysis {
   reason?: string;
 }
 
+export interface ProductEvaluation {
+  verdict: 'good' | 'bad';
+  flaggedIngredients: { ingredient: string, reason: string }[];
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class IngredientParserService {
-  // Add the missing analyzeIngredient method
-  analyzeIngredient(ingredient: string): IngredientAnalysis {
-    // Simple implementation - flag ingredients containing "artificial" or "preservative"
-    const lowerIngredient = ingredient.toLowerCase();
-    const flagged = lowerIngredient.includes('artificial') || lowerIngredient.includes('preservative');
-    
+
+  private readonly AVOID_LISTS: { [key: string]: string[] } = {
+    avoidArtificialSweeteners: ['aspartame', 'sucralose', 'saccharin', 'acesulfame potassium', 'neotame', 'advantame'],
+    avoidArtificialColors: ['red 40', 'yellow 5', 'yellow 6', 'blue 1', 'blue 2', 'green 3', 'fd&c'],
+    avoidHFCS: ['high-fructose corn syrup', 'hfcs'],
+    avoidPreservatives: ['bht', 'bha', 'sodium benzoate', 'potassium sorbate', 'sodium nitrate', 'sodium nitrite', 'sulfites', 'tbhq'],
+    avoidMSG: ['monosodium glutamate', 'msg'],
+    avoidTransFats: ['partially hydrogenated', 'hydrogenated oil']
+  };
+
+  evaluateProduct(ingredients: string[], calories: number | undefined, preferences: any): ProductEvaluation {
+    const flagged: { ingredient: string, reason: string }[] = [];
+
+    // 1. Check ingredients against preference lists
+    for (const key in this.AVOID_LISTS) {
+      if (preferences[key]) {
+        this.AVOID_LISTS[key].forEach(avoidItem => {
+          ingredients.forEach(ingredient => {
+            if (ingredient.toLowerCase().includes(avoidItem)) {
+              if (!flagged.some(f => f.ingredient === ingredient)) {
+                flagged.push({ ingredient, reason: this.getReasonForKey(key) });
+              }
+            }
+          });
+        });
+      }
+    }
+
+    // 2. Check calorie limit
+    if (preferences.maxCalories && calories && calories > preferences.maxCalories) {
+      flagged.push({ ingredient: `Calories (${calories})`, reason: `Exceeds your limit of ${preferences.maxCalories}` });
+    }
+
     return {
-      categories: this.getCategoriesForIngredient(lowerIngredient),
-      flagged: flagged,
-      reason: flagged ? 'Contains artificial ingredients or preservatives' : undefined
+      verdict: flagged.length === 0 ? 'good' : 'bad',
+      flaggedIngredients: flagged
     };
   }
 
-  // Add the missing categorizeProduct method
+  private getReasonForKey(key: string): string {
+    const reasons: { [key: string]: string } = {
+      avoidArtificialSweeteners: 'Artificial Sweetener',
+      avoidArtificialColors: 'Artificial Color',
+      avoidHFCS: 'High-Fructose Corn Syrup',
+      avoidPreservatives: 'Preservative',
+      avoidMSG: 'MSG',
+      avoidTransFats: 'Trans Fat'
+    };
+    return reasons[key] || 'Flagged Ingredient';
+  }
+
   categorizeProduct(ingredients: string[]): string[] {
     const categories = new Set<string>();
-    
     ingredients.forEach(ingredient => {
       const lowerIngredient = ingredient.toLowerCase();
-      const analysis = this.analyzeIngredient(lowerIngredient);
-      analysis.categories.forEach(category => categories.add(category));
+      for (const key in this.AVOID_LISTS) {
+        this.AVOID_LISTS[key].forEach(avoidItem => {
+          if (lowerIngredient.includes(avoidItem)) {
+            categories.add(this.getCategoryNameForKey(key));
+          }
+        });
+      }
     });
-    
+    if (categories.size === 0) {
+      categories.add('natural');
+    }
     return Array.from(categories);
   }
 
-  // Helper method to categorize individual ingredients
-  private getCategoriesForIngredient(ingredient: string): string[] {
-    const categories: string[] = [];
-    
-    if (ingredient.includes('artificial')) {
-      categories.push('artificial');
-    }
-    if (ingredient.includes('preservative')) {
-      categories.push('preservatives');
-    }
-    if (ingredient.includes('sweetener')) {
-      categories.push('sweeteners');
-    }
-    if (ingredient.includes('natural')) {
-      categories.push('natural');
-    }
-    
-    return categories.length > 0 ? categories : ['other'];
+  private getCategoryNameForKey(key: string): string {
+    const names: { [key: string]: string } = {
+      avoidArtificialSweeteners: 'artificialSweeteners',
+      avoidArtificialColors: 'artificialColors',
+      avoidHFCS: 'hfcs',
+      avoidPreservatives: 'preservatives',
+      avoidMSG: 'msg',
+      avoidTransFats: 'transFats'
+    };
+    return names[key] || 'other';
   }
-
-  // Existing method
+  
+  // This is a simplified version for broad checks, the main logic is now in evaluateProduct
   evaluateIngredients(ingredients: string[], preferences: any): string[] {
-    const flagged: string[] = [];
-    ingredients.forEach(ingredient => {
-      const analysis = this.analyzeIngredient(ingredient);
-      if (analysis.flagged) {
-        flagged.push(ingredient);
-      }
-    });
-    return flagged;
+    const evaluation = this.evaluateProduct(ingredients, undefined, preferences);
+    return evaluation.flaggedIngredients.map(f => f.ingredient);
   }
 }

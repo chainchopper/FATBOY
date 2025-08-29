@@ -23,11 +23,11 @@
     </ul>
   </div>
 
-  <div class="flagged-items" *ngIf="flaggedIngredients.length > 0">
-    <h3>Flagged Ingredients:</h3>
+  <div class="flagged-items" *ngIf="flaggedItems.length > 0">
+    <h3>Flagged Items:</h3>
     <ul>
-      <li *ngFor="let ingredient of flaggedIngredients" class="bad-ingredient">
-        ⚠️ {{ingredient}}
+      <li *ngFor="let item of flaggedItems" class="bad-ingredient">
+        ⚠️ <strong>{{item.ingredient}}:</strong> {{item.reason}}
       </li>
     </ul>
   </div>

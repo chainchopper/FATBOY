@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { Product } from '../services/product-db.service';
+import { IngredientParserService } from '../services/ingredient-parser.service';
 
 @Component({
   selector: 'app-ocr-results',
@@ -13,9 +14,12 @@ import { Product } from '../services/product-db.service';
 export class OcrResultsComponent implements OnInit {
   product: Product | null = null;
   verdict: 'good' | 'bad' = 'bad';
-  flaggedIngredients: string[] = [];
+  flaggedItems: { ingredient: string, reason: string }[] = [];
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private ingredientParser: IngredientParserService
+  ) {}
 
   ngOnInit(): void {
     const productData = sessionStorage.getItem('viewingProduct');
@@ -30,18 +34,15 @@ export class OcrResultsComponent implements OnInit {
   private evaluateProduct(): void {
     if (!this.product) return;
 
-    // Get user preferences
     const preferences = JSON.parse(localStorage.getItem('fatBoyPreferences') || '{}');
-    
-    // Simple evaluation based on flagged ingredients from the product
-    this.flaggedIngredients = this.product.flaggedIngredients;
-    this.verdict = this.flaggedIngredients.length === 0 ? 'good' : 'bad';
+    const evaluation = this.ingredientParser.evaluateProduct(this.product.ingredients, this.product.calories, preferences);
+
+    this.verdict = evaluation.verdict;
+    this.flaggedItems = evaluation.flaggedIngredients;
   }
 
   isIngredientFlagged(ingredient: string): boolean {
-    return this.flaggedIngredients.some(fi => 
-      ingredient.toLowerCase().includes(fi.toLowerCase())
-    );
+    return this.flaggedItems.some(fi => fi.ingredient.toLowerCase() === ingredient.toLowerCase());
   }
 
   saveProduct(): void {
