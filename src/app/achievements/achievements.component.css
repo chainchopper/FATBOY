@@ -1,0 +1,83 @@
+.achievements-container {
+  max-width: 1000px;
+  margin: 2rem auto;
+  padding: 20px;
+  color: #e0e0e0;
+}
+
+h2 {
+  text-align: center;
+  margin-bottom: 1rem;
+  font-size: 1.8rem;
+  color: #0abdc6;
+  text-shadow: 0 0 8px #0abdc6;
+}
+
+p {
+  text-align: center;
+  margin-bottom: 2rem;
+  color: #a0a0c0;
+}
+
+.achievements-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.achievement-card {
+  background: rgba(15, 15, 30, 0.8);
+  border: 1px solid #4a4a6e;
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  opacity: 0.4;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.achievement-card.unlocked {
+  opacity: 1;
+  border-color: #f038ff;
+  box-shadow: 0 0 15px rgba(240, 56, 255, 0.5);
+}
+
+.badge-icon {
+  font-size: 3rem;
+  filter: grayscale(100%);
+}
+
+.achievement-card.unlocked .badge-icon {
+  filter: grayscale(0%);
+  text-shadow: 0 0 10px #fff;
+}
+
+.badge-info h3 {
+  margin: 0 0 5px 0;
+  color: #a0a0c0;
+}
+
+.achievement-card.unlocked .badge-info h3 {
+  color: #f038ff;
+}
+
+.badge-info p {
+  margin: 0;
+  font-size: 0.9rem;
+  text-align: left;
+  color: #888;
+}
+
+.achievement-card.unlocked .badge-info p {
+  color: #a0a0c0;
+}
+
+.lock-icon {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 1.5rem;
+  opacity: 0.5;
+}

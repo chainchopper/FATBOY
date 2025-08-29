@@ -9,6 +9,7 @@ import { HistoryComponent } from './history/history.component';
 import { SuggestionsComponent } from './suggestions/suggestions.component';
 import { CommunityComponent } from './community/community.component';
 import { ShoppingListComponent } from './shopping-list/shopping-list.component';
+import { AchievementsComponent } from './achievements/achievements.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/scanner', pathMatch: 'full' },
@@ -21,5 +22,6 @@ export const routes: Routes = [
   { path: 'history', component: HistoryComponent },
   { path: 'suggestions', component: SuggestionsComponent },
   { path: 'community', component: CommunityComponent },
-  { path: 'shopping-list', component: ShoppingListComponent }
+  { path: 'shopping-list', component: ShoppingListComponent },
+  { path: 'achievements', component: AchievementsComponent }
 ];

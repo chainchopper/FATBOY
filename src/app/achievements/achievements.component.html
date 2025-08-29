@@ -1,0 +1,15 @@
+<div class="achievements-container">
+  <h2>Your Achievements</h2>
+  <p>Unlock badges by scanning products, making healthy choices, and helping the community.</p>
+  
+  <div class="achievements-grid" *ngIf="(badges$ | async) as badges">
+    <div *ngFor="let badge of badges" class="achievement-card" [class.unlocked]="badge.unlocked">
+      <div class="badge-icon">{{badge.icon}}</div>
+      <div class="badge-info">
+        <h3>{{badge.name}}</h3>
+        <p>{{badge.description}}</p>
+      </div>
+      <div *ngIf="!badge.unlocked" class="lock-icon">🔒</div>
+    </div>
+  </div>
+</div>

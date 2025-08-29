@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { GamificationService } from '../services/gamification.service';
 
 @Component({
   selector: 'app-community',
@@ -19,6 +20,8 @@ export class CommunityComponent {
   };
 
   isSubmitted = false;
+
+  constructor(private gamificationService: GamificationService) {}
 
   submitContribution() {
     const contributions = JSON.parse(localStorage.getItem('communityContributions') || '[]');
@@ -39,6 +42,8 @@ export class CommunityComponent {
       notes: ''
     };
     
+    this.gamificationService.checkAndUnlockAchievements();
+
     setTimeout(() => {
       this.isSubmitted = false;
     }, 3000);
