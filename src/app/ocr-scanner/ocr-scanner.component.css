@@ -14,13 +14,18 @@
   color: white;
 }
 
-.switch-mode-btn {
+.switch-mode-btn, .switch-camera-btn {
   background: none;
   border: 1px solid #0abdc6;
   color: #0abdc6;
   padding: 8px 16px;
   border-radius: 4px;
   cursor: pointer;
+}
+
+.switch-camera-btn {
+  font-size: 1.5rem;
+  padding: 4px 12px;
 }
 
 .camera-preview {
@@ -33,9 +38,14 @@
 }
 
 .video-element {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  min-width: 100%;
+  min-height: 100%;
+  width: auto;
+  height: auto;
+  transform: translate(-50%, -50%);
 }
 
 .viewfinder {
@@ -52,8 +62,8 @@
 }
 
 .scan-area {
-  width: 90vw; /* Make it 90% of the viewport width */
-  height: 300px; /* Increase the height */
+  width: 90vw;
+  height: 300px;
   border: 2px dashed #f038ff;
   box-shadow: 0 0 15px #f038ff;
   border-radius: 8px;
@@ -75,7 +85,7 @@
 
 @keyframes sweep-ocr {
   0% { transform: translateY(0); }
-  50% { transform: translateY(297px); } /* Updated for new height */
+  50% { transform: translateY(297px); }
   100% { transform: translateY(0); }
 }
 
@@ -114,16 +124,4 @@
   background-color: #1a1a2e;
   color: #e0e0e0;
   border-top: 1px solid #f038ff;
-}
-
-.instructions h3 {
-  margin-bottom: 10px;
-}
-
-.instructions ul {
-  padding-left: 20px;
-}
-
-.instructions li {
-  margin-bottom: 5px;
 }
