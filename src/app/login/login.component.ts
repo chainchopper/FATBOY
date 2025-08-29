@@ -1,21 +1,26 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { SupabaseAuthUiComponent, SocialButton } from '@supabase/auth-ui-angular';
+import { supabase } from '../../integrations/supabase/client';
 import { Provider } from '@supabase/supabase-js';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, SupabaseAuthUiComponent],
+  imports: [CommonModule],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']
 })
 export class LoginComponent {
-  socialProviders: Provider[] = ['google', 'facebook', 'apple', 'discord', 'github'];
-  
-  // Customizing the social button appearance
-  socialButtons: SocialButton[] = this.socialProviders.map(provider => ({
-    provider,
-    classes: `custom-social-button ${provider}-button`
-  }));
+  providers: Provider[] = ['google', 'facebook', 'apple', 'discord', 'github'];
+
+  async signInWith(provider: Provider) {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: provider,
+    });
+    if (error) {
+      console.error('Error signing in:', error.message);
+      // In a real app, we would show a user-friendly error message here.
+      alert('Error signing in: ' + error.message);
+    }
+  }
 }

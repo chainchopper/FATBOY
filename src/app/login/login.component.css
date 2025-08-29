@@ -28,19 +28,26 @@
   margin-bottom: 2rem;
 }
 
-/* This targets the Supabase component's container */
-:host ::ng-deep .supa-auth-ui-container {
-  --brand: #f038ff;
-  --brand-accent: #0abdc6;
-  --brand-button-text: #1a1a2e;
-  --default-button-bg: #1a1a2e;
-  --default-button-bg-hover: #2a2a4e;
-  --default-button-border: #4a4a6e;
-  --default-button-text: #e0e0e0;
-  --input-bg: #1a1a2e;
-  --input-border: #4a4a6e;
-  --input-text-color: #e0e0e0;
-  --input-label-text-color: #a0a0c0;
-  --divider-bg: #4a4a6e;
-  --message-text-color: #a0a0c0;
+.social-providers {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.social-btn {
+  padding: 12px 20px;
+  border-radius: 8px;
+  border: 1px solid #4a4a6e;
+  background-color: #1a1a2e;
+  color: #e0e0e0;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-transform: capitalize;
+}
+
+.social-btn:hover {
+  border-color: #0abdc6;
+  box-shadow: 0 0 10px #0abdc6;
+  color: #0abdc6;
 }
