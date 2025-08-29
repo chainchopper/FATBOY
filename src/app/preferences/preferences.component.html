@@ -1,0 +1,61 @@
+<div class="preferences-container">
+  <h2>Your Food Preferences</h2>
+  
+  <div class="preference-section">
+    <h3>What do you want to avoid?</h3>
+    
+    <div class="preference-item">
+      <input type="checkbox" id="avoidArtificialSweeteners" [(ngModel)]="preferences.avoidArtificialSweeteners">
+      <label for="avoidArtificialSweeteners">Artificial Sweeteners (Aspartame, Sucralose)</label>
+    </div>
+    
+    <div class="preference-item">
+      <input type="checkbox" id="avoidArtificialColors" [(ngModel)]="preferences.avoidArtificialColors">
+      <label for="avoidArtificialColors">Artificial Colors (Red #40, Yellow #5)</label>
+    </div>
+    
+    <div class="preference-item">
+      <input type="checkbox" id="avoidHFCS" [(ngModel)]="preferences.avoidHFCS">
+      <label for="avoidHFCS">High-Fructose Corn Syrup</label>
+    </div>
+    
+    <div class="preference-item">
+      <input type="checkbox" id="avoidPreservatives" [(ngModel)]="preferences.avoidPreservatives">
+      <label for="avoidPreservatives">Preservatives (BHT, Sodium Benzoate)</label>
+    </div>
+    
+    <div class="preference-item">
+      <input type="checkbox" id="avoidMSG" [(ngModel)]="preferences.avoidMSG">
+      <label for="avoidMSG">MSG</label>
+    </div>
+    
+    <div class="preference-item">
+      <input type="checkbox" id="avoidTransFats" [(ngModel)]="preferences.avoidTransFats">
+      <label for="avoidTransFats">Trans Fats</label>
+    </div>
+  </div>
+  
+  <div class="preference-section">
+    <h3>Set your limits:</h3>
+    <div class="calorie-slider">
+      <label for="maxCalories">Max Calories per Serving: {{preferences.maxCalories}}</label>
+      <input type="range" id="maxCalories" min="0" max="500" step="10" [(ngModel)]="preferences.maxCalories">
+    </div>
+  </div>
+  
+  <div class="preference-section">
+    <h3>Your Goal:</h3>
+    <div class="goal-selector">
+      <input type="radio" id="strictlyNatural" name="goal" value="strictlyNatural" [(ngModel)]="preferences.goal">
+      <label for="strictlyNatural">Strictly Natural</label>
+      
+      <input type="radio" id="avoidChemicals" name="goal" value="avoidChemicals" [(ngModel)]="preferences.goal">
+      <label for="avoidChemicals">Avoid Chemicals</label>
+      
+      <input type="radio" id="calorieCount" name="goal" value="calorieCount" [(ngModel)]="preferences.goal">
+      <label for="calorieCount">Calorie Count</label>
+    </div>
+  </div>
+  
+  <button class="save-btn" (click)="savePreferences()">Save Preferences</button>
+</div>

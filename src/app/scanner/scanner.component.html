@@ -1,0 +1,27 @@
+<div class="scanner-container">
+  <div class="scanner-header">
+    <h2>Scan Product</h2>
+    <button routerLink="/preferences" class="preferences-btn">Preferences</button>
+  </div>
+  
+  <div id="reader" #reader class="scanner-viewport">
+    <div class="viewfinder"></div>
+  </div>
+  
+  <div class="scanner-controls">
+    <button 
+      *ngIf="!isScanning" 
+      (click)="startScanning()" 
+      class="scan-btn"
+      [class.pulse]="!isScanning">
+      Start Scanning
+    </button>
+    
+    <button 
+      *ngIf="isScanning" 
+      (click)="stopScanning()" 
+      class="stop-btn">
+      Stop Scanning
+    </button>
+  </div>
+</div>

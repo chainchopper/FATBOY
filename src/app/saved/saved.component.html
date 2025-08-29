@@ -1,0 +1,17 @@
+<div class="saved-container">
+  <h2>Your Saved Products</h2>
+  
+  <div *ngIf="savedProducts.length === 0" class="empty-state">
+    <p>Your healthy pantry is waiting! Go scan some products.</p>
+  </div>
+  
+  <div class="products-grid">
+    <div *ngFor="let product of savedProducts; let i = index" class="product-card">
+      <span class="approved-badge">Approved</span>
+      <img [src]="product.image" alt="{{product.name}}" class="product-thumb">
+      <h3>{{product.name}}</h3>
+      <p>{{product.brand}}</p>
+      <button (click)="removeProduct(i)" class="remove-btn">Remove</button>
+    </div>
+  </div>
+</div>

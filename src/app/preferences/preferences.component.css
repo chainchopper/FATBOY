@@ -1,0 +1,63 @@
+.preferences-container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: 'Inter', sans-serif;
+}
+
+.preference-section {
+  margin-bottom: 30px;
+  padding: 20px;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+}
+
+.preference-item {
+  margin: 10px 0;
+  display: flex;
+  align-items: center;
+}
+
+.preference-item input[type="checkbox"] {
+  margin-right: 10px;
+}
+
+.calorie-slider {
+  margin: 15px 0;
+}
+
+.calorie-slider input[type="range"] {
+  width: 100%;
+  margin-top: 10px;
+}
+
+.goal-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.goal-selector label {
+  display: flex;
+  align-items: center;
+}
+
+.goal-selector input[type="radio"] {
+  margin-right: 10px;
+}
+
+.save-btn {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
+  display: block;
+  margin: 0 auto;
+}
+
+.save-btn:hover {
+  background-color: #45a049;
+}

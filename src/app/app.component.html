@@ -1,4 +1,12 @@
-<div class="container">
-  <h1>Interactive Story Game</h1>
-  <app-story-game></app-story-game>
-</div>
+<nav class="main-nav">
+  <h1>{{title}}</h1>
+  <div class="nav-links">
+    <a routerLink="/scanner" routerLinkActive="active">Scanner</a>
+    <a routerLink="/saved" routerLinkActive="active">Saved</a>
+    <a routerLink="/preferences" routerLinkActive="active">Preferences</a>
+  </div>
+</nav>
+
+<main>
+  <router-outlet></router-outlet>
+</main>

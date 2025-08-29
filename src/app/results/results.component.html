@@ -1,0 +1,33 @@
+<div class="results-container" [class.good]="verdict === 'good'" [class.bad]="verdict === 'bad'">
+  <div class="verdict-card">
+    <div class="verdict-icon">
+      <span *ngIf="verdict === 'good'">✓</span>
+      <span *ngIf="verdict === 'bad'">✗</span>
+    </div>
+    <h2 *ngIf="verdict === 'good'">Fat Boy Approved!</h2>
+    <h2 *ngIf="verdict === 'bad'">Contains Items You Avoid</h2>
+  </div>
+
+  <div class="product-info">
+    <img [src]="product.image" alt="{{product.name}}" class="product-image">
+    <h3>{{product.name}}</h3>
+    <p>{{product.brand}}</p>
+  </div>
+
+  <div class="ingredient-breakdown">
+    <h3>Why this rating?</h3>
+    <ul>
+      <li *ngFor="let ingredient of flaggedIngredients" class="bad-ingredient">
+        ⚠️ {{ingredient}}
+      </li>
+      <li *ngIf="flaggedIngredients.length === 0" class="good-ingredient">
+        No ingredients match your avoid list
+      </li>
+    </ul>
+  </div>
+
+  <div class="action-buttons">
+    <button (click)="scanAgain()" class="outline-btn">Scan Again</button>
+    <button *ngIf="verdict === 'good'" (click)="saveProduct()" class="filled-btn">Save Product</button>
+  </div>
+</div>
