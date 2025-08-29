@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { IngredientParserService } from '../services/ingredient-parser.service';
 import { ProductDbService, Product } from '../services/product-db.service';
 import { AudioService } from '../services/audio.service';
+import { ShoppingListService } from '../services/shopping-list.service';
 
 @Component({
   selector: 'app-results',
@@ -21,7 +22,8 @@ export class ResultsComponent implements OnInit {
     private router: Router,
     private ingredientParser: IngredientParserService,
     private productDb: ProductDbService,
-    private audioService: AudioService
+    private audioService: AudioService,
+    private shoppingListService: ShoppingListService
   ) {}
 
   ngOnInit() {
@@ -79,6 +81,13 @@ export class ResultsComponent implements OnInit {
     savedProducts.push(this.product);
     localStorage.setItem('savedProducts', JSON.stringify(savedProducts));
     alert('Product saved!');
+  }
+
+  addToShoppingList() {
+    const productFromHistory = this.productDb.getProductById(JSON.parse(sessionStorage.getItem('viewingProduct') || '{}').id);
+    if (productFromHistory) {
+      this.shoppingListService.addItem(productFromHistory);
+    }
   }
 
   scanAgain() {

@@ -1,0 +1,25 @@
+<div class="shopping-list-container">
+  <div class="list-header">
+    <h2>Your Shopping List</h2>
+    <button (click)="clearList()" class="clear-btn">Clear All</button>
+  </div>
+
+  <div *ngIf="(shoppingList$ | async) as list">
+    <div *ngIf="list.length === 0" class="empty-state">
+      <p>Your shopping list is empty. Add approved products from the results or saved pages!</p>
+    </div>
+
+    <ul class="list-items">
+      <li *ngFor="let item of list" class="list-item" [class.purchased]="item.purchased">
+        <div class="item-info">
+          <input type="checkbox" [checked]="item.purchased" (change)="toggleItem(item.id)">
+          <div class="item-details">
+            <span class="item-name">{{ item.name }}</span>
+            <span class="item-brand">{{ item.brand }}</span>
+          </div>
+        </div>
+        <button (click)="removeItem(item.id)" class="remove-btn">×</button>
+      </li>
+    </ul>
+  </div>
+</div>
