@@ -1,16 +1,24 @@
 <nav class="main-nav">
   <h1>{{title}}</h1>
-  <div class="nav-links">
-    <a routerLink="/scanner" routerLinkActive="active">📱 Barcode Scan</a>
-    <a routerLink="/ocr-scanner" routerLinkActive="active">📄 Label Scan</a>
-    <a routerLink="/saved" routerLinkActive="active">❤️ Saved</a>
-    <a routerLink="/history" routerLinkActive="active">📖 History</a>
-    <a routerLink="/shopping-list" routerLinkActive="active">🛒 Shopping List</a>
-    <a routerLink="/suggestions" routerLinkActive="active">💡 Suggestions</a>
-    <a routerLink="/community" routerLinkActive="active">🤝 Community</a>
-    <a routerLink="/preferences" routerLinkActive="active">⚙️ Preferences</a>
-  </div>
+  <button class="hamburger-menu" (click)="toggleMenu()" [class.open]="isMenuOpen" aria-label="Toggle menu">
+    <div class="bar"></div>
+    <div class="bar"></div>
+    <div class="bar"></div>
+  </button>
 </nav>
+
+<div class="nav-overlay" [class.open]="isMenuOpen" (click)="closeMenu()">
+  <div class="nav-menu" (click)="$event.stopPropagation()">
+    <a routerLink="/scanner" routerLinkActive="active" (click)="closeMenu()">📱 Barcode Scan</a>
+    <a routerLink="/ocr-scanner" routerLinkActive="active" (click)="closeMenu()">📄 Label Scan</a>
+    <a routerLink="/saved" routerLinkActive="active" (click)="closeMenu()">❤️ Saved</a>
+    <a routerLink="/history" routerLinkActive="active" (click)="closeMenu()">📖 History</a>
+    <a routerLink="/shopping-list" routerLinkActive="active" (click)="closeMenu()">🛒 Shopping List</a>
+    <a routerLink="/suggestions" routerLinkActive="active" (click)="closeMenu()">💡 Suggestions</a>
+    <a routerLink="/community" routerLinkActive="active" (click)="closeMenu()">🤝 Community</a>
+    <a routerLink="/preferences" routerLinkActive="active" (click)="closeMenu()">⚙️ Preferences</a>
+  </div>
+</div>
 
 <main>
   <router-outlet></router-outlet>

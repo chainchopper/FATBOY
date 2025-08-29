@@ -11,4 +11,13 @@ import { CommonModule } from '@angular/common';
 })
 export class AppComponent {
   title = 'Fat Boy - Scan. Know. Choose.';
+  isMenuOpen = false;
+
+  toggleMenu(): void {
+    this.isMenuOpen = !this.isMenuOpen;
+  }
+
+  closeMenu(): void {
+    this.isMenuOpen = false;
+  }
 }
