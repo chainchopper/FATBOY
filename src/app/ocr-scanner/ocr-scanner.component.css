@@ -62,7 +62,7 @@
 }
 
 .scan-area {
-  width: 90vw;
+  width: 95vw;
   height: 300px;
   border: 2px dashed #f038ff;
   box-shadow: 0 0 15px #f038ff;
@@ -100,7 +100,9 @@
 .controls {
   padding: 20px;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
 }
 
 .capture-btn {
@@ -119,9 +121,8 @@
   cursor: not-allowed;
 }
 
-.instructions {
-  padding: 20px;
-  background-color: #1a1a2e;
-  color: #e0e0e0;
-  border-top: 1px solid #f038ff;
+.tagline {
+  font-size: 0.9rem;
+  color: #a0a0c0;
+  text-shadow: 0 0 5px #0abdc6;
 }
