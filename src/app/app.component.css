@@ -10,12 +10,6 @@
   z-index: 1001;
 }
 
-.main-nav h1 {
-  font-size: 1.2rem;
-  color: #e0e0e0;
-  text-shadow: 0 0 5px #f038ff;
-}
-
 /* Hamburger Menu Button */
 .hamburger-menu {
   display: flex;
