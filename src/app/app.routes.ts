@@ -12,20 +12,22 @@ import { ShoppingListComponent } from './shopping-list/shopping-list.component';
 import { AchievementsComponent } from './achievements/achievements.component';
 import { LoginComponent } from './login/login.component';
 import { FoodDiaryComponent } from './food-diary/food-diary.component';
+import { AuthGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/ocr-scanner', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
   { path: 'scanner', component: ScannerComponent },
   { path: 'results', component: ResultsComponent },
-  { path: 'saved', component: SavedComponent },
-  { path: 'preferences', component: PreferencesComponent },
   { path: 'ocr-scanner', component: OcrScannerComponent },
   { path: 'ocr-results', component: OcrResultsComponent },
-  { path: 'history', component: HistoryComponent },
-  { path: 'suggestions', component: SuggestionsComponent },
-  { path: 'community', component: CommunityComponent },
-  { path: 'shopping-list', component: ShoppingListComponent },
-  { path: 'achievements', component: AchievementsComponent },
-  { path: 'food-diary', component: FoodDiaryComponent }
+  // Protected routes
+  { path: 'saved', component: SavedComponent, canActivate: [AuthGuard] },
+  { path: 'preferences', component: PreferencesComponent, canActivate: [AuthGuard] },
+  { path: 'history', component: HistoryComponent, canActivate: [AuthGuard] },
+  { path: 'suggestions', component: SuggestionsComponent, canActivate: [AuthGuard] },
+  { path: 'community', component: CommunityComponent, canActivate: [AuthGuard] },
+  { path: 'shopping-list', component: ShoppingListComponent, canActivate: [AuthGuard] },
+  { path: 'achievements', component: AchievementsComponent, canActivate: [AuthGuard] },
+  { path: 'food-diary', component: FoodDiaryComponent, canActivate: [AuthGuard] }
 ];

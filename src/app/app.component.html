@@ -20,7 +20,12 @@
     <a routerLink="/community" routerLinkActive="active" (click)="closeMenu()">🤝 Community</a>
     <a routerLink="/preferences" routerLinkActive="active" (click)="closeMenu()">⚙️ Preferences</a>
     <hr class="nav-divider">
-    <a routerLink="/login" routerLinkActive="active" (click)="closeMenu()">👤 Login</a>
+    <ng-container *ngIf="(currentUser$ | async) as user; else loginLink">
+      <a (click)="signOut()" class="logout-link">👋 Logout ({{ user.email }})</a>
+    </ng-container>
+    <ng-template #loginLink>
+      <a routerLink="/login" routerLinkActive="active" (click)="closeMenu()">👤 Login</a>
+    </ng-template>
   </div>
 </div>
 
