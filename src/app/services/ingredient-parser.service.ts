@@ -10,88 +10,61 @@ export interface IngredientAnalysis {
   providedIn: 'root'
 })
 export class IngredientParserService {
-  private ingredientCategories = {
-    artificialSweeteners: ['aspartame', 'sucralose', 'saccharin', 'acesulfame', 'neotame', 'advantame'],
-    artificialColors: ['red 40', 'yellow 5', 'blue 1', 'red 3', 'yellow 6', 'blue 2', 'green 3'],
-    preservatives: ['bht', 'bha', 'tbHQ', 'sodium benzoate', 'potassium sorbate', 'sodium nitrate', 'sodium nitrite'],
-    hfcs: ['high-fructose corn syrup', 'hfcs'],
-    msg: ['monosodium glutamate', 'msg', 'glutamate'],
-    transFats: ['partially hydrogenated', 'hydrogenated oil', 'shortening'],
-    natural: ['organic', 'natural', 'non-gmo', 'grass-fed', 'free-range'],
-    allergens: ['milk', 'eggs', 'fish', 'shellfish', 'tree nuts', 'peanuts', 'wheat', 'soybeans']
-  };
-
+  // Add the missing analyzeIngredient method
   analyzeIngredient(ingredient: string): IngredientAnalysis {
+    // Simple implementation - flag ingredients containing "artificial" or "preservative"
     const lowerIngredient = ingredient.toLowerCase();
-    const categories: string[] = [];
-    let flagged = false;
-    let reason: string | undefined;
-
-    // Check each category
-    for (const [category, keywords] of Object.entries(this.ingredientCategories)) {
-      if (keywords.some(keyword => lowerIngredient.includes(keyword))) {
-        categories.push(category);
-        
-        // Flag if it's in avoid categories
-        if (['artificialSweeteners', 'artificialColors', 'preservatives', 'hfcs', 'msg', 'transFats'].includes(category)) {
-          flagged = true;
-          reason = `Contains ${category}`;
-        }
-      }
-    }
-
-    return { categories, flagged, reason };
+    const flagged = lowerIngredient.includes('artificial') || lowerIngredient.includes('preservative');
+    
+    return {
+      categories: this.getCategoriesForIngredient(lowerIngredient),
+      flagged: flagged,
+      reason: flagged ? 'Contains artificial ingredients or preservatives' : undefined
+    };
   }
 
-  parseIngredientList(text: string): string[] {
-    // Improved parsing logic
-    const lines = text.split('\n').map(line => line.trim()).filter(line => line.length > 0);
-    let ingredients: string[] = [];
-    let inIngredientsSection = false;
-
-    for (const line of lines) {
-      const lowerLine = line.toLowerCase();
-      
-      // Detect ingredients section
-      if (lowerLine.includes('ingredients') || lowerLine.includes('contains')) {
-        inIngredientsSection = true;
-        continue;
-      }
-      
-      // Detect end of ingredients section
-      if (inIngredientsSection && 
-          (lowerLine.includes('nutrition') || 
-           lowerLine.includes('allergen') || 
-           lowerLine.includes('may contain') ||
-           lowerLine.match(/^\d/))) { // Lines starting with numbers (nutrition facts)
-        break;
-      }
-      
-      if (inIngredientsSection) {
-        // Split by common separators and clean up
-        const lineIngredients = line.split(/[,;()\[\]]/).map(part => part.trim()).filter(part => part.length > 0);
-        ingredients = [...ingredients, ...lineIngredients];
-      }
-    }
-
-    // If we couldn't find an ingredients section, try to extract from the whole text
-    if (ingredients.length === 0) {
-      ingredients = text.split(/[,;()\[\]]/).map(part => part.trim()).filter(part => part.length > 2);
-    }
-
-    return ingredients.filter((ingredient, index, array) => 
-      ingredient.length > 0 && array.indexOf(ingredient) === index
-    );
-  }
-
+  // Add the missing categorizeProduct method
   categorizeProduct(ingredients: string[]): string[] {
     const categories = new Set<string>();
     
     ingredients.forEach(ingredient => {
-      const analysis = this.analyzeIngredient(ingredient);
+      const lowerIngredient = ingredient.toLowerCase();
+      const analysis = this.analyzeIngredient(lowerIngredient);
       analysis.categories.forEach(category => categories.add(category));
     });
     
     return Array.from(categories);
+  }
+
+  // Helper method to categorize individual ingredients
+  private getCategoriesForIngredient(ingredient: string): string[] {
+    const categories: string[] = [];
+    
+    if (ingredient.includes('artificial')) {
+      categories.push('artificial');
+    }
+    if (ingredient.includes('preservative')) {
+      categories.push('preservatives');
+    }
+    if (ingredient.includes('sweetener')) {
+      categories.push('sweeteners');
+    }
+    if (ingredient.includes('natural')) {
+      categories.push('natural');
+    }
+    
+    return categories.length > 0 ? categories : ['other'];
+  }
+
+  // Existing method
+  evaluateIngredients(ingredients: string[], preferences: any): string[] {
+    const flagged: string[] = [];
+    ingredients.forEach(ingredient => {
+      const analysis = this.analyzeIngredient(ingredient);
+      if (analysis.flagged) {
+        flagged.push(ingredient);
+      }
+    });
+    return flagged;
   }
 }

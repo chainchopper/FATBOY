@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { Product } from '../services/product-db.service';
 
 @Component({
   selector: 'app-ocr-results',
@@ -10,13 +11,13 @@ import { CommonModule } from '@angular/common';
   styleUrls: ['./ocr-results.component.css']
 })
 export class OcrResultsComponent implements OnInit {
-  product: any;
+  product: Product | null = null;
   verdict: 'good' | 'bad' = 'bad';
   flaggedIngredients: string[] = [];
 
   constructor(private router: Router) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     const productData = sessionStorage.getItem('viewingProduct');
     if (productData) {
       this.product = JSON.parse(productData);
@@ -26,12 +27,14 @@ export class OcrResultsComponent implements OnInit {
     }
   }
 
-  evaluateProduct() {
-    // Mock evaluation logic
+  private evaluateProduct(): void {
+    if (!this.product) return;
+
+    // Get user preferences
     const preferences = JSON.parse(localStorage.getItem('fatBoyPreferences') || '{}');
-    this.flaggedIngredients = this.product.ingredients.filter((ing: string) => 
-      ing.toLowerCase().includes('artificial') || ing.toLowerCase().includes('preservative')
-    );
+    
+    // Simple evaluation based on flagged ingredients from the product
+    this.flaggedIngredients = this.product.flaggedIngredients;
     this.verdict = this.flaggedIngredients.length === 0 ? 'good' : 'bad';
   }
 
@@ -41,19 +44,24 @@ export class OcrResultsComponent implements OnInit {
     );
   }
 
-  saveProduct() {
+  saveProduct(): void {
+    if (!this.product) return;
+
     const savedProducts = JSON.parse(localStorage.getItem('savedProducts') || '[]');
     savedProducts.push(this.product);
     localStorage.setItem('savedProducts', JSON.stringify(savedProducts));
     alert('Product saved!');
   }
 
-  scanAgain() {
+  scanAgain(): void {
     this.router.navigate(['/scanner']);
   }
 
-  viewRawText() {
-    // Placeholder for raw text view
-    alert('Raw text view not implemented yet.');
+  viewRawText(): void {
+    if (this.product?.ocrText) {
+      alert(this.product.ocrText);
+    } else {
+      alert('No raw text available.');
+    }
   }
 }

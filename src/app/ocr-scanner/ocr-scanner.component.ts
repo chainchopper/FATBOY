@@ -1,6 +1,9 @@
-import { Component, ElementRef, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, ElementRef, ViewChild, AfterViewInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { Html5Qrcode } from 'html5-qrcode';
+import { OcrEnhancerService } from '../services/ocr-enhancer.service';
+import { IngredientParserService } from '../services/ingredient-parser.service';
+import { ProductDbService, Product } from '../services/product-db.service';
 
 @Component({
   selector: 'app-ocr-scanner',
@@ -8,30 +11,17 @@ import { Html5Qrcode } from 'html5-qrcode';
   templateUrl: './ocr-scanner.component.html',
   styleUrls: ['./ocr-scanner.component.css']
 })
-export class OcrScannerComponent implements AfterViewInit {
+export class OcrScannerComponent implements AfterViewInit, OnDestroy {
   @ViewChild('reader') reader!: ElementRef;
   private html5QrcodeScanner!: Html5Qrcode;
   isScanning = false;
 
-  // Mock services for OCR enhancement - define them as empty objects for now
-  private ocrEnhancer: any = {
-    enhanceIngredientDetection: (text: string) => text.split(', '),
-    detectProductName: (text: string) => 'Sample Product',
-    detectBrand: (text: string) => 'Sample Brand'
-  };
-
-  private ingredientParser: any = {
-    categorizeProduct: (ingredients: string[]) => ['category1', 'category2']
-  };
-
-  private evaluateIngredients = (ingredients: string[], preferences: any) => 
-    ingredients.filter(ing => ing.toLowerCase().includes('artificial'));
-
-  private productDb: any = {
-    addProduct: (product: any) => product
-  };
-
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private ocrEnhancer: OcrEnhancerService,
+    private ingredientParser: IngredientParserService,
+    private productDb: ProductDbService
+  ) {}
 
   async ngAfterViewInit() {
     try {
@@ -41,7 +31,7 @@ export class OcrScannerComponent implements AfterViewInit {
     }
   }
 
-  processExtractedText(text: string) {
+  private processExtractedText(text: string): void {
     // Use enhanced OCR processing
     const enhancedIngredients = this.ocrEnhancer.enhanceIngredientDetection(text);
     const productName = this.ocrEnhancer.detectProductName(text);
@@ -53,32 +43,41 @@ export class OcrScannerComponent implements AfterViewInit {
     // Get user preferences
     const preferences = JSON.parse(localStorage.getItem('fatBoyPreferences') || '{}');
 
-    // Evaluate product
+    // Evaluate product based on preferences
     const flaggedIngredients = this.evaluateIngredients(enhancedIngredients, preferences);
     const verdict = flaggedIngredients.length === 0 ? 'good' : 'bad';
 
     // Prepare product info
-    const productInfo = {
+    const productInfo: Omit<Product, 'id' | 'scanDate'> = {
       name: productName,
       brand: brand,
       ingredients: enhancedIngredients,
       categories: categories,
+      verdict: verdict,
+      flaggedIngredients: flaggedIngredients,
       ocrText: text
     };
 
     // Add to database
-    const product = this.productDb.addProduct({
-      ...productInfo,
-      verdict: verdict,
-      flaggedIngredients: flaggedIngredients
-    });
+    const product = this.productDb.addProduct(productInfo);
 
     // Navigate to results
     sessionStorage.setItem('viewingProduct', JSON.stringify(product));
     this.router.navigate(['/ocr-results']);
   }
 
-  async startScanning() {
+  private evaluateIngredients(ingredients: string[], preferences: any): string[] {
+    const flagged: string[] = [];
+    ingredients.forEach(ingredient => {
+      const analysis = this.ingredientParser.analyzeIngredient(ingredient);
+      if (analysis.flagged) {
+        flagged.push(ingredient);
+      }
+    });
+    return flagged;
+  }
+
+  async startScanning(): Promise<void> {
     try {
       this.isScanning = true;
       await this.html5QrcodeScanner.start(
@@ -93,7 +92,7 @@ export class OcrScannerComponent implements AfterViewInit {
     }
   }
 
-  stopScanning() {
+  stopScanning(): void {
     this.html5QrcodeScanner.stop().then(() => {
       this.isScanning = false;
     }).catch((error) => {
@@ -101,7 +100,7 @@ export class OcrScannerComponent implements AfterViewInit {
     });
   }
 
-  ngOnDestroy() {
+  ngOnDestroy(): void {
     if (this.html5QrcodeScanner && this.isScanning) {
       this.stopScanning();
     }
