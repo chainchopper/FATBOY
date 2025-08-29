@@ -19,11 +19,16 @@ import { Component } from '@angular/core';
         </linearGradient>
       </defs>
       
-      <!-- Barcode Icon -->
+      <!-- Barcode Icon with integrated Health Cross -->
       <g transform="translate(5, 8)">
         <rect x="0" y="0" width="3" height="24" fill="url(#scan-gradient)"/>
         <rect x="5" y="0" width="2" height="24" fill="url(#scan-gradient)"/>
-        <rect x="9" y="0" width="5" height="24" fill="url(#scan-gradient)"/>
+        <!-- Health Cross -->
+        <rect x="9" y="0" width="5" height="10" fill="url(#scan-gradient)"/>
+        <rect x="9" y="14" width="5" height="10" fill="url(#scan-gradient)"/>
+        <rect x="9" y="10" width="2" height="4" fill="url(#scan-gradient)"/>
+        <rect x="12" y="10" width="2" height="4" fill="url(#scan-gradient)"/>
+        
         <rect x="16" y="0" width="2" height="24" fill="url(#scan-gradient)"/>
         <rect x="20" y="0" width="3" height="24" fill="url(#scan-gradient)"/>
         <rect x="25" y="0" width="2" height="24" fill="url(#scan-gradient)"/>
