@@ -2,7 +2,7 @@
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background-color: #000;
+  background-color: #0f0f1e;
 }
 
 .scanner-header {
@@ -10,14 +10,14 @@
   justify-content: space-between;
   align-items: center;
   padding: 20px;
-  background-color: #212121;
+  background-color: rgba(26, 26, 46, 0.8);
   color: white;
 }
 
 .switch-mode-btn {
   background: none;
-  border: 1px solid #4CAF50;
-  color: #4CAF50;
+  border: 1px solid #0abdc6;
+  color: #0abdc6;
   padding: 8px 16px;
   border-radius: 4px;
   cursor: pointer;
@@ -54,9 +54,29 @@
 .scan-area {
   width: 300px;
   height: 200px;
-  border: 2px dashed #4CAF50;
+  border: 2px dashed #f038ff;
+  box-shadow: 0 0 15px #f038ff;
   border-radius: 8px;
   margin-bottom: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.scan-line {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(to right, transparent, #0abdc6, transparent);
+  box-shadow: 0 0 10px #0abdc6;
+  animation: sweep-ocr 2.5s infinite ease-in-out;
+}
+
+@keyframes sweep-ocr {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(197px); }
+  100% { transform: translateY(0); }
 }
 
 .viewfinder p {
@@ -75,23 +95,25 @@
 
 .capture-btn {
   padding: 15px 30px;
-  border: none;
+  border: 1px solid #f038ff;
   border-radius: 30px;
   font-size: 18px;
-  background-color: #4CAF50;
-  color: white;
+  background-color: transparent;
+  color: #f038ff;
   cursor: pointer;
 }
 
 .capture-btn:disabled {
-  background-color: #757575;
+  border-color: #757575;
+  color: #757575;
   cursor: not-allowed;
 }
 
 .instructions {
   padding: 20px;
-  background-color: #212121;
-  color: white;
+  background-color: #1a1a2e;
+  color: #e0e0e0;
+  border-top: 1px solid #f038ff;
 }
 
 .instructions h3 {

@@ -9,7 +9,9 @@
     <canvas #canvasElement class="capture-canvas" style="display: none;"></canvas>
     
     <div class="viewfinder">
-      <div class="scan-area"></div>
+      <div class="scan-area">
+        <div *ngIf="isProcessing" class="scan-line"></div>
+      </div>
       <p>Position the product label within this area</p>
     </div>
   </div>
