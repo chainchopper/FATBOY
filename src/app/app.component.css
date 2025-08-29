@@ -107,6 +107,13 @@
   text-shadow: 0 0 8px #f038ff;
 }
 
+.nav-divider {
+  border: 0;
+  height: 1px;
+  background-color: #4a4a6e;
+  margin: 10px 25px;
+}
+
 main {
   min-height: calc(100vh - 70px);
 }

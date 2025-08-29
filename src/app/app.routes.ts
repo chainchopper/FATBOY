@@ -10,9 +10,11 @@ import { SuggestionsComponent } from './suggestions/suggestions.component';
 import { CommunityComponent } from './community/community.component';
 import { ShoppingListComponent } from './shopping-list/shopping-list.component';
 import { AchievementsComponent } from './achievements/achievements.component';
+import { LoginComponent } from './login/login.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/scanner', pathMatch: 'full' },
+  { path: 'login', component: LoginComponent },
   { path: 'scanner', component: ScannerComponent },
   { path: 'results', component: ResultsComponent },
   { path: 'saved', component: SavedComponent },

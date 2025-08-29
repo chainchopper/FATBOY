@@ -1,0 +1,46 @@
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 80vh;
+  padding: 20px;
+}
+
+.login-card {
+  background: rgba(15, 15, 30, 0.8);
+  border: 1px solid #f038ff;
+  border-radius: 12px;
+  padding: 40px;
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+  box-shadow: 0 0 25px rgba(240, 56, 255, 0.5);
+}
+
+.login-card h2 {
+  color: #f038ff;
+  text-shadow: 0 0 8px #f038ff;
+  margin-bottom: 1rem;
+}
+
+.login-card p {
+  color: #a0a0c0;
+  margin-bottom: 2rem;
+}
+
+/* This targets the Supabase component's container */
+:host ::ng-deep .supa-auth-ui-container {
+  --brand: #f038ff;
+  --brand-accent: #0abdc6;
+  --brand-button-text: #1a1a2e;
+  --default-button-bg: #1a1a2e;
+  --default-button-bg-hover: #2a2a4e;
+  --default-button-border: #4a4a6e;
+  --default-button-text: #e0e0e0;
+  --input-bg: #1a1a2e;
+  --input-border: #4a4a6e;
+  --input-text-color: #e0e0e0;
+  --input-label-text-color: #a0a0c0;
+  --divider-bg: #4a4a6e;
+  --message-text-color: #a0a0c0;
+}
