@@ -4,6 +4,28 @@
     <!-- Placeholder for future date picker -->
   </div>
 
+  <div class="daily-summary-section">
+    <h3>Daily Performance</h3>
+    <div class="summary-grid">
+      <div class="summary-item">
+        <span class="summary-value">{{ dailySummary.totalCalories }}</span>
+        <span class="summary-label">Total Calories</span>
+      </div>
+      <div class="summary-item">
+        <span class="summary-value">{{ dailySummary.totalFlaggedItems }}</span>
+        <span class="summary-label">Flagged Ingredients</span>
+      </div>
+    </div>
+    <div *ngIf="dailySummary.totalFlaggedItems > 0" class="flagged-breakdown">
+      <h4>Top Flagged:</h4>
+      <ul>
+        <li *ngFor="let item of (dailySummary.flaggedIngredients | keyvalue | slice:0:3)">
+          {{ item.key }} ({{ item.value }} times)
+        </li>
+      </ul>
+    </div>
+  </div>
+
   <div class="diary-grid">
     <div class="meal-section">
       <h3>🍳 Breakfast</h3>

@@ -51,6 +51,27 @@ export class FoodDiaryService {
     return this.diary.get(date) || [];
   }
 
+  getDailySummary(date: string): { totalCalories: number; totalFlaggedItems: number; flaggedIngredients: { [key: string]: number } } {
+    const entries = this.getEntriesForDate(date);
+    let totalCalories = 0;
+    let totalFlaggedItems = 0;
+    const flaggedIngredients: { [key: string]: number } = {};
+
+    entries.forEach(entry => {
+      if (entry.product.calories) {
+        totalCalories += entry.product.calories;
+      }
+      if (entry.product.flaggedIngredients) {
+        totalFlaggedItems += entry.product.flaggedIngredients.length;
+        entry.product.flaggedIngredients.forEach(ingredient => {
+          flaggedIngredients[ingredient] = (flaggedIngredients[ingredient] || 0) + 1;
+        });
+      }
+    });
+
+    return { totalCalories, totalFlaggedItems, flaggedIngredients };
+  }
+
   private getStorageKey(): string {
     return this.currentUserId ? `fatBoyFoodDiary_${this.currentUserId}` : 'fatBoyFoodDiary_anonymous';
   }

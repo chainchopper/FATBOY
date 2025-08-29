@@ -13,6 +13,11 @@ import { map } from 'rxjs/operators';
 })
 export class FoodDiaryComponent implements OnInit {
   todayEntries$!: Observable<DiaryEntry[]>;
+  dailySummary: { totalCalories: number; totalFlaggedItems: number; flaggedIngredients: { [key: string]: number } } = {
+    totalCalories: 0,
+    totalFlaggedItems: 0,
+    flaggedIngredients: {}
+  };
   
   breakfast$!: Observable<DiaryEntry[]>;
   lunch$!: Observable<DiaryEntry[]>;
@@ -26,6 +31,10 @@ export class FoodDiaryComponent implements OnInit {
     this.todayEntries$ = this.foodDiaryService.diary$.pipe(
       map(diary => diary.get(today) || [])
     );
+
+    this.todayEntries$.subscribe(entries => {
+      this.dailySummary = this.foodDiaryService.getDailySummary(today);
+    });
 
     this.breakfast$ = this.filterEntriesByMeal('Breakfast');
     this.lunch$ = this.filterEntriesByMeal('Lunch');
