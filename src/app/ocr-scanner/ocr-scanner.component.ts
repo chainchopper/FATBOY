@@ -72,7 +72,7 @@ export class OcrScannerComponent implements AfterViewInit {
     }
   }
 
-  processExtractedText(text: string) {
+  private processExtractedText(text: string) {
     // Parse ingredients using our improved service
     const ingredients = this.ingredientParser.parseIngredientList(text);
     const categories = this.ingredientParser.categorizeProduct(ingredients);
@@ -82,7 +82,7 @@ export class OcrScannerComponent implements AfterViewInit {
     
     // Evaluate product
     const flaggedIngredients = this.evaluateIngredients(ingredients, preferences);
-    const verdict = flaggedIngredients.length === 0 ? 'good' : 'bad';
+    const verdict: 'good' | 'bad' = flaggedIngredients.length === 0 ? 'good' : 'bad';
     
     // Create product object
     const productInfo = {
@@ -103,7 +103,7 @@ export class OcrScannerComponent implements AfterViewInit {
     this.router.navigate(['/ocr-results']);
   }
 
-  evaluateIngredients(ingredients: string[], preferences: any): string[] {
+  private evaluateIngredients(ingredients: string[], preferences: any): string[] {
     const flagged: string[] = [];
     
     if (preferences.avoidArtificialSweeteners) {
@@ -120,12 +120,12 @@ export class OcrScannerComponent implements AfterViewInit {
     return flagged;
   }
 
-  findProductName(text: string): string {
+  private findProductName(text: string): string {
     const lines = text.split('\n').filter(line => line.trim().length > 0);
     return lines[0] || 'Unknown Product';
   }
 
-  findBrand(text: string): string {
+  private findBrand(text: string): string {
     const lines = text.split('\n').filter(line => line.trim().length > 0);
     for (const line of lines) {
       if (line.match(/(inc|llc|co\.|corporation|company)/i)) {
