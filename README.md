@@ -21,15 +21,42 @@
 
 In a world saturated with confusing food labels and hidden ingredients, Fat Boy is your personal agent in the grocery aisle. It's a cutting-edge mobile app that uses your phone's camera to analyze food products in real-time, giving you an immediate **Approve ✅** or **Deny ❌** verdict based on *your* personalized health goals. No more decision fatigue, just clear, confident choices.
 
-## ✨ Core Features
+---
 
--   **⚡ Instant Analysis:** Use **Label Scan (OCR)** or **Barcode Scan** to get a verdict in seconds.
--   **🧠 AI-Powered Rule Engine:** Our system evaluates complex ingredient lists against your personal rules.
--   **🔧 Personalized Filters:** Fine-tune your "avoid list" – no artificial sweeteners, no MSG, calorie limits, etc.
--   **💾 Personal Food Archive:** Build a beautiful gallery of "approved" products for quick reference.
--   **🏆 Gamified Progress:** Unlock achievements and badges for making healthy choices.
--   **🛒 Smart Shopping List:** Create and manage a shopping list directly from approved products.
--   **🤝 Community Driven:** Contribute new products to our growing database.
+## ✨ Features Deep Dive
+
+### 📱 The Core Loop: Dual-Mode Scanning
+At the heart of Fat Boy is a powerful, dual-mode scanning system designed for speed and versatility.
+-   **📄 Label Scan (OCR):** The default and most powerful mode. Using **Tesseract.js**, the app performs live Optical Character Recognition on a product's ingredient list. It's perfect for items without barcodes, like fresh bakery goods or produce from a local market.
+-   **barcode Barcode Scan:** For packaged goods, the barcode scanner offers a lightning-fast way to retrieve product information from our database, powered by the Open Food Facts API.
+
+### 🧠 The Brain: Your Personal AI Rule Engine
+Fat Boy isn't just a scanner; it's a decision engine. The verdict you receive is not a generic "healthy" or "unhealthy" rating. It's a personalized judgment based on a sophisticated set of rules that you control.
+-   **Fully Customizable:** On the **Preferences** screen, you can fine-tune your "avoid list." Toggle switches for common offenders like Artificial Sweeteners, High-Fructose Corn Syrup, MSG, and more.
+-   **Set Your Limits:** Use a slider to define your maximum calories per serving.
+-   **Goal-Oriented:** Choose a primary goal—like "Strictly Natural" or "Calorie Count"—to help the engine prioritize its analysis.
+
+### 💾 The Arsenal: Your Personal Food Archive
+Approved products aren't just a memory; they're an asset. The **Saved Products** page is a beautiful, interactive gallery of every item that has met your standards.
+-   **Visual Gallery:** Each saved product is displayed as a card with its image, name, and brand.
+-   **Interactive Actions:** Each card features an action bar with icons to **Star** (favorite), **Share**, or **Remove** the item. This is the foundation for future AI-powered nutritional analysis and sharing features.
+
+### 🏆 The Challenge: Gamified Progress & Achievements
+Making healthy choices should be rewarding. Fat Boy includes a full-fledged gamification system to keep you motivated.
+-   **Unlock Badges:** Earn achievements for milestones like your first scan, saving an approved product, or contributing to the community.
+-   **Achievements Page:** A dedicated screen displays all possible badges. Unlocked achievements are vibrant and glowing, while locked ones are grayed out, showing you what to aim for next.
+
+### 🛒 The Strategy: Smart Shopping & Scan History
+Fat Boy helps you plan your next grocery run and learn from your past choices.
+-   **Shopping List:** Add any approved product to your shopping list directly from the results or saved products pages. On the **Shopping List** page, you can check off items as you shop or clear the list.
+-   **Comprehensive History:** Every scan, good or bad, is automatically logged to your **History** page. You can review past verdicts, see which ingredients are most frequently flagged, and filter your history by category.
+
+### 🤝 The Alliance: Community-Powered Database
+A single agent is strong, but a network is unstoppable. The **Community** page allows you to contribute to the Fat Boy database.
+-   **Submit New Products:** If you scan a product that isn't in our database, you can easily submit its name, brand, and ingredients.
+-   **Earn Rewards:** Contributing to the community is a key way to unlock exclusive achievements.
+
+---
 
 ## 🛠️ Tech Stack
 
