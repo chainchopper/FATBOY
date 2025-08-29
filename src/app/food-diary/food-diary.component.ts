@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FoodDiaryService, DiaryEntry, MealType } from '../services/food-diary.service';
+import { FoodDiaryService, DiaryEntry, MealType, DailyVerdict } from '../services/food-diary.service';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
@@ -18,6 +18,7 @@ export class FoodDiaryComponent implements OnInit {
     totalFlaggedItems: 0,
     flaggedIngredients: {}
   };
+  dailyVerdict: DailyVerdict = 'fair';
   
   breakfast$!: Observable<DiaryEntry[]>;
   lunch$!: Observable<DiaryEntry[]>;
@@ -34,6 +35,8 @@ export class FoodDiaryComponent implements OnInit {
 
     this.todayEntries$.subscribe(entries => {
       this.dailySummary = this.foodDiaryService.getDailySummary(today);
+      const preferences = JSON.parse(localStorage.getItem('fatBoyPreferences') || '{}');
+      this.dailyVerdict = this.foodDiaryService.getDailyPerformanceVerdict(today, preferences);
     });
 
     this.breakfast$ = this.filterEntriesByMeal('Breakfast');

@@ -16,6 +16,9 @@
         <span class="summary-label">Flagged Ingredients</span>
       </div>
     </div>
+    <div class="daily-verdict-display" [class]="'verdict-' + dailyVerdict">
+      Your Day: <strong>{{ dailyVerdict | titlecase }}</strong>
+    </div>
     <div *ngIf="dailySummary.totalFlaggedItems > 0" class="flagged-breakdown">
       <h4>Top Flagged:</h4>
       <ul>
