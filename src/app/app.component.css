@@ -3,15 +3,17 @@
   justify-content: space-between;
   align-items: center;
   padding: 15px 20px;
-  background: linear-gradient(to right, #212121, #424242);
-  color: white;
-  border-bottom: 2px solid #4CAF50;
+  background: rgba(26, 26, 46, 0.8); /* Semi-transparent dark background */
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid #f038ff; /* Neon pink border */
   position: relative;
   z-index: 1001;
 }
 
 .main-nav h1 {
   font-size: 1.2rem;
+  color: #e0e0e0;
+  text-shadow: 0 0 5px #f038ff;
 }
 
 /* Hamburger Menu Button */
@@ -31,11 +33,12 @@
 .hamburger-menu .bar {
   width: 2rem;
   height: 0.25rem;
-  background: white;
+  background: #e0e0e0;
   border-radius: 10px;
   transition: all 0.3s linear;
   position: relative;
   transform-origin: 1px;
+  box-shadow: 0 0 3px #0abdc6;
 }
 
 .hamburger-menu.open .bar:nth-child(1) {
@@ -76,7 +79,7 @@
   right: 0;
   height: 100%;
   width: 280px;
-  background: #212121;
+  background: #1a1a2e;
   box-shadow: -5px 0 15px rgba(0,0,0,0.2);
   transform: translateX(100%);
   transition: transform 0.3s ease-in-out;
@@ -90,16 +93,18 @@
 }
 
 .nav-menu a {
-  color: white;
+  color: #e0e0e0;
   text-decoration: none;
   padding: 15px 25px;
   font-size: 1.1rem;
-  transition: background-color 0.3s;
-  border-bottom: 1px solid #424242;
+  transition: background-color 0.3s, color 0.3s, text-shadow 0.3s;
+  border-bottom: 1px solid #2a2a4e;
 }
 
 .nav-menu a:hover, .nav-menu a.active {
-  background-color: #4CAF50;
+  background-color: rgba(240, 56, 255, 0.1);
+  color: #f038ff;
+  text-shadow: 0 0 8px #f038ff;
 }
 
 main {

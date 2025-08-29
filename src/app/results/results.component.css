@@ -1,14 +1,7 @@
 .results-container {
   min-height: 100vh;
   padding: 20px;
-}
-
-.results-container.good {
-  background-color: #E8F5E9;
-}
-
-.results-container.bad {
-  background-color: #FFEBEE;
+  background-color: #1a1a2e;
 }
 
 .verdict-card {
@@ -17,32 +10,31 @@
   border-radius: 12px;
   margin-bottom: 20px;
   animation: fadeIn 0.5s ease-in-out;
+  border: 1px solid;
+  background: rgba(15, 15, 30, 0.8);
 }
 
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .results-container.good .verdict-card {
-  background: linear-gradient(135deg, #4CAF50, #66BB6A);
-  color: white;
+  border-color: #0abdc6;
+  box-shadow: 0 0 20px #0abdc6;
+  color: #0abdc6;
 }
 
 .results-container.bad .verdict-card {
-  background: linear-gradient(135deg, #F44336, #EF5350);
-  color: white;
+  border-color: #f038ff;
+  box-shadow: 0 0 20px #f038ff;
+  color: #f038ff;
 }
 
 .verdict-icon {
   font-size: 64px;
   margin-bottom: 15px;
+  text-shadow: 0 0 15px;
 }
 
 .product-info {
@@ -56,22 +48,24 @@
   object-fit: cover;
   border-radius: 8px;
   margin-bottom: 15px;
+  border: 2px solid #4a4a6e;
 }
 
 .ingredient-breakdown {
-  background-color: white;
+  background-color: rgba(15, 15, 30, 0.8);
   padding: 20px;
   border-radius: 8px;
   margin-bottom: 30px;
+  border: 1px solid #4a4a6e;
 }
 
 .bad-ingredient {
-  color: #F44336;
+  color: #f038ff;
   margin: 10px 0;
 }
 
 .good-ingredient {
-  color: #4CAF50;
+  color: #0abdc6;
   margin: 10px 0;
 }
 
@@ -86,16 +80,24 @@
   border-radius: 30px;
   font-size: 16px;
   cursor: pointer;
+  background: transparent;
+  transition: all 0.3s;
 }
 
 .outline-btn {
-  border: 2px solid #4CAF50;
-  background: transparent;
-  color: #4CAF50;
+  border: 2px solid #0abdc6;
+  color: #0abdc6;
+}
+.outline-btn:hover {
+  background-color: rgba(10, 189, 198, 0.1);
+  box-shadow: 0 0 15px #0abdc6;
 }
 
 .filled-btn {
-  border: none;
-  background-color: #4CAF50;
-  color: white;
+  border: 2px solid #f038ff;
+  color: #f038ff;
+}
+.filled-btn:hover {
+  background-color: rgba(240, 56, 255, 0.1);
+  box-shadow: 0 0 15px #f038ff;
 }

@@ -5,7 +5,9 @@
   </div>
   
   <div id="reader" #reader class="scanner-viewport">
-    <div class="viewfinder"></div>
+    <div class="viewfinder">
+      <div *ngIf="isScanning" class="scan-line"></div>
+    </div>
   </div>
   
   <div class="scanner-controls">
