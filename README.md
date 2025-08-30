@@ -89,7 +89,8 @@ This is the easiest way to get the app running in a consistent environment.
     ```bash
     docker-compose up --build
     ```
-3.  **Access the app:** Open your browser and navigate to `http://localhost:4200`.
+3.  **Access the app:** Open your browser and navigate to `http://localhost:3000`.
+    *   **Note:** If port `3000` is in use on your machine, `docker-compose` will fail. You can manually change the host port mapping in `docker-compose.yaml` (e.g., `ports: - "8080:80"`) and then access the app at `http://localhost:8080`.
 
 ### 💻 Method 2: Local Development
 
@@ -109,9 +110,9 @@ This is the easiest way to get the app running in a consistent environment.
     ```
 3.  **Launch the development server:**
     ```bash
-    ng serve
+    npm start
     ```
-4.  **Access the app:** Open your browser and navigate to `http://localhost:4200`.
+    This will automatically try to launch the app on ports `3000`, `8080`, `4200`, or `4300` until an available port is found. Open your browser to the port indicated in the console.
 
 ## 🗺️ Project Roadmap
 
