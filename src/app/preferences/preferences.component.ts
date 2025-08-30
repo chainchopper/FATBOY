@@ -19,7 +19,8 @@ export class PreferencesComponent implements OnInit {
     avoidPreservatives: false,
     avoidMSG: false,
     avoidTransFats: true,
-    maxCalories: 200,
+    maxCalories: 200, // Per serving
+    dailyCalorieTarget: 2000, // New: Daily target
     goal: 'avoidChemicals' // 'strictlyNatural', 'avoidChemicals', 'calorieCount'
   };
 
@@ -57,6 +58,7 @@ export class PreferencesComponent implements OnInit {
         avoidMSG: false,
         avoidTransFats: true,
         maxCalories: 200,
+        dailyCalorieTarget: 2000, // Default daily target
         goal: 'avoidChemicals'
       };
     }

@@ -41,6 +41,10 @@
       <label for="maxCalories">Max Calories per Serving: {{preferences.maxCalories}}</label>
       <input type="range" id="maxCalories" min="0" max="500" step="10" [(ngModel)]="preferences.maxCalories">
     </div>
+    <div class="calorie-slider">
+      <label for="dailyCalorieTarget">Daily Calorie Target: {{preferences.dailyCalorieTarget}}</label>
+      <input type="range" id="dailyCalorieTarget" min="1000" max="3000" step="100" [(ngModel)]="preferences.dailyCalorieTarget">
+    </div>
   </div>
   
   <div class="preference-section">
