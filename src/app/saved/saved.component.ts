@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ProductDbService, Product } from '../services/product-db.service';
 import { map } from 'rxjs/operators';
 import { Observable } from 'rxjs';
+import { ShareService } from '../services/share.service'; // Import ShareService
 
 @Component({
   selector: 'app-saved',
@@ -16,7 +17,7 @@ export class SavedComponent implements OnInit {
   avoidedProducts$!: Observable<Product[]>;
   selectedTab: 'approved' | 'avoided' = 'approved';
 
-  constructor(private productDb: ProductDbService) {}
+  constructor(private productDb: ProductDbService, private shareService: ShareService) {} // Inject ShareService
 
   ngOnInit() {
     this.approvedProducts$ = this.productDb.products$.pipe(
@@ -35,5 +36,9 @@ export class SavedComponent implements OnInit {
 
   removeAvoidedProduct(id: string) {
     this.productDb.removeAvoidedProduct(id);
+  }
+
+  shareProduct(product: Product) {
+    this.shareService.shareProduct(product);
   }
 }
