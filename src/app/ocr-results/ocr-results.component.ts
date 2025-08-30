@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { Product } from '../services/product-db.service';
 import { IngredientParserService } from '../services/ingredient-parser.service';
 import { AudioService } from '../services/audio.service';
+import { SpeechService } from '../services/speech.service';
 
 @Component({
   selector: 'app-ocr-results',
@@ -20,7 +21,8 @@ export class OcrResultsComponent implements OnInit {
   constructor(
     private router: Router,
     private ingredientParser: IngredientParserService,
-    private audioService: AudioService
+    private audioService: AudioService,
+    private speechService: SpeechService
   ) {}
 
   ngOnInit(): void {
@@ -44,8 +46,10 @@ export class OcrResultsComponent implements OnInit {
 
     if (this.verdict === 'good') {
       this.audioService.playSuccessSound();
+      this.speechService.speak('Fat Boy Approved!');
     } else {
       this.audioService.playErrorSound();
+      this.speechService.speak('Contains Items You Avoid');
     }
   }
 

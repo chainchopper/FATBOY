@@ -10,6 +10,12 @@
   z-index: 1001;
 }
 
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
 /* Hamburger Menu Button */
 .hamburger-menu {
   display: flex;
@@ -46,6 +52,33 @@
 
 .hamburger-menu.open .bar:nth-child(3) {
   transform: rotate(-45deg);
+}
+
+/* Voice Input Button */
+.voice-input-btn {
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #e0e0e0;
+  transition: color 0.3s, text-shadow 0.3s;
+}
+
+.voice-input-btn:hover {
+  color: #0abdc6;
+  text-shadow: 0 0 8px #0abdc6;
+}
+
+.voice-input-btn.listening {
+  color: #f038ff;
+  text-shadow: 0 0 10px #f038ff;
+  animation: pulse-voice 1.5s infinite;
+}
+
+@keyframes pulse-voice {
+  0% { text-shadow: 0 0 5px #f038ff; }
+  50% { text-shadow: 0 0 15px #f038ff; }
+  100% { text-shadow: 0 0 5px #f038ff; }
 }
 
 /* Navigation Overlay & Menu */

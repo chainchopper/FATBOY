@@ -1,10 +1,15 @@
 <nav class="main-nav">
   <app-logo></app-logo>
-  <button class="hamburger-menu" (click)="toggleMenu()" [class.open]="isMenuOpen" aria-label="Toggle menu">
-    <div class="bar"></div>
-    <div class="bar"></div>
-    <div class="bar"></div>
-  </button>
+  <div class="nav-actions">
+    <button class="voice-input-btn" (click)="toggleVoiceInput()" [class.listening]="isListening" title="Voice Input">
+      🎤
+    </button>
+    <button class="hamburger-menu" (click)="toggleMenu()" [class.open]="isMenuOpen" aria-label="Toggle menu">
+      <div class="bar"></div>
+      <div class="bar"></div>
+      <div class="bar"></div>
+    </button>
+  </div>
 </nav>
 
 <div class="nav-overlay" [class.open]="isMenuOpen" (click)="closeMenu()">

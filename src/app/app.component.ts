@@ -5,6 +5,7 @@ import { LogoComponent } from './logo/logo.component';
 import { AuthService } from './services/auth.service';
 import { Observable } from 'rxjs';
 import { User } from '@supabase/supabase-js';
+import { SpeechService } from './services/speech.service';
 
 @Component({
   selector: 'app-root',
@@ -17,7 +18,7 @@ export class AppComponent implements OnInit {
   isMenuOpen = false;
   currentUser$!: Observable<User | null>;
 
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService, private speechService: SpeechService) {}
 
   ngOnInit(): void {
     this.currentUser$ = this.authService.currentUser$;
@@ -34,5 +35,17 @@ export class AppComponent implements OnInit {
   async signOut(): Promise<void> {
     await this.authService.signOut();
     this.closeMenu();
+  }
+
+  toggleVoiceInput(): void {
+    if (this.speechService.listening) {
+      this.speechService.stopListening();
+    } else {
+      this.speechService.startListening();
+    }
+  }
+
+  get isListening(): boolean {
+    return this.speechService.listening;
   }
 }
