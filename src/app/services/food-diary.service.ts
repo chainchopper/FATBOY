@@ -13,8 +13,6 @@ export interface DiaryEntry {
   product: Product;
 }
 
-export type DailyVerdict = 'excellent' | 'good' | 'fair' | 'poor';
-
 @Injectable({
   providedIn: 'root'
 })
@@ -72,63 +70,6 @@ export class FoodDiaryService {
     });
 
     return { totalCalories, totalFlaggedItems, flaggedIngredients };
-  }
-
-  getDailyPerformanceVerdict(date: string, preferences: any): DailyVerdict {
-    const summary = this.getDailySummary(date);
-    const { totalCalories, totalFlaggedItems } = summary;
-
-    // Simple heuristic for now, can be expanded with more complex AI
-    let score = 0;
-
-    // Calorie-based scoring
-    if (preferences.dailyCalorieTarget) { // Use dailyCalorieTarget from preferences
-      const calorieTarget = preferences.dailyCalorieTarget;
-      if (totalCalories <= calorieTarget) {
-        score += 2; // Good on calories
-      } else if (totalCalories <= calorieTarget * 1.1) { // 10% over is still 'fair'
-        score += 1;
-      } else {
-        score -= 1; // Significantly over
-      }
-    } else if (preferences.maxCalories) { // Fallback to old maxCalories if daily not set
-      const calorieTarget = preferences.maxCalories * 3; // Assuming 3 meals for a rough daily target
-      if (totalCalories <= calorieTarget) {
-        score += 2; // Good on calories
-      } else if (totalCalories <= calorieTarget * 1.2) {
-        score += 1; // Slightly over
-      } else {
-        score -= 1; // Significantly over
-      }
-    }
-
-
-    // Flagged ingredients scoring
-    if (totalFlaggedItems === 0) {
-      score += 3; // No flagged items, excellent!
-    } else if (totalFlaggedItems <= 2) {
-      score += 1; // Few flagged items
-    } else {
-      score -= 2; // Many flagged items
-    }
-
-    // Goal-based adjustments (example)
-    if (preferences.goal === 'strictlyNatural' && totalFlaggedItems > 0) {
-      score -= 1; // Penalize more for natural goal if flagged items exist
-    }
-    if (preferences.goal === 'calorieCount' && preferences.dailyCalorieTarget && totalCalories > preferences.dailyCalorieTarget) {
-      score -= 1; // Penalize more for calorie goal if over target
-    }
-
-    if (score >= 4) {
-      return 'excellent';
-    } else if (score >= 2) {
-      return 'good';
-    } else if (score >= 0) {
-      return 'fair';
-    } else {
-      return 'poor';
-    }
   }
 
   private getStorageKey(): string {
