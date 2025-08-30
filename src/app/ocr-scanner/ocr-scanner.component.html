@@ -22,5 +22,8 @@
       {{ isProcessing ? 'Processing...' : 'Capture Label' }}
     </button>
     <p class="tagline">Scan. Know. Choose.</p>
+    <div *ngIf="isVoiceListening" class="voice-listening-indicator">
+      🎤 Listening...
+    </div>
   </div>
 </div>

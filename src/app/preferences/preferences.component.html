@@ -60,6 +60,14 @@
       <label for="calorieCount">Calorie Count</label>
     </div>
   </div>
+
+  <div class="preference-section">
+    <h3>Voice Commands:</h3>
+    <div class="preference-item">
+      <input type="checkbox" id="enableVoiceCommands" [(ngModel)]="preferences.enableVoiceCommands">
+      <label for="enableVoiceCommands">Enable Voice Commands (auto-listen on scanner screens)</label>
+    </div>
+  </div>
   
   <button class="save-btn" (click)="savePreferences()">Save Preferences</button>
 </div>

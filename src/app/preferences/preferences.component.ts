@@ -21,7 +21,8 @@ export class PreferencesComponent implements OnInit {
     avoidTransFats: true,
     maxCalories: 200, // Per serving
     dailyCalorieTarget: 2000, // New: Daily target
-    goal: 'avoidChemicals' // 'strictlyNatural', 'avoidChemicals', 'calorieCount'
+    goal: 'avoidChemicals', // 'strictlyNatural', 'avoidChemicals', 'calorieCount'
+    enableVoiceCommands: true // New: Toggle for voice commands
   };
 
   private currentUserId: string | null = null;
@@ -58,8 +59,9 @@ export class PreferencesComponent implements OnInit {
         avoidMSG: false,
         avoidTransFats: true,
         maxCalories: 200,
-        dailyCalorieTarget: 2000, // Default daily target
-        goal: 'avoidChemicals'
+        dailyCalorieTarget: 2000,
+        goal: 'avoidChemicals',
+        enableVoiceCommands: true
       };
     }
   }

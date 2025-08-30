@@ -6,6 +6,9 @@ import { OcrEnhancerService } from '../services/ocr-enhancer.service';
 import { IngredientParserService } from '../services/ingredient-parser.service';
 import { ProductDbService, Product } from '../services/product-db.service';
 import { NotificationService } from '../services/notification.service';
+import { SpeechService } from '../services/speech.service';
+import { AuthService } from '../services/auth.service';
+import { take } from 'rxjs/operators';
 
 @Component({
   selector: 'app-ocr-scanner',
@@ -24,13 +27,16 @@ export class OcrScannerComponent implements AfterViewInit, OnDestroy {
   private cameras: MediaDeviceInfo[] = [];
   private selectedCameraId: string | null = null;
   private currentCameraIndex = 0;
+  isVoiceListening = false;
 
   constructor(
     private router: Router,
     private ocrEnhancer: OcrEnhancerService,
     private ingredientParser: IngredientParserService,
     private productDb: ProductDbService,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private speechService: SpeechService,
+    private authService: AuthService
   ) {}
 
   async ngAfterViewInit() {
@@ -38,6 +44,18 @@ export class OcrScannerComponent implements AfterViewInit, OnDestroy {
     if (this.cameras.length > 0) {
       this.startCamera();
     }
+    this.checkVoiceCommandsPreference();
+  }
+
+  private checkVoiceCommandsPreference(): void {
+    this.authService.currentUser$.pipe(take(1)).subscribe(user => {
+      const preferencesKey = user ? `fatBoyPreferences_${user.id}` : 'fatBoyPreferences_anonymous';
+      const preferences = JSON.parse(localStorage.getItem(preferencesKey) || '{}');
+      if (preferences.enableVoiceCommands) {
+        this.speechService.startListening();
+        this.isVoiceListening = true;
+      }
+    });
   }
 
   private async setupCameras() {
@@ -136,5 +154,6 @@ export class OcrScannerComponent implements AfterViewInit, OnDestroy {
       this.mediaStream.getTracks().forEach(t => t.stop());
       this.mediaStream = null;
     }
+    this.speechService.stopListening(); // Stop listening when component is destroyed
   }
 }
