@@ -22,7 +22,8 @@ export class PreferencesComponent implements OnInit {
     maxCalories: 200, // Per serving
     dailyCalorieTarget: 2000, // New: Daily target
     goal: 'avoidChemicals', // 'strictlyNatural', 'avoidChemicals', 'calorieCount'
-    enableVoiceCommands: true // New: Toggle for voice commands
+    enableVoiceCommands: true, // New: Toggle for voice commands
+    shareLeaderboardData: true // New: Opt-out for leaderboard
   };
 
   private currentUserId: string | null = null;
@@ -61,7 +62,8 @@ export class PreferencesComponent implements OnInit {
         maxCalories: 200,
         dailyCalorieTarget: 2000,
         goal: 'avoidChemicals',
-        enableVoiceCommands: true
+        enableVoiceCommands: true,
+        shareLeaderboardData: true
       };
     }
   }

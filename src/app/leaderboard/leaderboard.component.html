@@ -1,0 +1,49 @@
+<div class="leaderboard-container">
+  <h2>Leaderboard</h2>
+  <p>See how you stack up against the community!</p>
+
+  <div class="tabs">
+    <button class="tab-button" [class.active]="selectedTab === 'global'" (click)="selectTab('global')">
+      Global
+    </button>
+    <button class="tab-button" [class.active]="selectedTab === 'friends'" (click)="selectTab('friends')">
+      Friends
+    </button>
+  </div>
+
+  <div class="leaderboard-section">
+    <div *ngIf="selectedTab === 'global'">
+      <h3>Global Rankings</h3>
+      <div *ngIf="(globalLeaderboard$ | async) as leaderboard">
+        <div *ngIf="leaderboard.length === 0" class="empty-state">
+          <p>No global rankings available yet.</p>
+        </div>
+        <ul class="leaderboard-list">
+          <li *ngFor="let entry of leaderboard" class="leaderboard-item" [class.current-user]="entry.isCurrentUser">
+            <span class="rank">{{ entry.rank }}</span>
+            <img [src]="entry.avatar_url" alt="Avatar" class="avatar">
+            <span class="username">{{ entry.username }}</span>
+            <span class="score">{{ entry.score }} pts</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div *ngIf="selectedTab === 'friends'">
+      <h3>Friends Rankings</h3>
+      <div *ngIf="(friendsLeaderboard$ | async) as leaderboard">
+        <div *ngIf="leaderboard.length === 0" class="empty-state">
+          <p>No friends on the leaderboard yet. Add friends to see their rankings!</p>
+        </div>
+        <ul class="leaderboard-list">
+          <li *ngFor="let entry of leaderboard" class="leaderboard-item" [class.current-user]="entry.isCurrentUser">
+            <span class="rank">{{ entry.rank }}</span>
+            <img [src]="entry.avatar_url" alt="Avatar" class="avatar">
+            <span class="username">{{ entry.username }}</span>
+            <span class="score">{{ entry.score }} pts</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
