@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { EventEmitter, Injectable } from '@angular/core';
 import { NotificationService } from './notification.service';
 
 declare global {
@@ -15,6 +15,7 @@ export class SpeechService {
   private synth: SpeechSynthesisUtterance | null = null;
   private recognition: any;
   private isListening = false;
+  public commandRecognized = new EventEmitter<string>(); // New EventEmitter
 
   constructor(private notificationService: NotificationService) {
     if ('SpeechSynthesisUtterance' in window) {
@@ -38,6 +39,7 @@ export class SpeechService {
         this.notificationService.showInfo(`You said: "${transcript}"`, 'Voice Input');
         console.log('Speech recognized:', transcript);
         this.isListening = false;
+        this.commandRecognized.emit(transcript.toLowerCase()); // Emit the recognized command
       };
 
       this.recognition.onerror = (event: any) => {
