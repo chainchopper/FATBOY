@@ -3,6 +3,7 @@ import { BehaviorSubject } from 'rxjs';
 import { Product } from './product-db.service';
 import { NotificationService } from './notification.service';
 import { AuthService } from './auth.service';
+import { SpeechService } from './speech.service';
 
 export type MealType = 'Breakfast' | 'Lunch' | 'Dinner' | 'Snack';
 
@@ -13,7 +14,7 @@ export interface DiaryEntry {
   product: Product;
 }
 
-export type DailyVerdict = 'excellent' | 'good' | 'fair' | 'poor'; // Exported this type
+export type DailyVerdict = 'excellent' | 'good' | 'fair' | 'poor';
 
 @Injectable({
   providedIn: 'root'
@@ -24,7 +25,11 @@ export class FoodDiaryService {
   public diary$ = this.diarySubject.asObservable();
   private currentUserId: string | null = null;
 
-  constructor(private notificationService: NotificationService, private authService: AuthService) {
+  constructor(
+    private notificationService: NotificationService,
+    private authService: AuthService,
+    private speechService: SpeechService
+  ) {
     this.authService.currentUser$.subscribe(user => {
       this.currentUserId = user?.id || null;
       this.loadFromStorage(); // Reload data when user changes
@@ -47,6 +52,7 @@ export class FoodDiaryService {
     this.saveToStorage();
     this.diarySubject.next(new Map(this.diary));
     this.notificationService.showSuccess(`${product.name} added to ${meal}.`);
+    this.speechService.speak(`${product.name} added to ${meal}.`);
   }
 
   getEntriesForDate(date: string): DiaryEntry[] {
