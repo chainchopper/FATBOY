@@ -66,6 +66,7 @@ export class OcrResultsComponent implements OnInit {
     savedProducts.push(this.product);
     localStorage.setItem('savedProducts', JSON.stringify(savedProducts));
     this.notificationService.showSuccess('Product saved!', 'Saved!'); // Use toast notification
+    this.speechService.speak('Product saved to your gallery!');
   }
 
   scanAgain(): void {
@@ -75,8 +76,10 @@ export class OcrResultsComponent implements OnInit {
   viewRawText(): void {
     if (this.product?.ocrText) {
       this.notificationService.showInfo(this.product.ocrText, 'Raw Text'); // Use toast notification
+      this.speechService.speak('Displaying raw text.');
     } else {
       this.notificationService.showWarning('No raw text available.', 'Info'); // Use toast notification
+      this.speechService.speak('No raw text available.');
     }
   }
 }
