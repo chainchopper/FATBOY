@@ -21,7 +21,7 @@ export class FoodDiaryComponent implements OnInit {
   dailyVerdict: DailyVerdict = 'fair';
   
   breakfast$!: Observable<DiaryEntry[]>;
-  lunch$!: Observable<Observable<DiaryEntry[]>>;
+  lunch$!: Observable<DiaryEntry[]>; // Corrected type here
   dinner$!: Observable<DiaryEntry[]>;
   snacks$!: Observable<DiaryEntry[]>;
 
