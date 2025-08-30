@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
   selector: 'app-logo',
   standalone: true,
   template: `
-    <svg width="140" height="40" viewBox="0 0 140 40" xmlns="http://www.w3.org/2000/svg" class="logo-svg" (click)="goToHome()">
+    <svg width="120" height="40" viewBox="0 0 120 40" xmlns="http://www.w3.org/2000/svg" class="logo-svg" (click)="goToHome()">
       <defs>
         <filter id="neon-glow-logo" x="-50%" y="-50%" width="200%" height="200%">
           <feGaussianBlur stdDeviation="2.5" result="coloredBlur"/>
@@ -21,7 +21,7 @@ import { Router } from '@angular/router';
       </defs>
       
       <!-- Fat Baby Creature Icon (stylized) -->
-      <g transform="translate(5, 5)" class="creature-icon">
+      <g transform="translate(0, 5)" class="creature-icon"> <!-- Adjusted translate x to 0 -->
         <!-- Body/Head -->
         <circle cx="15" cy="15" r="12" fill="url(#scan-gradient)" filter="url(#neon-glow-logo)"/>
         <!-- Eyes -->
@@ -34,7 +34,7 @@ import { Router } from '@angular/router';
       </g>
       
       <!-- Text -->
-      <text x="40" y="30" class="logo-text" filter="url(#neon-glow-logo)">Fat Boy</text>
+      <text x="35" y="30" class="logo-text" filter="url(#neon-glow-logo)">Fat Boy</text> <!-- Adjusted text x to 35 -->
     </svg>
   `,
   styles: [`
@@ -66,6 +66,6 @@ export class LogoComponent {
   constructor(private router: Router) {}
 
   goToHome(): void {
-    this.router.navigate(['/ocr-scanner']);
+    this.router.navigate(['/scanner']);
   }
 }

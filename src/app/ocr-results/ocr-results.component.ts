@@ -5,6 +5,7 @@ import { Product } from '../services/product-db.service';
 import { IngredientParserService } from '../services/ingredient-parser.service';
 import { AudioService } from '../services/audio.service';
 import { SpeechService } from '../services/speech.service';
+import { NotificationService } from '../services/notification.service'; // Import NotificationService
 
 @Component({
   selector: 'app-ocr-results',
@@ -22,7 +23,8 @@ export class OcrResultsComponent implements OnInit {
     private router: Router,
     private ingredientParser: IngredientParserService,
     private audioService: AudioService,
-    private speechService: SpeechService
+    private speechService: SpeechService,
+    private notificationService: NotificationService // Inject NotificationService
   ) {}
 
   ngOnInit(): void {
@@ -63,7 +65,7 @@ export class OcrResultsComponent implements OnInit {
     const savedProducts = JSON.parse(localStorage.getItem('savedProducts') || '[]');
     savedProducts.push(this.product);
     localStorage.setItem('savedProducts', JSON.stringify(savedProducts));
-    alert('Product saved!');
+    this.notificationService.showSuccess('Product saved!', 'Saved!'); // Use toast notification
   }
 
   scanAgain(): void {
@@ -72,9 +74,9 @@ export class OcrResultsComponent implements OnInit {
 
   viewRawText(): void {
     if (this.product?.ocrText) {
-      alert(this.product.ocrText);
+      this.notificationService.showInfo(this.product.ocrText, 'Raw Text'); // Use toast notification
     } else {
-      alert('No raw text available.');
+      this.notificationService.showWarning('No raw text available.', 'Info'); // Use toast notification
     }
   }
 }
