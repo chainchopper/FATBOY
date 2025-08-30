@@ -25,18 +25,24 @@ export class FoodDiaryComponent implements OnInit {
   dinner$!: Observable<DiaryEntry[]>;
   snacks$!: Observable<DiaryEntry[]>;
 
+  currentDate: Date = new Date(); // Track the currently viewed date
+
   constructor(private foodDiaryService: FoodDiaryService) {}
 
   ngOnInit() {
-    const today = new Date().toISOString().split('T')[0];
+    this.loadDiaryForDate(this.currentDate);
+  }
+
+  loadDiaryForDate(date: Date): void {
+    const dateString = date.toISOString().split('T')[0];
     this.todayEntries$ = this.foodDiaryService.diary$.pipe(
-      map(diary => diary.get(today) || [])
+      map(diary => diary.get(dateString) || [])
     );
 
     this.todayEntries$.subscribe(entries => {
-      this.dailySummary = this.foodDiaryService.getDailySummary(today);
+      this.dailySummary = this.foodDiaryService.getDailySummary(dateString);
       const preferences = JSON.parse(localStorage.getItem('fatBoyPreferences') || '{}');
-      this.dailyVerdict = this.foodDiaryService.getDailyPerformanceVerdict(today, preferences);
+      this.dailyVerdict = this.foodDiaryService.getDailyPerformanceVerdict(dateString, preferences);
     });
 
     this.breakfast$ = this.filterEntriesByMeal('Breakfast');
@@ -49,5 +55,20 @@ export class FoodDiaryComponent implements OnInit {
     return this.todayEntries$.pipe(
       map(entries => entries.filter(entry => entry.meal === meal))
     );
+  }
+
+  goToPreviousDay(): void {
+    this.currentDate.setDate(this.currentDate.getDate() - 1);
+    this.loadDiaryForDate(this.currentDate);
+  }
+
+  goToNextDay(): void {
+    this.currentDate.setDate(this.currentDate.getDate() + 1);
+    this.loadDiaryForDate(this.currentDate);
+  }
+
+  isToday(): boolean {
+    const today = new Date();
+    return this.currentDate.toDateString() === today.toDateString();
   }
 }

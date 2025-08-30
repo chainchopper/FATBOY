@@ -1,7 +1,11 @@
 <div class="diary-container">
   <div class="diary-header">
-    <h2>Today's Diary</h2>
-    <!-- Placeholder for future date picker -->
+    <h2>Food Diary</h2>
+    <div class="date-navigator">
+      <button (click)="goToPreviousDay()" class="nav-button">◀️ Previous Day</button>
+      <span class="current-date">{{ currentDate | date:'fullDate' }} <span *ngIf="isToday()">(Today)</span></span>
+      <button (click)="goToNextDay()" class="nav-button" [disabled]="isToday()">Next Day ▶️</button>
+    </div>
   </div>
 
   <div class="daily-summary-section">
@@ -15,6 +19,9 @@
         <span class="summary-value">{{ dailySummary.totalFlaggedItems }}</span>
         <span class="summary-label">Flagged Ingredients</span>
       </div>
+    </div>
+    <div class="daily-verdict-display" [class]="'verdict-' + dailyVerdict">
+      Your Day: <strong>{{ dailyVerdict | titlecase }}</strong>
     </div>
     <div *ngIf="dailySummary.totalFlaggedItems > 0" class="flagged-breakdown">
       <h4>Top Flagged:</h4>
