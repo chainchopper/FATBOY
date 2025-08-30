@@ -9,29 +9,64 @@
   <form (ngSubmit)="submitContribution()" class="contribution-form">
     <div class="form-group">
       <label for="productName">Product Name</label>
-      <input type="text" id="productName" [(ngModel)]="contribution.productName" name="productName" required>
+      <input type="text" id="productName" [(ngModel)]="newContribution.productName" name="productName" required>
     </div>
     
     <div class="form-group">
       <label for="brand">Brand</label>
-      <input type="text" id="brand" [(ngModel)]="contribution.brand" name="brand" required>
+      <input type="text" id="brand" [(ngModel)]="newContribution.brand" name="brand" required>
     </div>
     
     <div class="form-group">
       <label for="barcode">Barcode (if available)</label>
-      <input type="text" id="barcode" [(ngModel)]="contribution.barcode" name="barcode">
+      <input type="text" id="barcode" [(ngModel)]="newContribution.barcode" name="barcode">
     </div>
     
     <div class="form-group">
       <label for="ingredients">Ingredients (comma separated)</label>
-      <textarea id="ingredients" [(ngModel)]="contribution.ingredients" name="ingredients" rows="4" required></textarea>
+      <textarea id="ingredients" [(ngModel)]="newContribution.ingredients" name="ingredients" rows="4" required></textarea>
     </div>
     
     <div class="form-group">
       <label for="notes">Additional Notes</label>
-      <textarea id="notes" [(ngModel)]="contribution.notes" name="notes" rows="3"></textarea>
+      <textarea id="notes" [(ngModel)]="newContribution.notes" name="notes" rows="3"></textarea>
     </div>
     
     <button type="submit" class="submit-btn">Submit Contribution</button>
   </form>
+
+  <div class="community-feed">
+    <h3>Recent Contributions</h3>
+    <div *ngIf="communityContributions.length === 0" class="empty-state">
+      <p>No contributions yet. Be the first to share!</p>
+    </div>
+    <div *ngFor="let contribution of communityContributions" class="contribution-card">
+      <div class="card-header">
+        <h4>{{ contribution.productName }}</h4>
+        <span class="status-badge status-{{ contribution.status }}">{{ contribution.status | titlecase }}</span>
+      </div>
+      <p class="card-brand">{{ contribution.brand }}</p>
+      <p class="card-ingredients"><strong>Ingredients:</strong> {{ contribution.ingredients }}</p>
+      <p class="card-notes" *ngIf="contribution.notes"><strong>Notes:</strong> {{ contribution.notes }}</p>
+      <p class="card-date">Submitted: {{ contribution.timestamp | date:'short' }}</p>
+
+      <div class="social-actions">
+        <button (click)="toggleLike(contribution.id)" class="like-btn">👍 {{ contribution.likes }}</button>
+        <span class="comment-count">💬 {{ contribution.comments.length }}</span>
+      </div>
+
+      <div class="comments-section">
+        <h5>Comments:</h5>
+        <div *ngIf="contribution.comments.length === 0" class="no-comments">No comments yet.</div>
+        <div *ngFor="let comment of contribution.comments" class="comment-item">
+          <strong>{{ comment.username }}:</strong> {{ comment.text }}
+          <span class="comment-date">{{ comment.timestamp | date:'short' }}</span>
+        </div>
+        <div class="add-comment">
+          <input type="text" [(ngModel)]="newCommentText[contribution.id]" placeholder="Add a comment..." [ngModelOptions]="{standalone: true}">
+          <button (click)="addComment(contribution.id)">Post</button>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>

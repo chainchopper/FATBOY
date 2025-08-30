@@ -14,8 +14,6 @@ import { AuthGuard } from './guards/auth.guard';
 import { UnifiedScannerComponent } from './unified-scanner/unified-scanner.component';
 import { ProfileComponent } from './profile/profile.component';
 import { ReceiptScannerComponent } from './receipt-scanner/receipt-scanner.component';
-import { FriendsComponent } from './friends/friends.component';
-import { LeaderboardComponent } from './leaderboard/leaderboard.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/scanner', pathMatch: 'full' },
@@ -33,7 +31,5 @@ export const routes: Routes = [
   { path: 'achievements', component: AchievementsComponent, canActivate: [AuthGuard] },
   { path: 'food-diary', component: FoodDiaryComponent, canActivate: [AuthGuard] },
   { path: 'profile', component: ProfileComponent, canActivate: [AuthGuard] },
-  { path: 'receipt-scanner', component: ReceiptScannerComponent, canActivate: [AuthGuard] },
-  { path: 'friends', component: FriendsComponent, canActivate: [AuthGuard] },
-  { path: 'leaderboard', component: LeaderboardComponent, canActivate: [AuthGuard] }
+  { path: 'receipt-scanner', component: ReceiptScannerComponent, canActivate: [AuthGuard] }
 ];
