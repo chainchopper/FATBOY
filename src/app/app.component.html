@@ -10,7 +10,7 @@
   </div>
 </nav>
 
-<div class="nav-overlay" [class.open]="isMenuOpen" (click)="closeMenu()">
+<div class="nav-overlay" [class.open]="isMenuOpen" (click)="$event.stopPropagation()">
   <div class="nav-menu" (click)="$event.stopPropagation()">
     <a routerLink="/scanner" routerLinkActive="active" (click)="closeMenu()">📸 Unified Scan</a>
     <a routerLink="/food-diary" routerLinkActive="active" (click)="closeMenu()">🥗 Food Diary</a>
