@@ -31,7 +31,7 @@ At the heart of Fat Boy is a powerful, dual-mode scanning system designed for sp
 -   **barcode Barcode Scan:** For packaged goods, the barcode scanner offers a lightning-fast way to retrieve product information from our database, powered by the Open Food Facts API.
 
 ### 🧠 The Brain: Your Personal AI Rule Engine
-Fat Boy isn't just a scanner; it's a decision engine. The verdict you receive is not a generic "healthy" or "unhealthy" rating. It's a personalized judgment based on a sophisticated set of rules that you control.
+Fanalogy isn't just a scanner; it's a decision engine. The verdict you receive is not a generic "healthy" or "unhealthy" rating. It's a personalized judgment based on a sophisticated set of rules that you control.
 -   **Fully Customizable:** On the **Preferences** screen, you can fine-tune your "avoid list." Toggle switches for common offenders like Artificial Sweeteners, High-Fructose Corn Syrup, MSG, and more.
 -   **Set Your Limits:** Use a slider to define your maximum calories per serving.
 -   **Goal-Oriented:** Choose a primary goal—like "Strictly Natural" or "Calorie Count"—to help the engine prioritize its analysis.
@@ -42,17 +42,17 @@ Approved products aren't just a memory; they're an asset. The **Saved Products**
 -   **Interactive Actions:** Each card features an action bar with icons to **Star** (favorite), **Share**, or **Remove** the item. This is the foundation for future AI-powered nutritional analysis and sharing features.
 
 ### 🏆 The Challenge: Gamified Progress & Achievements
-Making healthy choices should be rewarding. Fat Boy includes a full-fledged gamification system to keep you motivated.
+Making healthy choices should be rewarding. Fanalogy includes a full-fledged gamification system to keep you motivated.
 -   **Unlock Badges:** Earn achievements for milestones like your first scan, saving an approved product, or contributing to the community.
 -   **Achievements Page:** A dedicated screen displays all possible badges. Unlocked achievements are vibrant and glowing, while locked ones are grayed out, showing you what to aim for next.
 
 ### 🛒 The Strategy: Smart Shopping & Scan History
-Fat Boy helps you plan your next grocery run and learn from your past choices.
+Fanalogy helps you plan your next grocery run and learn from your past choices.
 -   **Shopping List:** Add any approved product to your shopping list directly from the results or saved products pages. On the **Shopping List** page, you can check off items as you shop or clear the list.
 -   **Comprehensive History:** Every scan, good or bad, is automatically logged to your **History** page. You can review past verdicts, see which ingredients are most frequently flagged, and filter your history by category.
 
 ### 🤝 The Alliance: Community-Powered Database
-A single agent is strong, but a network is unstoppable. The **Community** page allows you to contribute to the Fat Boy database.
+A single agent is strong, but a network is unstoppable. The **Community** page allows you to contribute to the Fanalogy database.
 -   **Submit New Products:** If you scan a product that isn't in our database, you can easily submit its name, brand, and ingredients.
 -   **Earn Rewards:** Contributing to the community is a key way to unlock exclusive achievements.
 
@@ -69,7 +69,7 @@ A single agent is strong, but a network is unstoppable. The **Community** page a
 
 ## 🏁 Getting Started
 
-You can run Fat Boy in two ways: locally for development or via Docker for a production-like environment.
+You can run Fanalogy in two ways: locally for development or via Docker for a production-like environment.
 
 ### 🐳 Method 1: Running with Docker (Recommended)
 
@@ -82,8 +82,8 @@ This is the easiest way to get the app running in a consistent environment.
 **Steps:**
 1.  **Clone the repository:**
     ```bash
-    git clone https://github.com/your-username/fat-boy-app.git
-    cd fat-boy-app
+    git clone https://github.com/your-username/fanalogy-app.git
+    cd fanalogy-app
     ```
 2.  **Build and run the container:**
     ```bash
@@ -100,8 +100,8 @@ This is the easiest way to get the app running in a consistent environment.
 **Steps:**
 1.  **Clone the repository:**
     ```bash
-    git clone https://github.com/your-username/fat-boy-app.git
-    cd fat-boy-app
+    git clone https://github.com/your-username/fanalogy-app.git
+    cd fanalogy-app
     ```
 2.  **Install dependencies:**
     ```bash

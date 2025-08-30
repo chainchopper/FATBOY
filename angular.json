@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "dyad-angular-template": {
+    "fanalogy-angular-template": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:class": {
@@ -41,7 +41,7 @@
             "customWebpackConfig": {
               "path": "./webpack.config.js"
             },
-            "outputPath": "dist/dyad-angular-template",
+            "outputPath": "dist/fanalogy-angular-template",
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": [
@@ -85,10 +85,10 @@
           "builder": "@angular-builders/custom-webpack:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "dyad-angular-template:build:production"
+              "buildTarget": "fanalogy-angular-template:build:production"
             },
             "development": {
-              "buildTarget": "dyad-angular-template:build:development"
+              "buildTarget": "fanalogy-angular-template:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -96,7 +96,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "buildTarget": "dyad-angular-template:build"
+            "buildTarget": "fanalogy-angular-template:build"
           }
         },
         "test": {
