@@ -22,7 +22,8 @@
       "es2022",
       "dom",
       "dom.iterable"
-    ]
+    ],
+    "allowSyntheticDefaultImports": true
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,
@@ -31,6 +32,6 @@
     "strictTemplates": true
   },
   "exclude": [
-    "supabase/functions/**/*" // Exclude Supabase Edge Functions from Angular compilation
+    "supabase/functions/**/*"
   ]
 }
