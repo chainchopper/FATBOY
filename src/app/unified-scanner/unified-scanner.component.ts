@@ -92,6 +92,18 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
     } else if (command.includes('go to saved')) {
       this.router.navigate(['/saved']);
       this.speechService.speak('Opening saved products.');
+    } else if (command.includes('go to shopping list')) {
+      this.router.navigate(['/shopping-list']);
+      this.speechService.speak('Opening shopping list.');
+    } else if (command.includes('go to achievements')) {
+      this.router.navigate(['/achievements']);
+      this.speechService.speak('Opening achievements.');
+    } else if (command.includes('go to community')) {
+      this.router.navigate(['/community']);
+      this.speechService.speak('Opening community page.');
+    } else if (command.includes('go to food diary')) {
+      this.router.navigate(['/food-diary']);
+      this.speechService.speak('Opening food diary.');
     } else if (command.includes('switch camera')) {
       this.switchCamera();
       this.speechService.speak('Switching camera.');
