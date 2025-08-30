@@ -1,25 +1,30 @@
-<div class="ocr-container">
+<div class="unified-scanner-container">
   <div class="scanner-header">
     <button (click)="switchCamera()" class="switch-camera-btn" title="Switch Camera">🔄</button>
-    <h2>Scan Product Label</h2>
-    <button routerLink="/scanner" class="switch-mode-btn">Switch to Barcode</button>
+    <h2>Scan Product</h2>
+    <!-- No switch mode button needed here, as it's unified -->
   </div>
   
   <div class="camera-preview">
     <video #videoElement autoplay playsinline class="video-element"></video>
     <canvas #canvasElement class="capture-canvas" style="display: none;"></canvas>
     
+    <div id="reader" #reader class="barcode-reader-container"></div> <!-- Html5Qrcode needs a div -->
+
     <div class="viewfinder">
       <div class="scan-area">
-        <div *ngIf="isProcessing" class="scan-line"></div>
+        <div *ngIf="isScanningBarcode || isProcessingOcr" class="scan-line"></div>
       </div>
-      <p>Position the product label within this area</p>
+      <p>Position the label or barcode within this area</p>
     </div>
   </div>
   
   <div class="controls">
-    <button (click)="captureImage()" [disabled]="isProcessing" class="capture-btn">
-      {{ isProcessing ? 'Processing...' : 'Capture Label' }}
+    <button 
+      (click)="captureLabelForOcr()" 
+      [disabled]="isProcessingOcr" 
+      class="capture-label-btn">
+      {{ isProcessingOcr ? 'Processing Label...' : 'Capture Label' }}
     </button>
     <p class="tagline">Scan. Know. Choose.</p>
     <div *ngIf="isVoiceListening" class="voice-listening-indicator">

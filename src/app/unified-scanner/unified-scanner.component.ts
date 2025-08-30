@@ -1,7 +1,9 @@
 import { Component, ElementRef, ViewChild, AfterViewInit, OnDestroy } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { Html5Qrcode } from 'html5-qrcode';
 import Tesseract from 'tesseract.js';
+import { OpenFoodFactsService } from '../services/open-food-facts.service';
 import { OcrEnhancerService } from '../services/ocr-enhancer.service';
 import { IngredientParserService } from '../services/ingredient-parser.service';
 import { ProductDbService, Product } from '../services/product-db.service';
@@ -11,26 +13,30 @@ import { AuthService } from '../services/auth.service';
 import { take } from 'rxjs/operators';
 
 @Component({
-  selector: 'app-ocr-scanner',
+  selector: 'app-unified-scanner',
   standalone: true,
   imports: [CommonModule, RouterLink],
-  templateUrl: './ocr-scanner.component.html',
-  styleUrls: ['./ocr-scanner.component.css']
+  templateUrl: './unified-scanner.component.html',
+  styleUrls: ['./unified-scanner.component.css']
 })
-export class OcrScannerComponent implements AfterViewInit, OnDestroy {
+export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
   @ViewChild('videoElement', { static: false }) videoElement!: ElementRef<HTMLVideoElement>;
   @ViewChild('canvasElement', { static: false }) canvasElement!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('reader') reader!: ElementRef; // For Html5Qrcode
 
   private mediaStream: MediaStream | null = null;
-  isProcessing = false;
-  
+  private html5QrcodeScanner!: Html5Qrcode;
+  isScanningBarcode = false;
+  isProcessingOcr = false;
+  isVoiceListening = false;
+
   private cameras: MediaDeviceInfo[] = [];
   private selectedCameraId: string | null = null;
   private currentCameraIndex = 0;
-  isVoiceListening = false;
 
   constructor(
     private router: Router,
+    private offService: OpenFoodFactsService,
     private ocrEnhancer: OcrEnhancerService,
     private ingredientParser: IngredientParserService,
     private productDb: ProductDbService,
@@ -40,11 +46,18 @@ export class OcrScannerComponent implements AfterViewInit, OnDestroy {
   ) {}
 
   async ngAfterViewInit() {
-    await this.setupCameras();
-    if (this.cameras.length > 0) {
-      this.startCamera();
+    try {
+      this.html5QrcodeScanner = new Html5Qrcode("reader");
+      await this.setupCameras();
+      if (this.cameras.length > 0) {
+        this.startCamera(); // Start video stream
+        this.startBarcodeScanning(); // Start barcode detection
+      }
+      this.checkVoiceCommandsPreference();
+    } catch (error) {
+      console.error('Error initializing scanner:', error);
+      this.notificationService.showError('Error initializing scanner.');
     }
-    this.checkVoiceCommandsPreference();
   }
 
   private checkVoiceCommandsPreference(): void {
@@ -94,22 +107,76 @@ export class OcrScannerComponent implements AfterViewInit, OnDestroy {
       video.srcObject = this.mediaStream;
       await video.play();
     } catch (error) {
-      console.error('Error accessing camera for OCR:', error);
+      console.error('Error accessing camera:', error);
       this.notificationService.showError('Unable to access camera. Please allow permissions.');
     }
   }
 
-  switchCamera() {
-    if (this.cameras.length > 1) {
-      this.currentCameraIndex = (this.currentCameraIndex + 1) % this.cameras.length;
-      this.selectedCameraId = this.cameras[this.currentCameraIndex].deviceId;
-      localStorage.setItem('fatBoySelectedCamera', this.selectedCameraId);
-      this.startCamera();
+  async startBarcodeScanning() {
+    if (this.isScanningBarcode) return;
+    try {
+      this.isScanningBarcode = true;
+      await this.html5QrcodeScanner.start(
+        { deviceId: this.selectedCameraId ? { exact: this.selectedCameraId } : undefined, facingMode: "environment" },
+        { fps: 10, qrbox: { width: 250, height: 250 } },
+        this.onBarcodeScanSuccess.bind(this),
+        this.onBarcodeScanFailure.bind(this)
+      );
+    } catch (error) {
+      console.error('Error starting barcode scanner:', error);
+      this.notificationService.showError('Failed to start barcode scanner.');
+      this.isScanningBarcode = false;
     }
   }
 
-  async captureImage(): Promise<void> {
-    if (this.isProcessing) return;
+  stopBarcodeScanning() {
+    if (!this.isScanningBarcode) return;
+    this.html5QrcodeScanner.stop().then(() => {
+      this.isScanningBarcode = false;
+    }).catch((error) => {
+      console.error('Error stopping barcode scanner:', error);
+    });
+  }
+
+  async onBarcodeScanSuccess(decodedText: string): Promise<void> {
+    this.stopBarcodeScanning();
+    this.stopCamera(); // Stop camera after successful scan
+
+    const productFromApi = await this.offService.getProductByBarcode(decodedText);
+    const product = {
+      barcode: productFromApi.barcode,
+      name: productFromApi.name || "Unknown Product",
+      brand: productFromApi.brand || "Unknown Brand",
+      ingredients: Array.isArray(productFromApi.ingredients) && productFromApi.ingredients.length > 0
+        ? productFromApi.ingredients
+        : ["Ingredients not available"],
+      calories: productFromApi.calories ?? undefined,
+      image: productFromApi.image || "https://via.placeholder.com/150"
+    };
+
+    sessionStorage.setItem('scannedProduct', JSON.stringify(product));
+    this.router.navigate(['/results']);
+  }
+
+  onBarcodeScanFailure(error: string) {
+    // console.log('Barcode scan attempt failed:', error); // Too noisy for console
+  }
+
+  switchCamera() {
+    if (this.cameras.length > 1) {
+      this.stopBarcodeScanning(); // Stop current scanning before switching
+      this.currentCameraIndex = (this.currentCameraIndex + 1) % this.cameras.length;
+      this.selectedCameraId = this.cameras[this.currentCameraIndex].deviceId;
+      localStorage.setItem('fatBoySelectedCamera', this.selectedCameraId);
+      this.startCamera(); // Restart video stream with new camera
+      this.startBarcodeScanning(); // Restart barcode detection with new camera
+    } else {
+      this.notificationService.showInfo('Only one camera found.');
+    }
+  }
+
+  async captureLabelForOcr(): Promise<void> {
+    if (this.isProcessingOcr) return;
     const video = this.videoElement.nativeElement;
     const canvas = this.canvasElement.nativeElement;
 
@@ -124,7 +191,8 @@ export class OcrScannerComponent implements AfterViewInit, OnDestroy {
     if (!ctx) return;
 
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-    this.isProcessing = true;
+    this.isProcessingOcr = true;
+    this.stopBarcodeScanning(); // Stop continuous barcode scanning during OCR processing
 
     try {
       const dataUrl = canvas.toDataURL('image/png');
@@ -133,7 +201,8 @@ export class OcrScannerComponent implements AfterViewInit, OnDestroy {
 
       if (!text || text.trim().length === 0) {
         this.notificationService.showWarning('No text detected. Please adjust lighting and try again.');
-        this.isProcessing = false;
+        this.isProcessingOcr = false;
+        this.startBarcodeScanning(); // Restart barcode scanning
         return;
       }
 
@@ -141,19 +210,47 @@ export class OcrScannerComponent implements AfterViewInit, OnDestroy {
     } catch (err) {
       console.error('OCR error:', err);
       this.notificationService.showError('Failed to process the image. Please try again.');
-      this.isProcessing = false;
+      this.isProcessingOcr = false;
+      this.startBarcodeScanning(); // Restart barcode scanning
     }
   }
 
   private processExtractedText(text: string): void {
-    // ... (rest of the processExtractedText method is unchanged)
+    this.stopCamera(); // Stop camera after successful OCR
+
+    const enhancedIngredients = this.ocrEnhancer.enhanceIngredientDetection(text);
+    const productName = this.ocrEnhancer.detectProductName(text);
+    const brand = this.ocrEnhancer.detectBrand(text);
+
+    const categories = this.ingredientParser.categorizeProduct(enhancedIngredients);
+    const evaluation = this.ingredientParser.evaluateProduct(enhancedIngredients, undefined, JSON.parse(localStorage.getItem('fatBoyPreferences_anonymous') || '{}'));
+
+    const productInfo: Omit<Product, 'id' | 'scanDate'> = {
+      name: productName,
+      brand: brand,
+      ingredients: enhancedIngredients,
+      categories,
+      verdict: evaluation.verdict,
+      flaggedIngredients: evaluation.flaggedIngredients.map(f => f.ingredient),
+      ocrText: text
+    };
+
+    const product = this.productDb.addProduct(productInfo);
+    sessionStorage.setItem('viewingProduct', JSON.stringify(product));
+    this.isProcessingOcr = false;
+    this.router.navigate(['/ocr-results']);
   }
 
-  ngOnDestroy(): void {
+  private stopCamera(): void {
     if (this.mediaStream) {
       this.mediaStream.getTracks().forEach(t => t.stop());
       this.mediaStream = null;
     }
-    this.speechService.stopListening(); // Stop listening when component is destroyed
+  }
+
+  ngOnDestroy(): void {
+    this.stopBarcodeScanning();
+    this.stopCamera();
+    this.speechService.stopListening();
   }
 }

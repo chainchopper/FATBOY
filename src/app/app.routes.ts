@@ -1,9 +1,7 @@
 import { Routes } from '@angular/router';
-import { ScannerComponent } from './scanner/scanner.component';
 import { ResultsComponent } from './results/results.component';
 import { SavedComponent } from './saved/saved.component';
 import { PreferencesComponent } from './preferences/preferences.component';
-import { OcrScannerComponent } from './ocr-scanner/ocr-scanner.component';
 import { OcrResultsComponent } from './ocr-results/ocr-results.component';
 import { HistoryComponent } from './history/history.component';
 import { SuggestionsComponent } from './suggestions/suggestions.component';
@@ -13,13 +11,13 @@ import { AchievementsComponent } from './achievements/achievements.component';
 import { LoginComponent } from './login/login.component';
 import { FoodDiaryComponent } from './food-diary/food-diary.component';
 import { AuthGuard } from './guards/auth.guard';
+import { UnifiedScannerComponent } from './unified-scanner/unified-scanner.component';
 
 export const routes: Routes = [
-  { path: '', redirectTo: '/ocr-scanner', pathMatch: 'full' },
+  { path: '', redirectTo: '/scanner', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
-  { path: 'scanner', component: ScannerComponent },
+  { path: 'scanner', component: UnifiedScannerComponent }, // Unified scanner is now the default
   { path: 'results', component: ResultsComponent },
-  { path: 'ocr-scanner', component: OcrScannerComponent },
   { path: 'ocr-results', component: OcrResultsComponent },
   // Protected routes
   { path: 'saved', component: SavedComponent, canActivate: [AuthGuard] },
