@@ -6,7 +6,10 @@
   background: rgba(26, 26, 46, 0.8); /* Semi-transparent dark background */
   backdrop-filter: blur(10px);
   border-bottom: 1px solid #f038ff; /* Neon pink border */
-  position: relative;
+  position: fixed; /* Changed to fixed */
+  top: 0; /* Fixed at the top */
+  left: 0;
+  right: 0;
   z-index: 1001;
 }
 
@@ -53,8 +56,6 @@
 .hamburger-menu.open .bar:nth-child(3) {
   transform: rotate(-45deg);
 }
-
-/* Voice Input Button styles removed */
 
 /* Navigation Overlay & Menu */
 .nav-overlay {
@@ -118,4 +119,92 @@
 
 main {
   min-height: calc(100vh - 70px);
+  padding-top: 70px; /* Add padding to prevent content from going under fixed header */
+  padding-bottom: 90px; /* Add padding to prevent content from going under fixed FAB */
+}
+
+/* Floating Action Button (FAB) */
+.fab-button {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #f038ff, #0abdc6);
+  border: none;
+  color: white;
+  font-size: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 0 15px rgba(240, 56, 255, 0.7);
+  z-index: 100;
+  transition: all 0.3s ease-in-out;
+}
+
+.fab-button:hover {
+  transform: translateX(-50%) scale(1.05);
+  box-shadow: 0 0 25px rgba(240, 56, 255, 0.9);
+}
+
+.fab-button.open {
+  transform: translateX(-50%) rotate(45deg);
+  box-shadow: 0 0 25px rgba(10, 189, 198, 0.9);
+  background: linear-gradient(135deg, #0abdc6, #f038ff);
+}
+
+.fab-button .plus-icon {
+  transition: transform 0.3s ease-in-out;
+}
+
+.fab-button.open .plus-icon {
+  transform: rotate(45deg);
+}
+
+/* FAB Action Sheet */
+.fab-action-sheet {
+  position: fixed;
+  bottom: 90px; /* Position above the FAB */
+  left: 50%;
+  transform: translateX(-50%) translateY(100%); /* Start off-screen below */
+  opacity: 0;
+  visibility: hidden;
+  background: rgba(15, 15, 30, 0.9);
+  border: 1px solid #4a4a6e;
+  border-radius: 12px;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 99;
+  transition: all 0.3s ease-in-out;
+  min-width: 280px;
+  max-width: 90vw;
+  box-shadow: 0 0 20px rgba(240, 56, 255, 0.5);
+}
+
+.fab-action-sheet.open {
+  transform: translateX(-50%) translateY(0); /* Slide into view */
+  opacity: 1;
+  visibility: visible;
+}
+
+.fab-action-item {
+  background: transparent;
+  border: 1px solid #0abdc6;
+  color: #e0e0e0;
+  padding: 12px 15px;
+  border-radius: 8px;
+  font-size: 1rem;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.fab-action-item:hover {
+  background-color: rgba(10, 189, 198, 0.1);
+  box-shadow: 0 0 10px #0abdc6;
 }
