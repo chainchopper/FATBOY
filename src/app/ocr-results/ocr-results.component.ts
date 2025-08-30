@@ -6,6 +6,7 @@ import { IngredientParserService } from '../services/ingredient-parser.service';
 import { AudioService } from '../services/audio.service';
 import { SpeechService } from '../services/speech.service';
 import { NotificationService } from '../services/notification.service'; // Import NotificationService
+import { ProductDbService } from '../services/product-db.service'; // Import ProductDbService
 
 @Component({
   selector: 'app-ocr-results',
@@ -24,7 +25,8 @@ export class OcrResultsComponent implements OnInit {
     private ingredientParser: IngredientParserService,
     private audioService: AudioService,
     private speechService: SpeechService,
-    private notificationService: NotificationService // Inject NotificationService
+    private notificationService: NotificationService, // Inject NotificationService
+    private productDb: ProductDbService // Inject ProductDbService
   ) {}
 
   ngOnInit(): void {
@@ -67,6 +69,24 @@ export class OcrResultsComponent implements OnInit {
     localStorage.setItem('savedProducts', JSON.stringify(savedProducts));
     this.notificationService.showSuccess('Product saved!', 'Saved!'); // Use toast notification
     this.speechService.speak('Product saved to your gallery!');
+  }
+
+  addToAvoidList() {
+    if (!this.product) return;
+    const productInfo: Omit<Product, 'id' | 'scanDate'> = {
+      name: this.product.name || 'Unknown Product',
+      brand: this.product.brand || 'Unknown Brand',
+      barcode: this.product.barcode,
+      ingredients: Array.isArray(this.product.ingredients) ? this.product.ingredients : [],
+      calories: this.product.calories,
+      image: this.product.image,
+      categories: this.ingredientParser.categorizeProduct(Array.isArray(this.product.ingredients) ? this.product.ingredients : []),
+      verdict: 'bad',
+      flaggedIngredients: this.flaggedItems.map(f => f.ingredient)
+    };
+    this.productDb.addAvoidedProduct(productInfo);
+    this.notificationService.showInfo(`${this.product.name} added to your avoid list.`, 'Avoided!');
+    this.speechService.speak(`${this.product.name} added to your avoid list.`);
   }
 
   scanAgain(): void {

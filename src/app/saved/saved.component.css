@@ -19,6 +19,35 @@ h2 {
   color: #a0a0c0;
 }
 
+.tabs {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 2rem;
+  gap: 15px;
+}
+
+.tab-button {
+  background: transparent;
+  border: 1px solid #4a4a6e;
+  color: #e0e0e0;
+  padding: 10px 20px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-size: 1rem;
+}
+
+.tab-button.active {
+  background-color: #f038ff;
+  color: #1a1a2e;
+  border-color: #f038ff;
+  box-shadow: 0 0 10px #f038ff;
+}
+
+.tab-button:hover:not(.active) {
+  background-color: rgba(74, 74, 110, 0.2);
+}
+
 .products-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -42,16 +71,32 @@ h2 {
   border-color: #0abdc6;
 }
 
-.approved-badge {
+.product-card.avoided {
+  border-color: #f038ff;
+}
+.product-card.avoided:hover {
+  box-shadow: 0 0 20px rgba(240, 56, 255, 0.6);
+  border-color: #f038ff;
+}
+
+.approved-badge, .avoided-badge {
   position: absolute;
   top: 15px;
   right: 15px;
-  background: #0abdc6;
-  color: #1a1a2e;
   padding: 4px 8px;
   border-radius: 4px;
   font-size: 12px;
   font-weight: bold;
+}
+
+.approved-badge {
+  background: #0abdc6;
+  color: #1a1a2e;
+}
+
+.avoided-badge {
+  background: #f038ff;
+  color: #1a1a2e;
 }
 
 .product-thumb {

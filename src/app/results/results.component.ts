@@ -103,6 +103,24 @@ export class ResultsComponent implements OnInit {
     }
   }
 
+  addToAvoidList() {
+    if (!this.product) return;
+    const productInfo: Omit<Product, 'id' | 'scanDate'> = {
+      name: this.product.name || 'Unknown Product',
+      brand: this.product.brand || 'Unknown Brand',
+      barcode: this.product.barcode,
+      ingredients: Array.isArray(this.product.ingredients) ? this.product.ingredients : [],
+      calories: this.product.calories,
+      image: this.product.image,
+      categories: this.ingredientParser.categorizeProduct(Array.isArray(this.product.ingredients) ? this.product.ingredients : []),
+      verdict: 'bad',
+      flaggedIngredients: this.flaggedItems.map(f => f.ingredient)
+    };
+    this.productDb.addAvoidedProduct(productInfo);
+    this.notificationService.showInfo(`${this.product.name} added to your avoid list.`, 'Avoided!');
+    this.speechService.speak(`${this.product.name} added to your avoid list.`);
+  }
+
   scanAgain() {
     this.router.navigate(['/scanner']);
   }

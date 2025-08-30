@@ -12,17 +12,28 @@ import { Observable } from 'rxjs';
   styleUrls: ['./saved.component.css']
 })
 export class SavedComponent implements OnInit {
-  savedProducts$!: Observable<Product[]>;
+  approvedProducts$!: Observable<Product[]>;
+  avoidedProducts$!: Observable<Product[]>;
+  selectedTab: 'approved' | 'avoided' = 'approved';
 
   constructor(private productDb: ProductDbService) {}
 
   ngOnInit() {
-    this.savedProducts$ = this.productDb.products$.pipe(
+    this.approvedProducts$ = this.productDb.products$.pipe(
       map(products => products.filter(p => p.verdict === 'good'))
     );
+    this.avoidedProducts$ = this.productDb.avoidedProducts$;
   }
 
-  removeProduct(id: string) {
+  selectTab(tab: 'approved' | 'avoided') {
+    this.selectedTab = tab;
+  }
+
+  removeApprovedProduct(id: string) {
     this.productDb.removeProduct(id);
+  }
+
+  removeAvoidedProduct(id: string) {
+    this.productDb.removeAvoidedProduct(id);
   }
 }

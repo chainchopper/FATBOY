@@ -1,0 +1,27 @@
+<div class="profile-container">
+  <div *ngIf="(currentUser$ | async) as user; else notLoggedIn">
+    <div *ngIf="(userProfile$ | async) as profile" class="profile-card">
+      <img [src]="profile.avatar_url" alt="User Avatar" class="avatar">
+      <h2>{{ profile.first_name }} {{ profile.last_name }}</h2>
+      <p class="email">{{ user.email }}</p>
+      
+      <div class="profile-section">
+        <h3>Your Badges</h3>
+        <div class="badges-grid">
+          <div *ngFor="let badge of (badges$ | async)" class="badge-item" [class.unlocked]="badge.unlocked">
+            <span class="badge-icon">{{ badge.icon }}</span>
+            <span class="badge-name">{{ badge.name }}</span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Future sections for stats, contributions, etc. -->
+    </div>
+  </div>
+  
+  <ng-template #notLoggedIn>
+    <div class="empty-state">
+      <p>Please log in to view your profile.</p>
+    </div>
+  </ng-template>
+</div>
