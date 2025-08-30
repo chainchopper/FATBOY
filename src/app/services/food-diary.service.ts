@@ -82,7 +82,16 @@ export class FoodDiaryService {
     let score = 0;
 
     // Calorie-based scoring
-    if (preferences.maxCalories) {
+    if (preferences.dailyCalorieTarget) { // Use dailyCalorieTarget from preferences
+      const calorieTarget = preferences.dailyCalorieTarget;
+      if (totalCalories <= calorieTarget) {
+        score += 2; // Good on calories
+      } else if (totalCalories <= calorieTarget * 1.1) { // 10% over is still 'fair'
+        score += 1;
+      } else {
+        score -= 1; // Significantly over
+      }
+    } else if (preferences.maxCalories) { // Fallback to old maxCalories if daily not set
       const calorieTarget = preferences.maxCalories * 3; // Assuming 3 meals for a rough daily target
       if (totalCalories <= calorieTarget) {
         score += 2; // Good on calories
@@ -92,6 +101,7 @@ export class FoodDiaryService {
         score -= 1; // Significantly over
       }
     }
+
 
     // Flagged ingredients scoring
     if (totalFlaggedItems === 0) {
@@ -106,8 +116,8 @@ export class FoodDiaryService {
     if (preferences.goal === 'strictlyNatural' && totalFlaggedItems > 0) {
       score -= 1; // Penalize more for natural goal if flagged items exist
     }
-    if (preferences.goal === 'calorieCount' && totalCalories > (preferences.maxCalories * 3)) {
-      score -= 1; // Penalize more for calorie goal if over
+    if (preferences.goal === 'calorieCount' && preferences.dailyCalorieTarget && totalCalories > preferences.dailyCalorieTarget) {
+      score -= 1; // Penalize more for calorie goal if over target
     }
 
     if (score >= 4) {
