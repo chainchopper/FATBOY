@@ -10,16 +10,14 @@
   </div>
 </nav>
 
-<div class="nav-overlay" [class.open]="isMenuOpen || isFabMenuOpen" (click)="closeMenu(); closeFabMenu()">
-  <div class="nav-menu" [class.open]="isMenuOpen" (click)="$event.stopPropagation()">
+<div class="nav-overlay" [class.open]="isMenuOpen" (click)="$event.stopPropagation()">
+  <div class="nav-menu" (click)="$event.stopPropagation()">
     <a routerLink="/scanner" routerLinkActive="active" (click)="closeMenu()">📸 Unified Scan</a>
     <a routerLink="/food-diary" routerLinkActive="active" (click)="closeMenu()">🥗 Food Diary</a>
     <a routerLink="/saved" routerLinkActive="active" (click)="closeMenu()">❤️ Saved</a>
     <a routerLink="/history" routerLinkActive="active" (click)="closeMenu()">📖 History</a>
     <a routerLink="/shopping-list" routerLinkActive="active" (click)="closeMenu()">🛒 Shopping List</a>
     <a routerLink="/achievements" routerLinkActive="active" (click)="closeMenu()">🏆 Achievements</a>
-    <a routerLink="/leaderboard" routerLinkActive="active" (click)="closeMenu()">🏅 Leaderboard</a>
-    <a routerLink="/friends" routerLinkActive="active" (click)="closeMenu()">🫂 Friends</a>
     <a routerLink="/suggestions" routerLinkActive="active" (click)="closeMenu()">💡 Suggestions</a>
     <a routerLink="/community" routerLinkActive="active" (click)="closeMenu()">🤝 Community</a>
     <a routerLink="/preferences" routerLinkActive="active" (click)="closeMenu()">⚙️ Preferences</a>
@@ -32,21 +30,6 @@
       <a routerLink="/login" routerLinkActive="active" (click)="closeMenu()">👤 Login</a>
     </ng-template>
   </div>
-</div>
-
-<!-- Floating Action Button (FAB) -->
-<button class="fab-button" (click)="toggleFabMenu()" [class.open]="isFabMenuOpen">
-  <span class="plus-icon" [class.rotate]="isFabMenuOpen">+</span>
-</button>
-
-<!-- FAB Action Sheet -->
-<div class="fab-action-sheet" [class.open]="isFabMenuOpen" (click)="$event.stopPropagation()">
-  <button class="fab-action-item" (click)="goToScanner()">
-    📸 Scan items using your camera
-  </button>
-  <button class="fab-action-item" (click)="goToManualEntry()">
-    ✍️ Manually enter items to save to your lists
-  </button>
 </div>
 
 <main>
