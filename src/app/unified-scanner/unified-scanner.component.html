@@ -6,11 +6,10 @@
   </div>
   
   <div class="camera-preview">
-    <video #videoElement autoplay playsinline class="video-element"></video>
+    <!-- Html5Qrcode will render its video stream inside this div -->
+    <div id="reader" #reader class="barcode-reader-container"></div> 
     <canvas #canvasElement class="capture-canvas" style="display: none;"></canvas>
     
-    <div id="reader" #reader class="barcode-reader-container"></div> <!-- Html5Qrcode needs a div -->
-
     <div class="viewfinder">
       <div class="scan-area">
         <div *ngIf="isScanningBarcode || isProcessingOcr" class="scan-line"></div>
@@ -20,12 +19,6 @@
   </div>
   
   <div class="controls">
-    <button 
-      (click)="captureLabelForOcr()" 
-      [disabled]="isProcessingOcr" 
-      class="capture-label-btn">
-      {{ isProcessingOcr ? 'Processing Label...' : 'Capture Label' }}
-    </button>
     <p class="tagline">Scan. Know. Choose.</p>
     <div *ngIf="isVoiceListening" class="voice-listening-indicator">
       🎤 Listening...

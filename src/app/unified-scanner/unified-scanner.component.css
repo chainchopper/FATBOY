@@ -117,28 +117,6 @@
   gap: 15px;
 }
 
-.capture-label-btn {
-  padding: 15px 30px;
-  border: 1px solid #f038ff;
-  border-radius: 30px;
-  font-size: 18px;
-  background-color: transparent;
-  color: #f038ff;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
-.capture-label-btn:disabled {
-  border-color: #757575;
-  color: #757575;
-  cursor: not-allowed;
-}
-
-.capture-label-btn:hover {
-  background-color: rgba(240, 56, 255, 0.1);
-  box-shadow: 0 0 15px #f038ff;
-}
-
 .tagline {
   font-size: 0.9rem;
   color: #a0a0c0;
