@@ -21,11 +21,9 @@ import { Subscription } from 'rxjs';
   styleUrls: ['./unified-scanner.component.css']
 })
 export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
-  @ViewChild('videoElement', { static: false }) videoElement!: ElementRef<HTMLVideoElement>;
   @ViewChild('canvasElement', { static: false }) canvasElement!: ElementRef<HTMLCanvasElement>;
   @ViewChild('reader') reader!: ElementRef; // For Html5Qrcode
 
-  private mediaStream: MediaStream | null = null;
   private html5QrcodeScanner!: Html5Qrcode;
   isScanningBarcode = false;
   isProcessingOcr = false;
@@ -52,8 +50,7 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
       this.html5QrcodeScanner = new Html5Qrcode("reader");
       await this.setupCameras();
       if (this.cameras.length > 0) {
-        this.startCamera(); // Start video stream
-        this.startBarcodeScanning(); // Start barcode detection
+        this.startBarcodeScanning(); // This will start the single camera feed
       }
       this.checkVoiceCommandsPreference();
       this.voiceCommandSubscription = this.speechService.commandRecognized.subscribe(command => {
@@ -136,26 +133,6 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
     }
   }
 
-  private async startCamera() {
-    if (this.mediaStream) {
-      this.mediaStream.getTracks().forEach(track => track.stop());
-    }
-
-    try {
-      const constraints = {
-        video: { deviceId: this.selectedCameraId ? { exact: this.selectedCameraId } : undefined, facingMode: 'environment' },
-        audio: false
-      };
-      this.mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
-      const video = this.videoElement.nativeElement;
-      video.srcObject = this.mediaStream;
-      await video.play();
-    } catch (error) {
-      console.error('Error accessing camera:', error);
-      this.notificationService.showError('Unable to access camera. Please allow permissions.');
-    }
-  }
-
   async startBarcodeScanning() {
     if (this.isScanningBarcode) return;
     try {
@@ -184,7 +161,6 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
 
   async onBarcodeScanSuccess(decodedText: string): Promise<void> {
     this.stopBarcodeScanning();
-    this.stopCamera(); // Stop camera after successful scan
 
     const productFromApi = await this.offService.getProductByBarcode(decodedText);
     const product = {
@@ -212,7 +188,6 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
       this.currentCameraIndex = (this.currentCameraIndex + 1) % this.cameras.length;
       this.selectedCameraId = this.cameras[this.currentCameraIndex].deviceId;
       localStorage.setItem('fatBoySelectedCamera', this.selectedCameraId);
-      this.startCamera(); // Restart video stream with new camera
       this.startBarcodeScanning(); // Restart barcode detection with new camera
     } else {
       this.notificationService.showInfo('Only one camera found.');
@@ -221,7 +196,14 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
 
   async captureLabelForOcr(): Promise<void> {
     if (this.isProcessingOcr) return;
-    const video = this.videoElement.nativeElement;
+
+    // Find the video element created by Html5Qrcode inside the #reader div
+    const video = this.reader.nativeElement.querySelector('video');
+    if (!video) {
+      this.notificationService.showError('Camera feed not found. Please try again.');
+      return;
+    }
+
     const canvas = this.canvasElement.nativeElement;
 
     if (!video.videoWidth || !video.videoHeight) {
@@ -260,8 +242,7 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
   }
 
   private processExtractedText(text: string): void {
-    this.stopCamera(); // Stop camera after successful OCR
-
+    // The camera is already stopped by stopBarcodeScanning()
     const enhancedIngredients = this.ocrEnhancer.enhanceIngredientDetection(text);
     const productName = this.ocrEnhancer.detectProductName(text);
     const brand = this.ocrEnhancer.detectBrand(text);
@@ -285,16 +266,8 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
     this.router.navigate(['/ocr-results']);
   }
 
-  private stopCamera(): void {
-    if (this.mediaStream) {
-      this.mediaStream.getTracks().forEach(t => t.stop());
-      this.mediaStream = null;
-    }
-  }
-
   ngOnDestroy(): void {
     this.stopBarcodeScanning();
-    this.stopCamera();
     this.speechService.stopListening();
     if (this.voiceCommandSubscription) {
       this.voiceCommandSubscription.unsubscribe();
