@@ -107,6 +107,9 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
     } else if (command.includes('switch camera')) {
       this.switchCamera();
       this.speechService.speak('Switching camera.');
+    } else if (command.includes('add to shopping list')) {
+      // This command will be handled on the results pages
+      this.speechService.speak('You can add items to your shopping list from the results page.');
     } else {
       this.speechService.speak('Command not recognized. Please try again.');
     }

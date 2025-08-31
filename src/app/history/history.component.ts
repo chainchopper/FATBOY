@@ -81,6 +81,10 @@ export class HistoryComponent implements OnInit {
     }
   }
 
+  addToShoppingList(product: Product) {
+    this.shoppingListService.addItem(product);
+  }
+
   getCategoryIcon(category: string): string {
     const icons: {[key: string]: string} = {
       artificialSweeteners: '🧪',
