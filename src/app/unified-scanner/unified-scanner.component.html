@@ -6,10 +6,11 @@
   </div>
   
   <div class="camera-preview">
-    <!-- Html5Qrcode will render its video stream inside this div -->
-    <div id="reader" #reader class="barcode-reader-container"></div> 
+    <video #videoElement autoplay playsinline class="video-element"></video>
     <canvas #canvasElement class="capture-canvas" style="display: none;"></canvas>
     
+    <div id="reader" #reader class="barcode-reader-container"></div> <!-- Html5Qrcode needs a div -->
+
     <div class="viewfinder">
       <div class="scan-area">
         <div *ngIf="isScanningBarcode || isProcessingOcr" class="scan-line"></div>

@@ -12,16 +12,11 @@ import { LoginComponent } from './login/login.component';
 import { FoodDiaryComponent } from './food-diary/food-diary.component';
 import { AuthGuard } from './guards/auth.guard';
 import { UnifiedScannerComponent } from './unified-scanner/unified-scanner.component';
-import { ProfileComponent } from './profile/profile.component';
-import { ReceiptScannerComponent } from './receipt-scanner/receipt-scanner.component';
-import { FriendsComponent } from './friends/friends.component';
-import { LeaderboardComponent } from './leaderboard/leaderboard.component';
-import { ManualEntryComponent } from './manual-entry/manual-entry.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/scanner', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
-  { path: 'scanner', component: UnifiedScannerComponent },
+  { path: 'scanner', component: UnifiedScannerComponent }, // Unified scanner is now the default
   { path: 'results', component: ResultsComponent },
   { path: 'ocr-results', component: OcrResultsComponent },
   // Protected routes
@@ -32,10 +27,5 @@ export const routes: Routes = [
   { path: 'community', component: CommunityComponent, canActivate: [AuthGuard] },
   { path: 'shopping-list', component: ShoppingListComponent, canActivate: [AuthGuard] },
   { path: 'achievements', component: AchievementsComponent, canActivate: [AuthGuard] },
-  { path: 'food-diary', component: FoodDiaryComponent, canActivate: [AuthGuard] },
-  { path: 'profile', component: ProfileComponent, canActivate: [AuthGuard] },
-  { path: 'receipt-scanner', component: ReceiptScannerComponent, canActivate: [AuthGuard] },
-  { path: 'friends', component: FriendsComponent, canActivate: [AuthGuard] },
-  { path: 'leaderboard', component: LeaderboardComponent, canActivate: [AuthGuard] },
-  { path: 'manual-entry', component: ManualEntryComponent, canActivate: [AuthGuard] }
+  { path: 'food-diary', component: FoodDiaryComponent, canActivate: [AuthGuard] }
 ];
