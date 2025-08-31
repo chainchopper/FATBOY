@@ -11,6 +11,7 @@ import { NotificationService } from '../services/notification.service';
 import { SpeechService } from '../services/speech.service';
 import { AuthService } from '../services/auth.service';
 import { take } from 'rxjs/operators';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-unified-scanner',
@@ -33,6 +34,7 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
   private cameras: MediaDeviceInfo[] = [];
   private selectedCameraId: string | null = null;
   private currentCameraIndex = 0;
+  private voiceCommandSubscription!: Subscription;
 
   constructor(
     private router: Router,
@@ -54,6 +56,9 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
         this.startBarcodeScanning(); // Start barcode detection
       }
       this.checkVoiceCommandsPreference();
+      this.voiceCommandSubscription = this.speechService.commandRecognized.subscribe(command => {
+        this.handleVoiceCommand(command);
+      });
     } catch (error) {
       console.error('Error initializing scanner:', error);
       this.notificationService.showError('Error initializing scanner.');
@@ -69,6 +74,42 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
         this.isVoiceListening = true;
       }
     });
+  }
+
+  private handleVoiceCommand(command: string): void {
+    if (command.includes('scan label') || command.includes('capture label')) {
+      this.captureLabelForOcr();
+      this.speechService.speak('Scanning label.');
+    } else if (command.includes('scan barcode') || command.includes('start scanning')) {
+      this.startBarcodeScanning(); // This will restart if already running
+      this.speechService.speak('Scanning barcode.');
+    } else if (command.includes('go to history')) {
+      this.router.navigate(['/history']);
+      this.speechService.speak('Going to history.');
+    } else if (command.includes('go to preferences')) {
+      this.router.navigate(['/preferences']);
+      this.speechService.speak('Opening preferences.');
+    } else if (command.includes('go to saved')) {
+      this.router.navigate(['/saved']);
+      this.speechService.speak('Opening saved products.');
+    } else if (command.includes('go to shopping list')) {
+      this.router.navigate(['/shopping-list']);
+      this.speechService.speak('Opening shopping list.');
+    } else if (command.includes('go to achievements')) {
+      this.router.navigate(['/achievements']);
+      this.speechService.speak('Opening achievements.');
+    } else if (command.includes('go to community')) {
+      this.router.navigate(['/community']);
+      this.speechService.speak('Opening community page.');
+    } else if (command.includes('go to food diary')) {
+      this.router.navigate(['/food-diary']);
+      this.speechService.speak('Opening food diary.');
+    } else if (command.includes('switch camera')) {
+      this.switchCamera();
+      this.speechService.speak('Switching camera.');
+    } else {
+      this.speechService.speak('Command not recognized. Please try again.');
+    }
   }
 
   private async setupCameras() {
@@ -252,5 +293,8 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
     this.stopBarcodeScanning();
     this.stopCamera();
     this.speechService.stopListening();
+    if (this.voiceCommandSubscription) {
+      this.voiceCommandSubscription.unsubscribe();
+    }
   }
 }
