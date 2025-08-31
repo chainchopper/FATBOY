@@ -1,9 +1,4 @@
 <div class="unified-scanner-container">
-  <div class="scanner-header">
-    <h2>Scan Product</h2>
-    <!-- No switch mode button needed here, as it's unified -->
-  </div>
-  
   <div class="camera-preview">
     <!-- Html5Qrcode will render its video stream inside this div -->
     <div id="reader" #reader class="barcode-reader-container"></div> 
@@ -15,12 +10,14 @@
       <div class="scan-area">
         <div *ngIf="isScanningBarcode || isProcessingOcr" class="scan-line"></div>
       </div>
-      <p>Position the label or barcode within this area</p>
+      <p>Position barcode, label, or receipt in the area</p>
     </div>
   </div>
   
   <div class="controls">
-    <p class="tagline">Scan. Know. Choose.</p>
+    <button (click)="captureLabelForOcr()" class="shutter-btn" title="Scan Label or Receipt" [disabled]="isProcessingOcr">
+      <div class="shutter-inner"></div>
+    </button>
     <div *ngIf="isVoiceListening" class="voice-listening-indicator">
       🎤 Listening...
     </div>

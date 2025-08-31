@@ -4,23 +4,15 @@
   height: calc(100vh - 70px); /* Full viewport height minus header */
   background-color: #0f0f1e;
   overflow: hidden; /* Prevent any scrolling */
-}
-
-.scanner-header {
-  display: flex;
-  justify-content: center; /* Center the title */
-  align-items: center;
-  padding: 20px;
-  background-color: rgba(26, 26, 46, 0.8);
-  color: white;
+  position: relative; /* For positioning controls */
 }
 
 .camera-preview {
-  flex: 1;
-  position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   overflow: hidden;
 }
 
@@ -35,10 +27,9 @@
   border-radius: 4px;
   cursor: pointer;
   font-size: 1.5rem;
-  z-index: 20; /* Ensure it's above the camera feed */
+  z-index: 20;
 }
 
-/* Html5Qrcode will render its video stream inside this div */
 .barcode-reader-container {
   position: absolute;
   top: 0;
@@ -46,10 +37,8 @@
   width: 100%;
   height: 100%;
   overflow: hidden;
-  z-index: 1; /* Ensure it's above the viewfinder */
 }
 
-/* Html5Qrcode's internal video element */
 .barcode-reader-container video {
   position: absolute;
   top: 50%;
@@ -59,9 +48,8 @@
   width: auto;
   height: auto;
   transform: translate(-50%, -50%);
-  object-fit: cover; /* Ensure the video fills the container without distortion */
+  object-fit: cover;
 }
-
 
 .viewfinder {
   position: absolute;
@@ -74,12 +62,13 @@
   justify-content: center;
   align-items: center;
   pointer-events: none;
-  z-index: 10; /* Ensure viewfinder is on top */
+  z-index: 10;
 }
 
 .scan-area {
-  width: 95vw;
-  height: 300px;
+  width: 90vw;
+  max-width: 500px;
+  height: 250px;
   border: 2px dashed #f038ff;
   box-shadow: 0 0 15px #f038ff;
   border-radius: 8px;
@@ -101,7 +90,7 @@
 
 @keyframes sweep-scanner {
   0% { transform: translateY(0); }
-  50% { transform: translateY(297px); }
+  50% { transform: translateY(247px); }
   100% { transform: translateY(0); }
 }
 
@@ -114,17 +103,45 @@
 }
 
 .controls {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
   padding: 20px;
+  padding-bottom: 90px; /* Space for the main FAB */
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 15px;
+  justify-content: flex-end;
+  z-index: 20;
+  background: linear-gradient(to top, rgba(15, 15, 30, 0.7) 20%, transparent);
+  pointer-events: none; /* Allow clicks to pass through gradient */
 }
 
-.tagline {
-  font-size: 0.9rem;
-  color: #a0a0c0;
-  text-shadow: 0 0 5px #0abdc6;
+.shutter-btn {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.2);
+  border: 4px solid white;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  backdrop-filter: blur(5px);
+  pointer-events: all; /* Make button clickable */
+  margin-bottom: 10px;
+}
+
+.shutter-btn:hover {
+  background-color: rgba(255, 255, 255, 0.4);
+}
+
+.shutter-btn:active {
+  transform: scale(0.95);
+}
+
+.shutter-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .voice-listening-indicator {
@@ -135,6 +152,9 @@
   gap: 5px;
   text-shadow: 0 0 8px #0abdc6;
   animation: pulse-indicator 1.5s infinite;
+  background-color: rgba(15, 15, 30, 0.7);
+  padding: 5px 10px;
+  border-radius: 12px;
 }
 
 @keyframes pulse-indicator {

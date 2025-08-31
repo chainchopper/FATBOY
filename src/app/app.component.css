@@ -134,9 +134,9 @@
 }
 
 main {
-  min-height: calc(100vh - 70px);
-  padding-top: 70px; /* Add padding to prevent content from going under fixed header */
-  padding-bottom: 90px; /* Add padding to prevent content from going under fixed FAB */
+  min-height: 100vh;
+  padding-top: 70px; /* Space for fixed header */
+  padding-bottom: 0; /* Remove bottom padding to allow full-screen components */
 }
 
 /* Floating Action Button (FAB) */
