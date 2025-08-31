@@ -64,7 +64,8 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(15, 15, 30, 0.8);
+  backdrop-filter: blur(10px);
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.3s ease, visibility 0.3s ease;
@@ -79,29 +80,43 @@
 .nav-menu {
   position: fixed;
   top: 0;
-  right: 0;
+  left: 0;
   height: 100%;
-  width: 280px;
-  background: #1a1a2e;
-  box-shadow: -5px 0 15px rgba(0,0,0,0.2);
-  transform: translateX(100%);
+  width: 100%;
+  transform: translateX(-100%);
   transition: transform 0.3s ease-in-out;
   padding-top: 80px;
   display: flex;
   flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 .nav-overlay.open .nav-menu {
   transform: translateX(0);
 }
 
+.close-menu-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: none;
+  border: none;
+  color: #e0e0e0;
+  font-size: 2.5rem;
+  cursor: pointer;
+}
+
 .nav-menu a {
   color: #e0e0e0;
   text-decoration: none;
   padding: 15px 25px;
-  font-size: 1.1rem;
+  font-size: 1.5rem;
   transition: background-color 0.3s, color 0.3s, text-shadow 0.3s;
-  border-bottom: 1px solid #2a2a4e;
+  width: 80%;
+  text-align: center;
+  border-radius: 8px;
+  margin-bottom: 10px;
 }
 
 .nav-menu a:hover, .nav-menu a.active {
@@ -115,6 +130,7 @@
   height: 1px;
   background-color: #4a4a6e;
   margin: 10px 25px;
+  width: 80%;
 }
 
 main {
