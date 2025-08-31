@@ -13,17 +13,20 @@ import { AuthService } from '../services/auth.service';
 })
 export class PreferencesComponent implements OnInit {
   preferences = {
+    // Food preferences
     avoidArtificialSweeteners: true,
     avoidArtificialColors: true,
     avoidHFCS: true,
     avoidPreservatives: false,
     avoidMSG: false,
     avoidTransFats: true,
-    maxCalories: 200, // Per serving
-    dailyCalorieTarget: 2000, // New: Daily target
-    goal: 'avoidChemicals', // 'strictlyNatural', 'avoidChemicals', 'calorieCount'
-    enableVoiceCommands: true, // New: Toggle for voice commands
-    shareLeaderboardData: true // New: Opt-out for leaderboard
+    maxCalories: 200,
+    dailyCalorieTarget: 2000,
+    goal: 'avoidChemicals',
+    // Privacy settings
+    shareUsername: true,
+    shareGoal: true,
+    shareLeaderboardStatus: true
   };
 
   private currentUserId: string | null = null;
@@ -33,7 +36,7 @@ export class PreferencesComponent implements OnInit {
   ngOnInit() {
     this.authService.currentUser$.subscribe(user => {
       this.currentUserId = user?.id || null;
-      this.loadPreferences(); // Reload preferences when user changes
+      this.loadPreferences();
     });
   }
 
@@ -49,22 +52,9 @@ export class PreferencesComponent implements OnInit {
   private loadPreferences() {
     const saved = localStorage.getItem(this.getStorageKey());
     if (saved) {
-      this.preferences = JSON.parse(saved);
-    } else {
-      // Reset to default if no saved preferences for the current user
-      this.preferences = {
-        avoidArtificialSweeteners: true,
-        avoidArtificialColors: true,
-        avoidHFCS: true,
-        avoidPreservatives: false,
-        avoidMSG: false,
-        avoidTransFats: true,
-        maxCalories: 200,
-        dailyCalorieTarget: 2000,
-        goal: 'avoidChemicals',
-        enableVoiceCommands: true,
-        shareLeaderboardData: true
-      };
+      // Merge saved preferences with defaults to ensure new settings are not lost
+      const savedPrefs = JSON.parse(saved);
+      this.preferences = { ...this.preferences, ...savedPrefs };
     }
   }
 }

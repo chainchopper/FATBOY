@@ -1,72 +1,53 @@
 <div class="community-container">
   <h2>Contribute to the Community</h2>
-  <p>Help others by submitting products not yet in our database.</p>
-  
-  <div *ngIf="isSubmitted" class="success-message">
-    <p>Thank you for your contribution! Your submission will be reviewed.</p>
+  <p>Help others by sharing products from your history or adding new ones.</p>
+
+  <div class="contribution-toggle">
+    <button (click)="setMode('select')" [class.active]="mode === 'select'">Contribute from History</button>
+    <button (click)="setMode('manual')" [class.active]="mode === 'manual'">Add Manually</button>
   </div>
-  
-  <form (ngSubmit)="submitContribution()" class="contribution-form">
-    <div class="form-group">
-      <label for="productName">Product Name</label>
-      <input type="text" id="productName" [(ngModel)]="newContribution.productName" name="productName" required>
-    </div>
-    
-    <div class="form-group">
-      <label for="brand">Brand</label>
-      <input type="text" id="brand" [(ngModel)]="newContribution.brand" name="brand" required>
-    </div>
-    
-    <div class="form-group">
-      <label for="barcode">Barcode (if available)</label>
-      <input type="text" id="barcode" [(ngModel)]="newContribution.barcode" name="barcode">
-    </div>
-    
-    <div class="form-group">
-      <label for="ingredients">Ingredients (comma separated)</label>
-      <textarea id="ingredients" [(ngModel)]="newContribution.ingredients" name="ingredients" rows="4" required></textarea>
-    </div>
-    
-    <div class="form-group">
-      <label for="notes">Additional Notes</label>
-      <textarea id="notes" [(ngModel)]="newContribution.notes" name="notes" rows="3"></textarea>
-    </div>
-    
-    <button type="submit" class="submit-btn">Submit Contribution</button>
-  </form>
 
-  <div class="community-feed">
-    <h3>Recent Contributions</h3>
-    <div *ngIf="communityContributions.length === 0" class="empty-state">
-      <p>No contributions yet. Be the first to share!</p>
-    </div>
-    <div *ngFor="let contribution of communityContributions" class="contribution-card">
-      <div class="card-header">
-        <h4>{{ contribution.productName }}</h4>
-        <span class="status-badge status-{{ contribution.status }}">{{ contribution.status | titlecase }}</span>
+  <!-- View for selecting from history -->
+  <div *ngIf="mode === 'select'">
+    <div *ngIf="(scanHistory$ | async) as history" class="history-list">
+      <div *ngIf="history.length === 0" class="empty-state">
+        <p>Your scan history is empty. Scan some products to contribute them!</p>
       </div>
-      <p class="card-brand">{{ contribution.brand }}</p>
-      <p class="card-ingredients"><strong>Ingredients:</strong> {{ contribution.ingredients }}</p>
-      <p class="card-notes" *ngIf="contribution.notes"><strong>Notes:</strong> {{ contribution.notes }}</p>
-      <p class="card-date">Submitted: {{ contribution.timestamp | date:'short' }}</p>
-
-      <div class="social-actions">
-        <button (click)="toggleLike(contribution.id)" class="like-btn">👍 {{ contribution.likes }}</button>
-        <span class="comment-count">💬 {{ contribution.comments.length }}</span>
-      </div>
-
-      <div class="comments-section">
-        <h5>Comments:</h5>
-        <div *ngIf="contribution.comments.length === 0" class="no-comments">No comments yet.</div>
-        <div *ngFor="let comment of contribution.comments" class="comment-item">
-          <strong>{{ comment.username }}:</strong> {{ comment.text }}
-          <span class="comment-date">{{ comment.timestamp | date:'short' }}</span>
+      <div *ngFor="let product of history" class="history-item" (click)="selectProduct(product)">
+        <img [src]="product.image || 'https://via.placeholder.com/50'" alt="{{ product.name }}" class="product-thumb">
+        <div class="product-info">
+          <h4>{{ product.name }}</h4>
+          <p>{{ product.brand }}</p>
         </div>
-        <div class="add-comment">
-          <input type="text" [(ngModel)]="newCommentText[contribution.id]" placeholder="Add a comment..." [ngModelOptions]="{standalone: true}">
-          <button (click)="addComment(contribution.id)">Post</button>
-        </div>
+        <button class="select-btn">→</button>
       </div>
     </div>
+  </div>
+
+  <!-- View for manual entry/confirmation -->
+  <div *ngIf="mode === 'manual'">
+    <div *ngIf="isSubmitted" class="success-message">
+      <p>Thank you for your contribution! Your submission is pending review.</p>
+    </div>
+    
+    <form (ngSubmit)="submitContribution()" class="contribution-form">
+      <div class="form-group">
+        <label for="productName">Product Name</label>
+        <input type="text" id="productName" [(ngModel)]="newContribution.productName" name="productName" required>
+      </div>
+      <div class="form-group">
+        <label for="brand">Brand</label>
+        <input type="text" id="brand" [(ngModel)]="newContribution.brand" name="brand" required>
+      </div>
+      <div class="form-group">
+        <label for="ingredients">Ingredients (comma separated)</label>
+        <textarea id="ingredients" [(ngModel)]="newContribution.ingredients" name="ingredients" rows="4" required></textarea>
+      </div>
+      <div class="form-group">
+        <label for="notes">Additional Notes (e.g., where you found it)</label>
+        <textarea id="notes" [(ngModel)]="newContribution.notes" name="notes" rows="3"></textarea>
+      </div>
+      <button type="submit" class="submit-btn">Submit Contribution</button>
+    </form>
   </div>
 </div>

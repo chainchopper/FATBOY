@@ -1,9 +1,19 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { GamificationService } from '../services/gamification.service';
 import { AuthService } from '../services/auth.service';
 import { LeaderboardService } from '../services/leaderboard.service';
+import { ProductDbService, Product } from '../services/product-db.service';
+import { ProfileService, Profile } from '../services/profile.service';
+import { Observable, of } from 'rxjs';
+import { switchMap, take } from 'rxjs/operators';
+
+interface ContributionMetadata {
+  username?: string;
+  goal?: string;
+  leaderboardStatus?: { rank: number; score: number };
+}
 
 interface CommunityContribution {
   productName: string;
@@ -13,9 +23,10 @@ interface CommunityContribution {
   notes: string;
   timestamp: Date;
   status: 'pending' | 'approved' | 'rejected';
-  id: string; // Unique ID for each contribution
+  id: string;
   likes: number;
   comments: { username: string; text: string; timestamp: Date }[];
+  metadata?: ContributionMetadata;
 }
 
 @Component({
@@ -25,7 +36,10 @@ interface CommunityContribution {
   templateUrl: './community.component.html',
   styleUrls: ['./community.component.css']
 })
-export class CommunityComponent {
+export class CommunityComponent implements OnInit {
+  mode: 'select' | 'manual' = 'select';
+  scanHistory$!: Observable<Product[]>;
+  
   newContribution = {
     productName: '',
     brand: '',
@@ -36,35 +50,79 @@ export class CommunityComponent {
 
   isSubmitted = false;
   private currentUserId: string | null = null;
-  communityContributions: CommunityContribution[] = [];
-  newCommentText: { [key: string]: string } = {}; // To hold comment text for each contribution
 
   constructor(
     private gamificationService: GamificationService, 
     private authService: AuthService,
-    private leaderboardService: LeaderboardService
-  ) {
+    private leaderboardService: LeaderboardService,
+    private productDb: ProductDbService,
+    private profileService: ProfileService
+  ) {}
+
+  ngOnInit() {
     this.authService.currentUser$.subscribe(user => {
       this.currentUserId = user?.id || null;
-      this.loadContributions(); // Load contributions when user changes
     });
+    this.scanHistory$ = this.productDb.products$;
   }
 
-  submitContribution() {
-    const newId = Date.now().toString(); // Simple unique ID
-    const contribution: CommunityContribution = {
-      ...this.newContribution,
-      timestamp: new Date(),
-      status: 'pending',
-      id: newId,
-      likes: 0,
-      comments: []
+  setMode(mode: 'select' | 'manual') {
+    this.mode = mode;
+  }
+
+  selectProduct(product: Product) {
+    this.newContribution = {
+      productName: product.name,
+      brand: product.brand,
+      barcode: product.barcode || '',
+      ingredients: product.ingredients.join(', '),
+      notes: ''
     };
+    this.mode = 'manual';
+  }
+
+  async submitContribution() {
+    const metadata = await this.buildMetadata();
     
-    this.communityContributions.unshift(contribution); // Add to the beginning
-    this.saveContributions();
+    // This part would save to a real backend in the future
+    console.log('Submitting contribution with metadata:', metadata);
+    
     this.isSubmitted = true;
+    this.leaderboardService.incrementScore(50).subscribe();
+    this.gamificationService.checkAndUnlockAchievements();
+
+    setTimeout(() => {
+      this.isSubmitted = false;
+      this.resetForm();
+      this.mode = 'select';
+    }, 3000);
+  }
+
+  private async buildMetadata(): Promise<ContributionMetadata> {
+    const preferences = JSON.parse(localStorage.getItem(this.getPrefsStorageKey()) || '{}');
+    const metadata: ContributionMetadata = {};
+
+    if (preferences.shareUsername) {
+      const profile = await this.profileService.getProfile().pipe(take(1)).toPromise();
+      metadata.username = `${profile?.first_name || 'Anonymous'} ${profile?.last_name || ''}`.trim();
+    }
+
+    if (preferences.shareGoal) {
+      metadata.goal = preferences.goal;
+    }
+
+    if (preferences.shareLeaderboardStatus) {
+      const board = await this.leaderboardService.getGlobalLeaderboard();
+      const userEntry = board.find(e => e.user_id === this.currentUserId);
+      if (userEntry) {
+        metadata.leaderboardStatus = { rank: userEntry.rank, score: userEntry.score };
+      }
+    }
     
+    return metadata;
+  }
+
+  private resetForm() {
     this.newContribution = {
       productName: '',
       brand: '',
@@ -72,56 +130,9 @@ export class CommunityComponent {
       ingredients: '',
       notes: ''
     };
-    
-    this.gamificationService.checkAndUnlockAchievements();
-
-    // Add 50 points for a community contribution
-    this.leaderboardService.incrementScore(50).subscribe();
-
-    setTimeout(() => {
-      this.isSubmitted = false;
-    }, 3000);
   }
 
-  toggleLike(contributionId: string): void {
-    const contribution = this.communityContributions.find(c => c.id === contributionId);
-    if (contribution) {
-      contribution.likes = (contribution.likes || 0) + 1; // Simple like increment
-      this.saveContributions();
-    }
-  }
-
-  addComment(contributionId: string): void {
-    const commentText = this.newCommentText[contributionId]?.trim();
-    if (!commentText) return;
-
-    const contribution = this.communityContributions.find(c => c.id === contributionId);
-    if (contribution) {
-      const username = this.currentUserId ? `User_${this.currentUserId.substring(0, 4)}` : 'Anonymous';
-      contribution.comments.push({ username, text: commentText, timestamp: new Date() });
-      this.saveContributions();
-      this.newCommentText[contributionId] = ''; // Clear input
-    }
-  }
-
-  private getStorageKey(): string {
-    return this.currentUserId ? `communityContributions_${this.currentUserId}` : 'communityContributions_anonymous';
-  }
-
-  private loadContributions(): void {
-    const stored = localStorage.getItem(this.getStorageKey());
-    if (stored) {
-      this.communityContributions = JSON.parse(stored).map((c: any) => ({
-        ...c,
-        timestamp: new Date(c.timestamp),
-        comments: c.comments || [] // Ensure comments array exists
-      }));
-    } else {
-      this.communityContributions = [];
-    }
-  }
-
-  private saveContributions(): void {
-    localStorage.setItem(this.getStorageKey(), JSON.stringify(this.communityContributions));
+  private getPrefsStorageKey(): string {
+    return this.currentUserId ? `fatBoyPreferences_${this.currentUserId}` : 'fatBoyPreferences_anonymous';
   }
 }

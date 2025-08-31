@@ -62,18 +62,18 @@
   </div>
 
   <div class="preference-section">
-    <h3>Voice Commands:</h3>
+    <h3>Privacy & Sharing</h3>
     <div class="preference-item">
-      <input type="checkbox" id="enableVoiceCommands" [(ngModel)]="preferences.enableVoiceCommands">
-      <label for="enableVoiceCommands">Enable Voice Commands (auto-listen on scanner screens)</label>
+      <input type="checkbox" id="shareUsername" [(ngModel)]="preferences.shareUsername">
+      <label for="shareUsername">Show my name on community contributions</label>
     </div>
-  </div>
-
-  <div class="preference-section">
-    <h3>Privacy Settings:</h3>
     <div class="preference-item">
-      <input type="checkbox" id="shareLeaderboardData" [(ngModel)]="preferences.shareLeaderboardData">
-      <label for="shareLeaderboardData">Share my data for Leaderboards (Opt-out)</label>
+      <input type="checkbox" id="shareGoal" [(ngModel)]="preferences.shareGoal">
+      <label for="shareGoal">Show my health goal on contributions</label>
+    </div>
+    <div class="preference-item">
+      <input type="checkbox" id="shareLeaderboardStatus" [(ngModel)]="preferences.shareLeaderboardStatus">
+      <label for="shareLeaderboardStatus">Show my rank & score on contributions</label>
     </div>
   </div>
   
