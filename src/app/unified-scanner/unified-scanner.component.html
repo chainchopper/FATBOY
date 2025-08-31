@@ -1,6 +1,5 @@
 <div class="unified-scanner-container">
   <div class="scanner-header">
-    <button (click)="switchCamera()" class="switch-camera-btn" title="Switch Camera">🔄</button>
     <h2>Scan Product</h2>
     <!-- No switch mode button needed here, as it's unified -->
   </div>
@@ -10,6 +9,8 @@
     <div id="reader" #reader class="barcode-reader-container"></div> 
     <canvas #canvasElement class="capture-canvas" style="display: none;"></canvas>
     
+    <button (click)="switchCamera()" class="switch-camera-btn" title="Switch Camera">🔄</button>
+
     <div class="viewfinder">
       <div class="scan-area">
         <div *ngIf="isScanningBarcode || isProcessingOcr" class="scan-line"></div>
