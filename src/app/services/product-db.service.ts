@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { AuthService } from './auth.service';
+import { LeaderboardService } from './leaderboard.service';
 
 export interface Product {
   id: string;
@@ -31,7 +32,10 @@ export class ProductDbService {
   
   private currentUserId: string | null = null;
 
-  constructor(private authService: AuthService) {
+  constructor(
+    private authService: AuthService,
+    private leaderboardService: LeaderboardService
+  ) {
     this.authService.currentUser$.subscribe(user => {
       this.currentUserId = user?.id || null;
       this.loadFromStorage(); // Reload all data when user changes
@@ -49,6 +53,9 @@ export class ProductDbService {
     this.saveToStorage();
     this.productsSubject.next([...this.products]);
     
+    // Add 10 points for each scan
+    this.leaderboardService.incrementScore(10).subscribe();
+
     return newProduct;
   }
 

@@ -4,6 +4,7 @@ import { Product } from './product-db.service';
 import { AuthService } from './auth.service';
 import { NotificationService } from './notification.service';
 import { SpeechService } from './speech.service';
+import { LeaderboardService } from './leaderboard.service';
 
 export interface ShoppingListItem extends Product {
   purchased: boolean;
@@ -22,7 +23,8 @@ export class ShoppingListService {
   constructor(
     private authService: AuthService,
     private notificationService: NotificationService,
-    private speechService: SpeechService
+    private speechService: SpeechService,
+    private leaderboardService: LeaderboardService
   ) {
     this.authService.currentUser$.subscribe(user => {
       this.currentUserId = user?.id || null;
@@ -37,6 +39,11 @@ export class ShoppingListService {
       return;
     }
     
+    // Add 25 points for saving a good product
+    if (product.verdict === 'good') {
+      this.leaderboardService.incrementScore(25).subscribe();
+    }
+
     const newItem: ShoppingListItem = { ...product, purchased: false };
     this.shoppingList.unshift(newItem);
     this.saveToStorage();

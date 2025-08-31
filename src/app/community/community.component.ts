@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { GamificationService } from '../services/gamification.service';
 import { AuthService } from '../services/auth.service';
+import { LeaderboardService } from '../services/leaderboard.service';
 
 interface CommunityContribution {
   productName: string;
@@ -38,7 +39,11 @@ export class CommunityComponent {
   communityContributions: CommunityContribution[] = [];
   newCommentText: { [key: string]: string } = {}; // To hold comment text for each contribution
 
-  constructor(private gamificationService: GamificationService, private authService: AuthService) {
+  constructor(
+    private gamificationService: GamificationService, 
+    private authService: AuthService,
+    private leaderboardService: LeaderboardService
+  ) {
     this.authService.currentUser$.subscribe(user => {
       this.currentUserId = user?.id || null;
       this.loadContributions(); // Load contributions when user changes
@@ -69,6 +74,9 @@ export class CommunityComponent {
     };
     
     this.gamificationService.checkAndUnlockAchievements();
+
+    // Add 50 points for a community contribution
+    this.leaderboardService.incrementScore(50).subscribe();
 
     setTimeout(() => {
       this.isSubmitted = false;

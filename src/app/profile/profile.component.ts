@@ -2,15 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../services/auth.service';
 import { GamificationService, Badge } from '../services/gamification.service';
-import { Observable, combineLatest, of } from 'rxjs';
-import { map, switchMap } from 'rxjs/operators';
+import { ProfileService, Profile } from '../services/profile.service';
+import { Observable } from 'rxjs';
 import { User } from '@supabase/supabase-js';
-
-interface Profile {
-  first_name: string | null;
-  last_name: string | null;
-  avatar_url: string | null;
-}
 
 @Component({
   selector: 'app-profile',
@@ -26,26 +20,13 @@ export class ProfileComponent implements OnInit {
 
   constructor(
     private authService: AuthService,
-    private gamificationService: GamificationService
+    private gamificationService: GamificationService,
+    private profileService: ProfileService
   ) {}
 
   ngOnInit() {
     this.currentUser$ = this.authService.currentUser$;
     this.badges$ = this.gamificationService.badges$;
-
-    this.userProfile$ = this.currentUser$.pipe(
-      switchMap(user => {
-        if (user) {
-          // In a real app, you'd fetch the profile from Supabase here
-          // For now, we'll use placeholders or data from user.user_metadata
-          return of({
-            first_name: user.user_metadata['first_name'] || 'Guest',
-            last_name: user.user_metadata['last_name'] || 'User',
-            avatar_url: user.user_metadata['avatar_url'] || 'https://via.placeholder.com/150'
-          });
-        }
-        return of(null);
-      })
-    );
+    this.userProfile$ = this.profileService.getProfile();
   }
 }

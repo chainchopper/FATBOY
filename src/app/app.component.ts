@@ -5,8 +5,8 @@ import { LogoComponent } from './logo/logo.component';
 import { AuthService } from './services/auth.service';
 import { Observable } from 'rxjs';
 import { User } from '@supabase/supabase-js';
-// SpeechService is no longer directly used here, but in scanner components
-// import { SpeechService } from './services/speech.service';
+import { ProfileService, Profile } from './services/profile.service';
+import { map } from 'rxjs/operators';
 
 @Component({
   selector: 'app-root',
@@ -17,19 +17,32 @@ import { User } from '@supabase/supabase-js';
 })
 export class AppComponent implements OnInit {
   isMenuOpen = false;
-  isFabMenuOpen = false; // New state for FAB action sheet
+  isFabMenuOpen = false;
   currentUser$!: Observable<User | null>;
+  displayName$!: Observable<string | null>;
 
-  constructor(private authService: AuthService, private router: Router) {} // Removed SpeechService injection
+  constructor(
+    private authService: AuthService, 
+    private router: Router,
+    private profileService: ProfileService
+  ) {}
 
   ngOnInit(): void {
     this.currentUser$ = this.authService.currentUser$;
+    this.displayName$ = this.profileService.getProfile().pipe(
+      map(profile => {
+        if (profile?.first_name) {
+          return profile.first_name;
+        }
+        return null;
+      })
+    );
   }
 
   toggleMenu(): void {
     this.isMenuOpen = !this.isMenuOpen;
     if (this.isMenuOpen) {
-      this.isFabMenuOpen = false; // Close FAB menu if hamburger opens
+      this.isFabMenuOpen = false;
     }
   }
 
@@ -40,7 +53,7 @@ export class AppComponent implements OnInit {
   toggleFabMenu(): void {
     this.isFabMenuOpen = !this.isFabMenuOpen;
     if (this.isFabMenuOpen) {
-      this.isMenuOpen = false; // Close hamburger menu if FAB menu opens
+      this.isMenuOpen = false;
     }
   }
 
@@ -62,6 +75,4 @@ export class AppComponent implements OnInit {
     await this.authService.signOut();
     this.closeMenu();
   }
-
-  // Removed toggleVoiceInput and isListening getter
 }
