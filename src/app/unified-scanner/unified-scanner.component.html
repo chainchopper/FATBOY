@@ -20,9 +20,6 @@
   </div>
   
   <div class="controls">
-    <button (click)="captureLabelForOcr()" class="shutter-btn" title="Scan Label or Receipt" [disabled]="isProcessingOcr">
-      <div class="shutter-inner"></div>
-    </button>
     <div *ngIf="isVoiceListening" class="voice-listening-indicator">
       🎤 Listening...
     </div>

@@ -3,7 +3,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 15px 20px;
-  background: rgba(26, 26, 46, 0.8); /* Semi-transparent dark background */
+  background: rgba(26, 26, 46, 0.6); /* Made background more transparent */
   backdrop-filter: blur(10px);
   border-bottom: 1px solid #f038ff; /* Neon pink border */
   position: fixed; /* Changed to fixed */
