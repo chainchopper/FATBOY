@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
   selector: 'app-logo',
   standalone: true,
   template: `
-    <svg width="120" height="40" viewBox="0 0 120 40" xmlns="http://www.w3.org/2000/svg" class="logo-svg" (click)="goToHome()">
+    <svg width="140" height="40" viewBox="0 0 140 40" xmlns="http://www.w3.org/2000/svg" class="logo-svg" (click)="goToHome()">
       <defs>
         <filter id="neon-glow-logo" x="-50%" y="-50%" width="200%" height="200%">
           <feGaussianBlur stdDeviation="2.5" result="coloredBlur"/>
@@ -20,21 +20,27 @@ import { Router } from '@angular/router';
         </linearGradient>
       </defs>
       
-      <!-- Fat Baby Creature Icon (stylized) -->
-      <g transform="translate(0, 5)" class="creature-icon"> <!-- Adjusted translate x to 0 -->
-        <!-- Body/Head -->
-        <circle cx="15" cy="15" r="12" fill="url(#scan-gradient)" filter="url(#neon-glow-logo)"/>
+      <!-- Fat Clock Man -->
+      <g transform="translate(20, 20)" class="clock-man">
+        <!-- Body/Clock Face -->
+        <circle cx="0" cy="0" r="18" fill="url(#scan-gradient)" filter="url(#neon-glow-logo)"/>
+        
         <!-- Eyes -->
-        <circle cx="10" cy="12" r="2" fill="#1a1a2e"/>
-        <circle cx="20" cy="12" r="2" fill="#1a1a2e"/>
-        <!-- Mouth -->
-        <path d="M12 20 Q15 23 18 20" stroke="#1a1a2e" stroke-width="1.5" fill="none"/>
-        <!-- Small leaf/health symbol on head -->
-        <path d="M22 5 Q25 0 28 5 Q25 10 22 5 Z" fill="#0abdc6" filter="url(#neon-glow-logo)"/>
+        <circle cx="-6" cy="-3" r="2" fill="#1a1a2e"/>
+        <circle cx="6" cy="-3" r="2" fill="#1a1a2e"/>
+        
+        <!-- Smile -->
+        <path d="M -5 5 Q 0 10 5 5" stroke="#1a1a2e" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+        
+        <!-- Clock Hands -->
+        <g class="hands-container">
+          <line x1="0" y1="0" x2="0" y2="-8" stroke="#1a1a2e" stroke-width="2" stroke-linecap="round" class="minute-hand"/>
+          <line x1="0" y1="0" x2="6" y2="4" stroke="#1a1a2e" stroke-width="2" stroke-linecap="round" class="hour-hand"/>
+        </g>
       </g>
       
       <!-- Text -->
-      <text x="35" y="30" class="logo-text" filter="url(#neon-glow-logo)">Fat Boy</text> <!-- Adjusted text x to 35 -->
+      <text x="45" y="30" class="logo-text" filter="url(#neon-glow-logo)">Fat Boy</text>
     </svg>
   `,
   styles: [`
@@ -54,11 +60,43 @@ import { Router } from '@angular/router';
       stroke: #f038ff;
       stroke-width: 0.5px;
     }
-    .creature-icon {
-      transition: transform 0.2s ease-in-out;
+    .clock-man {
+      transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
     }
-    .logo-svg:active .creature-icon {
-      transform: translateY(2px);
+    .logo-svg:hover .clock-man {
+      transform: translate(20, 20) rotate(10deg) scale(1.1);
+    }
+    
+    .hands-container {
+      transform-origin: center;
+      animation: tick-tock 12s linear infinite;
+    }
+
+    .minute-hand {
+      animation: rotate-minute 60s linear infinite;
+      transform-origin: center;
+    }
+    
+    .hour-hand {
+      animation: rotate-hour 720s linear infinite;
+      transform-origin: center;
+    }
+
+    @keyframes tick-tock {
+      0% { transform: rotate(0deg); }
+      25% { transform: rotate(5deg); }
+      75% { transform: rotate(-5deg); }
+      100% { transform: rotate(0deg); }
+    }
+
+    @keyframes rotate-minute {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    
+    @keyframes rotate-hour {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
     }
   `]
 })
