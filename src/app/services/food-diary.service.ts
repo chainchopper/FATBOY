@@ -1,11 +1,11 @@
-import { Injectable } from '@angular/core';
+import { Injectable, isDevMode } from '@angular/core'; // Import isDevMode
 import { BehaviorSubject } from 'rxjs';
 import { Product } from './product-db.service';
 import { NotificationService } from './notification.service';
 import { AuthService } from './auth.service';
 import { SpeechService } from './speech.service';
 import { PreferencesService, UserPreferences } from './preferences.service';
-import { supabase } from '../../integrations/supabase/client'; // Import Supabase client
+import { supabase } from '../../integrations/supabase/client';
 
 export type MealType = 'Breakfast' | 'Lunch' | 'Dinner' | 'Snack' | 'Drinks';
 
@@ -35,46 +35,64 @@ export class FoodDiaryService {
   ) {
     this.authService.currentUser$.subscribe(user => {
       this.currentUserId = user?.id || null;
-      this.loadFromSupabase(); // Reload data when user changes
+      this.loadData(); // Use a unified load method
     });
   }
 
-  async addEntry(product: Product, meal: MealType): Promise<void> {
-    if (!this.currentUserId) {
-      console.warn('Cannot add food diary entry: User not authenticated.');
-      // Fallback for unauthenticated users (e.g., temporary local storage, or just prevent)
-      this.notificationService.showError('Please log in to add items to your food diary.');
-      this.speechService.speak('Please log in to add items to your food diary.');
-      return;
-    }
+  private getStorageKey(): string {
+    return this.currentUserId ? `fatBoyFoodDiary_${this.currentUserId}` : 'fatBoyFoodDiary_anonymous_dev';
+  }
 
+  private async loadData(): Promise<void> {
+    if (this.currentUserId) {
+      await this.loadFromSupabase();
+    } else if (isDevMode()) {
+      this.loadFromSessionStorage(); // Load from session storage in dev mode if not logged in
+    } else {
+      this.diary = new Map();
+      this.diarySubject.next(new Map());
+    }
+  }
+
+  async addEntry(product: Product, meal: MealType): Promise<void> {
     const today = new Date().toISOString().split('T')[0];
-    const newEntry: Omit<DiaryEntry, 'id'> = { // Supabase will generate UUID
+    const newEntry: Omit<DiaryEntry, 'id'> = {
       date: today,
       meal,
       product
     };
 
-    const { data, error } = await supabase
-      .from('food_diary_entries')
-      .insert({
-        user_id: this.currentUserId,
-        entry_date: newEntry.date,
-        meal_type: newEntry.meal,
-        product_data: newEntry.product
-      })
-      .select()
-      .single();
+    if (this.currentUserId) {
+      const { data, error } = await supabase
+        .from('food_diary_entries')
+        .insert({
+          user_id: this.currentUserId,
+          entry_date: newEntry.date,
+          meal_type: newEntry.meal,
+          product_data: newEntry.product
+        })
+        .select()
+        .single();
 
-    if (error) {
-      console.error('Error adding food diary entry to Supabase:', error);
-      this.notificationService.showError('Failed to add item to food diary.');
-      this.speechService.speak('Failed to add item to food diary.');
-      throw error;
+      if (error) {
+        console.error('Error adding food diary entry to Supabase:', error);
+        this.notificationService.showError('Failed to add item to food diary.');
+        this.speechService.speak('Failed to add item to food diary.');
+        throw error;
+      }
+      await this.loadFromSupabase();
+    } else if (isDevMode()) {
+      const entries = this.diary.get(today) || [];
+      entries.push({ ...newEntry, id: `${today}-${Date.now()}` }); // Generate ID for session storage
+      this.diary.set(today, entries);
+      this.saveToSessionStorage();
+      this.diarySubject.next(new Map(this.diary));
+    } else {
+      console.warn('Cannot add food diary entry: User not authenticated in production mode.');
+      this.notificationService.showError('Please log in to add items to your food diary.');
+      this.speechService.speak('Please log in to add items to your food diary.');
+      return;
     }
-
-    // After successful insert, reload from Supabase to ensure local state is consistent
-    await this.loadFromSupabase();
     this.notificationService.showSuccess(`${product.name} added to ${meal}.`);
     this.speechService.speak(`${product.name} added to ${meal}.`);
   }
@@ -108,45 +126,41 @@ export class FoodDiaryService {
     const summary = this.getDailySummary(date);
     const { totalCalories, totalFlaggedItems } = summary;
 
-    // Simple heuristic for now, can be expanded with more complex AI
     let score = 0;
 
-    // Calorie-based scoring
     if (preferences.dailyCalorieTarget) {
       const calorieTarget = preferences.dailyCalorieTarget;
       if (totalCalories <= calorieTarget) {
-        score += 2; // Good on calories
-      } else if (totalCalories <= calorieTarget * 1.1) { // 10% over is still 'fair'
+        score += 2;
+      } else if (totalCalories <= calorieTarget * 1.1) {
         score += 1;
       } else {
-        score -= 1; // Significantly over
+        score -= 1;
       }
     } else if (preferences.maxCalories) {
-      const calorieTarget = preferences.maxCalories * 3; // Assuming 3 meals for a rough daily target
+      const calorieTarget = preferences.maxCalories * 3;
       if (totalCalories <= calorieTarget) {
-        score += 2; // Good on calories
+        score += 2;
       } else if (totalCalories <= calorieTarget * 1.2) {
-        score += 1; // Slightly over
+        score += 1;
       } else {
-        score -= 1; // Significantly over
+        score -= 1;
       }
     }
 
-    // Flagged ingredients scoring
     if (totalFlaggedItems === 0) {
-      score += 3; // No flagged items, excellent!
+      score += 3;
     } else if (totalFlaggedItems <= 2) {
-      score += 1; // Few flagged items
+      score += 1;
     } else {
-      score -= 2; // Many flagged items
+      score -= 2;
     }
 
-    // Goal-based adjustments (example)
     if (preferences.goal === 'strictlyNatural' && totalFlaggedItems > 0) {
-      score -= 1; // Penalize more for natural goal if flagged items exist
+      score -= 1;
     }
     if (preferences.goal === 'calorieCount' && preferences.dailyCalorieTarget && totalCalories > preferences.dailyCalorieTarget) {
-      score -= 1; // Penalize more for calorie goal if over target
+      score -= 1;
     }
 
     if (score >= 4) {
@@ -161,11 +175,7 @@ export class FoodDiaryService {
   }
 
   private async loadFromSupabase(): Promise<void> {
-    if (!this.currentUserId) {
-      this.diary = new Map();
-      this.diarySubject.next(new Map());
-      return;
-    }
+    if (!this.currentUserId) return;
 
     const { data, error } = await supabase
       .from('food_diary_entries')
@@ -189,7 +199,7 @@ export class FoodDiaryService {
         meal: item.meal_type,
         product: {
           ...item.product_data,
-          scanDate: new Date(item.product_data.scanDate) // Ensure scanDate is a Date object
+          scanDate: new Date(item.product_data.scanDate)
         }
       };
       if (!loadedDiary.has(entry.date)) {
@@ -202,7 +212,20 @@ export class FoodDiaryService {
     this.diarySubject.next(new Map(this.diary));
   }
 
-  // Removed local storage methods as data is now in Supabase
-  private saveToStorage(): void {}
-  private getStorageKey(): string { return ''; } // No longer needed
+  private loadFromSessionStorage(): void {
+    const stored = sessionStorage.getItem(this.getStorageKey());
+    if (stored) {
+      this.diary = new Map(JSON.parse(stored).map(([date, entries]: [string, any[]]) => 
+        [date, entries.map(entry => ({ ...entry, product: { ...entry.product, scanDate: new Date(entry.product.scanDate) } }))]
+      ));
+      this.diarySubject.next(new Map(this.diary));
+    } else {
+      this.diary = new Map();
+      this.diarySubject.next(new Map());
+    }
+  }
+
+  private saveToSessionStorage(): void {
+    sessionStorage.setItem(this.getStorageKey(), JSON.stringify(Array.from(this.diary.entries())));
+  }
 }

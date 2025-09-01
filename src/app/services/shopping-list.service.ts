@@ -1,22 +1,22 @@
-import { Injectable } from '@angular/core';
+import { Injectable, isDevMode } from '@angular/core'; // Import isDevMode
 import { BehaviorSubject } from 'rxjs';
-import { ProductDbService, Product } from './product-db.service'; // Import ProductDbService
+import { ProductDbService, Product } from './product-db.service';
 import { AuthService } from './auth.service';
 import { NotificationService } from './notification.service';
 import { SpeechService } from './speech.service';
 import { LeaderboardService } from './leaderboard.service';
-import { supabase } from '../../integrations/supabase/client'; // Import Supabase client
+import { supabase } from '../../integrations/supabase/client';
 
 export interface ShoppingListItem {
-  id: string; // This will be the Supabase UUID
+  id: string;
   user_id: string;
-  product_id: string; // The client-side ID of the product
+  product_id: string;
   product_name: string;
   brand: string;
   image_url?: string;
   purchased: boolean;
   created_at: string;
-  product?: Product; // New: To store the full product metadata
+  product?: Product;
 }
 
 @Injectable({
@@ -34,97 +34,124 @@ export class ShoppingListService {
     private notificationService: NotificationService,
     private speechService: SpeechService,
     private leaderboardService: LeaderboardService,
-    private productDbService: ProductDbService // Inject ProductDbService
+    private productDbService: ProductDbService
   ) {
     this.authService.currentUser$.subscribe(user => {
       this.currentUserId = user?.id || null;
-      this.loadFromSupabase(); // Reload data when user changes
+      this.loadData(); // Use a unified load method
     });
   }
 
+  private getStorageKey(): string {
+    return this.currentUserId ? `fatBoyShoppingList_${this.currentUserId}` : 'fatBoyShoppingList_anonymous_dev';
+  }
+
+  private async loadData(): Promise<void> {
+    if (this.currentUserId) {
+      await this.loadFromSupabase();
+    } else if (isDevMode()) {
+      this.loadFromSessionStorage(); // Load from session storage in dev mode if not logged in
+    } else {
+      this.shoppingList = [];
+      this.listSubject.next([]);
+    }
+  }
+
   async addItem(product: Product): Promise<void> {
-    if (!this.currentUserId) {
+    if (!this.currentUserId && !isDevMode()) {
       this.notificationService.showError('Please log in to add items to your shopping list.');
       this.speechService.speak('Please log in to add items to your shopping list.');
       return;
     }
 
-    // Check if item already exists for the current user
-    const { data: existingItems, error: checkError } = await supabase
-      .from('shopping_list_items')
-      .select('id')
-      .eq('user_id', this.currentUserId)
-      .eq('product_id', product.id); // Use the client-side product.id for uniqueness
-
-    if (checkError) {
-      console.error('Error checking for existing shopping list item:', checkError);
-      this.notificationService.showError('Failed to check shopping list for duplicates.');
-      return;
-    }
-
-    if (existingItems && existingItems.length > 0) {
-      this.notificationService.showWarning('This item is already on your shopping list.', 'Already Added');
-      this.speechService.speak('This item is already on your shopping list.');
-      return;
-    }
-    
-    // Add 25 points for saving a good product
-    if (product.verdict === 'good') {
-      this.leaderboardService.incrementScore(25).subscribe();
-    }
-
     const newItemData = {
-      user_id: this.currentUserId,
+      user_id: this.currentUserId || 'anonymous_dev', // Use dummy ID for dev mode
       product_id: product.id,
       product_name: product.name,
       brand: product.brand,
       image_url: product.image,
-      purchased: false
+      purchased: false,
+      created_at: new Date().toISOString()
     };
 
-    const { data, error } = await supabase
-      .from('shopping_list_items')
-      .insert(newItemData)
-      .select()
-      .single();
+    if (this.currentUserId) {
+      // Check if item already exists for the current user in Supabase
+      const { data: existingItems, error: checkError } = await supabase
+        .from('shopping_list_items')
+        .select('id')
+        .eq('user_id', this.currentUserId)
+        .eq('product_id', product.id);
 
-    if (error) {
-      console.error('Error adding item to shopping list in Supabase:', error);
-      this.notificationService.showError('Failed to add item to shopping list.');
-      this.speechService.speak('Failed to add item to shopping list.');
-      throw error;
+      if (checkError) {
+        console.error('Error checking for existing shopping list item in Supabase:', checkError);
+        this.notificationService.showError('Failed to check shopping list for duplicates.');
+        return;
+      }
+
+      if (existingItems && existingItems.length > 0) {
+        this.notificationService.showWarning('This item is already on your shopping list.', 'Already Added');
+        this.speechService.speak('This item is already on your shopping list.');
+        return;
+      }
+      
+      const { data, error } = await supabase
+        .from('shopping_list_items')
+        .insert(newItemData)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error adding item to shopping list in Supabase:', error);
+        this.notificationService.showError('Failed to add item to shopping list.');
+        this.speechService.speak('Failed to add item to shopping list.');
+        throw error;
+      }
+      await this.loadFromSupabase();
+    } else if (isDevMode()) {
+      // Add to session storage for dev mode
+      const tempItem: ShoppingListItem = { ...newItemData, id: Date.now().toString() }; // Generate temp ID
+      this.shoppingList.unshift(tempItem);
+      this.saveToSessionStorage();
+      this.listSubject.next([...this.shoppingList]);
     }
-
-    await this.loadFromSupabase(); // Reload to update local state
+    
+    if (product.verdict === 'good') {
+      this.leaderboardService.incrementScore(25).subscribe();
+    }
     this.notificationService.showSuccess(`${product.name} added to your shopping list!`, 'Added to List');
     this.speechService.speak(`${product.name} added to your shopping list!`);
   }
 
   async removeItem(itemId: string): Promise<void> {
-    if (!this.currentUserId) {
+    if (!this.currentUserId && !isDevMode()) {
       this.notificationService.showError('Please log in to remove items from your shopping list.');
       return;
     }
 
-    const { error } = await supabase
-      .from('shopping_list_items')
-      .delete()
-      .eq('id', itemId) // Use the Supabase UUID for deletion
-      .eq('user_id', this.currentUserId);
+    if (this.currentUserId) {
+      const { error } = await supabase
+        .from('shopping_list_items')
+        .delete()
+        .eq('id', itemId)
+        .eq('user_id', this.currentUserId);
 
-    if (error) {
-      console.error('Error removing item from shopping list in Supabase:', error);
-      this.notificationService.showError('Failed to remove item from shopping list.');
-      throw error;
+      if (error) {
+        console.error('Error removing item from shopping list in Supabase:', error);
+        this.notificationService.showError('Failed to remove item from shopping list.');
+        throw error;
+      }
+      await this.loadFromSupabase();
+    } else if (isDevMode()) {
+      this.shoppingList = this.shoppingList.filter(i => i.id !== itemId);
+      this.saveToSessionStorage();
+      this.listSubject.next([...this.shoppingList]);
     }
-
-    await this.loadFromSupabase(); // Reload to update local state
     this.notificationService.showInfo('Item removed from shopping list.', 'Removed');
     this.speechService.speak('Item removed from shopping list.');
   }
 
   async toggleItemPurchased(itemId: string): Promise<void> {
-    if (!this.currentUserId) {
+    if (!this.currentUserId && !isDevMode()) {
       this.notificationService.showError('Please log in to update items in your shopping list.');
       return;
     }
@@ -137,53 +164,62 @@ export class ShoppingListService {
 
     const newPurchasedStatus = !item.purchased;
 
-    const { data, error } = await supabase
-      .from('shopping_list_items')
-      .update({ purchased: newPurchasedStatus })
-      .eq('id', itemId)
-      .eq('user_id', this.currentUserId)
-      .select()
-      .single();
+    if (this.currentUserId) {
+      const { data, error } = await supabase
+        .from('shopping_list_items')
+        .update({ purchased: newPurchasedStatus })
+        .eq('id', itemId)
+        .eq('user_id', this.currentUserId)
+        .select()
+        .single();
 
-    if (error) {
-      console.error('Error toggling item purchased status in Supabase:', error);
-      this.notificationService.showError('Failed to update item status.');
-      throw error;
+      if (error) {
+        console.error('Error toggling item purchased status in Supabase:', error);
+        this.notificationService.showError('Failed to update item status.');
+        throw error;
+      }
+      await this.loadFromSupabase();
+    } else if (isDevMode()) {
+      const index = this.shoppingList.findIndex(i => i.id === itemId);
+      if (index !== -1) {
+        this.shoppingList[index].purchased = newPurchasedStatus;
+        this.saveToSessionStorage();
+        this.listSubject.next([...this.shoppingList]);
+      }
     }
-
-    await this.loadFromSupabase(); // Reload to update local state
     this.notificationService.showInfo(`Item marked as ${newPurchasedStatus ? 'purchased' : 'not purchased'}.`, 'Updated');
     this.speechService.speak(`Item marked as ${newPurchasedStatus ? 'purchased' : 'not purchased'}.`);
   }
 
   async clearList(): Promise<void> {
-    if (!this.currentUserId) {
+    if (!this.currentUserId && !isDevMode()) {
       this.notificationService.showError('Please log in to clear your shopping list.');
       return;
     }
 
-    const { error } = await supabase
-      .from('shopping_list_items')
-      .delete()
-      .eq('user_id', this.currentUserId);
+    if (this.currentUserId) {
+      const { error } = await supabase
+        .from('shopping_list_items')
+        .delete()
+        .eq('user_id', this.currentUserId);
 
-    if (error) {
-      console.error('Error clearing shopping list in Supabase:', error);
-      this.notificationService.showError('Failed to clear shopping list.');
-      throw error;
+      if (error) {
+        console.error('Error clearing shopping list in Supabase:', error);
+        this.notificationService.showError('Failed to clear shopping list.');
+        throw error;
+      }
+      await this.loadFromSupabase();
+    } else if (isDevMode()) {
+      this.shoppingList = [];
+      this.saveToSessionStorage();
+      this.listSubject.next([]);
     }
-
-    await this.loadFromSupabase(); // Reload to update local state
     this.notificationService.showInfo('Shopping list cleared.', 'Cleared');
     this.speechService.speak('Shopping list cleared.');
   }
 
   private async loadFromSupabase(): Promise<void> {
-    if (!this.currentUserId) {
-      this.shoppingList = [];
-      this.listSubject.next([]);
-      return;
-    }
+    if (!this.currentUserId) return;
 
     const { data, error } = await supabase
       .from('shopping_list_items')
@@ -203,7 +239,7 @@ export class ShoppingListService {
       const fullProduct = await this.productDbService.getProductByClientSideId(item.product_id);
       loadedItems.push({
         ...item,
-        product: fullProduct || undefined // Attach the full product data
+        product: fullProduct || undefined
       });
     }
 
@@ -211,7 +247,18 @@ export class ShoppingListService {
     this.listSubject.next([...this.shoppingList]);
   }
 
-  // Removed local storage methods as data is now in Supabase
-  private saveToStorage(): void {}
-  private getStorageKey(): string { return ''; } // No longer needed
+  private loadFromSessionStorage(): void {
+    const stored = sessionStorage.getItem(this.getStorageKey());
+    if (stored) {
+      this.shoppingList = JSON.parse(stored);
+      this.listSubject.next([...this.shoppingList]);
+    } else {
+      this.shoppingList = [];
+      this.listSubject.next([]);
+    }
+  }
+
+  private saveToSessionStorage(): void {
+    sessionStorage.setItem(this.getStorageKey(), JSON.stringify(this.shoppingList));
+  }
 }
