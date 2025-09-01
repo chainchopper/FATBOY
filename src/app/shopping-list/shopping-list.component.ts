@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ShoppingListService, ShoppingListItem } from '../services/shopping-list.service';
+import { AppModalService } from '../services/app-modal.service'; // Import AppModalService
 import { Observable } from 'rxjs';
 
 @Component({
@@ -13,7 +14,10 @@ import { Observable } from 'rxjs';
 export class ShoppingListComponent implements OnInit {
   shoppingList$!: Observable<ShoppingListItem[]>;
 
-  constructor(private shoppingListService: ShoppingListService) {}
+  constructor(
+    private shoppingListService: ShoppingListService,
+    private appModalService: AppModalService // Inject AppModalService
+  ) {}
 
   ngOnInit() {
     this.shoppingList$ = this.shoppingListService.list$;
@@ -28,8 +32,14 @@ export class ShoppingListComponent implements OnInit {
   }
 
   clearList() {
-    if (confirm('Are you sure you want to clear your entire shopping list?')) {
-      this.shoppingListService.clearList();
-    }
+    this.appModalService.openConfirmation({
+      title: 'Clear Shopping List?',
+      message: 'Are you sure you want to clear your entire shopping list? This action cannot be undone.',
+      confirmText: 'Clear All',
+      cancelText: 'Keep List',
+      onConfirm: () => {
+        this.shoppingListService.clearList();
+      }
+    });
   }
 }

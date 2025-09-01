@@ -2,7 +2,16 @@
   <div class="modal-content" (click)="$event.stopPropagation()">
     <button class="close-btn" (click)="close()">×</button>
     
-    <div *ngIf="product$ | async as product">
+    <ng-container *ngIf="isConfirmation">
+      <h3 class="modal-title">{{ modalTitle }}</h3>
+      <p class="modal-message">{{ modalMessage }}</p>
+      <div class="confirmation-actions">
+        <button class="confirm-btn" (click)="handleConfirm()">{{ confirmButtonText }}</button>
+        <button class="cancel-btn" (click)="handleCancel()">{{ cancelButtonText }}</button>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="!isConfirmation && (product$ | async) as product">
       <h3 class="modal-title">Add "{{ product.name }}"</h3>
       
       <!-- Main Actions View -->
@@ -35,6 +44,6 @@
         <button class="meal-btn" (click)="addToDiary('Drinks')">🥤 Drinks</button>
         <button class="meal-btn back-btn" (click)="toggleMealOptions()">← Back</button>
       </div>
-    </div>
+    </ng-container>
   </div>
 </div>

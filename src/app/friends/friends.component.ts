@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { FriendsService, Friend, FriendRequest } from '../services/friends.service';
 import { NotificationService } from '../services/notification.service';
+import { AppModalService } from '../services/app-modal.service'; // Import AppModalService
 
 @Component({
   selector: 'app-friends',
@@ -19,7 +20,8 @@ export class FriendsComponent implements OnInit {
 
   constructor(
     private friendsService: FriendsService,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private appModalService: AppModalService // Inject AppModalService
   ) {}
 
   ngOnInit() {
@@ -46,11 +48,17 @@ export class FriendsComponent implements OnInit {
   }
 
   async removeFriend(friendshipId: number) {
-    if (confirm('Are you sure you want to remove this friend?')) {
-      await this.friendsService.removeFriendship(friendshipId);
-      this.notificationService.showInfo('Friend removed.');
-      this.loadData(); // Refresh the lists
-    }
+    this.appModalService.openConfirmation({
+      title: 'Remove Friend?',
+      message: 'Are you sure you want to remove this friend? This action cannot be undone.',
+      confirmText: 'Remove',
+      cancelText: 'Cancel',
+      onConfirm: async () => {
+        await this.friendsService.removeFriendship(friendshipId);
+        this.notificationService.showInfo('Friend removed.');
+        this.loadData(); // Refresh the lists
+      }
+    });
   }
 
   searchFriends() {

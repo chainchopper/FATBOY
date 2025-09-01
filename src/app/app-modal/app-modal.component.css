@@ -32,6 +32,7 @@
   position: relative;
   transform: scale(0.9);
   transition: transform 0.3s ease;
+  color: #e0e0e0; /* Ensure text is visible */
 }
 
 .modal-overlay.open .modal-content {
@@ -55,6 +56,13 @@
   margin-bottom: 25px;
   font-size: 1.5rem;
   text-shadow: 0 0 8px #0abdc6;
+}
+
+.modal-message {
+  text-align: center;
+  color: #a0a0c0;
+  margin-bottom: 25px;
+  font-size: 1rem;
 }
 
 .modal-subtitle {
@@ -135,4 +143,39 @@
 }
 .back-btn:hover {
   box-shadow: 0 0 10px #f038ff;
+}
+
+/* Styles for generic confirmation buttons */
+.confirmation-actions {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.confirm-btn, .cancel-btn {
+  padding: 12px 24px;
+  border-radius: 30px;
+  font-size: 1rem;
+  cursor: pointer;
+  background: transparent;
+  transition: all 0.3s;
+}
+
+.confirm-btn {
+  border: 2px solid #0abdc6;
+  color: #0abdc6;
+}
+.confirm-btn:hover {
+  background-color: rgba(10, 189, 198, 0.1);
+  box-shadow: 0 0 15px #0abdc6;
+}
+
+.cancel-btn {
+  border: 2px solid #f038ff;
+  color: #f038ff;
+}
+.cancel-btn:hover {
+  background-color: rgba(240, 56, 255, 0.1);
+  box-shadow: 0 0 15px #f038ff;
 }

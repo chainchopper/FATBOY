@@ -5,6 +5,7 @@ import { ProductDbService, Product } from '../services/product-db.service';
 import { IngredientParserService } from '../services/ingredient-parser.service';
 import { FoodDiaryService, DiaryEntry } from '../services/food-diary.service';
 import { ShoppingListService, ShoppingListItem } from '../services/shopping-list.service';
+import { AppModalService } from '../services/app-modal.service'; // Import AppModalService
 import { Observable, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 
@@ -29,7 +30,8 @@ export class HistoryComponent implements OnInit {
     private ingredientParser: IngredientParserService,
     private router: Router,
     private foodDiaryService: FoodDiaryService,
-    private shoppingListService: ShoppingListService
+    private shoppingListService: ShoppingListService,
+    private appModalService: AppModalService // Inject AppModalService
   ) {}
 
   ngOnInit() {
@@ -76,9 +78,15 @@ export class HistoryComponent implements OnInit {
   }
 
   clearHistory() {
-    if (confirm('Are you sure you want to clear all scan history?')) {
-      this.productDb.clearAll();
-    }
+    this.appModalService.openConfirmation({
+      title: 'Clear Scan History?',
+      message: 'Are you sure you want to clear all your scanned product history? This action cannot be undone.',
+      confirmText: 'Clear All',
+      cancelText: 'Keep History',
+      onConfirm: () => {
+        this.productDb.clearAll();
+      }
+    });
   }
 
   addToShoppingList(product: Product) {

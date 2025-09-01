@@ -6,6 +6,7 @@ import { SpeechService } from '../services/speech.service';
 import { AuthService } from '../services/auth.service';
 import { PreferencesService } from '../services/preferences.service';
 import { ProfileService } from '../services/profile.service';
+import { AppModalService } from '../services/app-modal.service'; // Import AppModalService
 import { Subscription, interval } from 'rxjs';
 
 interface Message {
@@ -62,6 +63,7 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
     private authService: AuthService,
     private preferencesService: PreferencesService,
     private profileService: ProfileService,
+    private appModalService: AppModalService, // Inject AppModalService
     private cdr: ChangeDetectorRef
   ) {}
 
@@ -241,21 +243,31 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
   }
 
   clearChatHistory(): void {
-    if (confirm('Are you sure you want to clear your chat history?')) {
-      localStorage.removeItem(this.getStorageKey());
-      this.messages = [{
-        sender: 'agent',
-        text: 'Hello! I am Fat Boy, your personal AI co-pilot, powered by NIRVANA from Fanalogy. How can I help you today?',
-        timestamp: new Date(),
-        avatar: this.agentAvatar,
-        followUpQuestions: [ // Re-add initial follow-up questions
-          'What are some healthy snack options?',
-          'Can you summarize my recent food diary entries?',
-          'How do I add a product to my shopping list?'
-        ]
-      }];
-      this.cdr.detectChanges();
-      this.scrollToBottom();
-    }
+    this.appModalService.openConfirmation({
+      title: 'Clear Chat History?',
+      message: 'Are you sure you want to clear your entire chat history? This action cannot be undone.',
+      confirmText: 'Clear',
+      cancelText: 'Keep Chat',
+      onConfirm: () => {
+        localStorage.removeItem(this.getStorageKey());
+        this.messages = [{
+          sender: 'agent',
+          text: 'Hello! I am Fat Boy, your personal AI co-pilot, powered by NIRVANA from Fanalogy. How can I help you today?',
+          timestamp: new Date(),
+          avatar: this.agentAvatar,
+          followUpQuestions: [
+            'What are some healthy snack options?',
+            'Can you summarize my recent food diary entries?',
+            'How do I add a product to my shopping list?'
+          ]
+        }];
+        this.cdr.detectChanges();
+        this.scrollToBottom();
+        this.speechService.speak('Chat history cleared.');
+      },
+      onCancel: () => {
+        this.speechService.speak('Chat clearing cancelled.');
+      }
+    });
   }
 }
