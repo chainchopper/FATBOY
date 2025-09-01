@@ -44,7 +44,7 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
   private statusSubscription!: Subscription;
   private authSubscription!: Subscription;
   private preferencesSubscription!: Subscription;
-  public agentAvatar = 'https://api.dicebear.com/8.x/bottts-neutral/svg?seed=nirvana';
+  public agentAvatar = 'assets/logo64.png'; // Updated to use logo64.png
   public userAvatar: string = 'https://api.dicebear.com/8.x/initials/svg?seed=Anonymous';
   public userName: string = 'You';
   private currentUserId: string | null = null;
@@ -255,7 +255,7 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
           text: 'Hello! I am Fat Boy, your personal AI co-pilot, powered by NIRVANA from Fanalogy. How can I help you today?',
           timestamp: new Date(),
           avatar: this.agentAvatar,
-          followUpQuestions: [ // Re-add initial follow-up questions
+          followUpQuestions: [
             'What are some healthy snack options?',
             'Can you summarize my recent food diary entries?',
             'How do I add a product to my shopping list?'
