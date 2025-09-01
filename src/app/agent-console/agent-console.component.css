@@ -52,7 +52,7 @@
 .message {
   display: flex;
   max-width: 80%;
-  align-items: flex-end; /* Align items to the bottom */
+  align-items: flex-end; /* Default alignment for the whole message block */
   gap: 10px;
 }
 
@@ -89,16 +89,27 @@
   box-shadow: 0 0 8px #F44336;
 }
 
+/* User message styling */
 .message-user {
-  align-self: flex-end;
+  align-self: flex-end; /* Align the whole user message block to the right */
   justify-content: flex-end;
-  flex-direction: row-reverse; /* Reverse order for user messages to put avatar on right */
+  flex-direction: row-reverse; /* Avatar on right, bubble on left of avatar */
 }
 
+/* Agent message styling */
 .message-agent {
-  align-self: flex-start;
+  align-self: flex-start; /* Align the whole agent message block to the left */
   justify-content: flex-start;
-  flex-direction: column; /* Stack avatar, bubble, and questions */
+  display: flex; /* Ensure it's a flex container */
+  flex-direction: row; /* Arrange avatar and content side-by-side */
+  align-items: flex-start; /* Align items to the top of the row */
+  gap: 10px; /* Space between avatar and content */
+}
+
+.agent-content { /* New container for agent's bubble and questions */
+  display: flex;
+  flex-direction: column; /* Stack bubble and questions vertically */
+  align-items: flex-start; /* Align bubble and questions to the left */
 }
 
 .message-bubble {
@@ -120,7 +131,7 @@
 }
 
 .message-agent .avatar-container {
-  margin-bottom: 5px; /* Space between avatar and bubble */
+  margin-bottom: 0; /* Reset margin from previous column layout */
 }
 
 .message-bubble p {

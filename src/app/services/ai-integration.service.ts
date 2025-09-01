@@ -161,7 +161,7 @@ export class AiIntegrationService {
         { role: 'user', content: userInput }
       ],
       temperature: 0.7,
-      max_tokens: 600, // Increased token limit by 200 characters
+      max_tokens: 1024, // Increased token limit to 1024 characters
       stream: false
     };
 
@@ -222,6 +222,9 @@ export class AiIntegrationService {
           followUpQuestions = [];
         }
       }
+
+      // Remove the literal example text from the main response if it somehow still appears
+      mainText = mainText.replace(/Your main response here\./g, '').trim();
 
       return { text: mainText, followUpQuestions };
 

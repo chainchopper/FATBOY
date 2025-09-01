@@ -5,36 +5,43 @@
   </div>
   <div class="message-window" #messageWindow>
     <div *ngFor="let msg of messages" class="message" [ngClass]="'message-' + msg.sender">
-      <!-- Agent Avatar -->
-      <div class="avatar-container" *ngIf="msg.sender === 'agent'">
-        <img [src]="msg.avatar" alt="Agent Avatar" class="avatar">
-        <div class="status-dot" [ngClass]="agentStatus"></div>
-      </div>
-      
-      <div class="message-bubble">
-        <p>{{ msg.text }}</p>
-        <span class="timestamp">{{ msg.timestamp | date:'shortTime' }}</span>
-      </div>
-      
-      <!-- User Avatar -->
-      <div class="avatar-container" *ngIf="msg.sender === 'user'">
-        <img [src]="msg.avatar" alt="User Avatar" class="avatar">
-      </div>
+      <ng-container *ngIf="msg.sender === 'agent'">
+        <div class="avatar-container">
+          <img [src]="msg.avatar" alt="Agent Avatar" class="avatar">
+          <div class="status-dot" [ngClass]="agentStatus"></div>
+        </div>
+        <div class="agent-content"> <!-- New container for bubble and questions -->
+          <div class="message-bubble">
+            <p>{{ msg.text }}</p>
+            <span class="timestamp">{{ msg.timestamp | date:'shortTime' }}</span>
+          </div>
+          <div *ngIf="msg.followUpQuestions && msg.followUpQuestions.length > 0" class="follow-up-questions">
+            <button *ngFor="let question of msg.followUpQuestions" (click)="submitFollowUpQuestion(question)" class="follow-up-btn">
+              {{ question }}
+            </button>
+          </div>
+        </div>
+      </ng-container>
 
-      <!-- New: Display follow-up questions -->
-      <div *ngIf="msg.sender === 'agent' && msg.followUpQuestions && msg.followUpQuestions.length > 0" class="follow-up-questions">
-        <button *ngFor="let question of msg.followUpQuestions" (click)="submitFollowUpQuestion(question)" class="follow-up-btn">
-          {{ question }}
-        </button>
-      </div>
+      <ng-container *ngIf="msg.sender === 'user'">
+        <div class="message-bubble">
+          <p>{{ msg.text }}</p>
+          <span class="timestamp">{{ msg.timestamp | date:'shortTime' }}</span>
+        </div>
+        <div class="avatar-container">
+          <img [src]="msg.avatar" alt="User Avatar" class="avatar">
+        </div>
+      </ng-container>
     </div>
     <div *ngIf="isAgentTyping" class="message message-agent">
        <div class="avatar-container">
         <img [src]="agentAvatar" alt="Agent Avatar" class="avatar">
         <div class="status-dot" [ngClass]="agentStatus"></div>
       </div>
-      <div class="message-bubble typing-indicator">
-        <span></span><span></span><span></span>
+      <div class="agent-content"> <!-- New container for typing indicator -->
+        <div class="message-bubble typing-indicator">
+          <span></span><span></span><span></span>
+        </div>
       </div>
     </div>
   </div>
