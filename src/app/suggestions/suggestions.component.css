@@ -5,10 +5,26 @@
   color: #e0e0e0;
 }
 
+h2 {
+  text-align: center;
+  margin-bottom: 1rem;
+  font-size: 1.8rem;
+  color: #0abdc6;
+  text-shadow: 0 0 8px #0abdc6;
+}
+
+p {
+  text-align: center;
+  margin-bottom: 2rem;
+  color: #a0a0c0;
+}
+
 .loading, .empty-state {
   text-align: center;
   padding: 40px;
   color: #a0a0c0;
+  background-color: rgba(15, 15, 30, 0.8);
+  border-radius: 8px;
 }
 
 .suggestions-grid {
@@ -51,6 +67,46 @@
   margin-bottom: 15px;
 }
 
+.suggestion-info h3 {
+  color: #e0e0e0;
+  margin-bottom: 5px;
+}
+
+.suggestion-info .brand {
+  color: #a0a0c0;
+  font-size: 0.9rem;
+  margin-bottom: 15px;
+}
+
+.reason {
+  background-color: rgba(10, 189, 198, 0.1);
+  border-left: 3px solid #0abdc6;
+  padding: 10px;
+  margin-bottom: 15px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.reason-icon {
+  font-size: 1.2rem;
+}
+
+.reason p {
+  margin: 0;
+  text-align: left;
+  font-size: 0.9rem;
+  color: #0abdc6;
+}
+
+.product-categories {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 15px;
+}
+
 .category-tag {
   background-color: #2a2a4e;
   padding: 4px 8px;
@@ -72,6 +128,7 @@
   border-radius: 4px;
   cursor: pointer;
   align-self: flex-start;
+  transition: all 0.3s;
 }
 .save-btn:hover {
   background-color: rgba(10, 189, 198, 0.1);

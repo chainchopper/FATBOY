@@ -3,21 +3,26 @@
   <p>Based on your preferences and scanning history, here are some products you might like:</p>
   
   <div *ngIf="isLoading" class="loading">
-    <p>Finding the best products for you...</p>
+    <p>🤖 Analyzing your preferences...</p>
   </div>
   
   <div *ngIf="!isLoading && suggestions.length === 0" class="empty-state">
     <p>Scan more products to get personalized suggestions!</p>
   </div>
   
-  <div class="suggestions-grid">
+  <div *ngIf="!isLoading && suggestions.length > 0" class="suggestions-grid">
     <div *ngFor="let suggestion of suggestions" class="suggestion-card">
       <div class="similarity-badge">{{suggestion.similarity}}% match</div>
       
       <div class="suggestion-info">
         <h3>{{suggestion.product.name}}</h3>
-        <p>{{suggestion.product.brand}}</p>
+        <p class="brand">{{suggestion.product.brand}}</p>
         
+        <div class="reason">
+          <span class="reason-icon">💡</span>
+          <p>{{suggestion.reason}}</p>
+        </div>
+
         <div class="product-categories">
           <span *ngFor="let category of suggestion.product.categories.slice(0, 3)" class="category-tag">
             {{getCategoryIcon(category)}} {{category}}
@@ -29,7 +34,7 @@
         </div>
       </div>
       
-      <button (click)="saveSuggestion(suggestion.product)" class="save-btn">Save Product</button>
+      <button (click)="saveSuggestion(suggestion.product)" class="save-btn">Add to Shopping List</button>
     </div>
   </div>
 </div>
