@@ -24,8 +24,8 @@
 }
 
 .main-nav {
-  display: flex;
-  justify-content: flex-end; /* Push hamburger to the right */
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
   padding: 15px 20px;
   background: rgba(26, 26, 46, 0.6);
@@ -36,22 +36,20 @@
   left: 0;
   right: 0;
   z-index: 1001;
-  height: 70px; /* Give nav a fixed height */
+  height: 70px;
 }
 
 .logo-container {
+  grid-column: 2;
   display: flex;
   align-items: center;
   gap: 10px;
   cursor: pointer;
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
   transition: transform 0.2s ease-in-out;
 }
 
 .logo-container:hover {
-  transform: translateX(-50%) scale(1.05);
+  transform: scale(1.05);
 }
 
 .logo-image {
@@ -60,19 +58,14 @@
 }
 
 .app-title {
-  position: static;
-  transform: none;
   font-family: 'Righteous', cursive;
   font-size: 1.75rem;
   animation: neon-flicker 5s infinite alternate ease-in-out;
 }
 
 .nav-actions {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  position: relative;
-  z-index: 2;
+  grid-column: 3;
+  justify-self: end;
 }
 
 /* Hamburger Menu Button */
