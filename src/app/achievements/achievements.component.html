@@ -1,5 +1,8 @@
 <div class="achievements-container">
-  <h2>Your Achievements</h2>
+  <div class="achievements-header">
+    <h2>Your Achievements</h2>
+    <button class="leaderboard-btn" routerLink="/leaderboard">View Leaderboard 🏅</button>
+  </div>
   <p>Unlock badges by scanning products, making healthy choices, and helping the community.</p>
   
   <div class="achievements-grid" *ngIf="(badges$ | async) as badges">
