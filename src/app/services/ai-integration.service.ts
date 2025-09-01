@@ -21,7 +21,7 @@ export class AiIntegrationService {
 
   private apiBaseUrl = environment.openaiApiBaseUrl;
   private apiKey = environment.openaiApiKey;
-  private chatModelName = environment.chatModelName; // Updated to use chatModelName
+  private chatModelName = environment.chatModelName;
   private embeddingModelName = environment.embeddingModelName;
 
   // Store the last product discussed for easy tool integration
@@ -213,7 +213,11 @@ export class AiIntegrationService {
     // Prepare messages for the API call, including history
     const messagesForApi = [
       { role: 'system', content: systemMessage },
-      ...messagesHistory.map(msg => ({ role: msg.sender, content: msg.text })), // Map existing history
+      ...messagesHistory.filter(msg => msg.text && msg.sender).map(msg => ({ // Filter out messages without text or sender
+        role: msg.sender === 'agent' ? 'assistant' : msg.sender,
+        content: msg.text,
+        ...(msg.toolCalls && { tool_calls: msg.toolCalls })
+      })),
       { role: 'user', content: userInput }
     ];
 
