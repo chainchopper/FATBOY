@@ -265,3 +265,75 @@ p {
   padding: 5px 10px;
   border-radius: 12px;
 }
+
+.social-actions {
+  display: flex;
+  gap: 15px;
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid #2a2a4e;
+}
+
+.like-btn {
+  background: transparent;
+  border: 1px solid #4a4a6e;
+  color: #e0e0e0;
+  padding: 5px 10px;
+  border-radius: 15px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+.like-btn:hover {
+  background-color: rgba(240, 56, 255, 0.1);
+  border-color: #f038ff;
+  color: #f038ff;
+}
+
+.comment-count {
+  color: #a0a0c0;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.comments-section {
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid #2a2a4e;
+}
+
+.comment-item {
+  background-color: #2a2a4e;
+  padding: 8px 12px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+}
+
+.comment-item strong {
+  color: #f038ff;
+}
+
+.add-comment {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.add-comment input {
+  flex-grow: 1;
+  padding: 8px;
+  border: 1px solid #4a4a6e;
+  border-radius: 4px;
+  background-color: #1a1a2e;
+  color: #e0e0e0;
+}
+
+.add-comment button {
+  background-color: #0abdc6;
+  color: #1a1a2e;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+}

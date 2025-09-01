@@ -2,7 +2,7 @@
   <h2>Community Feed</h2>
   <p>See what others are discovering and contribute your own finds!</p>
 
-  <div class="add-contribution-section">
+  <div class.add-contribution-section">
     <button (click)="toggleAddMode()" class="add-btn">
       {{ isAddingNewProduct ? 'Cancel' : '＋ Add New Product' }}
     </button>
@@ -32,6 +32,21 @@
         </div>
         <div class="leaderboard-status" *ngIf="contribution.metadata.leaderboardStatus">
           🏅 Rank {{ contribution.metadata.leaderboardStatus.rank }} ({{ contribution.metadata.leaderboardStatus.score }} pts)
+        </div>
+      </div>
+
+      <div class="social-actions">
+        <button (click)="toggleLike(contribution.id)" class="like-btn">👍 {{ contribution.likes }}</button>
+        <span class="comment-count">💬 {{ contribution.comments.length }}</span>
+      </div>
+
+      <div class="comments-section">
+        <div *ngFor="let comment of contribution.comments" class="comment-item">
+          <strong>{{ comment.username }}:</strong> {{ comment.text }}
+        </div>
+        <div class="add-comment">
+          <input type="text" [(ngModel)]="newCommentText[contribution.id]" placeholder="Add a comment..." (keydown.enter)="addComment(contribution.id)" [ngModelOptions]="{standalone: true}">
+          <button (click)="addComment(contribution.id)">Post</button>
         </div>
       </div>
     </div>

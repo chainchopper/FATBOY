@@ -24,6 +24,8 @@ interface CommunityContribution {
   status: 'pending' | 'approved' | 'rejected';
   id: string;
   metadata: ContributionMetadata;
+  likes: number;
+  comments: { username: string; text: string; timestamp: Date }[];
 }
 
 @Component({
@@ -38,6 +40,7 @@ export class CommunityComponent implements OnInit {
   scanHistory$!: Observable<Product[]>;
   isAddingNewProduct = false;
   communityContributions: CommunityContribution[] = [];
+  newCommentText: { [key: string]: string } = {};
   
   newContribution = {
     productName: '',
@@ -94,7 +97,9 @@ export class CommunityComponent implements OnInit {
       id: Date.now().toString(),
       timestamp: new Date(),
       status: 'pending',
-      metadata
+      metadata,
+      likes: 0,
+      comments: []
     };
 
     this.communityContributions.unshift(contribution);
@@ -108,6 +113,27 @@ export class CommunityComponent implements OnInit {
       this.isSubmitted = false;
       this.toggleAddMode();
     }, 3000);
+  }
+
+  toggleLike(contributionId: string): void {
+    const contribution = this.communityContributions.find(c => c.id === contributionId);
+    if (contribution) {
+      contribution.likes = (contribution.likes || 0) + 1;
+      this.saveContributions();
+    }
+  }
+
+  addComment(contributionId: string): void {
+    const commentText = this.newCommentText[contributionId]?.trim();
+    if (!commentText) return;
+
+    const contribution = this.communityContributions.find(c => c.id === contributionId);
+    if (contribution) {
+      const username = `User_${(this.currentUserId || 'anon').substring(0, 4)}`;
+      contribution.comments.push({ username, text: commentText, timestamp: new Date() });
+      this.saveContributions();
+      this.newCommentText[contributionId] = '';
+    }
   }
 
   private async buildMetadata(): Promise<ContributionMetadata> {
@@ -152,7 +178,9 @@ export class CommunityComponent implements OnInit {
     if (saved) {
       this.communityContributions = JSON.parse(saved).map((c: any) => ({
         ...c,
-        timestamp: new Date(c.timestamp)
+        timestamp: new Date(c.timestamp),
+        comments: c.comments || [],
+        likes: c.likes || 0
       }));
     } else {
       this.communityContributions = [];
