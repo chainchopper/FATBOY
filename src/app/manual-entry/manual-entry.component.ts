@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { ProductDbService, Product } from '../services/product-db.service';
 import { IngredientParserService } from '../services/ingredient-parser.service';
 import { NotificationService } from '../services/notification.service';
+import { ModalService } from '../services/modal.service';
 
 @Component({
   selector: 'app-manual-entry',
@@ -25,7 +26,8 @@ export class ManualEntryComponent {
     private router: Router,
     private productDb: ProductDbService,
     private ingredientParser: IngredientParserService,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private modalService: ModalService
   ) {}
 
   submitProduct() {
@@ -53,8 +55,8 @@ export class ManualEntryComponent {
 
     const savedProduct = this.productDb.addProduct(newProduct);
 
-    // Navigate to the results page to show the verdict and allow adding to lists
-    sessionStorage.setItem('viewingProduct', JSON.stringify(savedProduct));
-    this.router.navigate(['/ocr-results']);
+    // Open the modal with the new product and then navigate home
+    this.modalService.open(savedProduct);
+    this.router.navigate(['/scanner']);
   }
 }
