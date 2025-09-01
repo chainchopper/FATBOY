@@ -1,8 +1,6 @@
 import { Injectable } from '@angular/core';
 import { supabase } from '../../integrations/supabase/client';
 import { AuthService } from './auth.service';
-import { from, Observable, of } from 'rxjs';
-import { switchMap, map } from 'rxjs/operators';
 
 // Define interfaces for our data structures
 export interface FriendRequest {
