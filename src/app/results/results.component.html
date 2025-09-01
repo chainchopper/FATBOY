@@ -28,8 +28,9 @@
 
   <div class="action-buttons">
     <button (click)="scanAgain()" class="outline-btn">Scan Again</button>
+    <button *ngIf="verdict === 'good'" (click)="saveProduct()" class="filled-btn">Save Product</button>
     <button *ngIf="verdict === 'good'" (click)="addToShoppingList()" class="filled-btn">Add to List</button>
     <button (click)="addToDiary()" class="filled-btn">Add to Diary</button>
-    <button (click)="contributeProduct()" class="filled-btn">Contribute</button>
+    <button (click)="addToAvoidList()" class="filled-btn">Add to Avoid List</button>
   </div>
 </div>

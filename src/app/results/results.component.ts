@@ -9,7 +9,6 @@ import { NotificationService } from '../services/notification.service';
 import { FoodDiaryService } from '../services/food-diary.service';
 import { SpeechService } from '../services/speech.service';
 import { ScanContextService } from '../services/scan-context.service';
-import { CommunityContextService } from '../services/community-context.service';
 
 @Component({
   selector: 'app-results',
@@ -22,7 +21,6 @@ export class ResultsComponent implements OnInit {
   product: any;
   verdict: 'good' | 'bad' = 'bad';
   flaggedItems: { ingredient: string, reason: string }[] = [];
-  productFromHistory: Product | undefined;
 
   constructor(
     private router: Router,
@@ -33,8 +31,7 @@ export class ResultsComponent implements OnInit {
     private notificationService: NotificationService,
     private foodDiaryService: FoodDiaryService,
     private speechService: SpeechService,
-    private scanContextService: ScanContextService,
-    private communityContext: CommunityContextService
+    private scanContextService: ScanContextService
   ) {}
 
   ngOnInit() {
@@ -42,7 +39,7 @@ export class ResultsComponent implements OnInit {
     if (productData) {
       this.product = JSON.parse(productData);
       this.evaluateProduct();
-      this.addToHistory();
+      this.addToHistory(); // This also saves the product to session storage
       this.checkScanContext();
     } else {
       this.router.navigate(['/scanner']);
@@ -87,35 +84,55 @@ export class ResultsComponent implements OnInit {
     };
 
     const saved = this.productDb.addProduct(productInfo);
-    this.productFromHistory = saved; // Store the full product object
     sessionStorage.setItem('viewingProduct', JSON.stringify(saved));
   }
 
   private checkScanContext() {
     const mealType = this.scanContextService.getMealType();
-    if (mealType && this.productFromHistory) {
-      this.foodDiaryService.addEntry(this.productFromHistory, mealType);
+    if (mealType) {
+      const productFromHistory = this.productDb.getProductById(JSON.parse(sessionStorage.getItem('viewingProduct') || '{}').id);
+      if (productFromHistory) {
+        this.foodDiaryService.addEntry(productFromHistory, mealType);
+      }
       this.scanContextService.clearContext();
     }
   }
 
+  saveProduct() {
+    this.notificationService.showSuccess(`${this.product.name} saved to your gallery!`);
+  }
+
   addToShoppingList() {
-    if (this.productFromHistory) {
-      this.shoppingListService.addItem(this.productFromHistory);
+    const productFromHistory = this.productDb.getProductById(JSON.parse(sessionStorage.getItem('viewingProduct') || '{}').id);
+    if (productFromHistory) {
+      this.shoppingListService.addItem(productFromHistory);
     }
   }
 
   addToDiary() {
-    if (this.productFromHistory) {
-      this.foodDiaryService.addEntry(this.productFromHistory, 'Snack');
+    const productFromHistory = this.productDb.getProductById(JSON.parse(sessionStorage.getItem('viewingProduct') || '{}').id);
+    if (productFromHistory) {
+      // For now, defaults to 'Snack'. A future version could ask the user.
+      this.foodDiaryService.addEntry(productFromHistory, 'Snack');
     }
   }
 
-  contributeProduct() {
-    if (this.productFromHistory) {
-      this.communityContext.setProduct(this.productFromHistory);
-      this.router.navigate(['/community']);
-    }
+  addToAvoidList() {
+    if (!this.product) return;
+    const productInfo: Omit<Product, 'id' | 'scanDate'> = {
+      name: this.product.name || 'Unknown Product',
+      brand: this.product.brand || 'Unknown Brand',
+      barcode: this.product.barcode,
+      ingredients: Array.isArray(this.product.ingredients) ? this.product.ingredients : [],
+      calories: this.product.calories,
+      image: this.product.image,
+      categories: this.ingredientParser.categorizeProduct(Array.isArray(this.product.ingredients) ? this.product.ingredients : []),
+      verdict: 'bad',
+      flaggedIngredients: this.flaggedItems.map(f => f.ingredient)
+    };
+    this.productDb.addAvoidedProduct(productInfo);
+    this.notificationService.showInfo(`${this.product.name} added to your avoid list.`, 'Avoided!');
+    this.speechService.speak(`${this.product.name} added to your avoid list.`);
   }
 
   scanAgain() {
