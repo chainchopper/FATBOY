@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { AiIntegrationService, AiResponse } from '../services/ai-integration.service';
 import { SpeechService } from '../services/speech.service';
 import { AuthService } from '../services/auth.service';
-import { PreferencesService } from '../services/preferences.service'; // Import PreferencesService
+import { PreferencesService } from '../services/preferences.service';
 import { Subscription, interval } from 'rxjs';
 
 interface Message {
@@ -40,8 +40,8 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
   private speechSubscription!: Subscription;
   private statusSubscription!: Subscription;
   private authSubscription!: Subscription;
-  private preferencesSubscription!: Subscription; // New subscription for preferences
-  private agentAvatar = 'https://api.dicebear.com/8.x/bottts-neutral/svg?seed=nirvana';
+  private preferencesSubscription!: Subscription;
+  public agentAvatar = 'https://api.dicebear.com/8.x/bottts-neutral/svg?seed=nirvana'; // Changed to public
   private currentUserId: string | null = null;
   
   availableCommands: SlashCommand[] = [
@@ -56,19 +56,19 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
     private aiService: AiIntegrationService,
     private speechService: SpeechService,
     private authService: AuthService,
-    private preferencesService: PreferencesService, // Inject PreferencesService
+    private preferencesService: PreferencesService,
     private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
     this.checkStatus();
-    this.statusSubscription = interval(300000).subscribe(() => this.checkStatus()); // Check every 5 minutes
+    this.statusSubscription = interval(300000).subscribe(() => this.checkStatus());
 
     this.authSubscription = this.authService.currentUser$.subscribe(user => {
       const previousUserId = this.currentUserId;
       this.currentUserId = user?.id || null;
       if (this.currentUserId !== previousUserId) {
-        this.loadChatHistory(); // Reload history if user changes
+        this.loadChatHistory();
       }
     });
 
@@ -102,7 +102,7 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
     if (this.speechSubscription) this.speechSubscription.unsubscribe();
     if (this.statusSubscription) this.statusSubscription.unsubscribe();
     if (this.authSubscription) this.authSubscription.unsubscribe();
-    if (this.preferencesSubscription) this.preferencesSubscription.unsubscribe(); // Unsubscribe from preferences
+    if (this.preferencesSubscription) this.preferencesSubscription.unsubscribe();
     this.speechService.stopListening();
   }
 
@@ -117,7 +117,6 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
   }
 
   toggleVoiceListening() {
-    // This button now just toggles the internal state, actual listening is controlled by preferences
     const currentPrefs = this.preferencesService.getPreferences();
     this.preferencesService.savePreferences({ ...currentPrefs, enableVoiceCommands: !currentPrefs.enableVoiceCommands });
   }
