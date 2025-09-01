@@ -101,9 +101,6 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
     } else if (command.includes('go to food diary')) {
       this.router.navigate(['/food-diary']);
       this.speechService.speak('Opening food diary.');
-    } else if (command.includes('switch camera')) {
-      this.switchCamera();
-      this.speechService.speak('Switching camera.');
     } else if (command.includes('add to shopping list')) {
       // This command will be handled on the results pages
       this.speechService.speak('You can add items to your shopping list from the results page.');
@@ -180,18 +177,6 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
 
   onBarcodeScanFailure(error: string) {
     // console.log('Barcode scan attempt failed:', error); // Too noisy for console
-  }
-
-  switchCamera() {
-    if (this.cameras.length > 1) {
-      this.stopBarcodeScanning(); // Stop current scanning before switching
-      this.currentCameraIndex = (this.currentCameraIndex + 1) % this.cameras.length;
-      this.selectedCameraId = this.cameras[this.currentCameraIndex].deviceId;
-      localStorage.setItem('fatBoySelectedCamera', this.selectedCameraId);
-      this.startBarcodeScanning(); // Restart barcode detection with new camera
-    } else {
-      this.notificationService.showInfo('Only one camera found.');
-    }
   }
 
   async captureLabelForOcr(): Promise<void> {
