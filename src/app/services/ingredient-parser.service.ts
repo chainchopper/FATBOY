@@ -49,12 +49,18 @@ export class IngredientParserService {
 
   evaluateProduct(ingredients: string[], calories: number | undefined, preferences: any): ProductEvaluation {
     const flagged: { ingredient: string, reason: string }[] = [];
-    const avoidedIngredients = preferences.avoidedIngredients || [];
+    
+    // Combine both predefined and custom avoided ingredients into one master list
+    const predefinedAvoidList = preferences.avoidedIngredients || [];
+    const customAvoidList = preferences.customAvoidedIngredients || [];
+    const fullAvoidList = [...predefinedAvoidList, ...customAvoidList];
 
-    // 1. Check ingredients against the user's custom avoid list
-    avoidedIngredients.forEach((avoidItem: string) => {
+    // 1. Check ingredients against the user's full avoid list
+    fullAvoidList.forEach((avoidItem: string) => {
+      if (!avoidItem) return; // Skip empty strings
+      const lowerAvoidItem = avoidItem.toLowerCase();
       ingredients.forEach(ingredient => {
-        if (ingredient.toLowerCase().includes(avoidItem)) {
+        if (ingredient.toLowerCase().includes(lowerAvoidItem)) {
           if (!flagged.some(f => f.ingredient === ingredient)) {
             flagged.push({ ingredient, reason: `Contains ${avoidItem}, which you avoid.` });
           }

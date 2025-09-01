@@ -15,6 +15,7 @@ import { IngredientParserService } from '../services/ingredient-parser.service';
 export class PreferencesComponent implements OnInit {
   preferences = {
     avoidedIngredients: ['aspartame', 'sucralose', 'red 40', 'yellow 5', 'high-fructose corn syrup', 'partially hydrogenated'],
+    customAvoidedIngredients: [] as string[],
     maxCalories: 200,
     dailyCalorieTarget: 2000,
     goal: 'avoidChemicals',
@@ -24,6 +25,7 @@ export class PreferencesComponent implements OnInit {
   };
 
   ingredientCategories: { [key: string]: { name: string, items: string[] } };
+  newCustomIngredient: string = '';
   private currentUserId: string | null = null;
 
   constructor(
@@ -54,6 +56,18 @@ export class PreferencesComponent implements OnInit {
     }
   }
 
+  addCustomIngredient(): void {
+    const ingredient = this.newCustomIngredient.trim().toLowerCase();
+    if (ingredient && !this.preferences.customAvoidedIngredients.includes(ingredient)) {
+      this.preferences.customAvoidedIngredients.push(ingredient);
+      this.newCustomIngredient = '';
+    }
+  }
+
+  removeCustomIngredient(index: number): void {
+    this.preferences.customAvoidedIngredients.splice(index, 1);
+  }
+
   savePreferences() {
     localStorage.setItem(this.getStorageKey(), JSON.stringify(this.preferences));
     this.notificationService.showSuccess('Preferences saved!');
@@ -67,6 +81,8 @@ export class PreferencesComponent implements OnInit {
     const saved = localStorage.getItem(this.getStorageKey());
     if (saved) {
       const savedPrefs = JSON.parse(saved);
+      // Ensure customAvoidedIngredients is an array, even if loading old data
+      savedPrefs.customAvoidedIngredients = savedPrefs.customAvoidedIngredients || [];
       this.preferences = { ...this.preferences, ...savedPrefs };
     }
   }

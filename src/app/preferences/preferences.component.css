@@ -84,6 +84,61 @@ h2 {
   transform: translate(-50%, -50%);
 }
 
+.custom-ingredient-form {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.custom-ingredient-form input {
+  flex-grow: 1;
+  padding: 10px;
+  border: 1px solid #4a4a6e;
+  border-radius: 4px;
+  background-color: #1a1a2e;
+  color: #e0e0e0;
+  font-size: 1rem;
+}
+
+.add-btn {
+  padding: 10px 20px;
+  border: 1px solid #0abdc6;
+  background-color: transparent;
+  color: #0abdc6;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+.add-btn:hover {
+  background-color: rgba(10, 189, 198, 0.1);
+  box-shadow: 0 0 10px #0abdc6;
+}
+
+.custom-ingredient-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.custom-ingredient-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #2a2a4e;
+  padding: 5px 10px;
+  border-radius: 15px;
+  font-size: 0.9rem;
+}
+
+.remove-btn {
+  background: none;
+  border: none;
+  color: #a0a0c0;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0 5px;
+}
+
 .calorie-slider label {
   display: block;
   margin-bottom: 15px;

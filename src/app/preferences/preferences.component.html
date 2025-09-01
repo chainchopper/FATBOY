@@ -19,6 +19,25 @@
       </div>
     </div>
   </div>
+
+  <div class="preference-section">
+    <h3>Custom Ingredients to Avoid</h3>
+    <p class="section-description">Manually add any other ingredients you want to avoid.</p>
+    <div class="custom-ingredient-form">
+      <input 
+        type="text" 
+        [(ngModel)]="newCustomIngredient" 
+        placeholder="e.g., carrageenan"
+        (keyup.enter)="addCustomIngredient()">
+      <button (click)="addCustomIngredient()" class="add-btn">Add</button>
+    </div>
+    <div class="custom-ingredient-list">
+      <div *ngFor="let item of preferences.customAvoidedIngredients; let i = index" class="custom-ingredient-item">
+        <span>{{ item }}</span>
+        <button (click)="removeCustomIngredient(i)" class="remove-btn">×</button>
+      </div>
+    </div>
+  </div>
   
   <div class="preference-section">
     <h3>Set your limits:</h3>
