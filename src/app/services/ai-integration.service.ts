@@ -221,7 +221,7 @@ export class AiIntegrationService {
     1.  **Prioritize Tool Calls:** If the user's intent clearly matches a defined tool, make the tool call.
     2.  **Concise Direct Answers:** Always provide a direct, concise (1-2 sentences) natural language response to the user's query.
     3.  **NO Internal Reasoning in 'content':** Absolutely DO NOT include any internal thought process or reasoning in your 'content' field. Your 'content' should be purely the user-facing response.
-    4.  **Contextual Follow-up Questions:** After your direct response (and any tool calls), always conclude by generating exactly 3 relevant follow-up questions in a JSON array format, prefixed with '[FOLLOW_UP_QUESTIONS]'. These questions should be highly relevant to the *preceding conversation* and *user data*, and can suggest actions (e.g., "Would you like to add [item] to your shopping list?").
+    4.  **Contextual Follow-up Questions:** After your direct response (and any tool calls), always conclude by generating exactly 3 relevant follow-up questions in a JSON array format, prefixed with '[FOLLOW_UP_QUESTIONS]'. These questions must be highly relevant to the *preceding conversation* and *user data*. Limit suggestions for adding to lists/diary to **at most one** question, and only if the item was *just discussed* and not already explicitly added. Prioritize diverse questions (e.g., nutritional facts, comparisons, health impacts, related items).
     
     Here is the current user's context:
     ${userContext}
