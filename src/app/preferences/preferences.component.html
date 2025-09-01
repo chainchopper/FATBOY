@@ -38,6 +38,25 @@
       </div>
     </div>
   </div>
+
+  <div class="preference-section">
+    <h3>Custom Products to Avoid</h3>
+    <p class="section-description">Manually add specific products by name to avoid. This will be used for future recommendations.</p>
+    <div class="custom-ingredient-form">
+      <input 
+        type="text" 
+        [(ngModel)]="newCustomProduct" 
+        placeholder="e.g., Oreo Cookies"
+        (keyup.enter)="addCustomProduct()">
+      <button (click)="addCustomProduct()" class="add-btn">Add</button>
+    </div>
+    <div class="custom-ingredient-list">
+      <div *ngFor="let item of preferences.customAvoidedProducts; let i = index" class="custom-ingredient-item">
+        <span>{{ item }}</span>
+        <button (click)="removeCustomProduct(i)" class="remove-btn">×</button>
+      </div>
+    </div>
+  </div>
   
   <div class="preference-section">
     <h3>Set your limits:</h3>

@@ -16,6 +16,7 @@ export class PreferencesComponent implements OnInit {
   preferences = {
     avoidedIngredients: ['aspartame', 'sucralose', 'red 40', 'yellow 5', 'high-fructose corn syrup', 'partially hydrogenated'],
     customAvoidedIngredients: [] as string[],
+    customAvoidedProducts: [] as string[],
     maxCalories: 200,
     dailyCalorieTarget: 2000,
     goal: 'avoidChemicals',
@@ -26,6 +27,7 @@ export class PreferencesComponent implements OnInit {
 
   ingredientCategories: { [key: string]: { name: string, items: string[] } };
   newCustomIngredient: string = '';
+  newCustomProduct: string = '';
   private currentUserId: string | null = null;
 
   constructor(
@@ -68,6 +70,18 @@ export class PreferencesComponent implements OnInit {
     this.preferences.customAvoidedIngredients.splice(index, 1);
   }
 
+  addCustomProduct(): void {
+    const product = this.newCustomProduct.trim();
+    if (product && !this.preferences.customAvoidedProducts.includes(product)) {
+      this.preferences.customAvoidedProducts.push(product);
+      this.newCustomProduct = '';
+    }
+  }
+
+  removeCustomProduct(index: number): void {
+    this.preferences.customAvoidedProducts.splice(index, 1);
+  }
+
   savePreferences() {
     localStorage.setItem(this.getStorageKey(), JSON.stringify(this.preferences));
     this.notificationService.showSuccess('Preferences saved!');
@@ -81,8 +95,9 @@ export class PreferencesComponent implements OnInit {
     const saved = localStorage.getItem(this.getStorageKey());
     if (saved) {
       const savedPrefs = JSON.parse(saved);
-      // Ensure customAvoidedIngredients is an array, even if loading old data
+      // Ensure new preference arrays exist, even if loading old data
       savedPrefs.customAvoidedIngredients = savedPrefs.customAvoidedIngredients || [];
+      savedPrefs.customAvoidedProducts = savedPrefs.customAvoidedProducts || [];
       this.preferences = { ...this.preferences, ...savedPrefs };
     }
   }

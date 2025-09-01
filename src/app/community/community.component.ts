@@ -5,28 +5,16 @@ import { GamificationService } from '../services/gamification.service';
 import { AuthService } from '../services/auth.service';
 import { LeaderboardService } from '../services/leaderboard.service';
 import { ProductDbService, Product } from '../services/product-db.service';
-import { ProfileService, Profile } from '../services/profile.service';
-import { Observable, of } from 'rxjs';
-import { switchMap, take } from 'rxjs/operators';
+import { ProfileService } from '../services/profile.service';
+import { ShoppingListService } from '../services/shopping-list.service';
+import { CommunityContextService } from '../services/community-context.service';
+import { Observable, combineLatest } from 'rxjs';
+import { map, take } from 'rxjs/operators';
 
 interface ContributionMetadata {
   username?: string;
   goal?: string;
   leaderboardStatus?: { rank: number; score: number };
-}
-
-interface CommunityContribution {
-  productName: string;
-  brand: string;
-  barcode: string;
-  ingredients: string;
-  notes: string;
-  timestamp: Date;
-  status: 'pending' | 'approved' | 'rejected';
-  id: string;
-  likes: number;
-  comments: { username: string; text: string; timestamp: Date }[];
-  metadata?: ContributionMetadata;
 }
 
 @Component({
@@ -38,7 +26,7 @@ interface CommunityContribution {
 })
 export class CommunityComponent implements OnInit {
   mode: 'select' | 'manual' = 'select';
-  scanHistory$!: Observable<Product[]>;
+  userProducts$!: Observable<Product[]>;
   
   newContribution = {
     productName: '',
@@ -56,14 +44,35 @@ export class CommunityComponent implements OnInit {
     private authService: AuthService,
     private leaderboardService: LeaderboardService,
     private productDb: ProductDbService,
-    private profileService: ProfileService
+    private profileService: ProfileService,
+    private shoppingListService: ShoppingListService,
+    private communityContext: CommunityContextService
   ) {}
 
   ngOnInit() {
     this.authService.currentUser$.subscribe(user => {
       this.currentUserId = user?.id || null;
     });
-    this.scanHistory$ = this.productDb.products$;
+
+    // Check for a product passed from the results page
+    const productToContribute = this.communityContext.getProduct();
+    if (productToContribute) {
+      this.selectProduct(productToContribute);
+    }
+
+    // Create a unified list of all user products
+    this.userProducts$ = combineLatest([
+      this.productDb.products$,
+      this.productDb.avoidedProducts$,
+      this.shoppingListService.list$
+    ]).pipe(
+      map(([scanned, avoided, shoppingList]) => {
+        const allProducts = [...scanned, ...avoided, ...shoppingList];
+        // Deduplicate based on a unique identifier like barcode or name+brand
+        const uniqueProducts = Array.from(new Map(allProducts.map(p => [`${p.barcode || p.name}-${p.brand}`, p])).values());
+        return uniqueProducts;
+      })
+    );
   }
 
   setMode(mode: 'select' | 'manual') {
@@ -84,7 +93,6 @@ export class CommunityComponent implements OnInit {
   async submitContribution() {
     const metadata = await this.buildMetadata();
     
-    // This part would save to a real backend in the future
     console.log('Submitting contribution with metadata:', metadata);
     
     this.isSubmitted = true;
