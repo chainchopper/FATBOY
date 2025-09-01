@@ -66,6 +66,7 @@
   height: 40px;
   border-radius: 50%;
   border: 1px solid #4a4a6e;
+  object-fit: cover; /* Ensure avatar images fill the circle */
 }
 
 .status-dot {
@@ -91,6 +92,7 @@
 .message-user {
   align-self: flex-end;
   justify-content: flex-end;
+  flex-direction: row-reverse; /* Reverse order for user messages to put avatar on right */
 }
 
 .message-agent {

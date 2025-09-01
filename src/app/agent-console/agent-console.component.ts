@@ -5,6 +5,7 @@ import { AiIntegrationService, AiResponse } from '../services/ai-integration.ser
 import { SpeechService } from '../services/speech.service';
 import { AuthService } from '../services/auth.service';
 import { PreferencesService } from '../services/preferences.service';
+import { ProfileService } from '../services/profile.service'; // Import ProfileService
 import { Subscription, interval } from 'rxjs';
 
 interface Message {
@@ -41,7 +42,9 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
   private statusSubscription!: Subscription;
   private authSubscription!: Subscription;
   private preferencesSubscription!: Subscription;
-  public agentAvatar = 'https://api.dicebear.com/8.x/bottts-neutral/svg?seed=nirvana'; // Changed to public
+  public agentAvatar = 'https://api.dicebear.com/8.x/bottts-neutral/svg?seed=nirvana';
+  public userAvatar: string = 'https://api.dicebear.com/8.x/initials/svg?seed=Anonymous'; // Default user avatar
+  public userName: string = 'You'; // Default user name
   private currentUserId: string | null = null;
   
   availableCommands: SlashCommand[] = [
@@ -57,6 +60,7 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
     private speechService: SpeechService,
     private authService: AuthService,
     private preferencesService: PreferencesService,
+    private profileService: ProfileService, // Inject ProfileService
     private cdr: ChangeDetectorRef
   ) {}
 
@@ -69,6 +73,21 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
       this.currentUserId = user?.id || null;
       if (this.currentUserId !== previousUserId) {
         this.loadChatHistory();
+      }
+      // Update user avatar and name based on current user and profile
+      if (user) {
+        this.profileService.getProfile().subscribe(profile => {
+          if (profile) {
+            this.userName = profile.first_name || user.email?.split('@')[0] || 'You';
+            this.userAvatar = profile.avatar_url || `https://api.dicebear.com/8.x/initials/svg?seed=${this.userName}`;
+          } else {
+            this.userName = user.email?.split('@')[0] || 'You';
+            this.userAvatar = `https://api.dicebear.com/8.x/initials/svg?seed=${this.userName}`;
+          }
+        });
+      } else {
+        this.userName = 'You';
+        this.userAvatar = 'https://api.dicebear.com/8.x/initials/svg?seed=Anonymous';
       }
     });
 
@@ -140,7 +159,7 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
     const text = this.userInput.trim();
     if (!text) return;
 
-    this.messages.push({ sender: 'user', text, timestamp: new Date(), avatar: '' });
+    this.messages.push({ sender: 'user', text, timestamp: new Date(), avatar: this.userAvatar }); // Use userAvatar
     this.userInput = '';
     this.showSlashCommands = false;
     this.isAgentTyping = true;
