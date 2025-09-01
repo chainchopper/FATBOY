@@ -13,26 +13,30 @@ export class AiIntegrationService {
 
   constructor(private productDb: ProductDbService) { }
 
+  /**
+   * Checks if the AI model endpoint is reachable by fetching the models list.
+   * @returns A promise that resolves with true if the endpoint is online, false otherwise.
+   */
   async checkAgentStatus(): Promise<boolean> {
     const endpoint = `${this.apiBaseUrl}/models`;
     try {
       const response = await fetch(endpoint);
       return response.ok;
     } catch (error) {
-      console.error('Error checking agent status:', error);
+      console.error(`[AI STATUS CHECK FAILED]: Could not connect to ${endpoint}. Is the server running?`, error);
       return false;
     }
   }
 
   /**
-   * Sends a prompt to the chat completions endpoint and streams the response.
+   * Sends a prompt directly to the chat completions endpoint from the browser.
    * @param userInput The raw text from the user.
-   * @param onChunk A callback function that will be called with each new chunk of text from the model.
+   * @returns A promise that resolves with the model's text response.
    */
-  async getChatCompletionStream(userInput: string, onChunk: (chunk: string) => void): Promise<void> {
+  async getChatCompletion(userInput: string): Promise<string> {
     const endpoint = `${this.apiBaseUrl}/chat/completions`;
     if (!endpoint || !this.modelName) {
-      throw new Error("AI endpoint or model not configured.");
+      return "I'm sorry, but my AI endpoint is not configured correctly in the app's environment file.";
     }
 
     const headers: HeadersInit = { 'Content-Type': 'application/json' };
@@ -51,8 +55,8 @@ export class AiIntegrationService {
         { role: 'user', content: userInput }
       ],
       temperature: 0.7,
-      max_tokens: 300,
-      stream: true // Enable streaming
+      max_tokens: 150, // Set a safe limit
+      stream: false
     };
 
     try {
@@ -62,40 +66,17 @@ export class AiIntegrationService {
         body: JSON.stringify(payload)
       });
 
-      if (!response.ok || !response.body) {
-        throw new Error(`API request failed with status ${response.status}`);
+      if (!response.ok) {
+        const errorBody = await response.text();
+        console.error('Chat Completions API Error:', response.status, errorBody);
+        return `Sorry, I encountered an error (${response.status}) while contacting my brain. Please check the server logs.`;
       }
 
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-      let done = false;
-
-      while (!done) {
-        const { value, done: readerDone } = await reader.read();
-        done = readerDone;
-        const chunk = decoder.decode(value, { stream: true });
-        
-        // Process server-sent events
-        const lines = chunk.split('\n').filter(line => line.trim().startsWith('data:'));
-        for (const line of lines) {
-          const jsonStr = line.replace('data: ', '');
-          if (jsonStr === '[DONE]') {
-            return;
-          }
-          try {
-            const parsed = JSON.parse(jsonStr);
-            const content = parsed.choices[0]?.delta?.content || '';
-            if (content) {
-              onChunk(content);
-            }
-          } catch (e) {
-            // Ignore parsing errors for incomplete JSON chunks
-          }
-        }
-      }
+      const data = await response.json();
+      return data.choices[0].message.content;
     } catch (error) {
-      console.error('Streaming API Error:', error);
-      onChunk("\n\nSorry, I encountered an error while streaming my response.");
+      console.error('Network or other error calling Chat Completions API:', error);
+      return "Sorry, I couldn't connect to the AI service. Please ensure the model server is running and accessible from your browser.";
     }
   }
 }

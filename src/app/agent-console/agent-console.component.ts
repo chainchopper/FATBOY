@@ -36,7 +36,7 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
   agentStatus: 'online' | 'offline' = 'offline';
   private speechSubscription!: Subscription;
   private statusSubscription!: Subscription;
-  private agentAvatar = 'https://api.dicebear.com/8.x/bottts-neutral/svg?seed=nirvana';
+  private agentAvatar = 'assets/logo.png';
   
   availableCommands: SlashCommand[] = [
     { command: '/suggest', description: 'Get a personalized product suggestion.', usage: '/suggest' },
@@ -54,7 +54,7 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
 
   ngOnInit() {
     this.checkStatus();
-    this.statusSubscription = interval(300000).subscribe(() => this.checkStatus());
+    this.statusSubscription = interval(300000).subscribe(() => this.checkStatus()); // Check every 5 minutes
 
     this.messages.push({
       sender: 'agent',
@@ -83,6 +83,7 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
   async checkStatus() {
     const isOnline = await this.aiService.checkAgentStatus();
     this.agentStatus = isOnline ? 'online' : 'offline';
+    this.cdr.detectChanges();
   }
 
   toggleVoiceListening() {
@@ -118,21 +119,11 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
     this.showSlashCommands = false;
     this.isAgentTyping = true;
 
-    const agentMessage: Message = {
-      sender: 'agent',
-      text: '',
-      timestamp: new Date(),
-      avatar: this.agentAvatar
-    };
-    this.messages.push(agentMessage);
-
     try {
-      await this.aiService.getChatCompletionStream(text, (chunk) => {
-        agentMessage.text += chunk;
-        this.cdr.detectChanges();
-      });
+      const responseText = await this.aiService.getChatCompletion(text);
+      this.messages.push({ sender: 'agent', text: responseText, timestamp: new Date(), avatar: this.agentAvatar });
     } catch (error) {
-      agentMessage.text = 'Sorry, I encountered an error. Please try again.';
+      this.messages.push({ sender: 'agent', text: 'Sorry, I encountered an error. Please try again.', timestamp: new Date(), avatar: this.agentAvatar });
     } finally {
       this.isAgentTyping = false;
     }
