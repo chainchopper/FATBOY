@@ -5,7 +5,7 @@ import { ProductDbService, Product } from '../services/product-db.service';
 import { IngredientParserService } from '../services/ingredient-parser.service';
 import { FoodDiaryService, DiaryEntry } from '../services/food-diary.service';
 import { ShoppingListService, ShoppingListItem } from '../services/shopping-list.service';
-import { AppModalService } from '../services/app-modal.service'; // Import AppModalService
+import { AppModalService } from '../services/app-modal.service';
 import { Observable, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 
@@ -31,7 +31,7 @@ export class HistoryComponent implements OnInit {
     private router: Router,
     private foodDiaryService: FoodDiaryService,
     private shoppingListService: ShoppingListService,
-    private appModalService: AppModalService // Inject AppModalService
+    private appModalService: AppModalService
   ) {}
 
   ngOnInit() {
@@ -71,6 +71,22 @@ export class HistoryComponent implements OnInit {
   viewProduct(product: Product) {
     sessionStorage.setItem('viewingProduct', JSON.stringify(product));
     this.router.navigate(['/ocr-results']);
+  }
+
+  // New method to convert ShoppingListItem to a basic Product for viewing
+  viewProductFromShoppingItem(item: ShoppingListItem) {
+    const product: Product = {
+      id: item.product_id,
+      name: item.product_name,
+      brand: item.brand,
+      image: item.image_url,
+      ingredients: [], // Not available in ShoppingListItem, so empty
+      verdict: 'good', // Default or infer if possible, for now 'good'
+      flaggedIngredients: [], // Not available
+      scanDate: new Date(item.created_at),
+      categories: [] // Not available
+    };
+    this.viewProduct(product);
   }
 
   removeProduct(id: string) {

@@ -107,12 +107,12 @@
       <div class="products-list">
         <div *ngFor="let item of items" class="product-card" [class.purchased]="item.purchased">
           <div class="product-header">
-            <h3>{{item.name}}</h3>
+            <h3>{{item.product_name}}</h3>
           </div>
           <p class="product-brand">{{item.brand}}</p>
           <p class="scan-date" *ngIf="item.purchased">Purchased</p>
           <div class="product-actions">
-            <button (click)="viewProduct(item)" class="view-btn">View Details</button>
+            <button (click)="viewProductFromShoppingItem(item)" class="view-btn">View Details</button>
           </div>
         </div>
       </div>
