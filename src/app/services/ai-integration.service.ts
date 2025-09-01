@@ -3,7 +3,7 @@ import { environment } from '../../environments/environment';
 import { ProductDbService, Product } from './product-db.service';
 import { ProfileService } from './profile.service';
 import { PreferencesService } from './preferences.service';
-import { ShoppingListService, ShoppingListItem } from './shopping-list.service'; // Import ShoppingListItem
+import { ShoppingListService, ShoppingListItem } from './shopping-list.service';
 import { FoodDiaryService, MealType } from './food-diary.service';
 import { GamificationService } from './gamification.service';
 import { NotificationService } from './notification.service';
@@ -169,7 +169,7 @@ export class AiIntegrationService {
     const badges = await firstValueFrom(this.gamificationService.badges$);
 
     const recentScansSummary = scanHistory.slice(0, 5).map(p => `${p.name} (${p.brand}, verdict: ${p.verdict})`).join('; ') || 'No recent scans.';
-    const shoppingListSummary = shoppingList.map(item => `${item.product_name} (${item.brand}, purchased: ${item.purchased})`).join('; ') || 'Shopping list is empty.'; // Fixed: item.name to item.product_name
+    const shoppingListSummary = shoppingList.map(item => `${item.product_name} (${item.brand}, purchased: ${item.purchased})`).join('; ') || 'Shopping list is empty.';
     
     let dailyDiarySummary = 'No diary entries for today.';
     const today = new Date().toISOString().split('T')[0];
@@ -221,10 +221,7 @@ export class AiIntegrationService {
     1.  **Prioritize Tool Calls:** If the user's intent clearly matches a defined tool, make the tool call.
     2.  **Concise Direct Answers:** Always provide a direct, concise (1-2 sentences) natural language response to the user's query.
     3.  **NO Internal Reasoning in 'content':** Absolutely DO NOT include any internal thought process or reasoning in your 'content' field. Your 'content' should be purely the user-facing response.
-    4.  **Follow-up Questions:** After your direct response (and any tool calls), always conclude by generating exactly 3 relevant follow-up questions in a JSON array format, prefixed with '[FOLLOW_UP_QUESTIONS]'.
-    
-    **Example of Expected Output Format (after tool call or direct answer):**
-    "Your concise natural language response here. [FOLLOW_UP_QUESTIONS] [\"Question 1?\", \"Question 2?\", \"Question 3?\"]"
+    4.  **Contextual Follow-up Questions:** After your direct response (and any tool calls), always conclude by generating exactly 3 relevant follow-up questions in a JSON array format, prefixed with '[FOLLOW_UP_QUESTIONS]'. These questions should be highly relevant to the *preceding conversation* and *user data*, and can suggest actions (e.g., "Would you like to add [item] to your shopping list?").
     
     Here is the current user's context:
     ${userContext}

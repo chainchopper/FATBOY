@@ -6,7 +6,7 @@ import { SpeechService } from '../services/speech.service';
 import { AuthService } from '../services/auth.service';
 import { PreferencesService } from '../services/preferences.service';
 import { ProfileService } from '../services/profile.service';
-import { AppModalService } from '../services/app-modal.service'; // Import AppModalService
+import { AppModalService } from '../services/app-modal.service';
 import { Subscription, interval } from 'rxjs';
 
 interface Message {
@@ -63,7 +63,7 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
     private authService: AuthService,
     private preferencesService: PreferencesService,
     private profileService: ProfileService,
-    private appModalService: AppModalService, // Inject AppModalService
+    private appModalService: AppModalService,
     private cdr: ChangeDetectorRef
   ) {}
 
@@ -106,7 +106,7 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
     // Load chat history first
     this.loadChatHistory();
 
-    // If chat history is empty, add the initial greeting with follow-up questions
+    // If chat history is empty, add the initial greeting with more general follow-up questions
     if (this.messages.length === 0) {
       this.messages.push({
         sender: 'agent',
@@ -255,7 +255,7 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
           text: 'Hello! I am Fat Boy, your personal AI co-pilot, powered by NIRVANA from Fanalogy. How can I help you today?',
           timestamp: new Date(),
           avatar: this.agentAvatar,
-          followUpQuestions: [
+          followUpQuestions: [ // Re-add initial follow-up questions
             'What are some healthy snack options?',
             'Can you summarize my recent food diary entries?',
             'How do I add a product to my shopping list?'
