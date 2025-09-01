@@ -5,27 +5,21 @@ import { GamificationService } from '../services/gamification.service';
 import { AuthService } from '../services/auth.service';
 import { LeaderboardService } from '../services/leaderboard.service';
 import { ProductDbService, Product } from '../services/product-db.service';
-import { ProfileService, Profile } from '../services/profile.service';
-import { Observable, of } from 'rxjs';
-import { switchMap, take } from 'rxjs/operators';
+import { CommunityService } from '../services/community.service';
+import { Observable } from 'rxjs';
 
-interface ContributionMetadata {
-  username?: string;
-  goal?: string;
-  leaderboardStatus?: { rank: number; score: number };
-}
-
+// Define interfaces for our data structures
 interface CommunityContribution {
-  productName: string;
+  id: string;
+  product_name: string;
   brand: string;
   ingredients: string;
   notes: string;
   timestamp: Date;
   status: 'pending' | 'approved' | 'rejected';
-  id: string;
-  metadata: ContributionMetadata;
   likes: number;
-  comments: { username: string; text: string; timestamp: Date }[];
+  profile: { first_name: string, last_name: string, avatar_url: string };
+  comments: any[];
 }
 
 @Component({
@@ -43,29 +37,28 @@ export class CommunityComponent implements OnInit {
   newCommentText: { [key: string]: string } = {};
   
   newContribution = {
-    productName: '',
+    product_name: '',
     brand: '',
     ingredients: '',
     notes: ''
   };
 
   isSubmitted = false;
-  private currentUserId: string | null = null;
 
   constructor(
     private gamificationService: GamificationService, 
-    private authService: AuthService,
     private leaderboardService: LeaderboardService,
     private productDb: ProductDbService,
-    private profileService: ProfileService
+    private communityService: CommunityService
   ) {}
 
   ngOnInit() {
-    this.authService.currentUser$.subscribe(user => {
-      this.currentUserId = user?.id || null;
-      this.loadContributions();
-    });
     this.scanHistory$ = this.productDb.products$;
+    this.loadContributions();
+  }
+
+  async loadContributions() {
+    this.communityContributions = await this.communityService.getContributions() as any;
   }
 
   toggleAddMode() {
@@ -81,7 +74,7 @@ export class CommunityComponent implements OnInit {
 
   selectProduct(product: Product) {
     this.newContribution = {
-      productName: product.name,
+      product_name: product.name,
       brand: product.brand,
       ingredients: product.ingredients.join(', '),
       notes: ''
@@ -90,108 +83,44 @@ export class CommunityComponent implements OnInit {
   }
 
   async submitContribution() {
-    const metadata = await this.buildMetadata();
-    
-    const contribution: CommunityContribution = {
-      ...this.newContribution,
-      id: Date.now().toString(),
-      timestamp: new Date(),
-      status: 'pending',
-      metadata,
-      likes: 0,
-      comments: []
-    };
-
-    this.communityContributions.unshift(contribution);
-    this.saveContributions();
-    
-    this.isSubmitted = true;
-    this.leaderboardService.incrementScore(50).subscribe();
-    this.gamificationService.checkAndUnlockAchievements();
-
-    setTimeout(() => {
-      this.isSubmitted = false;
-      this.toggleAddMode();
-    }, 3000);
-  }
-
-  toggleLike(contributionId: string): void {
-    const contribution = this.communityContributions.find(c => c.id === contributionId);
-    if (contribution) {
-      contribution.likes = (contribution.likes || 0) + 1;
-      this.saveContributions();
+    const savedContribution = await this.communityService.addContribution(this.newContribution);
+    if (savedContribution) {
+      this.isSubmitted = true;
+      this.leaderboardService.incrementScore(50).subscribe();
+      this.gamificationService.checkAndUnlockAchievements();
+      setTimeout(() => {
+        this.isSubmitted = false;
+        this.toggleAddMode();
+        this.loadContributions(); // Refresh the feed
+      }, 3000);
     }
   }
 
-  addComment(contributionId: string): void {
+  async toggleLike(contribution: CommunityContribution) {
+    contribution.likes++; // Optimistic update
+    await this.communityService.addLike(contribution.id, contribution.likes - 1);
+  }
+
+  async addComment(contributionId: string) {
     const commentText = this.newCommentText[contributionId]?.trim();
     if (!commentText) return;
 
-    const contribution = this.communityContributions.find(c => c.id === contributionId);
-    if (contribution) {
-      const username = `User_${(this.currentUserId || 'anon').substring(0, 4)}`;
-      contribution.comments.push({ username, text: commentText, timestamp: new Date() });
-      this.saveContributions();
+    const newComment = await this.communityService.addComment(contributionId, commentText);
+    if (newComment) {
+      const contribution = this.communityContributions.find(c => c.id === contributionId);
+      if (contribution) {
+        contribution.comments.push(newComment);
+      }
       this.newCommentText[contributionId] = '';
     }
   }
 
-  private async buildMetadata(): Promise<ContributionMetadata> {
-    const preferences = JSON.parse(localStorage.getItem(this.getPrefsStorageKey()) || '{}');
-    const metadata: ContributionMetadata = {};
-
-    if (preferences.shareUsername) {
-      const profile = await this.profileService.getProfile().pipe(take(1)).toPromise();
-      metadata.username = `${profile?.first_name || 'Anonymous'} ${profile?.last_name || ''}`.trim();
-    }
-
-    if (preferences.shareGoal) {
-      metadata.goal = preferences.goal;
-    }
-
-    if (preferences.shareLeaderboardStatus) {
-      const board = await this.leaderboardService.getGlobalLeaderboard();
-      const userEntry = board.find(e => e.user_id === this.currentUserId);
-      if (userEntry) {
-        metadata.leaderboardStatus = { rank: userEntry.rank, score: userEntry.score };
-      }
-    }
-    
-    return metadata;
-  }
-
   private resetForm() {
     this.newContribution = {
-      productName: '',
+      product_name: '',
       brand: '',
       ingredients: '',
       notes: ''
     };
-  }
-
-  private getContributionsStorageKey(): string {
-    return this.currentUserId ? `fatBoyContributions_${this.currentUserId}` : 'fatBoyContributions_anonymous';
-  }
-
-  private loadContributions(): void {
-    const saved = localStorage.getItem(this.getContributionsStorageKey());
-    if (saved) {
-      this.communityContributions = JSON.parse(saved).map((c: any) => ({
-        ...c,
-        timestamp: new Date(c.timestamp),
-        comments: c.comments || [],
-        likes: c.likes || 0
-      }));
-    } else {
-      this.communityContributions = [];
-    }
-  }
-
-  private saveContributions(): void {
-    localStorage.setItem(this.getContributionsStorageKey(), JSON.stringify(this.communityContributions));
-  }
-
-  private getPrefsStorageKey(): string {
-    return this.currentUserId ? `fatBoyPreferences_${this.currentUserId}` : 'fatBoyPreferences_anonymous';
   }
 }
