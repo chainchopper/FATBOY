@@ -1,17 +1,19 @@
 import { Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
-import { ProductDbService, Product } from './product-db.service'; // Import Product
+import { ProductDbService, Product } from './product-db.service';
 import { ProfileService } from './profile.service';
 import { PreferencesService } from './preferences.service';
 import { ShoppingListService } from './shopping-list.service';
-import { FoodDiaryService, MealType } from './food-diary.service'; // Import MealType
+import { FoodDiaryService, MealType } from './food-diary.service';
 import { GamificationService } from './gamification.service';
+import { NotificationService } from './notification.service';
+import { AudioService } from './audio.service';
 import { firstValueFrom } from 'rxjs';
 
 export interface AiResponse {
   text: string;
   followUpQuestions: string[];
-  toolCalls?: any[]; // New: to hold tool calls from the AI
+  toolCalls?: any[];
 }
 
 @Injectable({
@@ -33,7 +35,9 @@ export class AiIntegrationService {
     private preferencesService: PreferencesService,
     private shoppingListService: ShoppingListService,
     private foodDiaryService: FoodDiaryService,
-    private gamificationService: GamificationService
+    private gamificationService: GamificationService,
+    private notificationService: NotificationService,
+    private audioService: AudioService
   ) { }
 
   async checkAgentStatus(): Promise<boolean> {
@@ -219,7 +223,7 @@ export class AiIntegrationService {
     // Prepare messages for the API call, including history
     const messagesForApi = [
       { role: 'system', content: systemMessage },
-      ...messagesHistory.filter(msg => msg.text && msg.sender).map(msg => ({ // Filter out messages without text or sender
+      ...messagesHistory.filter(msg => msg.text && msg.sender).map(msg => ({
         role: msg.sender === 'agent' ? 'assistant' : msg.sender,
         content: msg.text,
         ...(msg.toolCalls && { tool_calls: msg.toolCalls })
@@ -266,18 +270,54 @@ export class AiIntegrationService {
           const functionArgs = JSON.parse(toolCall.function.arguments);
           let toolOutput = '';
 
+          // Attempt to use lastDiscussedProduct if arguments are missing
+          let productName = functionArgs.product_name;
+          let brand = functionArgs.brand;
+
+          if (!productName && this.lastDiscussedProduct) {
+            productName = this.lastDiscussedProduct.name;
+          }
+          if (!brand && this.lastDiscussedProduct) {
+            brand = this.lastDiscussedProduct.brand;
+          }
+
+          // Create a dummy product for adding to lists if not fully specified
+          const productToAdd: Product = {
+            id: Date.now().toString(), // Generate a simple ID
+            name: productName || 'Unknown Product',
+            brand: brand || 'Unknown Brand',
+            ingredients: [], // Can be empty for quick adds
+            categories: [], // Added missing categories property
+            verdict: 'good', // Assume good for manual adds via AI
+            flaggedIngredients: [],
+            scanDate: new Date(),
+            image: this.lastDiscussedProduct?.image || 'https://via.placeholder.com/150?text=AI+Added'
+          };
+
           switch (functionName) {
             case 'add_to_food_diary':
-              // Simulate adding to diary
-              console.log(`Simulating: Adding "${functionArgs.product_name}" by "${functionArgs.brand}" to ${functionArgs.meal_type} diary.`);
-              toolOutput = `Successfully simulated adding "${functionArgs.product_name}" to food diary.`;
-              // In the next step, we'll replace this with actual service call
+              if (productToAdd.name && productToAdd.brand && functionArgs.meal_type) {
+                this.foodDiaryService.addEntry(productToAdd, functionArgs.meal_type as MealType);
+                this.notificationService.showSuccess(`${productToAdd.name} added to your ${functionArgs.meal_type} diary!`);
+                this.audioService.playSuccessSound();
+                toolOutput = `Successfully added "${productToAdd.name}" to food diary for ${functionArgs.meal_type}.`;
+              } else {
+                toolOutput = `Failed to add to food diary: Missing product name, brand, or meal type.`;
+                this.notificationService.showError(toolOutput);
+                this.audioService.playErrorSound();
+              }
               break;
             case 'add_to_shopping_list':
-              // Simulate adding to shopping list
-              console.log(`Simulating: Adding "${functionArgs.product_name}" by "${functionArgs.brand}" to shopping list.`);
-              toolOutput = `Successfully simulated adding "${functionArgs.product_name}" to shopping list.`;
-              // In the next step, we'll replace this with actual service call
+              if (productToAdd.name && productToAdd.brand) {
+                this.shoppingListService.addItem(productToAdd);
+                this.notificationService.showSuccess(`${productToAdd.name} added to your shopping list!`);
+                this.audioService.playSuccessSound();
+                toolOutput = `Successfully added "${productToAdd.name}" to shopping list.`;
+              } else {
+                toolOutput = `Failed to add to shopping list: Missing product name or brand.`;
+                this.notificationService.showError(toolOutput);
+                this.audioService.playErrorSound();
+              }
               break;
             default:
               toolOutput = `Unknown tool: ${functionName}`;
