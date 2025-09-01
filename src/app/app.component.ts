@@ -71,6 +71,10 @@ export class AppComponent implements OnInit {
     this.closeFabMenu();
   }
 
+  goToHome(): void {
+    this.router.navigate(['/scanner']);
+  }
+
   async signOut(): Promise<void> {
     await this.authService.signOut();
     this.closeMenu();
