@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import { Product } from './product-db.service';
+import { ProductDbService, Product } from './product-db.service'; // Import ProductDbService
 import { AuthService } from './auth.service';
 import { NotificationService } from './notification.service';
 import { SpeechService } from './speech.service';
@@ -16,6 +16,7 @@ export interface ShoppingListItem {
   image_url?: string;
   purchased: boolean;
   created_at: string;
+  product?: Product; // New: To store the full product metadata
 }
 
 @Injectable({
@@ -32,7 +33,8 @@ export class ShoppingListService {
     private authService: AuthService,
     private notificationService: NotificationService,
     private speechService: SpeechService,
-    private leaderboardService: LeaderboardService
+    private leaderboardService: LeaderboardService,
+    private productDbService: ProductDbService // Inject ProductDbService
   ) {
     this.authService.currentUser$.subscribe(user => {
       this.currentUserId = user?.id || null;
@@ -196,7 +198,16 @@ export class ShoppingListService {
       return;
     }
 
-    this.shoppingList = data as ShoppingListItem[];
+    const loadedItems: ShoppingListItem[] = [];
+    for (const item of data) {
+      const fullProduct = await this.productDbService.getProductByClientSideId(item.product_id);
+      loadedItems.push({
+        ...item,
+        product: fullProduct || undefined // Attach the full product data
+      });
+    }
+
+    this.shoppingList = loadedItems;
     this.listSubject.next([...this.shoppingList]);
   }
 

@@ -147,6 +147,26 @@ export class ProductDbService {
     return this.products.find(p => p.id === id);
   }
 
+  // New method to get a product by its client-side ID from the database
+  async getProductByClientSideId(clientSideId: string): Promise<Product | null> {
+    const { data, error } = await supabase
+      .from('user_products')
+      .select('product_data')
+      .filter('product_data->>id', 'eq', clientSideId)
+      .limit(1)
+      .single();
+
+    if (error && error.code !== 'PGRST116') { // PGRST116 means 'no rows found'
+      console.error('Error fetching product by client-side ID:', error);
+      return null;
+    }
+
+    if (data) {
+      return { ...data.product_data, scanDate: new Date(data.product_data.scanDate) } as Product;
+    }
+    return null;
+  }
+
   getProductsSnapshot(): Product[] {
     return this.productsSubject.getValue();
   }
