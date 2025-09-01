@@ -5,6 +5,7 @@
 
 const AngularComponentTagger = require('./angular-webpack-component-tagger');
 const webpack = require('webpack');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 require('dotenv').config();
 
 module.exports = {
@@ -22,6 +23,15 @@ module.exports = {
         OPENAI_API_KEY: JSON.stringify(process.env.OPENAI_API_KEY),
         VISION_MODEL_NAME: JSON.stringify(process.env.VISION_MODEL_NAME),
       }
+    }),
+    // Copy ONNX Runtime WebAssembly files to the output directory
+    new CopyWebpackPlugin({
+      patterns: [
+        {
+          from: 'node_modules/onnxruntime-web/dist/*.wasm',
+          to: '[name][ext]'
+        }
+      ]
     })
   ]
 };

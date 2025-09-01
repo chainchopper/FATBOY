@@ -19,6 +19,7 @@ export class PreferencesComponent implements OnInit {
     maxCalories: 200,
     dailyCalorieTarget: 2000,
     goal: 'avoidChemicals',
+    onDeviceInference: false, // New preference
     shareUsername: true,
     shareGoal: true,
     shareLeaderboardStatus: true
@@ -81,8 +82,6 @@ export class PreferencesComponent implements OnInit {
     const saved = localStorage.getItem(this.getStorageKey());
     if (saved) {
       const savedPrefs = JSON.parse(saved);
-      // Ensure customAvoidedIngredients is an array, even if loading old data
-      savedPrefs.customAvoidedIngredients = savedPrefs.customAvoidedIngredients || [];
       this.preferences = { ...this.preferences, ...savedPrefs };
     }
   }

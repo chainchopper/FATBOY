@@ -66,6 +66,15 @@
   </div>
 
   <div class="preference-section">
+    <h3>Inference Preference</h3>
+    <p class="section-description">Choose whether to use cloud-based AI or run models locally on your device for enhanced privacy and offline use.</p>
+    <div class="preference-item">
+      <input type="checkbox" id="onDeviceInference" [(ngModel)]="preferences.onDeviceInference">
+      <label for="onDeviceInference">Use On-Device AI (Experimental)</label>
+    </div>
+  </div>
+
+  <div class="preference-section">
     <h3>Privacy & Sharing</h3>
     <div class="preference-item">
       <input type="checkbox" id="shareUsername" [(ngModel)]="preferences.shareUsername">
