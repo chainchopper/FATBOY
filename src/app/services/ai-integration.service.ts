@@ -191,14 +191,33 @@ export class AiIntegrationService {
 
       if (markerIndex !== -1) {
         mainText = fullResponseText.substring(0, markerIndex).trim();
-        const jsonString = fullResponseText.substring(markerIndex + marker.length).trim();
-        try {
-          const parsedQuestions = JSON.parse(jsonString);
-          if (Array.isArray(parsedQuestions) && parsedQuestions.every(q => typeof q === 'string')) {
-            followUpQuestions = parsedQuestions.slice(0, 3);
+        let potentialJsonString = fullResponseText.substring(markerIndex + marker.length).trim();
+
+        // Use a regex to find the JSON array specifically, being more robust to surrounding characters
+        const jsonArrayRegex = /(\[[\s\S]*?\])/; // '[\s\S]*?' matches any character including newlines, non-greedily
+        const match = potentialJsonString.match(jsonArrayRegex);
+
+        if (match && match[1]) {
+          const jsonString = match[1];
+          try {
+            const parsedQuestions = JSON.parse(jsonString);
+            if (Array.isArray(parsedQuestions) && parsedQuestions.every(q => typeof q === 'string')) {
+              followUpQuestions = parsedQuestions.slice(0, 3);
+            } else {
+              console.warn('Parsed follow-up questions are not an array of strings or not in expected format:', parsedQuestions);
+              // If parsing succeeds but it's not the expected format, treat the whole thing as text
+              mainText = fullResponseText;
+              followUpQuestions = [];
+            }
+          } catch (jsonError) {
+            console.warn('Failed to parse follow-up questions JSON:', jsonError);
+            // If JSON parsing fails, treat the whole thing as text
+            mainText = fullResponseText;
+            followUpQuestions = [];
           }
-        } catch (jsonError) {
-          console.warn('Failed to parse follow-up questions JSON:', jsonError);
+        } else {
+          console.warn('Could not find a valid JSON array after the FOLLOW_UP_QUESTIONS marker.');
+          // If regex fails to find the array, treat the whole thing as text
           mainText = fullResponseText;
           followUpQuestions = [];
         }
