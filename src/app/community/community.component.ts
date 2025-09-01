@@ -37,36 +37,7 @@ export class CommunityComponent implements OnInit {
   mode: 'select' | 'manual' = 'select';
   scanHistory$!: Observable<Product[]>;
   isAddingNewProduct = false;
-  communityContributions: CommunityContribution[] = [
-    {
-      id: '1',
-      productName: 'Quantum Fizz Energy Drink',
-      brand: 'CyberPop',
-      ingredients: 'Carbonated Water, Citric Acid, Natural Flavors, Taurine, Caffeine',
-      notes: 'Found this at the new cyber-mart downtown. Tastes like the future!',
-      timestamp: new Date(Date.now() - 86400000), // 1 day ago
-      status: 'approved',
-      metadata: {
-        username: 'NeonRunner',
-        goal: 'avoidChemicals',
-        leaderboardStatus: { rank: 12, score: 1250 }
-      }
-    },
-    {
-      id: '2',
-      productName: 'Organic Soylent Green Bites',
-      brand: 'EcoFoods Inc.',
-      ingredients: 'Organic Soy Protein, Spirulina, Kale Powder, Sea Salt',
-      notes: 'A bit earthy, but great for a quick, clean snack.',
-      timestamp: new Date(Date.now() - 172800000), // 2 days ago
-      status: 'approved',
-      metadata: {
-        username: 'EcoWarrior',
-        goal: 'strictlyNatural',
-        leaderboardStatus: { rank: 5, score: 2300 }
-      }
-    }
-  ];
+  communityContributions: CommunityContribution[] = [];
   
   newContribution = {
     productName: '',
@@ -89,6 +60,7 @@ export class CommunityComponent implements OnInit {
   ngOnInit() {
     this.authService.currentUser$.subscribe(user => {
       this.currentUserId = user?.id || null;
+      this.loadContributions();
     });
     this.scanHistory$ = this.productDb.products$;
   }
@@ -126,6 +98,7 @@ export class CommunityComponent implements OnInit {
     };
 
     this.communityContributions.unshift(contribution);
+    this.saveContributions();
     
     this.isSubmitted = true;
     this.leaderboardService.incrementScore(50).subscribe();
@@ -168,6 +141,26 @@ export class CommunityComponent implements OnInit {
       ingredients: '',
       notes: ''
     };
+  }
+
+  private getContributionsStorageKey(): string {
+    return this.currentUserId ? `fatBoyContributions_${this.currentUserId}` : 'fatBoyContributions_anonymous';
+  }
+
+  private loadContributions(): void {
+    const saved = localStorage.getItem(this.getContributionsStorageKey());
+    if (saved) {
+      this.communityContributions = JSON.parse(saved).map((c: any) => ({
+        ...c,
+        timestamp: new Date(c.timestamp)
+      }));
+    } else {
+      this.communityContributions = [];
+    }
+  }
+
+  private saveContributions(): void {
+    localStorage.setItem(this.getContributionsStorageKey(), JSON.stringify(this.communityContributions));
   }
 
   private getPrefsStorageKey(): string {
