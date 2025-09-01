@@ -198,3 +198,70 @@ p {
 .community-feed {
   margin-top: 2rem;
 }
+
+.contribution-card {
+  background: rgba(15, 15, 30, 0.8);
+  border: 1px solid #4a4a6e;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.2);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.card-header h4 {
+  margin: 0;
+  color: #f038ff;
+  font-size: 1.2rem;
+}
+
+.status-badge {
+  padding: 5px 10px;
+  border-radius: 15px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  color: #1a1a2e;
+}
+
+.status-approved { background-color: #0abdc6; }
+.status-pending { background-color: #ffeb3b; }
+
+.card-brand, .card-ingredients, .card-notes {
+  color: #a0a0c0;
+  font-size: 0.9rem;
+  margin-bottom: 5px;
+}
+
+.metadata-footer {
+  border-top: 1px solid #2a2a4e;
+  margin-top: 15px;
+  padding-top: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8rem;
+  color: #a0a0c0;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.username {
+  font-weight: bold;
+  color: #e0e0e0;
+}
+
+.leaderboard-status {
+  background-color: #2a2a4e;
+  padding: 5px 10px;
+  border-radius: 12px;
+}
