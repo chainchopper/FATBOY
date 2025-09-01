@@ -11,7 +11,8 @@ import { NotificationService } from '../services/notification.service';
 import { SpeechService } from '../services/speech.service';
 import { AuthService } from '../services/auth.service';
 import { PermissionsService } from '../services/permissions.service';
-import { PreferencesService } from '../services/preferences.service'; // Import PreferencesService
+import { PreferencesService } from '../services/preferences.service';
+import { AiIntegrationService } from '../services/ai-integration.service';
 import { take } from 'rxjs/operators';
 import { Subscription } from 'rxjs';
 
@@ -35,7 +36,7 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
   private selectedCameraId: string | null = null;
   private currentCameraIndex = 0;
   private voiceCommandSubscription!: Subscription;
-  private preferencesSubscription!: Subscription; // New subscription for preferences
+  private preferencesSubscription!: Subscription;
 
   constructor(
     private router: Router,
@@ -47,14 +48,15 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
     private speechService: SpeechService,
     private authService: AuthService,
     private permissionsService: PermissionsService,
-    private preferencesService: PreferencesService // Inject PreferencesService
+    private preferencesService: PreferencesService,
+    private aiService: AiIntegrationService
   ) {}
 
   async ngAfterViewInit() {
     const hasCameraPermission = await this.permissionsService.checkAndRequestCameraPermission();
     if (!hasCameraPermission) {
       this.notificationService.showError('Camera access is required to use the scanner.');
-      return; // Stop initialization if permission is denied
+      return;
     }
 
     try {
@@ -80,8 +82,6 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
       this.notificationService.showError('Error initializing scanner.');
     }
   }
-
-  // ... (the rest of the component logic remains the same)
 
   private handleVoiceCommand(command: string): void {
     if (command.includes('scan label') || command.includes('capture label')) {
@@ -128,18 +128,30 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
     this.stopBarcodeScanning();
 
     const productFromApi = await this.offService.getProductByBarcode(decodedText);
-    const product = {
+    
+    const ingredients = Array.isArray(productFromApi.ingredients) && productFromApi.ingredients.length > 0
+      ? productFromApi.ingredients
+      : ["Ingredients not available"];
+
+    const preferences = this.preferencesService.getPreferences();
+    const categories = this.ingredientParser.categorizeProduct(ingredients);
+    const evaluation = this.ingredientParser.evaluateProduct(ingredients, productFromApi.calories, preferences);
+
+    const productInfo: Omit<Product, 'id' | 'scanDate'> = {
       barcode: productFromApi.barcode,
       name: productFromApi.name || "Unknown Product",
       brand: productFromApi.brand || "Unknown Brand",
-      ingredients: Array.isArray(productFromApi.ingredients) && productFromApi.ingredients.length > 0
-        ? productFromApi.ingredients
-        : ["Ingredients not available"],
+      ingredients: ingredients,
       calories: productFromApi.calories ?? undefined,
-      image: productFromApi.image || "https://via.placeholder.com/150"
+      image: productFromApi.image || "https://via.placeholder.com/150",
+      categories,
+      verdict: evaluation.verdict,
+      flaggedIngredients: evaluation.flaggedIngredients.map(f => f.ingredient)
     };
 
-    sessionStorage.setItem('scannedProduct', JSON.stringify(product));
+    const savedProduct = this.productDb.addProduct(productInfo); // Add to DB and get full Product object
+    sessionStorage.setItem('scannedProduct', JSON.stringify(savedProduct));
+    this.aiService.setLastDiscussedProduct(savedProduct); // Set last discussed product with full object
     this.router.navigate(['/results']);
   }
 
@@ -198,7 +210,7 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
     const productName = this.ocrEnhancer.detectProductName(text);
     const brand = this.ocrEnhancer.detectBrand(text);
 
-    const preferences = this.preferencesService.getPreferences(); // Get preferences from service
+    const preferences = this.preferencesService.getPreferences();
     const categories = this.ingredientParser.categorizeProduct(enhancedIngredients);
     const evaluation = this.ingredientParser.evaluateProduct(enhancedIngredients, undefined, preferences);
 
@@ -214,6 +226,7 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
 
     const product = this.productDb.addProduct(productInfo);
     sessionStorage.setItem('viewingProduct', JSON.stringify(product));
+    this.aiService.setLastDiscussedProduct(product);
     this.isProcessingOcr = false;
     this.router.navigate(['/ocr-results']);
   }
@@ -224,7 +237,7 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
     if (this.voiceCommandSubscription) {
       this.voiceCommandSubscription.unsubscribe();
     }
-    if (this.preferencesSubscription) { // Unsubscribe from preferences
+    if (this.preferencesSubscription) {
       this.preferencesSubscription.unsubscribe();
     }
   }

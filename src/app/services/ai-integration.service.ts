@@ -1,17 +1,17 @@
 import { Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
-import { ProductDbService, Product } from './product-db.service';
+import { ProductDbService, Product } from './product-db.service'; // Import Product
 import { ProfileService } from './profile.service';
 import { PreferencesService } from './preferences.service';
 import { ShoppingListService } from './shopping-list.service';
-import { FoodDiaryService, MealType } from './food-diary.service';
+import { FoodDiaryService, MealType } from './food-diary.service'; // Import MealType
 import { GamificationService } from './gamification.service';
 import { firstValueFrom } from 'rxjs';
 
 export interface AiResponse {
   text: string;
   followUpQuestions: string[];
-  toolCalls?: any[];
+  toolCalls?: any[]; // New: to hold tool calls from the AI
 }
 
 @Injectable({
@@ -177,6 +177,11 @@ export class AiIntegrationService {
 
     const unlockedBadges = badges.filter(b => b.unlocked).map(b => b.name).join(', ') || 'No badges unlocked yet.';
 
+    let lastProductContext = '';
+    if (this.lastDiscussedProduct) {
+      lastProductContext = `The user recently discussed/scanned: ${this.lastDiscussedProduct.name} by ${this.lastDiscussedProduct.brand}. Ingredients: ${this.lastDiscussedProduct.ingredients.join(', ')}. Verdict: ${this.lastDiscussedProduct.verdict}.`;
+    }
+
     const userContext = `
       User Profile: ${userProfile?.first_name || 'Anonymous'} ${userProfile?.last_name || ''}
       Health Goal: ${userPreferences.goal}
@@ -188,6 +193,7 @@ export class AiIntegrationService {
       Shopping List: ${shoppingListSummary}
       Today's Food Diary: ${dailyDiarySummary}
       Unlocked Achievements: ${unlockedBadges}
+      ${lastProductContext}
     `;
     // --- End Gather comprehensive user context ---
     
@@ -204,7 +210,7 @@ export class AiIntegrationService {
     // --- End RAG Integration Phase 1 ---
 
     // Updated system message to instruct for follow-up questions
-    const systemMessage = `You are Fat Boy, an AI nutritional co-pilot powered by NIRVANA from Fanalogy. Your responses must be concise (1-2 sentences). If the user asks about a food item, provide its benefits and key characteristics/ingredients. IMPORTANT: Always conclude your response by generating exactly 3 relevant follow-up questions in a JSON array format, prefixed with '[FOLLOW_UP_QUESTIONS]'. DO NOT include these questions in your main response text. Example: "Your main response goes here. [FOLLOW_UP_QUESTIONS] [\"Question 1?\", \"Question 2?\", \"Question 3?\"]".
+    const systemMessage = `You are Fat Boy, an AI nutritional co-pilot powered by NIRVANA from Fanalogy. Your responses must be concise (1-2 sentences). If the user asks about a food item, provide its benefits and key characteristics/ingredients. IMPORTANT: Always provide a direct response to the user's query first. If a tool call is needed, make the tool call. After your direct response (and any tool calls), always conclude by generating exactly 3 relevant follow-up questions in a JSON array format, prefixed with '[FOLLOW_UP_QUESTIONS]'. DO NOT include your internal reasoning in the 'content' field. Example: "Here is your direct answer. [FOLLOW_UP_QUESTIONS] [\"Question 1?\", \"Question 2?\", \"Question 3?\"]".
     
     Here is the current user's context:
     ${userContext}

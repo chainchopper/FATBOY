@@ -9,7 +9,7 @@ import { SpeechService } from '../services/speech.service';
 import { ScanContextService } from '../services/scan-context.service';
 import { FoodDiaryService } from '../services/food-diary.service';
 import { ModalService } from '../services/modal.service';
-import { PreferencesService } from '../services/preferences.service'; // Import PreferencesService
+import { PreferencesService } from '../services/preferences.service';
 
 @Component({
   selector: 'app-results',
@@ -19,7 +19,7 @@ import { PreferencesService } from '../services/preferences.service'; // Import 
   styleUrls: ['./results.component.css']
 })
 export class ResultsComponent implements OnInit {
-  product: any;
+  product: Product | null = null; // Changed type to Product | null
   verdict: 'good' | 'bad' = 'bad';
   flaggedItems: { ingredient: string, reason: string }[] = [];
   productForModal: Product | null = null;
@@ -34,61 +34,31 @@ export class ResultsComponent implements OnInit {
     private scanContextService: ScanContextService,
     private foodDiaryService: FoodDiaryService,
     private modalService: ModalService,
-    private preferencesService: PreferencesService // Inject PreferencesService
+    private preferencesService: PreferencesService
   ) {}
 
   ngOnInit() {
     const productData = sessionStorage.getItem('scannedProduct');
     if (productData) {
-      this.product = JSON.parse(productData);
-      this.evaluateProduct();
-      this.addToHistory();
+      this.product = JSON.parse(productData) as Product; // Cast to Product
+      this.verdict = this.product.verdict;
+      this.flaggedItems = this.product.flaggedIngredients.map(ing => ({ ingredient: ing, reason: `Contains ${ing}, which you avoid.` })); // Reconstruct for display
+      this.productForModal = this.product; // Already a full product
+
+      if (this.verdict === 'good') {
+        this.audioService.playSuccessSound();
+        this.speechService.speak('Fat Boy Approved!');
+      } else {
+        this.audioService.playErrorSound();
+        this.speechService.speak('Contains Items You Avoid');
+      }
       this.checkScanContext();
     } else {
       this.router.navigate(['/scanner']);
     }
   }
 
-  evaluateProduct() {
-    const preferences = this.preferencesService.getPreferences(); // Get preferences from service
-    const ingredients = Array.isArray(this.product.ingredients) ? this.product.ingredients : [];
-    
-    const evaluation = this.ingredientParser.evaluateProduct(ingredients, this.product.calories, preferences);
-    
-    this.verdict = evaluation.verdict;
-    this.flaggedItems = evaluation.flaggedIngredients;
-
-    if (this.verdict === 'good') {
-      this.audioService.playSuccessSound();
-      this.speechService.speak('Fat Boy Approved!');
-    } else {
-      this.audioService.playErrorSound();
-      this.speechService.speak('Contains Items You Avoid');
-    }
-  }
-
-  private addToHistory(): void {
-    if (!this.product) return;
-
-    const categories = this.ingredientParser.categorizeProduct(
-      Array.isArray(this.product.ingredients) ? this.product.ingredients : []
-    );
-
-    const productInfo: Omit<Product, 'id' | 'scanDate'> = {
-      name: this.product.name || 'Unknown Product',
-      brand: this.product.brand || 'Unknown Brand',
-      barcode: this.product.barcode,
-      ingredients: Array.isArray(this.product.ingredients) ? this.product.ingredients : [],
-      calories: this.product.calories,
-      image: this.product.image,
-      categories,
-      verdict: this.verdict,
-      flaggedIngredients: this.flaggedItems.map(f => f.ingredient)
-    };
-
-    const saved = this.productDb.addProduct(productInfo);
-    this.productForModal = saved; // Store the full product object for the modal
-  }
+  // evaluateProduct() and addToHistory() are no longer needed here as they are handled in the scanner.
 
   private checkScanContext() {
     const mealType = this.scanContextService.getMealType();

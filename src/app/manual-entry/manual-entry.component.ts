@@ -6,7 +6,8 @@ import { ProductDbService, Product } from '../services/product-db.service';
 import { IngredientParserService } from '../services/ingredient-parser.service';
 import { NotificationService } from '../services/notification.service';
 import { ModalService } from '../services/modal.service';
-import { PreferencesService } from '../services/preferences.service'; // Import PreferencesService
+import { PreferencesService } from '../services/preferences.service';
+import { AiIntegrationService } from '../services/ai-integration.service'; // Import AiIntegrationService
 
 @Component({
   selector: 'app-manual-entry',
@@ -29,7 +30,8 @@ export class ManualEntryComponent {
     private ingredientParser: IngredientParserService,
     private notificationService: NotificationService,
     private modalService: ModalService,
-    private preferencesService: PreferencesService // Inject PreferencesService
+    private preferencesService: PreferencesService,
+    private aiService: AiIntegrationService // Inject AiIntegrationService
   ) {}
 
   submitProduct() {
@@ -39,7 +41,7 @@ export class ManualEntryComponent {
     }
 
     const ingredientsArray = this.productData.ingredients.split(',').map(i => i.trim()).filter(i => i.length > 0);
-    const preferences = this.preferencesService.getPreferences(); // Get preferences from service
+    const preferences = this.preferencesService.getPreferences();
     
     const evaluation = this.ingredientParser.evaluateProduct(ingredientsArray, this.productData.calories || undefined, preferences);
     const categories = this.ingredientParser.categorizeProduct(ingredientsArray);
@@ -57,6 +59,7 @@ export class ManualEntryComponent {
 
     const savedProduct = this.productDb.addProduct(newProduct);
 
+    this.aiService.setLastDiscussedProduct(savedProduct); // Set last discussed product
     // Open the modal with the new product and then navigate home
     this.modalService.open(savedProduct);
     this.router.navigate(['/scanner']);
