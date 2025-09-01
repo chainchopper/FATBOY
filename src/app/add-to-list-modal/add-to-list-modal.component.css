@@ -13,6 +13,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  padding: 20px;
 }
 
 .modal-overlay.open {
@@ -25,8 +26,8 @@
   border: 1px solid #f038ff;
   border-radius: 12px;
   padding: 30px;
-  width: 90%;
-  max-width: 400px;
+  width: 100%;
+  max-width: 450px;
   box-shadow: 0 0 25px rgba(240, 56, 255, 0.5);
   position: relative;
   transform: scale(0.9);
@@ -48,17 +49,68 @@
   cursor: pointer;
 }
 
-h3, h4 {
+.modal-title {
   text-align: center;
   color: #0abdc6;
+  margin-bottom: 25px;
+  font-size: 1.5rem;
+  text-shadow: 0 0 8px #0abdc6;
+}
+
+.modal-subtitle {
+  text-align: center;
+  color: #f038ff;
   margin-bottom: 20px;
 }
 
-.modal-action-btn {
+.action-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+.action-card {
+  background-color: #2a2a4e;
+  border: 1px solid #4a4a6e;
+  border-radius: 8px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s;
+  color: #e0e0e0;
+  aspect-ratio: 1 / 1; /* Make cards square */
+}
+
+.action-card:hover {
+  border-color: #0abdc6;
+  box-shadow: 0 0 10px #0abdc6;
+  color: #0abdc6;
+  transform: translateY(-5px);
+}
+
+.action-card .icon {
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+}
+
+.action-card .label {
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.meal-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.meal-btn {
   display: block;
   width: 100%;
   padding: 15px;
-  margin-bottom: 10px;
   border: 1px solid #4a4a6e;
   background-color: #2a2a4e;
   color: #e0e0e0;
@@ -69,20 +121,17 @@ h3, h4 {
   text-align: left;
 }
 
-.modal-action-btn:hover {
+.meal-btn:hover {
   border-color: #0abdc6;
   box-shadow: 0 0 10px #0abdc6;
   color: #0abdc6;
 }
 
-.modal-action-btn .icon {
-  margin-right: 10px;
-}
-
 .back-btn {
-  margin-top: 20px;
+  margin-top: 15px;
   border-color: #f038ff;
   color: #f038ff;
+  text-align: center;
 }
 .back-btn:hover {
   box-shadow: 0 0 10px #f038ff;

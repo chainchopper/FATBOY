@@ -3,31 +3,37 @@
     <button class="close-btn" (click)="close()">×</button>
     
     <div *ngIf="product$ | async as product">
-      <h3>Add "{{ product.name }}" to a list</h3>
+      <h3 class="modal-title">Add "{{ product.name }}"</h3>
       
-      <div *ngIf="!showMealOptions">
-        <button class="modal-action-btn" (click)="addToShoppingList()">
-          <span class="icon">🛒</span> Add to Shopping List
+      <!-- Main Actions View -->
+      <div *ngIf="!showMealOptions" class="action-grid">
+        <button class="action-card" (click)="addToShoppingList()">
+          <span class="icon">🛒</span>
+          <span class="label">Shopping List</span>
         </button>
-        <button class="modal-action-btn" (click)="saveToApproved()">
-          <span class="icon">❤️</span> Save to Approved
+        <button class="action-card" (click)="saveToApproved()">
+          <span class="icon">❤️</span>
+          <span class="label">Save to Approved</span>
         </button>
-        <button class="modal-action-btn" (click)="addToAvoidList()">
-          <span class="icon">🚫</span> Add to Avoided
+        <button class="action-card" (click)="toggleMealOptions()">
+          <span class="icon">🥗</span>
+          <span class="label">Food Diary</span>
         </button>
-        <button class="modal-action-btn" (click)="toggleMealOptions()">
-          <span class="icon">🥗</span> Add to Food Diary
+        <button class="action-card" (click)="addToAvoidList()">
+          <span class="icon">🚫</span>
+          <span class="label">Add to Avoided</span>
         </button>
       </div>
 
-      <div *ngIf="showMealOptions">
-        <h4>Which meal?</h4>
-        <button class="modal-action-btn" (click)="addToDiary('Breakfast')">🍳 Breakfast</button>
-        <button class="modal-action-btn" (click)="addToDiary('Lunch')">🥗 Lunch</button>
-        <button class="modal-action-btn" (click)="addToDiary('Dinner')">🍲 Dinner</button>
-        <button class="modal-action-btn" (click)="addToDiary('Snack')">🍎 Snack</button>
-        <button class="modal-action-btn" (click)="addToDiary('Drinks')">🥤 Drinks</button>
-        <button class="modal-action-btn back-btn" (click)="toggleMealOptions()">← Back</button>
+      <!-- Meal Selection View -->
+      <div *ngIf="showMealOptions" class="meal-options">
+        <h4 class="modal-subtitle">Which meal?</h4>
+        <button class="meal-btn" (click)="addToDiary('Breakfast')">🍳 Breakfast</button>
+        <button class="meal-btn" (click)="addToDiary('Lunch')">🥗 Lunch</button>
+        <button class="meal-btn" (click)="addToDiary('Dinner')">🍲 Dinner</button>
+        <button class="meal-btn" (click)="addToDiary('Snack')">🍎 Snack</button>
+        <button class="meal-btn" (click)="addToDiary('Drinks')">🥤 Drinks</button>
+        <button class="meal-btn back-btn" (click)="toggleMealOptions()">← Back</button>
       </div>
     </div>
   </div>
