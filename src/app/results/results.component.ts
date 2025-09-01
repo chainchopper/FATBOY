@@ -9,6 +9,7 @@ import { SpeechService } from '../services/speech.service';
 import { ScanContextService } from '../services/scan-context.service';
 import { FoodDiaryService } from '../services/food-diary.service';
 import { ModalService } from '../services/modal.service';
+import { PreferencesService } from '../services/preferences.service'; // Import PreferencesService
 
 @Component({
   selector: 'app-results',
@@ -32,7 +33,8 @@ export class ResultsComponent implements OnInit {
     private speechService: SpeechService,
     private scanContextService: ScanContextService,
     private foodDiaryService: FoodDiaryService,
-    private modalService: ModalService
+    private modalService: ModalService,
+    private preferencesService: PreferencesService // Inject PreferencesService
   ) {}
 
   ngOnInit() {
@@ -48,7 +50,7 @@ export class ResultsComponent implements OnInit {
   }
 
   evaluateProduct() {
-    const preferences = JSON.parse(localStorage.getItem('fatBoyPreferences') || '{}');
+    const preferences = this.preferencesService.getPreferences(); // Get preferences from service
     const ingredients = Array.isArray(this.product.ingredients) ? this.product.ingredients : [];
     
     const evaluation = this.ingredientParser.evaluateProduct(ingredients, this.product.calories, preferences);

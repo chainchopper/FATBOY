@@ -5,6 +5,7 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ScanContextService } from '../services/scan-context.service';
 import { Router } from '@angular/router';
+import { PreferencesService } from '../services/preferences.service'; // Import PreferencesService
 
 @Component({
   selector: 'app-food-diary',
@@ -33,7 +34,8 @@ export class FoodDiaryComponent implements OnInit {
   constructor(
     private foodDiaryService: FoodDiaryService,
     private scanContextService: ScanContextService,
-    private router: Router
+    private router: Router,
+    private preferencesService: PreferencesService // Inject PreferencesService
   ) {}
 
   ngOnInit() {
@@ -48,7 +50,7 @@ export class FoodDiaryComponent implements OnInit {
 
     this.todayEntries$.subscribe(entries => {
       this.dailySummary = this.foodDiaryService.getDailySummary(dateString);
-      const preferences = JSON.parse(localStorage.getItem('fatBoyPreferences') || '{}');
+      const preferences = this.preferencesService.getPreferences(); // Get preferences from service
       this.dailyVerdict = this.foodDiaryService.getDailyPerformanceVerdict(dateString, preferences);
     });
 

@@ -6,6 +6,7 @@ import { ProductDbService, Product } from '../services/product-db.service';
 import { IngredientParserService } from '../services/ingredient-parser.service';
 import { NotificationService } from '../services/notification.service';
 import { ModalService } from '../services/modal.service';
+import { PreferencesService } from '../services/preferences.service'; // Import PreferencesService
 
 @Component({
   selector: 'app-manual-entry',
@@ -27,7 +28,8 @@ export class ManualEntryComponent {
     private productDb: ProductDbService,
     private ingredientParser: IngredientParserService,
     private notificationService: NotificationService,
-    private modalService: ModalService
+    private modalService: ModalService,
+    private preferencesService: PreferencesService // Inject PreferencesService
   ) {}
 
   submitProduct() {
@@ -37,7 +39,7 @@ export class ManualEntryComponent {
     }
 
     const ingredientsArray = this.productData.ingredients.split(',').map(i => i.trim()).filter(i => i.length > 0);
-    const preferences = JSON.parse(localStorage.getItem('fatBoyPreferences_anonymous') || '{}');
+    const preferences = this.preferencesService.getPreferences(); // Get preferences from service
     
     const evaluation = this.ingredientParser.evaluateProduct(ingredientsArray, this.productData.calories || undefined, preferences);
     const categories = this.ingredientParser.categorizeProduct(ingredientsArray);

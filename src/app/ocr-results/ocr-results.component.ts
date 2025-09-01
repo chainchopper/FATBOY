@@ -10,6 +10,7 @@ import { ProductDbService } from '../services/product-db.service';
 import { FoodDiaryService } from '../services/food-diary.service';
 import { ScanContextService } from '../services/scan-context.service';
 import { ModalService } from '../services/modal.service';
+import { PreferencesService } from '../services/preferences.service'; // Import PreferencesService
 
 @Component({
   selector: 'app-ocr-results',
@@ -32,7 +33,8 @@ export class OcrResultsComponent implements OnInit {
     private productDb: ProductDbService,
     private foodDiaryService: FoodDiaryService,
     private scanContextService: ScanContextService,
-    private modalService: ModalService
+    private modalService: ModalService,
+    private preferencesService: PreferencesService // Inject PreferencesService
   ) {}
 
   ngOnInit(): void {
@@ -49,7 +51,7 @@ export class OcrResultsComponent implements OnInit {
   private evaluateProduct(): void {
     if (!this.product) return;
 
-    const preferences = JSON.parse(localStorage.getItem('fatBoyPreferences') || '{}');
+    const preferences = this.preferencesService.getPreferences(); // Get preferences from service
     const evaluation = this.ingredientParser.evaluateProduct(this.product.ingredients, this.product.calories, preferences);
 
     this.verdict = evaluation.verdict;

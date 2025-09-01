@@ -10,7 +10,8 @@ import { ProductDbService, Product } from '../services/product-db.service';
 import { NotificationService } from '../services/notification.service';
 import { SpeechService } from '../services/speech.service';
 import { AuthService } from '../services/auth.service';
-import { PermissionsService } from '../services/permissions.service'; // Import the new service
+import { PermissionsService } from '../services/permissions.service';
+import { PreferencesService } from '../services/preferences.service'; // Import PreferencesService
 import { take } from 'rxjs/operators';
 import { Subscription } from 'rxjs';
 
@@ -34,6 +35,7 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
   private selectedCameraId: string | null = null;
   private currentCameraIndex = 0;
   private voiceCommandSubscription!: Subscription;
+  private preferencesSubscription!: Subscription; // New subscription for preferences
 
   constructor(
     private router: Router,
@@ -44,7 +46,8 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
     private notificationService: NotificationService,
     private speechService: SpeechService,
     private authService: AuthService,
-    private permissionsService: PermissionsService // Inject the service
+    private permissionsService: PermissionsService,
+    private preferencesService: PreferencesService // Inject PreferencesService
   ) {}
 
   async ngAfterViewInit() {
@@ -60,7 +63,15 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
       if (this.cameras.length > 0) {
         this.startBarcodeScanning();
       }
-      this.checkVoiceCommandsPreference();
+      this.preferencesSubscription = this.preferencesService.preferences$.subscribe(prefs => {
+        if (prefs.enableVoiceCommands) {
+          this.speechService.startListening();
+          this.isVoiceListening = true;
+        } else {
+          this.speechService.stopListening();
+          this.isVoiceListening = false;
+        }
+      });
       this.voiceCommandSubscription = this.speechService.commandRecognized.subscribe(command => {
         this.handleVoiceCommand(command);
       });
@@ -71,17 +82,6 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
   }
 
   // ... (the rest of the component logic remains the same)
-
-  private checkVoiceCommandsPreference(): void {
-    this.authService.currentUser$.pipe(take(1)).subscribe(user => {
-      const preferencesKey = user ? `fatBoyPreferences_${user.id}` : 'fatBoyPreferences_anonymous';
-      const preferences = JSON.parse(localStorage.getItem(preferencesKey) || '{}');
-      if (preferences.enableVoiceCommands) {
-        this.speechService.startListening();
-        this.isVoiceListening = true;
-      }
-    });
-  }
 
   private handleVoiceCommand(command: string): void {
     if (command.includes('scan label') || command.includes('capture label')) {
@@ -95,27 +95,6 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
       this.speechService.speak('Going to history.');
     } else {
       this.speechService.speak('Command not recognized. Please try again.');
-    }
-  }
-
-  private async setupCameras() {
-    try {
-      const devices = await navigator.mediaDevices.enumerateDevices();
-      this.cameras = devices.filter(device => device.kind === 'videoinput');
-      if (this.cameras.length === 0) {
-        this.notificationService.showError('No cameras found on this device.');
-        return;
-      }
-      
-      const savedCameraId = localStorage.getItem('fatBoySelectedCamera');
-      const savedIndex = this.cameras.findIndex(c => c.deviceId === savedCameraId);
-      
-      this.currentCameraIndex = savedIndex !== -1 ? savedIndex : 0;
-      this.selectedCameraId = this.cameras[this.currentCameraIndex].deviceId;
-
-    } catch (error) {
-      console.error('Error setting up cameras:', error);
-      this.notificationService.showError('Could not enumerate camera devices.');
     }
   }
 
@@ -219,8 +198,9 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
     const productName = this.ocrEnhancer.detectProductName(text);
     const brand = this.ocrEnhancer.detectBrand(text);
 
+    const preferences = this.preferencesService.getPreferences(); // Get preferences from service
     const categories = this.ingredientParser.categorizeProduct(enhancedIngredients);
-    const evaluation = this.ingredientParser.evaluateProduct(enhancedIngredients, undefined, JSON.parse(localStorage.getItem('fatBoyPreferences_anonymous') || '{}'));
+    const evaluation = this.ingredientParser.evaluateProduct(enhancedIngredients, undefined, preferences);
 
     const productInfo: Omit<Product, 'id' | 'scanDate'> = {
       name: productName,
@@ -243,6 +223,30 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
     this.speechService.stopListening();
     if (this.voiceCommandSubscription) {
       this.voiceCommandSubscription.unsubscribe();
+    }
+    if (this.preferencesSubscription) { // Unsubscribe from preferences
+      this.preferencesSubscription.unsubscribe();
+    }
+  }
+
+  private async setupCameras() {
+    try {
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      this.cameras = devices.filter(device => device.kind === 'videoinput');
+      if (this.cameras.length === 0) {
+        this.notificationService.showError('No cameras found on this device.');
+        return;
+      }
+      
+      const savedCameraId = localStorage.getItem('fatBoySelectedCamera');
+      const savedIndex = this.cameras.findIndex(c => c.deviceId === savedCameraId);
+      
+      this.currentCameraIndex = savedIndex !== -1 ? savedIndex : 0;
+      this.selectedCameraId = this.cameras[this.currentCameraIndex].deviceId;
+
+    } catch (error) {
+      console.error('Error setting up cameras:', error);
+      this.notificationService.showError('Could not enumerate camera devices.');
     }
   }
 }

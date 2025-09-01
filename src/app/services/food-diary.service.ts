@@ -4,6 +4,7 @@ import { Product } from './product-db.service';
 import { NotificationService } from './notification.service';
 import { AuthService } from './auth.service';
 import { SpeechService } from './speech.service';
+import { PreferencesService, UserPreferences } from './preferences.service'; // Import PreferencesService and UserPreferences
 
 export type MealType = 'Breakfast' | 'Lunch' | 'Dinner' | 'Snack' | 'Drinks';
 
@@ -28,7 +29,8 @@ export class FoodDiaryService {
   constructor(
     private notificationService: NotificationService,
     private authService: AuthService,
-    private speechService: SpeechService
+    private speechService: SpeechService,
+    private preferencesService: PreferencesService // Inject PreferencesService
   ) {
     this.authService.currentUser$.subscribe(user => {
       this.currentUserId = user?.id || null;
@@ -80,7 +82,7 @@ export class FoodDiaryService {
     return { totalCalories, totalFlaggedItems, flaggedIngredients };
   }
 
-  getDailyPerformanceVerdict(date: string, preferences: any): DailyVerdict {
+  getDailyPerformanceVerdict(date: string, preferences: UserPreferences): DailyVerdict {
     const summary = this.getDailySummary(date);
     const { totalCalories, totalFlaggedItems } = summary;
 

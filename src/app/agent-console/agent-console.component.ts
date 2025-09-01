@@ -3,7 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AiIntegrationService, AiResponse } from '../services/ai-integration.service';
 import { SpeechService } from '../services/speech.service';
-import { AuthService } from '../services/auth.service'; // Import AuthService
+import { AuthService } from '../services/auth.service';
+import { PreferencesService } from '../services/preferences.service'; // Import PreferencesService
 import { Subscription, interval } from 'rxjs';
 
 interface Message {
@@ -38,9 +39,10 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
   agentStatus: 'online' | 'offline' = 'offline';
   private speechSubscription!: Subscription;
   private statusSubscription!: Subscription;
-  private authSubscription!: Subscription; // New subscription for auth changes
+  private authSubscription!: Subscription;
+  private preferencesSubscription!: Subscription; // New subscription for preferences
   private agentAvatar = 'https://api.dicebear.com/8.x/bottts-neutral/svg?seed=nirvana';
-  private currentUserId: string | null = null; // To store the current user ID
+  private currentUserId: string | null = null;
   
   availableCommands: SlashCommand[] = [
     { command: '/suggest', description: 'Get a personalized product suggestion.', usage: '/suggest' },
@@ -53,7 +55,8 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
   constructor(
     private aiService: AiIntegrationService,
     private speechService: SpeechService,
-    private authService: AuthService, // Inject AuthService
+    private authService: AuthService,
+    private preferencesService: PreferencesService, // Inject PreferencesService
     private cdr: ChangeDetectorRef
   ) {}
 
@@ -66,6 +69,16 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
       this.currentUserId = user?.id || null;
       if (this.currentUserId !== previousUserId) {
         this.loadChatHistory(); // Reload history if user changes
+      }
+    });
+
+    this.preferencesSubscription = this.preferencesService.preferences$.subscribe(prefs => {
+      if (prefs.enableVoiceCommands) {
+        this.speechService.startListening();
+        this.isListening = true;
+      } else {
+        this.speechService.stopListening();
+        this.isListening = false;
       }
     });
 
@@ -88,7 +101,8 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
   ngOnDestroy() {
     if (this.speechSubscription) this.speechSubscription.unsubscribe();
     if (this.statusSubscription) this.statusSubscription.unsubscribe();
-    if (this.authSubscription) this.authSubscription.unsubscribe(); // Unsubscribe from auth changes
+    if (this.authSubscription) this.authSubscription.unsubscribe();
+    if (this.preferencesSubscription) this.preferencesSubscription.unsubscribe(); // Unsubscribe from preferences
     this.speechService.stopListening();
   }
 
@@ -103,12 +117,9 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
   }
 
   toggleVoiceListening() {
-    this.isListening = !this.isListening;
-    if (this.isListening) {
-      this.speechService.startListening();
-    } else {
-      this.speechService.stopListening();
-    }
+    // This button now just toggles the internal state, actual listening is controlled by preferences
+    const currentPrefs = this.preferencesService.getPreferences();
+    this.preferencesService.savePreferences({ ...currentPrefs, enableVoiceCommands: !currentPrefs.enableVoiceCommands });
   }
 
   handleInput() {
@@ -144,12 +155,12 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
         avatar: this.agentAvatar,
         followUpQuestions: aiResponse.followUpQuestions
       });
-      this.speechService.speak(aiResponse.text); // Speak the AI's response
+      this.speechService.speak(aiResponse.text);
     } catch (error) {
       this.messages.push({ sender: 'agent', text: 'Sorry, I encountered an error. Please try again.', timestamp: new Date(), avatar: this.agentAvatar });
     } finally {
       this.isAgentTyping = false;
-      this.saveChatHistory(); // Save history after each message
+      this.saveChatHistory();
     }
   }
 
@@ -171,7 +182,6 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
   private loadChatHistory(): void {
     const stored = localStorage.getItem(this.getStorageKey());
     if (stored) {
-      // Parse stored messages and convert timestamp strings back to Date objects
       this.messages = JSON.parse(stored).map((msg: Message) => ({
         ...msg,
         timestamp: new Date(msg.timestamp)
@@ -194,7 +204,7 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
         timestamp: new Date(),
         avatar: this.agentAvatar
       }];
-      this.cdr.detectChanges(); // Trigger change detection to update UI
+      this.cdr.detectChanges();
       this.scrollToBottom();
     }
   }

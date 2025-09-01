@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { PreferencesService, UserPreferences } from './preferences.service'; // Import PreferencesService and UserPreferences
 
 export interface IngredientAnalysis {
   categories: string[];
@@ -47,7 +48,9 @@ export class IngredientParserService {
     }
   };
 
-  evaluateProduct(ingredients: string[], calories: number | undefined, preferences: any): ProductEvaluation {
+  constructor(private preferencesService: PreferencesService) {} // Inject PreferencesService
+
+  evaluateProduct(ingredients: string[], calories: number | undefined, preferences: UserPreferences): ProductEvaluation {
     const flagged: { ingredient: string, reason: string }[] = [];
     
     // Combine both predefined and custom avoided ingredients into one master list
@@ -97,7 +100,8 @@ export class IngredientParserService {
     return Array.from(categories);
   }
   
-  evaluateIngredients(ingredients: string[], preferences: any): string[] {
+  evaluateIngredients(ingredients: string[]): string[] {
+    const preferences = this.preferencesService.getPreferences(); // Get preferences from service
     const evaluation = this.evaluateProduct(ingredients, undefined, preferences);
     return evaluation.flaggedIngredients.map(f => f.ingredient);
   }

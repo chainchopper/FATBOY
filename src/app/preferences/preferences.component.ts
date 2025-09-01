@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { NotificationService } from '../services/notification.service';
 import { AuthService } from '../services/auth.service';
 import { IngredientParserService } from '../services/ingredient-parser.service';
+import { PreferencesService } from '../services/preferences.service'; // Import PreferencesService
 
 @Component({
   selector: 'app-preferences',
@@ -13,17 +14,7 @@ import { IngredientParserService } from '../services/ingredient-parser.service';
   styleUrls: ['./preferences.component.css']
 })
 export class PreferencesComponent implements OnInit {
-  preferences = {
-    avoidedIngredients: ['aspartame', 'sucralose', 'red 40', 'yellow 5', 'high-fructose corn syrup', 'partially hydrogenated'],
-    customAvoidedIngredients: [] as string[],
-    maxCalories: 200,
-    dailyCalorieTarget: 2000,
-    goal: 'avoidChemicals',
-    onDeviceInference: false, // New preference
-    shareUsername: true,
-    shareGoal: true,
-    shareLeaderboardStatus: true
-  };
+  preferences: any; // Will be managed by PreferencesService
 
   ingredientCategories: { [key: string]: { name: string, items: string[] } };
   newCustomIngredient: string = '';
@@ -32,15 +23,17 @@ export class PreferencesComponent implements OnInit {
   constructor(
     private notificationService: NotificationService, 
     private authService: AuthService,
-    private ingredientParser: IngredientParserService
+    private ingredientParser: IngredientParserService,
+    private preferencesService: PreferencesService // Inject PreferencesService
   ) {
     this.ingredientCategories = this.ingredientParser.INGREDIENT_DATABASE;
+    this.preferences = this.preferencesService.getPreferences(); // Initialize with current preferences
   }
 
   ngOnInit() {
     this.authService.currentUser$.subscribe(user => {
       this.currentUserId = user?.id || null;
-      this.loadPreferences();
+      this.preferences = this.preferencesService.getPreferences(); // Load preferences for current user
     });
   }
 
@@ -70,19 +63,7 @@ export class PreferencesComponent implements OnInit {
   }
 
   savePreferences() {
-    localStorage.setItem(this.getStorageKey(), JSON.stringify(this.preferences));
+    this.preferencesService.savePreferences(this.preferences);
     this.notificationService.showSuccess('Preferences saved!');
-  }
-
-  private getStorageKey(): string {
-    return this.currentUserId ? `fatBoyPreferences_${this.currentUserId}` : 'fatBoyPreferences_anonymous';
-  }
-
-  private loadPreferences() {
-    const saved = localStorage.getItem(this.getStorageKey());
-    if (saved) {
-      const savedPrefs = JSON.parse(saved);
-      this.preferences = { ...this.preferences, ...savedPrefs };
-    }
   }
 }
