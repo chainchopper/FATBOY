@@ -75,6 +75,7 @@ export class AiIntegrationService {
         done = readerDone;
         const chunk = decoder.decode(value, { stream: true });
         
+        // Process server-sent events
         const lines = chunk.split('\n').filter(line => line.trim().startsWith('data:'));
         for (const line of lines) {
           const jsonStr = line.replace('data: ', '');
