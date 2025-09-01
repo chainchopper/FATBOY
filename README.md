@@ -26,11 +26,13 @@ In a world saturated with confusing food labels and hidden ingredients, Fat Boy 
 ## ✨ Features Deep Dive
 
 ### 🤖 The Command Center: Your AI Agent Console
-Interact directly with the app's AI through a sleek, chat-like interface. Use intuitive **slash commands** to get instant insights and perform powerful actions.
--   **/suggest:** Get personalized product recommendations based on your history.
--   **/summarize:** Receive a concise summary of your recent dietary activity.
--   **/find `[ingredient]`:** Instantly search the community database for products containing a specific ingredient.
--   **/playwright `[test]`:** (For developers) Trigger end-to-end tests directly from the app.
+Interact directly with the app's AI through a sleek, chat-like interface. Use intuitive **slash commands** or **voice commands** to get instant insights and perform powerful actions.
+-   **Intelligent Conversational AI**: Powered by `rstar-coder-qwen3-0.6b@bf16` (LLM with tool/function calling) and `fatboy-embeddings-v4-text-retrieval` (multi-modal embedding model).
+-   **Personalized Context**: The AI is fed comprehensive user data including your profile, health preferences, recent scan history, shopping list, food diary summary, and unlocked achievements for highly relevant responses.
+-   **AI Tool Calling**: Directly command the AI to perform actions like "Add this to my shopping list" or "Put this in my dinner diary." The AI executes these commands within the app, providing instant audio/visual confirmation.
+-   **Contextual Follow-up Questions**: After each AI response, receive 3 clickable follow-up questions to guide your conversation. The initial greeting also provides helpful starting questions.
+-   **Voice Commands**: Seamlessly interact with the AI using your voice, with a toggle in preferences to enable/disable.
+-   **Persistent Chat History**: Your conversations with Fat Boy are saved locally (user-specific) and can be cleared via a custom modal.
 
 ### 📱 The Core Loop: Unified Intelligent Scanner
 The heart of Fat Boy is a powerful, full-screen scanning experience. The intelligent camera automatically detects what you're pointing at—be it a **barcode, an ingredient label, or a full receipt**—and analyzes it in real-time.
@@ -42,6 +44,7 @@ Fat Boy's verdict is not a generic "healthy" or "unhealthy" rating. It's a perso
 -   **Granular Ingredient Control:** Fine-tune your "avoid list" by selecting from dozens of pre-defined ingredients across categories like Artificial Sweeteners, Preservatives, and more.
 -   **Custom Avoid List:** Manually add any ingredient you want to avoid for truly personalized analysis.
 -   **Set Your Limits:** Use sliders to define your maximum calories per serving and your overall daily calorie target.
+-   **Centralized Preferences**: All your preferences are now securely stored in Supabase, ensuring consistency across devices.
 
 ### 🤝 The Alliance: Interactive Community Feed
 Contribute to a global database of food products and see what others are discovering in a dynamic, social feed.
@@ -53,7 +56,7 @@ Contribute to a global database of food products and see what others are discove
 Making healthy choices should be rewarding. Fat Boy includes a full-fledged gamification system to keep you motivated.
 -   **Earn Points & Achievements:** Gain points for scanning products, adding healthy items to your lists, and contributing to the community. Unlock badges for reaching key milestones.
 -   **Compete on the Leaderboard:** See how you stack up against the global community and your friends.
--   **Friends System:** Add friends, see their activity, and engage in friendly competition.
+-   **Friends System**: Add friends, see their activity, and engage in friendly competition.
 
 ---
 
@@ -61,11 +64,11 @@ Making healthy choices should be rewarding. Fat Boy includes a full-fledged gami
 
 -   **Frontend:** Angular & TypeScript
 -   **Styling:** Custom CSS with a Cyberpunk Aesthetic
--   **Authentication & DB:** Supabase
+-   **Authentication & DB:** Supabase (now centralizing most user data)
 -   **OCR:** Tesseract.js
 -   **Notifications:** ngx-toastr
--   **On-Device AI:** ONNX Runtime Web
--   **Cloud AI:** Hugging Face Inference
+-   **On-Device AI:** ONNX Runtime Web (for future on-device inference)
+-   **Cloud AI:** LM Studio (OpenAI-compatible API) for `rstar-coder-qwen3-0.6b@bf16` (LLM) and `fatboy-embeddings-v4-text-retrieval` (Multi-modal Embeddings)
 -   **Deployment:** Docker & Nginx
 
 ## 🏁 Getting Started
@@ -98,6 +101,7 @@ This is the easiest way to get the app running in a consistent environment.
 **Prerequisites:**
 *   Node.js (v18 or newer)
 *   Angular CLI (`npm install -g @angular/cli`)
+*   **LM Studio**: For running the AI models locally. Ensure `rstar-coder-qwen3-0.6b@bf16` and `fatboy-embeddings-v4-text-retrieval` are loaded and served via the OpenAI-compatible API endpoint (default: `http://localhost:1234/v1`). Update `src/environments/environment.ts` if your endpoint differs.
 
 **Steps:**
 1.  **Clone the repository:**
@@ -119,10 +123,15 @@ This is the easiest way to get the app running in a consistent environment.
 
 Our journey has just begun! Here's a glimpse of what's next:
 
--   [ ] **Food Diary & Performance Tracking:** Log your meals and get AI-powered feedback on your goals.
--   [ ] **Delivery Integration:** Connect with services like DoorDash or Uber Eats to order approved items.
--   [ ] **Calendar Sync:** Schedule meal plans and get reminders via Google Calendar.
--   [ ] **Advanced AI:** Integrate more powerful vision, TTS, and RAG models for an even smarter experience.
+-   [ ] **Full RAG Pipeline Integration**: Implement semantic search over user data (preferences, history, etc.) using `fatboy-embeddings-v4-text-retrieval` to inject highly relevant context into AI prompts, further enhancing response quality and reducing verbosity.
+-   [ ] **Supabase Data Migration**: Complete the migration of all remaining local storage data (scan history, shopping lists, food diary, badges) to their respective Supabase tables.
+-   [ ] **Food Diary & Performance Tracking**: Log your meals and get AI-powered feedback on your goals, leveraging your personalized preferences and history.
+-   [ ] **Advanced AI Capabilities**: Explore multi-modal inputs (e.g., direct image analysis by `fatboy-embeddings-v4-text-retrieval`) and more sophisticated RAG strategies.
+-   [ ] **On-Device AI Inference**: Optimize models for efficient local execution, enhancing privacy and offline functionality.
+-   [ ] **Delivery Integration**: Connect with services like DoorDash or Uber Eats to order approved items.
+-   [ ] **Calendar Sync**: Schedule meal plans and get reminders via Google Calendar.
+-   [ ] **Enhanced Gamification**: Introduce new badge types, challenges, and deeper leaderboard integrations.
+-   [ ] **Community Moderation Tools**: Develop features for reviewing and approving community contributions.
 
 ---
 
