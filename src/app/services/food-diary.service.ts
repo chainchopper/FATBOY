@@ -4,7 +4,8 @@ import { Product } from './product-db.service';
 import { NotificationService } from './notification.service';
 import { AuthService } from './auth.service';
 import { SpeechService } from './speech.service';
-import { PreferencesService, UserPreferences } from './preferences.service'; // Import PreferencesService and UserPreferences
+import { PreferencesService, UserPreferences } from './preferences.service';
+import { supabase } from '../../integrations/supabase/client'; // Import Supabase client
 
 export type MealType = 'Breakfast' | 'Lunch' | 'Dinner' | 'Snack' | 'Drinks';
 
@@ -30,29 +31,50 @@ export class FoodDiaryService {
     private notificationService: NotificationService,
     private authService: AuthService,
     private speechService: SpeechService,
-    private preferencesService: PreferencesService // Inject PreferencesService
+    private preferencesService: PreferencesService
   ) {
     this.authService.currentUser$.subscribe(user => {
       this.currentUserId = user?.id || null;
-      this.loadFromStorage(); // Reload data when user changes
+      this.loadFromSupabase(); // Reload data when user changes
     });
   }
 
-  addEntry(product: Product, meal: MealType): void {
+  async addEntry(product: Product, meal: MealType): Promise<void> {
+    if (!this.currentUserId) {
+      console.warn('Cannot add food diary entry: User not authenticated.');
+      // Fallback for unauthenticated users (e.g., temporary local storage, or just prevent)
+      this.notificationService.showError('Please log in to add items to your food diary.');
+      this.speechService.speak('Please log in to add items to your food diary.');
+      return;
+    }
+
     const today = new Date().toISOString().split('T')[0];
-    const newEntry: DiaryEntry = {
-      id: `${today}-${Date.now()}`,
+    const newEntry: Omit<DiaryEntry, 'id'> = { // Supabase will generate UUID
       date: today,
       meal,
       product
     };
 
-    const entries = this.diary.get(today) || [];
-    entries.push(newEntry);
-    this.diary.set(today, entries);
-    
-    this.saveToStorage();
-    this.diarySubject.next(new Map(this.diary));
+    const { data, error } = await supabase
+      .from('food_diary_entries')
+      .insert({
+        user_id: this.currentUserId,
+        entry_date: newEntry.date,
+        meal_type: newEntry.meal,
+        product_data: newEntry.product
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error adding food diary entry to Supabase:', error);
+      this.notificationService.showError('Failed to add item to food diary.');
+      this.speechService.speak('Failed to add item to food diary.');
+      throw error;
+    }
+
+    // After successful insert, reload from Supabase to ensure local state is consistent
+    await this.loadFromSupabase();
     this.notificationService.showSuccess(`${product.name} added to ${meal}.`);
     this.speechService.speak(`${product.name} added to ${meal}.`);
   }
@@ -90,7 +112,7 @@ export class FoodDiaryService {
     let score = 0;
 
     // Calorie-based scoring
-    if (preferences.dailyCalorieTarget) { // Use dailyCalorieTarget from preferences
+    if (preferences.dailyCalorieTarget) {
       const calorieTarget = preferences.dailyCalorieTarget;
       if (totalCalories <= calorieTarget) {
         score += 2; // Good on calories
@@ -99,7 +121,7 @@ export class FoodDiaryService {
       } else {
         score -= 1; // Significantly over
       }
-    } else if (preferences.maxCalories) { // Fallback to old maxCalories if daily not set
+    } else if (preferences.maxCalories) {
       const calorieTarget = preferences.maxCalories * 3; // Assuming 3 meals for a rough daily target
       if (totalCalories <= calorieTarget) {
         score += 2; // Good on calories
@@ -109,7 +131,6 @@ export class FoodDiaryService {
         score -= 1; // Significantly over
       }
     }
-
 
     // Flagged ingredients scoring
     if (totalFlaggedItems === 0) {
@@ -139,22 +160,49 @@ export class FoodDiaryService {
     }
   }
 
-  private getStorageKey(): string {
-    return this.currentUserId ? `fatBoyFoodDiary_${this.currentUserId}` : 'fatBoyFoodDiary_anonymous';
-  }
-
-  private loadFromStorage(): void {
-    const stored = localStorage.getItem(this.getStorageKey());
-    if (stored) {
-      this.diary = new Map(JSON.parse(stored));
-      this.diarySubject.next(new Map(this.diary));
-    } else {
+  private async loadFromSupabase(): Promise<void> {
+    if (!this.currentUserId) {
       this.diary = new Map();
       this.diarySubject.next(new Map());
+      return;
     }
+
+    const { data, error } = await supabase
+      .from('food_diary_entries')
+      .select('id, entry_date, meal_type, product_data')
+      .eq('user_id', this.currentUserId)
+      .order('entry_date', { ascending: false })
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Error loading food diary entries from Supabase:', error);
+      this.diary = new Map();
+      this.diarySubject.next(new Map());
+      return;
+    }
+
+    const loadedDiary = new Map<string, DiaryEntry[]>();
+    data.forEach((item: any) => {
+      const entry: DiaryEntry = {
+        id: item.id,
+        date: item.entry_date,
+        meal: item.meal_type,
+        product: {
+          ...item.product_data,
+          scanDate: new Date(item.product_data.scanDate) // Ensure scanDate is a Date object
+        }
+      };
+      if (!loadedDiary.has(entry.date)) {
+        loadedDiary.set(entry.date, []);
+      }
+      loadedDiary.get(entry.date)?.push(entry);
+    });
+
+    this.diary = loadedDiary;
+    this.diarySubject.next(new Map(this.diary));
   }
 
-  private saveToStorage(): void {
-    localStorage.setItem(this.getStorageKey(), JSON.stringify(Array.from(this.diary.entries())));
-  }
+  // Removed local storage methods as data is now in Supabase
+  private saveToStorage(): void {}
+  private getStorageKey(): string { return ''; } // No longer needed
 }
