@@ -148,7 +148,7 @@ export class AiIntegrationService {
     // --- End RAG Integration Phase 1 ---
 
     // Updated system message to instruct for follow-up questions
-    const systemMessage = `You are Fat Boy, an AI nutritional co-pilot powered by NIRVANA from Fanalogy. Your responses must be concise (1-2 sentences). If the user asks about a food item, provide its benefits and key characteristics/ingredients. IMPORTANT: Always conclude your response by generating exactly 3 relevant follow-up questions in a JSON array format, prefixed with '[FOLLOW_UP_QUESTIONS]'. DO NOT include these questions in your main response text. Example: "Here is your main response. [FOLLOW_UP_QUESTIONS] [\"Question 1?\", \"Question 2?\", \"Question 3?\"]".
+    const systemMessage = `You are Fat Boy, an AI nutritional co-pilot powered by NIRVANA from Fanalogy. Your responses must be concise (1-2 sentences). If the user asks about a food item, provide its benefits and key characteristics/ingredients. IMPORTANT: Always conclude your response by generating exactly 3 relevant follow-up questions in a JSON array format, prefixed with '[FOLLOW_UP_QUESTIONS]'. DO NOT include these questions in your main response text. Example: "Your main response here. [FOLLOW_UP_QUESTIONS] [\"Question 1?\", \"Question 2?\", \"Question 3?\"]".
     
     Here is the current user's context:
     ${userContext}
@@ -161,7 +161,7 @@ export class AiIntegrationService {
         { role: 'user', content: userInput }
       ],
       temperature: 0.7,
-      max_tokens: 400, // Increased token limit by 100 characters
+      max_tokens: 600, // Increased token limit by 200 characters
       stream: false
     };
 
