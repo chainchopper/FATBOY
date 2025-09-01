@@ -36,6 +36,7 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
   agentStatus: 'online' | 'offline' = 'offline';
   private speechSubscription!: Subscription;
   private statusSubscription!: Subscription;
+  private agentAvatar = 'https://api.dicebear.com/8.x/bottts-neutral/svg?seed=nirvana';
   
   availableCommands: SlashCommand[] = [
     { command: '/suggest', description: 'Get a personalized product suggestion.', usage: '/suggest' },
@@ -59,7 +60,7 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
       sender: 'agent',
       text: 'Hello! I am Fat Boy, your personal AI co-pilot, powered by NIRVANA from Fanalogy. How can I help you today?',
       timestamp: new Date(),
-      avatar: 'assets/logo.png'
+      avatar: this.agentAvatar
     });
 
     this.speechSubscription = this.speechService.commandRecognized.subscribe(transcript => {
@@ -121,12 +122,12 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
       sender: 'agent',
       text: '',
       timestamp: new Date(),
-      avatar: 'assets/logo.png'
+      avatar: this.agentAvatar
     };
     this.messages.push(agentMessage);
 
     try {
-      await this.aiService.getChatCompletionStream(text, (chunk: string) => {
+      await this.aiService.getChatCompletionStream(text, (chunk) => {
         agentMessage.text += chunk;
         this.cdr.detectChanges();
       });
