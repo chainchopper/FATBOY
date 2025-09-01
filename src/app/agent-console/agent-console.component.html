@@ -9,10 +9,16 @@
         <p>{{ msg.text }}</p>
         <span class="timestamp">{{ msg.timestamp | date:'shortTime' }}</span>
       </div>
+      <!-- New: Display follow-up questions -->
+      <div *ngIf="msg.sender === 'agent' && msg.followUpQuestions && msg.followUpQuestions.length > 0" class="follow-up-questions">
+        <button *ngFor="let question of msg.followUpQuestions" (click)="submitFollowUpQuestion(question)" class="follow-up-btn">
+          {{ question }}
+        </button>
+      </div>
     </div>
     <div *ngIf="isAgentTyping" class="message message-agent">
        <div class="avatar-container">
-        <img src="https://api.dicebear.com/8.x/bottts-neutral/svg?seed=nirvana" alt="Agent Avatar" class="avatar">
+        <img [src]="agentAvatar" alt="Agent Avatar" class="avatar"> <!-- Use agentAvatar property -->
         <div class="status-dot" [ngClass]="agentStatus"></div>
       </div>
       <div class="message-bubble typing-indicator">

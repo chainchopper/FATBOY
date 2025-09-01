@@ -62,6 +62,7 @@
 .message-agent {
   align-self: flex-start;
   justify-content: flex-start;
+  flex-direction: column; /* Stack avatar, bubble, and questions */
 }
 
 .message-bubble {
@@ -79,6 +80,11 @@
   background-color: #2a2a4e;
   border: 1px solid #4a4a6e;
   border-bottom-left-radius: 5px;
+  margin-bottom: 5px; /* Space between bubble and questions */
+}
+
+.message-agent .avatar-container {
+  margin-bottom: 5px; /* Space between avatar and bubble */
 }
 
 .message-bubble p {
@@ -225,4 +231,31 @@
 .command-item span {
   font-size: 0.8rem;
   color: #a0a0c0;
+}
+
+.follow-up-questions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+  max-width: 100%; /* Align with message bubble width */
+  align-self: flex-start; /* Align with agent message */
+}
+
+.follow-up-btn {
+  background-color: #4a4a6e;
+  border: 1px solid #0abdc6;
+  color: #e0e0e0;
+  padding: 8px 15px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.3s;
+  white-space: nowrap;
+}
+
+.follow-up-btn:hover {
+  background-color: rgba(10, 189, 198, 0.1);
+  box-shadow: 0 0 10px #0abdc6;
+  color: #0abdc6;
 }

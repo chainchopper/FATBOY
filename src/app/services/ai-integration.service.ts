@@ -2,6 +2,11 @@ import { Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
 import { ProductDbService } from './product-db.service';
 
+export interface AiResponse {
+  text: string;
+  followUpQuestions: string[];
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -31,12 +36,15 @@ export class AiIntegrationService {
   /**
    * Sends a prompt directly to the chat completions endpoint from the browser.
    * @param userInput The raw text from the user.
-   * @returns A promise that resolves with the model's text response.
+   * @returns A promise that resolves with the model's text response and follow-up questions.
    */
-  async getChatCompletion(userInput: string): Promise<string> {
+  async getChatCompletion(userInput: string): Promise<AiResponse> {
     const endpoint = `${this.apiBaseUrl}/chat/completions`;
     if (!endpoint || !this.modelName) {
-      return "I'm sorry, but my AI endpoint is not configured correctly in the app's environment file.";
+      return {
+        text: "I'm sorry, but my AI endpoint is not configured correctly in the app's environment file.",
+        followUpQuestions: []
+      };
     }
 
     const headers: HeadersInit = { 'Content-Type': 'application/json' };
@@ -46,7 +54,9 @@ export class AiIntegrationService {
 
     const history = this.productDb.getProductsSnapshot();
     const summary = `The user has scanned ${history.length} products. ${history.filter(p => p.verdict === 'good').length} were approved.`;
-    const systemMessage = `You are Fat Boy, an AI nutritional co-pilot powered by NIRVANA from Fanalogy. Your responses must be concise (1-2 sentences). Current user scan summary: ${summary}.`;
+    
+    // Updated system message to instruct for follow-up questions
+    const systemMessage = `You are Fat Boy, an AI nutritional co-pilot powered by NIRVANA from Fanalogy. Your responses must be concise (1-2 sentences). If the user asks about a food item, provide its benefits and key characteristics/ingredients. Always conclude your response by generating exactly 3 relevant follow-up questions in a JSON array format, prefixed with '[FOLLOW_UP_QUESTIONS]'. Example: "Main response text. [FOLLOW_UP_QUESTIONS] [\"Question 1?\", \"Question 2?\", \"Question 3?\"]". Current user scan summary: ${summary}.`;
 
     const payload = {
       model: this.modelName,
@@ -55,7 +65,7 @@ export class AiIntegrationService {
         { role: 'user', content: userInput }
       ],
       temperature: 0.7,
-      max_tokens: 150, // Set a safe limit
+      max_tokens: 300, // Increased token limit to accommodate questions
       stream: false
     };
 
@@ -69,14 +79,44 @@ export class AiIntegrationService {
       if (!response.ok) {
         const errorBody = await response.text();
         console.error('Chat Completions API Error:', response.status, errorBody);
-        return `Sorry, I encountered an error (${response.status}) while contacting my brain. Please check the server logs.`;
+        return {
+          text: `Sorry, I encountered an error (${response.status}) while contacting my brain. Please check the server logs.`,
+          followUpQuestions: []
+        };
       }
 
       const data = await response.json();
-      return data.choices[0].message.content;
+      let fullResponseText = data.choices[0].message.content;
+      let mainText = fullResponseText;
+      let followUpQuestions: string[] = [];
+
+      const marker = '[FOLLOW_UP_QUESTIONS]';
+      const markerIndex = fullResponseText.indexOf(marker);
+
+      if (markerIndex !== -1) {
+        mainText = fullResponseText.substring(0, markerIndex).trim();
+        const jsonString = fullResponseText.substring(markerIndex + marker.length).trim();
+        try {
+          const parsedQuestions = JSON.parse(jsonString);
+          if (Array.isArray(parsedQuestions) && parsedQuestions.every(q => typeof q === 'string')) {
+            followUpQuestions = parsedQuestions.slice(0, 3); // Ensure max 3 questions
+          }
+        } catch (jsonError) {
+          console.warn('Failed to parse follow-up questions JSON:', jsonError);
+          // Fallback: if JSON parsing fails, treat the whole thing as text
+          mainText = fullResponseText;
+          followUpQuestions = [];
+        }
+      }
+
+      return { text: mainText, followUpQuestions };
+
     } catch (error) {
       console.error('Network or other error calling Chat Completions API:', error);
-      return "Sorry, I couldn't connect to the AI service. Please ensure the model server is running and accessible from your browser.";
+      return {
+        text: "Sorry, I couldn't connect to the AI service. Please ensure the model server is running and accessible from your browser.",
+        followUpQuestions: []
+      };
     }
   }
 }

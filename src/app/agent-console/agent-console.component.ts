@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewChecked, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { AiIntegrationService } from '../services/ai-integration.service';
+import { AiIntegrationService, AiResponse } from '../services/ai-integration.service'; // Import AiResponse interface
 import { SpeechService } from '../services/speech.service';
 import { Subscription, interval } from 'rxjs';
 
@@ -10,6 +10,7 @@ interface Message {
   text: string;
   timestamp: Date;
   avatar: string;
+  followUpQuestions?: string[]; // Add this
 }
 
 interface SlashCommand {
@@ -36,7 +37,7 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
   agentStatus: 'online' | 'offline' = 'offline';
   private speechSubscription!: Subscription;
   private statusSubscription!: Subscription;
-  private agentAvatar = 'assets/logo.png';
+  private agentAvatar = 'https://api.dicebear.com/8.x/bottts-neutral/svg?seed=nirvana'; // Use a consistent avatar for the agent
   
   availableCommands: SlashCommand[] = [
     { command: '/suggest', description: 'Get a personalized product suggestion.', usage: '/suggest' },
@@ -120,13 +121,24 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
     this.isAgentTyping = true;
 
     try {
-      const responseText = await this.aiService.getChatCompletion(text);
-      this.messages.push({ sender: 'agent', text: responseText, timestamp: new Date(), avatar: this.agentAvatar });
+      const aiResponse: AiResponse = await this.aiService.getChatCompletion(text); // Use AiResponse type
+      this.messages.push({
+        sender: 'agent',
+        text: aiResponse.text,
+        timestamp: new Date(),
+        avatar: this.agentAvatar,
+        followUpQuestions: aiResponse.followUpQuestions // Assign follow-up questions
+      });
     } catch (error) {
       this.messages.push({ sender: 'agent', text: 'Sorry, I encountered an error. Please try again.', timestamp: new Date(), avatar: this.agentAvatar });
     } finally {
       this.isAgentTyping = false;
     }
+  }
+
+  submitFollowUpQuestion(question: string) {
+    this.userInput = question;
+    this.sendMessage();
   }
 
   private scrollToBottom(): void {
