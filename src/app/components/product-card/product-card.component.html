@@ -36,7 +36,10 @@
     <div class="metadata-section" *ngIf="product.categories && product.categories.length > 0">
       <h4>Categories:</h4>
       <div class="category-tags">
-        <span *ngFor="let category of product.categories" class="category-tag">{{ category }}</span>
+        <span *ngFor="let category of product.categories" class="category-tag">
+          <app-food-icon [category]="category"></app-food-icon>
+          {{ category }}
+        </span>
       </div>
     </div>
     <div class="metadata-section" *ngIf="product.ocrText">

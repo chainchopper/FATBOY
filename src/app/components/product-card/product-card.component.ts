@@ -1,12 +1,13 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Product } from '../../services/product-db.service';
-import { LucideAngularModule } from 'lucide-angular'; // For icons
+import { LucideAngularModule } from 'lucide-angular';
+import { FoodIconComponent } from '../food-icon/food-icon.component'; // Import FoodIconComponent
 
 @Component({
   selector: 'app-product-card',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule],
+  imports: [CommonModule, LucideAngularModule, FoodIconComponent], // Add FoodIconComponent to imports
   templateUrl: './product-card.component.html',
   styleUrls: ['./product-card.component.css']
 })
