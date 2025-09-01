@@ -9,12 +9,12 @@ import { ProfileService } from '../services/profile.service';
 import { Subscription, interval } from 'rxjs';
 
 interface Message {
-  sender: 'user' | 'agent' | 'tool'; // Added 'tool' sender
+  sender: 'user' | 'agent' | 'tool';
   text: string;
   timestamp: Date;
   avatar: string;
   followUpQuestions?: string[];
-  toolCalls?: any[]; // New: to store tool calls made by the agent
+  toolCalls?: any[];
 }
 
 interface SlashCommand {
@@ -101,12 +101,21 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
       }
     });
 
+    // Load chat history first
+    this.loadChatHistory();
+
+    // If chat history is empty, add the initial greeting with follow-up questions
     if (this.messages.length === 0) {
       this.messages.push({
         sender: 'agent',
         text: 'Hello! I am Fat Boy, your personal AI co-pilot, powered by NIRVANA from Fanalogy. How can I help you today?',
         timestamp: new Date(),
-        avatar: this.agentAvatar
+        avatar: this.agentAvatar,
+        followUpQuestions: [
+          'What are some healthy snack options?',
+          'Can you summarize my recent food diary entries?',
+          'How do I add a product to my shopping list?'
+        ]
       });
     }
 
@@ -168,22 +177,20 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
     const messagesHistoryForAi = this.messages.slice(1).map(msg => ({ // Exclude initial greeting
       role: msg.sender === 'agent' ? 'assistant' : msg.sender,
       content: msg.text,
-      ...(msg.toolCalls && { tool_calls: msg.toolCalls }) // Include tool calls if present
+      ...(msg.toolCalls && { tool_calls: msg.toolCalls })
     }));
 
     try {
       const aiResponse: AiResponse = await this.aiService.getChatCompletion(text, messagesHistoryForAi);
 
-      // If AI suggested tool calls, add them to the message history
       if (aiResponse.toolCalls && aiResponse.toolCalls.length > 0) {
         this.messages.push({
           sender: 'agent',
-          text: 'Executing tool...', // Placeholder message
+          text: 'Executing tool...',
           timestamp: new Date(),
           avatar: this.agentAvatar,
-          toolCalls: aiResponse.toolCalls // Store the tool calls
+          toolCalls: aiResponse.toolCalls
         });
-        // The actual tool output and final natural language response will come in the next AI call
       }
 
       this.messages.push({
@@ -240,7 +247,12 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
         sender: 'agent',
         text: 'Hello! I am Fat Boy, your personal AI co-pilot, powered by NIRVANA from Fanalogy. How can I help you today?',
         timestamp: new Date(),
-        avatar: this.agentAvatar
+        avatar: this.agentAvatar,
+        followUpQuestions: [ // Re-add initial follow-up questions
+          'What are some healthy snack options?',
+          'Can you summarize my recent food diary entries?',
+          'How do I add a product to my shopping list?'
+        ]
       }];
       this.cdr.detectChanges();
       this.scrollToBottom();
