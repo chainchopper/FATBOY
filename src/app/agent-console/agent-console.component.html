@@ -33,10 +33,10 @@
         </div>
       </ng-container>
       
-      <!-- Display tool calls if present in an agent message -->
-      <ng-container *ngIf="msg.sender === 'agent' && msg.toolCalls && msg.toolCalls.length > 0">
+      <!-- Display human-readable tool call if present in an agent message -->
+      <ng-container *ngIf="msg.sender === 'agent' && msg.toolCalls && msg.humanReadableToolCall">
         <div class="tool-call-indicator">
-          ⚙️ Executing: {{ msg.toolCalls[0].function.name }}...
+          ⚙️ {{ msg.humanReadableToolCall }}
         </div>
       </ng-container>
     </div>

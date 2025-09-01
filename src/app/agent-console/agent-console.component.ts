@@ -15,7 +15,8 @@ interface Message {
   timestamp: Date;
   avatar: string;
   followUpQuestions?: string[];
-  toolCalls?: any[];
+  toolCalls?: any[]; // Store the raw tool calls
+  humanReadableToolCall?: string; // New: for human-readable description
 }
 
 interface SlashCommand {
@@ -44,7 +45,7 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
   private statusSubscription!: Subscription;
   private authSubscription!: Subscription;
   private preferencesSubscription!: Subscription;
-  public agentAvatar = 'assets/logo64.png'; // Updated to use logo64.png
+  public agentAvatar = 'assets/logo64.png';
   public userAvatar: string = 'https://api.dicebear.com/8.x/initials/svg?seed=Anonymous';
   public userName: string = 'You';
   private currentUserId: string | null = null;
@@ -186,12 +187,26 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
       const aiResponse: AiResponse = await this.aiService.getChatCompletion(text, messagesHistoryForAi);
 
       if (aiResponse.toolCalls && aiResponse.toolCalls.length > 0) {
+        const toolCall = aiResponse.toolCalls[0]; // Assuming one tool call for simplicity
+        const functionName = toolCall.function.name;
+        const functionArgs = JSON.parse(toolCall.function.arguments);
+        let humanReadableText = '';
+
+        if (functionName === 'add_to_shopping_list') {
+          humanReadableText = `Adding "${functionArgs.product_name}" by "${functionArgs.brand || 'Unknown Brand'}" to your shopping list.`;
+        } else if (functionName === 'add_to_food_diary') {
+          humanReadableText = `Adding "${functionArgs.product_name}" by "${functionArgs.brand || 'Unknown Brand'}" to your ${functionArgs.meal_type || 'Unknown'} diary.`;
+        } else {
+          humanReadableText = `Executing tool: ${functionName}...`;
+        }
+
         this.messages.push({
           sender: 'agent',
-          text: 'Executing tool...',
+          text: 'Executing tool...', // This will be replaced by the AI's natural language response
           timestamp: new Date(),
           avatar: this.agentAvatar,
-          toolCalls: aiResponse.toolCalls
+          toolCalls: aiResponse.toolCalls,
+          humanReadableToolCall: humanReadableText // Store human-readable text
         });
       }
 
