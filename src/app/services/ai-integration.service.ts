@@ -3,7 +3,7 @@ import { environment } from '../../environments/environment';
 import { ProductDbService, Product } from './product-db.service';
 import { ProfileService } from './profile.service';
 import { PreferencesService } from './preferences.service';
-import { ShoppingListService } from './shopping-list.service';
+import { ShoppingListService, ShoppingListItem } from './shopping-list.service'; // Import ShoppingListItem
 import { FoodDiaryService, MealType } from './food-diary.service';
 import { GamificationService } from './gamification.service';
 import { NotificationService } from './notification.service';
@@ -169,7 +169,7 @@ export class AiIntegrationService {
     const badges = await firstValueFrom(this.gamificationService.badges$);
 
     const recentScansSummary = scanHistory.slice(0, 5).map(p => `${p.name} (${p.brand}, verdict: ${p.verdict})`).join('; ') || 'No recent scans.';
-    const shoppingListSummary = shoppingList.map(item => `${item.name} (${item.brand}, purchased: ${item.purchased})`).join('; ') || 'Shopping list is empty.';
+    const shoppingListSummary = shoppingList.map(item => `${item.product_name} (${item.brand}, purchased: ${item.purchased})`).join('; ') || 'Shopping list is empty.'; // Fixed: item.name to item.product_name
     
     let dailyDiarySummary = 'No diary entries for today.';
     const today = new Date().toISOString().split('T')[0];
