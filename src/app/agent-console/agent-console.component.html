@@ -1,6 +1,6 @@
 <div class="console-container">
   <div class="console-header">
-    <h2>🤖 Agent Console</h2>
+    <h2>🤖 Fat Boy Assistant</h2>
     <button (click)="clearChatHistory()" class="clear-chat-btn">Clear Chat</button>
   </div>
   <div class="message-window" #messageWindow>
@@ -15,9 +15,9 @@
             <p>{{ msg.text }}</p>
             <span class="timestamp">{{ msg.timestamp | date:'shortTime' }}</span>
           </div>
-          <div *ngIf="msg.followUpQuestions && msg.followUpQuestions.length > 0" class="follow-up-questions">
-            <button *ngFor="let question of msg.followUpQuestions" (click)="submitFollowUpQuestion(question)" class="follow-up-btn">
-              {{ question }}
+          <div *ngIf="msg.suggestedPrompts && msg.suggestedPrompts.length > 0" class="suggested-prompts">
+            <button *ngFor="let prompt of msg.suggestedPrompts" (click)="submitSuggestedPrompt(prompt)" class="suggested-prompt-btn">
+              {{ prompt }}
             </button>
           </div>
         </div>

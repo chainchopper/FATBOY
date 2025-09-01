@@ -280,7 +280,7 @@
   color: #a0a0c0;
 }
 
-.follow-up-questions {
+.suggested-prompts {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
@@ -289,7 +289,7 @@
   align-self: flex-start; /* Align with agent message */
 }
 
-.follow-up-btn {
+.suggested-prompt-btn {
   background-color: #4a4a6e;
   border: 1px solid #0abdc6;
   color: #e0e0e0;
@@ -301,7 +301,7 @@
   white-space: nowrap;
 }
 
-.follow-up-btn:hover {
+.suggested-prompt-btn:hover {
   background-color: rgba(10, 189, 198, 0.1);
   box-shadow: 0 0 10px #0abdc6;
   color: #0abdc6;

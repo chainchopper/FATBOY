@@ -12,7 +12,7 @@ import { firstValueFrom } from 'rxjs';
 
 export interface AiResponse {
   text: string;
-  followUpQuestions: string[];
+  suggestedPrompts: string[]; // Renamed from followUpQuestions
   toolCalls?: any[];
 }
 
@@ -151,7 +151,7 @@ export class AiIntegrationService {
     if (!endpoint || !this.chatModelName) {
       return {
         text: "I'm sorry, but my AI endpoint is not configured correctly in the app's environment file.",
-        followUpQuestions: []
+        suggestedPrompts: []
       };
     }
 
@@ -221,7 +221,10 @@ export class AiIntegrationService {
     1.  **Primary Goal: Answer the User's Question Directly.** Always provide a direct, concise (1-2 sentences) natural language response to the user's query.
     2.  **Tool Calls (When Appropriate):** If the user's intent clearly matches a defined tool, make the tool call. This should complement, not replace, your direct answer.
     3.  **NO Internal Reasoning in 'content':** Absolutely DO NOT include any internal thought process or reasoning in your 'content' field. Your 'content' should be purely the user-facing response.
-    4.  **Consistent Follow-up Questions:** After your direct response (and any tool calls), always conclude by generating exactly 3 relevant, diverse follow-up questions in a JSON array format, prefixed with '[FOLLOW_UP_QUESTIONS]'. These questions must be highly relevant to the *preceding conversation* and *user data*. They can suggest actions (e.g., "Would you like to add [item] to your shopping list?") but should prioritize diverse topics like nutritional facts, comparisons, health impacts, or related items.
+    4.  **Consistent Suggested Prompts:** After your direct response (and any tool calls), always conclude by generating exactly 3 relevant, diverse suggested prompts for the user to ask you, in a JSON array format, prefixed with '[SUGGESTED_PROMPTS]'. These prompts must be highly relevant to the *preceding conversation* and *user data*. They can suggest actions (e.g., "Add [item] to my shopping list") but should prioritize diverse topics like nutritional facts, comparisons, health impacts, or related items.
+    
+    **Example of Expected Output Format (after direct answer and optional tool call):**
+    "Your concise natural language response here. [SUGGESTED_PROMPTS] [\"What are the benefits of apples?\", \"How do apples compare to oranges?\", \"Add apples to my shopping list\"]"
     
     Here is the current user's context:
     ${userContext}
@@ -260,7 +263,7 @@ export class AiIntegrationService {
         console.error('Chat Completions API Error:', response.status, errorBody);
         return {
           text: `Sorry, I encountered an error (${response.status}) while contacting my brain. Please check the server logs.`,
-          followUpQuestions: []
+          suggestedPrompts: []
         };
       }
 
@@ -366,7 +369,7 @@ export class AiIntegrationService {
           console.error('Tool Response API Error:', toolResponse.status, errorBody);
           return {
             text: `Sorry, I encountered an error processing the tool call.`,
-            followUpQuestions: []
+            suggestedPrompts: []
           };
         }
 
@@ -375,8 +378,8 @@ export class AiIntegrationService {
         
         // Parse tool response for follow-up questions
         let mainText = toolResponseMessage;
-        let followUpQuestions: string[] = [];
-        const marker = '[FOLLOW_UP_QUESTIONS]';
+        let suggestedPrompts: string[] = [];
+        const marker = '[SUGGESTED_PROMPTS]';
         const markerIndex = toolResponseMessage.indexOf(marker);
 
         if (markerIndex !== -1) {
@@ -388,23 +391,23 @@ export class AiIntegrationService {
             try {
               const parsedQuestions = JSON.parse(match[1]);
               if (Array.isArray(parsedQuestions) && parsedQuestions.every(q => typeof q === 'string')) {
-                followUpQuestions = parsedQuestions.slice(0, 3);
+                suggestedPrompts = parsedQuestions.slice(0, 3);
               }
             } catch (jsonError) {
-              console.warn('Failed to parse follow-up questions JSON from tool response:', jsonError);
+              console.warn('Failed to parse suggested prompts JSON from tool response:', jsonError);
             }
           }
         }
         // Removed the specific cleanup for "Your main response goes here." as the system message is now much stricter.
-        return { text: mainText, followUpQuestions, toolCalls: choice.message.tool_calls };
+        return { text: mainText, suggestedPrompts, toolCalls: choice.message.tool_calls };
       }
       // --- End Handle Tool Calls ---
 
       let fullResponseText = choice.message.content;
       let mainText = fullResponseText;
-      let followUpQuestions: string[] = [];
+      let suggestedPrompts: string[] = [];
 
-      const marker = '[FOLLOW_UP_QUESTIONS]';
+      const marker = '[SUGGESTED_PROMPTS]';
       const markerIndex = fullResponseText.indexOf(marker);
 
       if (markerIndex !== -1) {
@@ -419,32 +422,32 @@ export class AiIntegrationService {
           try {
             const parsedQuestions = JSON.parse(jsonString);
             if (Array.isArray(parsedQuestions) && parsedQuestions.every(q => typeof q === 'string')) {
-              followUpQuestions = parsedQuestions.slice(0, 3);
+              suggestedPrompts = parsedQuestions.slice(0, 3);
             } else {
-              console.warn('Parsed follow-up questions are not an array of strings or not in expected format:', parsedQuestions);
+              console.warn('Parsed suggested prompts are not an array of strings or not in expected format:', parsedQuestions);
               mainText = fullResponseText;
-              followUpQuestions = [];
+              suggestedPrompts = [];
             }
           } catch (jsonError) {
-            console.warn('Failed to parse follow-up questions JSON:', jsonError);
+            console.warn('Failed to parse suggested prompts JSON:', jsonError);
             mainText = fullResponseText;
-            followUpQuestions = [];
+            suggestedPrompts = [];
           }
         } else {
-          console.warn('Could not find a valid JSON array after the FOLLOW_UP_QUESTIONS marker.');
+          console.warn('Could not find a valid JSON array after the SUGGESTED_PROMPTS marker.');
           mainText = fullResponseText;
-          followUpQuestions = [];
+          suggestedPrompts = [];
         }
       }
 
       // Removed the specific cleanup for "Your main response goes here." as the system message is now much stricter.
-      return { text: mainText, followUpQuestions };
+      return { text: mainText, suggestedPrompts };
 
     } catch (error) {
       console.error('Network or other error calling Chat Completions API:', error);
       return {
         text: "Sorry, I couldn't connect to the AI service. Please ensure the model server is running and accessible from your browser.",
-        followUpQuestions: []
+        suggestedPrompts: []
       };
     }
   }
