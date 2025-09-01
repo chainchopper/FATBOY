@@ -306,8 +306,7 @@ export class AiIntegrationService {
               if (productToAdd.name && productToAdd.brand && functionArgs.meal_type) {
                 // AWAIT here to ensure it's added before proceeding
                 await this.foodDiaryService.addEntry(productToAdd, functionArgs.meal_type as MealType);
-                this.notificationService.showSuccess(`${productToAdd.name} added to your ${functionArgs.meal_type} diary!`);
-                this.audioService.playSuccessSound();
+                // Notification and audio are handled by the service itself
                 toolOutput = `Successfully added "${productToAdd.name}" to food diary for ${functionArgs.meal_type}.`;
               } else {
                 toolOutput = `Failed to add to food diary: Missing product name, brand, or meal type.`;
@@ -319,8 +318,7 @@ export class AiIntegrationService {
               if (productToAdd.name && productToAdd.brand) {
                 // AWAIT here to ensure it's added before proceeding
                 await this.shoppingListService.addItem(productToAdd);
-                this.notificationService.showSuccess(`${productToAdd.name} added to your shopping list!`);
-                this.audioService.playSuccessSound();
+                // Notification and audio are handled by the service itself
                 toolOutput = `Successfully added "${productToAdd.name}" to shopping list.`;
               } else {
                 toolOutput = `Failed to add to shopping list: Missing product name or brand.`;
