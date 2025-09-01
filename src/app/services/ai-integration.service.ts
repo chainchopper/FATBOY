@@ -1,17 +1,17 @@
 import { Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
-import { ProductDbService, Product } from './product-db.service'; // Import Product
+import { ProductDbService, Product } from './product-db.service';
 import { ProfileService } from './profile.service';
 import { PreferencesService } from './preferences.service';
 import { ShoppingListService } from './shopping-list.service';
-import { FoodDiaryService, MealType } from './food-diary.service'; // Import MealType
+import { FoodDiaryService, MealType } from './food-diary.service';
 import { GamificationService } from './gamification.service';
 import { firstValueFrom } from 'rxjs';
 
 export interface AiResponse {
   text: string;
   followUpQuestions: string[];
-  toolCalls?: any[]; // New: to hold tool calls from the AI
+  toolCalls?: any[];
 }
 
 @Injectable({
@@ -21,7 +21,7 @@ export class AiIntegrationService {
 
   private apiBaseUrl = environment.openaiApiBaseUrl;
   private apiKey = environment.openaiApiKey;
-  private chatModelName = environment.visionModelName;
+  private chatModelName = environment.chatModelName; // Updated to use chatModelName
   private embeddingModelName = environment.embeddingModelName;
 
   // Store the last product discussed for easy tool integration
