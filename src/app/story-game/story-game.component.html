@@ -1,8 +1,0 @@
-<div class="story-game">
-  <h2>{{ currentStory.text }}</h2>
-  <div *ngFor="let choice of currentStory.choices">
-    <button (click)="choose(choice.nextStoryId)">
-      {{ choice.text }}
-    </button>
-  </div>
-</div>

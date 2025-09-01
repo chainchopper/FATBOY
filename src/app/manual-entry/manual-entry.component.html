@@ -1,0 +1,28 @@
+<div class="manual-entry-container">
+  <h2>Manually Add a Product</h2>
+  <p>Enter the details of a product to add it to your history and lists.</p>
+
+  <form (ngSubmit)="submitProduct()" class="entry-form">
+    <div class="form-group">
+      <label for="productName">Product Name</label>
+      <input type="text" id="productName" [(ngModel)]="productData.name" name="productName" required placeholder="e.g., Organic Berry Granola">
+    </div>
+    
+    <div class="form-group">
+      <label for="brand">Brand</label>
+      <input type="text" id="brand" [(ngModel)]="productData.brand" name="brand" required placeholder="e.g., Nature's Best">
+    </div>
+    
+    <div class="form-group">
+      <label for="ingredients">Ingredients (comma separated)</label>
+      <textarea id="ingredients" [(ngModel)]="productData.ingredients" name="ingredients" rows="4" required placeholder="e.g., Organic Oats, Dried Berries, Maple Syrup"></textarea>
+    </div>
+    
+    <div class="form-group">
+      <label for="calories">Calories per Serving (optional)</label>
+      <input type="number" id="calories" [(ngModel)]="productData.calories" name="calories" placeholder="e.g., 150">
+    </div>
+    
+    <button type="submit" class="submit-btn">Analyze & Save Product</button>
+  </form>
+</div>

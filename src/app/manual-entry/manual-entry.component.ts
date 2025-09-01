@@ -1,49 +1,60 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
+import { ProductDbService, Product } from '../services/product-db.service';
+import { IngredientParserService } from '../services/ingredient-parser.service';
+import { NotificationService } from '../services/notification.service';
 
 @Component({
   selector: 'app-manual-entry',
   standalone: true,
-  imports: [CommonModule],
-  template: `
-    <div class="manual-entry-container">
-      <h2>Manual Entry (Coming Soon!)</h2>
-      <p>Enter product details manually to add them to your lists.</p>
-      <div class="placeholder-content">
-        <span class="icon">✍️</span>
-        <p>This feature is under development. Stay tuned for easy manual data input!</p>
-      </div>
-    </div>
-  `,
-  styles: [`
-    .manual-entry-container {
-      max-width: 800px;
-      margin: 2rem auto;
-      padding: 20px;
-      color: #e0e0e0;
-      text-align: center;
-    }
-    h2 {
-      color: #0abdc6;
-      text-shadow: 0 0 8px #0abdc6;
-      margin-bottom: 1rem;
-    }
-    p {
-      color: #a0a0c0;
-      margin-bottom: 2rem;
-    }
-    .placeholder-content {
-      background: rgba(15, 15, 30, 0.8);
-      border: 1px solid #f038ff;
-      border-radius: 12px;
-      padding: 40px;
-      box-shadow: 0 0 25px rgba(240, 56, 255, 0.5);
-    }
-    .icon {
-      font-size: 4rem;
-      display: block;
-      margin-bottom: 20px;
-    }
-  `]
+  imports: [CommonModule, FormsModule],
+  templateUrl: './manual-entry.component.html',
+  styleUrls: ['./manual-entry.component.css']
 })
-export class ManualEntryComponent {}
+export class ManualEntryComponent {
+  productData = {
+    name: '',
+    brand: '',
+    ingredients: '',
+    calories: null as number | null
+  };
+
+  constructor(
+    private router: Router,
+    private productDb: ProductDbService,
+    private ingredientParser: IngredientParserService,
+    private notificationService: NotificationService
+  ) {}
+
+  submitProduct() {
+    if (!this.productData.name || !this.productData.brand || !this.productData.ingredients) {
+      this.notificationService.showError('Please fill out all required fields.');
+      return;
+    }
+
+    const ingredientsArray = this.productData.ingredients.split(',').map(i => i.trim()).filter(i => i.length > 0);
+    const preferences = JSON.parse(localStorage.getItem('fatBoyPreferences_anonymous') || '{}');
+    
+    const evaluation = this.ingredientParser.evaluateProduct(ingredientsArray, this.productData.calories || undefined, preferences);
+    const categories = this.ingredientParser.categorizeProduct(ingredientsArray);
+
+    const newProduct: Omit<Product, 'id' | 'scanDate'> = {
+      name: this.productData.name,
+      brand: this.productData.brand,
+      ingredients: ingredientsArray,
+      calories: this.productData.calories || undefined,
+      verdict: evaluation.verdict,
+      flaggedIngredients: evaluation.flaggedIngredients.map(f => f.ingredient),
+      categories: categories,
+      image: 'https://via.placeholder.com/150?text=Manually+Added'
+    };
+
+    const savedProduct = this.productDb.addProduct(newProduct);
+
+    // Navigate to the results page to show the verdict and allow adding to lists
+    sessionStorage.setItem('viewingProduct', JSON.stringify(savedProduct));
+    this.router.navigate(['/ocr-results']);
+  }
+}
