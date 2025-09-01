@@ -178,7 +178,6 @@
 }
 
 main {
-  min-height: 100vh;
   padding-top: 70px; /* Space for fixed header */
   padding-bottom: 90px; /* Space for fixed FAB footer area */
 }

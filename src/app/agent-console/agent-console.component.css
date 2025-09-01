@@ -1,7 +1,7 @@
 .console-container {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 70px); /* Full height minus header */
+  height: calc(100vh - 160px); /* Full height minus header AND footer padding */
   background-color: #0f0f1e;
   color: #e0e0e0;
 }
