@@ -16,7 +16,9 @@ import { ProfileComponent } from './profile/profile.component';
 import { ManualEntryComponent } from './manual-entry/manual-entry.component';
 import { LeaderboardComponent } from './leaderboard/leaderboard.component';
 import { FriendsComponent } from './friends/friends.component';
-import { AgentConsoleComponent } from './agent-console/agent-console.component'; // Import new component
+import { AgentConsoleComponent } from './agent-console/agent-console.component';
+import { AdminDashboardComponent } from './admin-dashboard/admin-dashboard.component';
+import { DevConsoleComponent } from './dev-console/dev-console.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/scanner', pathMatch: 'full' },
@@ -37,5 +39,7 @@ export const routes: Routes = [
   { path: 'manual-entry', component: ManualEntryComponent, canActivate: [AuthGuard] },
   { path: 'leaderboard', component: LeaderboardComponent, canActivate: [AuthGuard] },
   { path: 'friends', component: FriendsComponent, canActivate: [AuthGuard] },
-  { path: 'console', component: AgentConsoleComponent, canActivate: [AuthGuard] } // Add new route
+  { path: 'console', component: AgentConsoleComponent, canActivate: [AuthGuard] },
+  { path: 'admin', component: AdminDashboardComponent, canActivate: [AuthGuard] }, // Admin route
+  { path: 'dev', component: DevConsoleComponent, canActivate: [AuthGuard] } // Dev route
 ];

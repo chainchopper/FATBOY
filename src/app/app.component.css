@@ -40,19 +40,14 @@
 }
 
 .logo-container {
-  grid-column: 2;
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  grid-column: 1;
+  justify-self: start;
   cursor: pointer;
-  transition: transform 0.2s ease-in-out;
-}
-
-.logo-container:hover {
-  transform: scale(1.05);
 }
 
 .app-title {
+  grid-column: 2;
+  justify-self: center;
   font-family: 'Righteous', cursive;
   font-size: 1.75rem;
   animation: neon-flicker 5s infinite alternate ease-in-out;
