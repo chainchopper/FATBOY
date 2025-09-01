@@ -10,7 +10,6 @@ interface Message {
   text: string;
   timestamp: Date;
   avatar: string;
-  status?: 'online' | 'offline';
 }
 
 interface SlashCommand {
@@ -59,8 +58,7 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
       sender: 'agent',
       text: 'Hello! I am Fat Boy, your personal AI co-pilot, powered by NIRVANA from Fanalogy. How can I help you today?',
       timestamp: new Date(),
-      avatar: 'assets/logo.png',
-      status: this.agentStatus
+      avatar: 'assets/logo.png'
     });
 
     this.speechSubscription = this.speechService.commandRecognized.subscribe(transcript => {
@@ -83,9 +81,6 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
   async checkStatus() {
     const isOnline = await this.aiService.checkAgentStatus();
     this.agentStatus = isOnline ? 'online' : 'offline';
-    if (this.messages.length > 0) {
-      this.messages[0].status = this.agentStatus;
-    }
   }
 
   toggleVoiceListening() {
@@ -123,9 +118,9 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
 
     try {
       const responseText = await this.aiService.getChatCompletion(text);
-      this.messages.push({ sender: 'agent', text: responseText, timestamp: new Date(), avatar: 'assets/logo.png', status: this.agentStatus });
+      this.messages.push({ sender: 'agent', text: responseText, timestamp: new Date(), avatar: 'assets/logo.png' });
     } catch (error) {
-      this.messages.push({ sender: 'agent', text: 'Sorry, I encountered an error. Please try again.', timestamp: new Date(), avatar: 'assets/logo.png', status: this.agentStatus });
+      this.messages.push({ sender: 'agent', text: 'Sorry, I encountered an error. Please try again.', timestamp: new Date(), avatar: 'assets/logo.png' });
     } finally {
       this.isAgentTyping = false;
     }
