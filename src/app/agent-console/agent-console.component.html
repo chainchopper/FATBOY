@@ -1,0 +1,27 @@
+<div class="console-container">
+  <div class="message-window">
+    <div *ngFor="let msg of messages" class="message" [ngClass]="'message-' + msg.sender">
+      <div class="message-bubble">
+        <p>{{ msg.text }}</p>
+        <span class="timestamp">{{ msg.timestamp | date:'shortTime' }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="input-area">
+    <div *ngIf="showSlashCommands" class="slash-command-popup">
+      <div *ngFor="let cmd of filteredCommands" class="command-item" (click)="selectCommand(cmd)">
+        <strong>{{ cmd.command }}</strong>
+        <span>{{ cmd.description }}</span>
+      </div>
+    </div>
+    <textarea 
+      [(ngModel)]="userInput" 
+      (ngModelChange)="handleInput()"
+      (keydown.enter)="sendMessage(); $event.preventDefault()"
+      placeholder="Type a command or message..."
+      class="input-field">
+    </textarea>
+    <button (click)="sendMessage()" class="send-btn">→</button>
+  </div>
+</div>

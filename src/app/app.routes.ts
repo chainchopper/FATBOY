@@ -13,9 +13,10 @@ import { FoodDiaryComponent } from './food-diary/food-diary.component';
 import { AuthGuard } from './guards/auth.guard';
 import { UnifiedScannerComponent } from './unified-scanner/unified-scanner.component';
 import { ProfileComponent } from './profile/profile.component';
-import { ManualEntryComponent } from './manual-entry/manual-entry.component'; // Import ManualEntryComponent
-import { LeaderboardComponent } from './leaderboard/leaderboard.component'; // Import LeaderboardComponent
-import { FriendsComponent } from './friends/friends.component'; // Import FriendsComponent
+import { ManualEntryComponent } from './manual-entry/manual-entry.component';
+import { LeaderboardComponent } from './leaderboard/leaderboard.component';
+import { FriendsComponent } from './friends/friends.component';
+import { AgentConsoleComponent } from './agent-console/agent-console.component'; // Import new component
 
 export const routes: Routes = [
   { path: '', redirectTo: '/scanner', pathMatch: 'full' },
@@ -33,7 +34,8 @@ export const routes: Routes = [
   { path: 'achievements', component: AchievementsComponent, canActivate: [AuthGuard] },
   { path: 'food-diary', component: FoodDiaryComponent, canActivate: [AuthGuard] },
   { path: 'profile', component: ProfileComponent, canActivate: [AuthGuard] },
-  { path: 'manual-entry', component: ManualEntryComponent, canActivate: [AuthGuard] }, // Add manual-entry route
-  { path: 'leaderboard', component: LeaderboardComponent, canActivate: [AuthGuard] }, // Add leaderboard route
-  { path: 'friends', component: FriendsComponent, canActivate: [AuthGuard] } // Add friends route
+  { path: 'manual-entry', component: ManualEntryComponent, canActivate: [AuthGuard] },
+  { path: 'leaderboard', component: LeaderboardComponent, canActivate: [AuthGuard] },
+  { path: 'friends', component: FriendsComponent, canActivate: [AuthGuard] },
+  { path: 'console', component: AgentConsoleComponent, canActivate: [AuthGuard] } // Add new route
 ];
