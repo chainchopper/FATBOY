@@ -35,7 +35,10 @@
 
   <div class="diary-grid">
     <div class="meal-section">
-      <h3>🍳 Breakfast</h3>
+      <div class="meal-header">
+        <h3>🍳 Breakfast</h3>
+        <button (click)="scanForMeal('Breakfast')" class="scan-meal-btn">Scan Item</button>
+      </div>
       <div *ngIf="(breakfast$ | async) as entries" class="meal-list">
         <div *ngFor="let entry of entries" class="diary-item">
           <span>{{ entry.product.name }}</span>
@@ -46,7 +49,10 @@
     </div>
 
     <div class="meal-section">
-      <h3>🥗 Lunch</h3>
+      <div class="meal-header">
+        <h3>🥗 Lunch</h3>
+        <button (click)="scanForMeal('Lunch')" class="scan-meal-btn">Scan Item</button>
+      </div>
       <div *ngIf="(lunch$ | async) as entries" class="meal-list">
         <div *ngFor="let entry of entries" class="diary-item">
           <span>{{ entry.product.name }}</span>
@@ -57,7 +63,10 @@
     </div>
 
     <div class="meal-section">
-      <h3>🍲 Dinner</h3>
+      <div class="meal-header">
+        <h3>🍲 Dinner</h3>
+        <button (click)="scanForMeal('Dinner')" class="scan-meal-btn">Scan Item</button>
+      </div>
       <div *ngIf="(dinner$ | async) as entries" class="meal-list">
         <div *ngFor="let entry of entries" class="diary-item">
           <span>{{ entry.product.name }}</span>
@@ -68,7 +77,10 @@
     </div>
 
     <div class="meal-section">
-      <h3>🍎 Snacks</h3>
+      <div class="meal-header">
+        <h3>🍎 Snacks</h3>
+        <button (click)="scanForMeal('Snack')" class="scan-meal-btn">Scan Item</button>
+      </div>
       <div *ngIf="(snacks$ | async) as entries" class="meal-list">
         <div *ngFor="let entry of entries" class="diary-item">
           <span>{{ entry.product.name }}</span>
@@ -79,7 +91,10 @@
     </div>
 
     <div class="meal-section">
-      <h3>🥤 Drinks</h3>
+      <div class="meal-header">
+        <h3>🥤 Drinks</h3>
+        <button (click)="scanForMeal('Drinks')" class="scan-meal-btn">Scan Item</button>
+      </div>
       <div *ngIf="(drinks$ | async) as entries" class="meal-list">
         <div *ngFor="let entry of entries" class="diary-item">
           <span>{{ entry.product.name }}</span>

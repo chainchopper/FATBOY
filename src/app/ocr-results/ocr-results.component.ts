@@ -5,8 +5,10 @@ import { Product } from '../services/product-db.service';
 import { IngredientParserService } from '../services/ingredient-parser.service';
 import { AudioService } from '../services/audio.service';
 import { SpeechService } from '../services/speech.service';
-import { NotificationService } from '../services/notification.service'; // Import NotificationService
-import { ProductDbService } from '../services/product-db.service'; // Import ProductDbService
+import { NotificationService } from '../services/notification.service';
+import { ProductDbService } from '../services/product-db.service';
+import { FoodDiaryService } from '../services/food-diary.service';
+import { ScanContextService } from '../services/scan-context.service';
 
 @Component({
   selector: 'app-ocr-results',
@@ -25,8 +27,10 @@ export class OcrResultsComponent implements OnInit {
     private ingredientParser: IngredientParserService,
     private audioService: AudioService,
     private speechService: SpeechService,
-    private notificationService: NotificationService, // Inject NotificationService
-    private productDb: ProductDbService // Inject ProductDbService
+    private notificationService: NotificationService,
+    private productDb: ProductDbService,
+    private foodDiaryService: FoodDiaryService,
+    private scanContextService: ScanContextService
   ) {}
 
   ngOnInit(): void {
@@ -34,6 +38,7 @@ export class OcrResultsComponent implements OnInit {
     if (productData) {
       this.product = JSON.parse(productData);
       this.evaluateProduct();
+      this.checkScanContext();
     } else {
       this.router.navigate(['/scanner']);
     }
@@ -57,6 +62,14 @@ export class OcrResultsComponent implements OnInit {
     }
   }
 
+  private checkScanContext() {
+    const mealType = this.scanContextService.getMealType();
+    if (mealType && this.product) {
+      this.foodDiaryService.addEntry(this.product, mealType);
+      this.scanContextService.clearContext();
+    }
+  }
+
   isIngredientFlagged(ingredient: string): boolean {
     return this.flaggedItems.some(fi => fi.ingredient.toLowerCase() === ingredient.toLowerCase());
   }
@@ -67,7 +80,7 @@ export class OcrResultsComponent implements OnInit {
     const savedProducts = JSON.parse(localStorage.getItem('savedProducts') || '[]');
     savedProducts.push(this.product);
     localStorage.setItem('savedProducts', JSON.stringify(savedProducts));
-    this.notificationService.showSuccess('Product saved!', 'Saved!'); // Use toast notification
+    this.notificationService.showSuccess('Product saved!', 'Saved!');
     this.speechService.speak('Product saved to your gallery!');
   }
 
@@ -95,10 +108,10 @@ export class OcrResultsComponent implements OnInit {
 
   viewRawText(): void {
     if (this.product?.ocrText) {
-      this.notificationService.showInfo(this.product.ocrText, 'Raw Text'); // Use toast notification
+      this.notificationService.showInfo(this.product.ocrText, 'Raw Text');
       this.speechService.speak('Displaying raw text.');
     } else {
-      this.notificationService.showWarning('No raw text available.', 'Info'); // Use toast notification
+      this.notificationService.showWarning('No raw text available.', 'Info');
       this.speechService.speak('No raw text available.');
     }
   }

@@ -8,6 +8,7 @@ import { ShoppingListService } from '../services/shopping-list.service';
 import { NotificationService } from '../services/notification.service';
 import { FoodDiaryService } from '../services/food-diary.service';
 import { SpeechService } from '../services/speech.service';
+import { ScanContextService } from '../services/scan-context.service';
 
 @Component({
   selector: 'app-results',
@@ -29,7 +30,8 @@ export class ResultsComponent implements OnInit {
     private shoppingListService: ShoppingListService,
     private notificationService: NotificationService,
     private foodDiaryService: FoodDiaryService,
-    private speechService: SpeechService
+    private speechService: SpeechService,
+    private scanContextService: ScanContextService
   ) {}
 
   ngOnInit() {
@@ -37,7 +39,8 @@ export class ResultsComponent implements OnInit {
     if (productData) {
       this.product = JSON.parse(productData);
       this.evaluateProduct();
-      this.addToHistory();
+      this.addToHistory(); // This also saves the product to session storage
+      this.checkScanContext();
     } else {
       this.router.navigate(['/scanner']);
     }
@@ -82,6 +85,17 @@ export class ResultsComponent implements OnInit {
 
     const saved = this.productDb.addProduct(productInfo);
     sessionStorage.setItem('viewingProduct', JSON.stringify(saved));
+  }
+
+  private checkScanContext() {
+    const mealType = this.scanContextService.getMealType();
+    if (mealType) {
+      const productFromHistory = this.productDb.getProductById(JSON.parse(sessionStorage.getItem('viewingProduct') || '{}').id);
+      if (productFromHistory) {
+        this.foodDiaryService.addEntry(productFromHistory, mealType);
+      }
+      this.scanContextService.clearContext();
+    }
   }
 
   saveProduct() {

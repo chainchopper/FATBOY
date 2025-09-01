@@ -3,6 +3,8 @@ import { CommonModule, KeyValuePipe, TitleCasePipe, DatePipe } from '@angular/co
 import { FoodDiaryService, DiaryEntry, MealType, DailyVerdict } from '../services/food-diary.service';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { ScanContextService } from '../services/scan-context.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-food-diary',
@@ -28,7 +30,11 @@ export class FoodDiaryComponent implements OnInit {
 
   currentDate: Date = new Date(); // Track the currently viewed date
 
-  constructor(private foodDiaryService: FoodDiaryService) {}
+  constructor(
+    private foodDiaryService: FoodDiaryService,
+    private scanContextService: ScanContextService,
+    private router: Router
+  ) {}
 
   ngOnInit() {
     this.loadDiaryForDate(this.currentDate);
@@ -57,6 +63,11 @@ export class FoodDiaryComponent implements OnInit {
     return this.todayEntries$.pipe(
       map(entries => entries.filter(entry => entry.meal === meal))
     );
+  }
+
+  scanForMeal(meal: MealType) {
+    this.scanContextService.setMealType(meal);
+    this.router.navigate(['/scanner']);
   }
 
   goToPreviousDay(): void {

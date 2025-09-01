@@ -177,11 +177,32 @@
   padding: 20px;
 }
 
-.meal-section h3 {
-  color: #f038ff;
+.meal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 15px;
   border-bottom: 1px solid #4a4a6e;
   padding-bottom: 10px;
+}
+
+.meal-header h3 {
+  color: #f038ff;
+  margin: 0;
+}
+
+.scan-meal-btn {
+  background: transparent;
+  border: 1px solid #0abdc6;
+  color: #0abdc6;
+  padding: 6px 12px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+.scan-meal-btn:hover {
+  background-color: rgba(10, 189, 198, 0.1);
+  box-shadow: 0 0 10px #0abdc6;
 }
 
 .diary-item {
