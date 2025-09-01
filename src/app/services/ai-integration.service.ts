@@ -161,7 +161,7 @@ export class AiIntegrationService {
         { role: 'user', content: userInput }
       ],
       temperature: 0.7,
-      max_tokens: 300,
+      max_tokens: 400, // Increased token limit by 100 characters
       stream: false
     };
 
