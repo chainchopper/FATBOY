@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewChecked, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AiIntegrationService } from '../services/ai-integration.service';
@@ -47,12 +47,13 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
 
   constructor(
     private aiService: AiIntegrationService,
-    private speechService: SpeechService
+    private speechService: SpeechService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
     this.checkStatus();
-    this.statusSubscription = interval(300000).subscribe(() => this.checkStatus()); // Check every 5 minutes
+    this.statusSubscription = interval(300000).subscribe(() => this.checkStatus());
 
     this.messages.push({
       sender: 'agent',
@@ -116,11 +117,22 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
     this.showSlashCommands = false;
     this.isAgentTyping = true;
 
+    // Create a new message for the agent's response
+    const agentMessage: Message = {
+      sender: 'agent',
+      text: '',
+      timestamp: new Date(),
+      avatar: 'assets/logo.png'
+    };
+    this.messages.push(agentMessage);
+
     try {
-      const responseText = await this.aiService.getChatCompletion(text);
-      this.messages.push({ sender: 'agent', text: responseText, timestamp: new Date(), avatar: 'assets/logo.png' });
+      await this.aiService.getChatCompletionStream(text, (chunk) => {
+        agentMessage.text += chunk;
+        this.cdr.detectChanges(); // Manually trigger change detection
+      });
     } catch (error) {
-      this.messages.push({ sender: 'agent', text: 'Sorry, I encountered an error. Please try again.', timestamp: new Date(), avatar: 'assets/logo.png' });
+      agentMessage.text = 'Sorry, I encountered an error. Please try again.';
     } finally {
       this.isAgentTyping = false;
     }
