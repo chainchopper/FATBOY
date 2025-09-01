@@ -1,6 +1,5 @@
 /**
- * Webpack configuration for Angular Component Tagging
- * This enables Select UI to Edit feature in Dyad.sh
+ * Webpack configuration for the Angular application.
  */
 
 const webpack = require('webpack');
