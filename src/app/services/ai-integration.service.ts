@@ -223,6 +223,9 @@ export class AiIntegrationService {
     3.  **NO Internal Reasoning in 'content':** Absolutely DO NOT include any internal thought process or reasoning in your 'content' field. Your 'content' should be purely the user-facing response.
     4.  **Contextual Follow-up Questions:** After your direct response (and any tool calls), always conclude by generating exactly 3 relevant follow-up questions in a JSON array format, prefixed with '[FOLLOW_UP_QUESTIONS]'. These questions must be highly relevant to the *preceding conversation* and *user data*. Limit suggestions for adding to lists/diary to **at most one** question, and only if the item was *just discussed* and not already explicitly added. Prioritize diverse questions (e.g., nutritional facts, comparisons, health impacts, related items).
     
+    **Example of Expected Output Format (after tool call or direct answer):**
+    "Your concise natural language response here. [FOLLOW_UP_QUESTIONS] [\"Question 1?\", \"Question 2?\", \"Question 3?\"]"
+    
     Here is the current user's context:
     ${userContext}
     `;
