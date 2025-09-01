@@ -1,16 +1,17 @@
 import { Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
-import { ProductDbService } from './product-db.service';
+import { ProductDbService, Product } from './product-db.service'; // Import Product
 import { ProfileService } from './profile.service';
 import { PreferencesService } from './preferences.service';
 import { ShoppingListService } from './shopping-list.service';
-import { FoodDiaryService } from './food-diary.service';
+import { FoodDiaryService, MealType } from './food-diary.service'; // Import MealType
 import { GamificationService } from './gamification.service';
 import { firstValueFrom } from 'rxjs';
 
 export interface AiResponse {
   text: string;
   followUpQuestions: string[];
+  toolCalls?: any[]; // New: to hold tool calls from the AI
 }
 
 @Injectable({
@@ -22,6 +23,9 @@ export class AiIntegrationService {
   private apiKey = environment.openaiApiKey;
   private chatModelName = environment.visionModelName;
   private embeddingModelName = environment.embeddingModelName;
+
+  // Store the last product discussed for easy tool integration
+  private lastDiscussedProduct: Product | null = null;
 
   constructor(
     private productDb: ProductDbService,
@@ -86,7 +90,59 @@ export class AiIntegrationService {
     }
   }
 
-  async getChatCompletion(userInput: string): Promise<AiResponse> {
+  // --- Tool Definitions ---
+  private tools = [
+    {
+      type: "function",
+      function: {
+        name: "add_to_food_diary",
+        description: "Adds a food product to the user's food diary for a specific meal type. Requires product name, brand, and meal type.",
+        parameters: {
+          type: "object",
+          properties: {
+            product_name: {
+              type: "string",
+              description: "The name of the food product to add."
+            },
+            brand: {
+              type: "string",
+              description: "The brand of the food product."
+            },
+            meal_type: {
+              type: "string",
+              enum: ["Breakfast", "Lunch", "Dinner", "Snack", "Drinks"],
+              description: "The meal type (e.g., Breakfast, Lunch, Dinner, Snack, Drinks)."
+            }
+          },
+          required: ["product_name", "brand", "meal_type"]
+        }
+      }
+    },
+    {
+      type: "function",
+      function: {
+        name: "add_to_shopping_list",
+        description: "Adds a food product to the user's shopping list. Requires product name and brand.",
+        parameters: {
+          type: "object",
+          properties: {
+            product_name: {
+              type: "string",
+              description: "The name of the food product to add."
+            },
+            brand: {
+              type: "string",
+              description: "The brand of the food product."
+            }
+          },
+          required: ["product_name", "brand"]
+        }
+      }
+    }
+  ];
+  // --- End Tool Definitions ---
+
+  async getChatCompletion(userInput: string, messagesHistory: any[] = []): Promise<AiResponse> {
     const endpoint = `${this.apiBaseUrl}/chat/completions`;
     if (!endpoint || !this.chatModelName) {
       return {
@@ -154,12 +210,18 @@ export class AiIntegrationService {
     ${userContext}
     `;
 
+    // Prepare messages for the API call, including history
+    const messagesForApi = [
+      { role: 'system', content: systemMessage },
+      ...messagesHistory.map(msg => ({ role: msg.sender, content: msg.text })), // Map existing history
+      { role: 'user', content: userInput }
+    ];
+
     const payload = {
       model: this.chatModelName,
-      messages: [
-        { role: 'system', content: systemMessage },
-        { role: 'user', content: userInput }
-      ],
+      messages: messagesForApi,
+      tools: this.tools, // Include tools in the payload
+      tool_choice: "auto", // Allow the model to decide whether to call a tool
       temperature: 0.7,
       max_tokens: 1024,
       stream: false
@@ -182,7 +244,106 @@ export class AiIntegrationService {
       }
 
       const data = await response.json();
-      let fullResponseText = data.choices[0].message.content;
+      const choice = data.choices[0];
+
+      // --- Handle Tool Calls ---
+      if (choice.message.tool_calls && choice.message.tool_calls.length > 0) {
+        console.log('AI suggested tool calls:', choice.message.tool_calls);
+        const toolOutputs: any[] = [];
+
+        for (const toolCall of choice.message.tool_calls) {
+          const functionName = toolCall.function.name;
+          const functionArgs = JSON.parse(toolCall.function.arguments);
+          let toolOutput = '';
+
+          switch (functionName) {
+            case 'add_to_food_diary':
+              // Simulate adding to diary
+              console.log(`Simulating: Adding "${functionArgs.product_name}" by "${functionArgs.brand}" to ${functionArgs.meal_type} diary.`);
+              toolOutput = `Successfully simulated adding "${functionArgs.product_name}" to food diary.`;
+              // In the next step, we'll replace this with actual service call
+              break;
+            case 'add_to_shopping_list':
+              // Simulate adding to shopping list
+              console.log(`Simulating: Adding "${functionArgs.product_name}" by "${functionArgs.brand}" to shopping list.`);
+              toolOutput = `Successfully simulated adding "${functionArgs.product_name}" to shopping list.`;
+              // In the next step, we'll replace this with actual service call
+              break;
+            default:
+              toolOutput = `Unknown tool: ${functionName}`;
+              console.warn(toolOutput);
+          }
+          toolOutputs.push({
+            tool_call_id: toolCall.id,
+            output: toolOutput
+          });
+        }
+
+        // Send tool outputs back to the model to get a natural language response
+        const toolResponseMessages = [
+          ...messagesForApi,
+          choice.message, // The message that contained the tool call
+          ...toolOutputs.map(output => ({
+            role: "tool",
+            tool_call_id: output.tool_call_id,
+            content: output.output
+          }))
+        ];
+
+        const toolResponsePayload = {
+          model: this.chatModelName,
+          messages: toolResponseMessages,
+          temperature: 0.7,
+          max_tokens: 1024,
+          stream: false
+        };
+
+        const toolResponse = await fetch(endpoint, {
+          method: 'POST',
+          headers: headers,
+          body: JSON.stringify(toolResponsePayload)
+        });
+
+        if (!toolResponse.ok) {
+          const errorBody = await toolResponse.text();
+          console.error('Tool Response API Error:', toolResponse.status, errorBody);
+          return {
+            text: `Sorry, I encountered an error processing the tool call.`,
+            followUpQuestions: []
+          };
+        }
+
+        const toolData = await toolResponse.json();
+        const toolResponseMessage = toolData.choices[0].message.content;
+        
+        // Parse tool response for follow-up questions
+        let mainText = toolResponseMessage;
+        let followUpQuestions: string[] = [];
+        const marker = '[FOLLOW_UP_QUESTIONS]';
+        const markerIndex = toolResponseMessage.indexOf(marker);
+
+        if (markerIndex !== -1) {
+          mainText = toolResponseMessage.substring(0, markerIndex).trim();
+          let potentialJsonString = toolResponseMessage.substring(markerIndex + marker.length).trim();
+          const jsonArrayRegex = /(\[[\s\S]*?\])/;
+          const match = potentialJsonString.match(jsonArrayRegex);
+          if (match && match[1]) {
+            try {
+              const parsedQuestions = JSON.parse(match[1]);
+              if (Array.isArray(parsedQuestions) && parsedQuestions.every(q => typeof q === 'string')) {
+                followUpQuestions = parsedQuestions.slice(0, 3);
+              }
+            } catch (jsonError) {
+              console.warn('Failed to parse follow-up questions JSON from tool response:', jsonError);
+            }
+          }
+        }
+        mainText = mainText.replace(/Your main response goes here\./g, '').trim();
+        return { text: mainText, followUpQuestions, toolCalls: choice.message.tool_calls };
+      }
+      // --- End Handle Tool Calls ---
+
+      let fullResponseText = choice.message.content;
       let mainText = fullResponseText;
       let followUpQuestions: string[] = [];
 
@@ -193,8 +354,7 @@ export class AiIntegrationService {
         mainText = fullResponseText.substring(0, markerIndex).trim();
         let potentialJsonString = fullResponseText.substring(markerIndex + marker.length).trim();
 
-        // Use a regex to find the JSON array specifically, being more robust to surrounding characters
-        const jsonArrayRegex = /(\[[\s\S]*?\])/; // '[\s\S]*?' matches any character including newlines, non-greedily
+        const jsonArrayRegex = /(\[[\s\S]*?\])/;
         const match = potentialJsonString.match(jsonArrayRegex);
 
         if (match && match[1]) {
@@ -205,26 +365,21 @@ export class AiIntegrationService {
               followUpQuestions = parsedQuestions.slice(0, 3);
             } else {
               console.warn('Parsed follow-up questions are not an array of strings or not in expected format:', parsedQuestions);
-              // If parsing succeeds but it's not the expected format, treat the whole thing as text
               mainText = fullResponseText;
               followUpQuestions = [];
             }
           } catch (jsonError) {
             console.warn('Failed to parse follow-up questions JSON:', jsonError);
-            // If JSON parsing fails, treat the whole thing as text
             mainText = fullResponseText;
             followUpQuestions = [];
           }
         } else {
           console.warn('Could not find a valid JSON array after the FOLLOW_UP_QUESTIONS marker.');
-          // If regex fails to find the array, treat the whole thing as text
           mainText = fullResponseText;
           followUpQuestions = [];
         }
       }
 
-      // Remove the literal example text from the main response if it somehow still appears
-      // Changed example text, so this cleanup is now more specific and less likely to remove valid content.
       mainText = mainText.replace(/Your main response goes here\./g, '').trim();
 
       return { text: mainText, followUpQuestions };
@@ -236,5 +391,14 @@ export class AiIntegrationService {
         followUpQuestions: []
       };
     }
+  }
+
+  // Method to set the last discussed product (e.g., after a scan or OCR result)
+  setLastDiscussedProduct(product: Product | null): void {
+    this.lastDiscussedProduct = product;
+  }
+
+  getLastDiscussedProduct(): Product | null {
+    return this.lastDiscussedProduct;
   }
 }

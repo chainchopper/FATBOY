@@ -5,15 +5,16 @@ import { AiIntegrationService, AiResponse } from '../services/ai-integration.ser
 import { SpeechService } from '../services/speech.service';
 import { AuthService } from '../services/auth.service';
 import { PreferencesService } from '../services/preferences.service';
-import { ProfileService } from '../services/profile.service'; // Import ProfileService
+import { ProfileService } from '../services/profile.service';
 import { Subscription, interval } from 'rxjs';
 
 interface Message {
-  sender: 'user' | 'agent';
+  sender: 'user' | 'agent' | 'tool'; // Added 'tool' sender
   text: string;
   timestamp: Date;
   avatar: string;
   followUpQuestions?: string[];
+  toolCalls?: any[]; // New: to store tool calls made by the agent
 }
 
 interface SlashCommand {
@@ -43,8 +44,8 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
   private authSubscription!: Subscription;
   private preferencesSubscription!: Subscription;
   public agentAvatar = 'https://api.dicebear.com/8.x/bottts-neutral/svg?seed=nirvana';
-  public userAvatar: string = 'https://api.dicebear.com/8.x/initials/svg?seed=Anonymous'; // Default user avatar
-  public userName: string = 'You'; // Default user name
+  public userAvatar: string = 'https://api.dicebear.com/8.x/initials/svg?seed=Anonymous';
+  public userName: string = 'You';
   private currentUserId: string | null = null;
   
   availableCommands: SlashCommand[] = [
@@ -60,7 +61,7 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
     private speechService: SpeechService,
     private authService: AuthService,
     private preferencesService: PreferencesService,
-    private profileService: ProfileService, // Inject ProfileService
+    private profileService: ProfileService,
     private cdr: ChangeDetectorRef
   ) {}
 
@@ -74,7 +75,6 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
       if (this.currentUserId !== previousUserId) {
         this.loadChatHistory();
       }
-      // Update user avatar and name based on current user and profile
       if (user) {
         this.profileService.getProfile().subscribe(profile => {
           if (profile) {
@@ -159,13 +159,33 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
     const text = this.userInput.trim();
     if (!text) return;
 
-    this.messages.push({ sender: 'user', text, timestamp: new Date(), avatar: this.userAvatar }); // Use userAvatar
+    this.messages.push({ sender: 'user', text, timestamp: new Date(), avatar: this.userAvatar });
     this.userInput = '';
     this.showSlashCommands = false;
     this.isAgentTyping = true;
 
+    // Prepare messages history for the AI, excluding the initial greeting if it's the first message
+    const messagesHistoryForAi = this.messages.slice(1).map(msg => ({ // Exclude initial greeting
+      role: msg.sender === 'agent' ? 'assistant' : msg.sender,
+      content: msg.text,
+      ...(msg.toolCalls && { tool_calls: msg.toolCalls }) // Include tool calls if present
+    }));
+
     try {
-      const aiResponse: AiResponse = await this.aiService.getChatCompletion(text);
+      const aiResponse: AiResponse = await this.aiService.getChatCompletion(text, messagesHistoryForAi);
+
+      // If AI suggested tool calls, add them to the message history
+      if (aiResponse.toolCalls && aiResponse.toolCalls.length > 0) {
+        this.messages.push({
+          sender: 'agent',
+          text: 'Executing tool...', // Placeholder message
+          timestamp: new Date(),
+          avatar: this.agentAvatar,
+          toolCalls: aiResponse.toolCalls // Store the tool calls
+        });
+        // The actual tool output and final natural language response will come in the next AI call
+      }
+
       this.messages.push({
         sender: 'agent',
         text: aiResponse.text,

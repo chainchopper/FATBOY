@@ -306,3 +306,14 @@
   box-shadow: 0 0 10px #0abdc6;
   color: #0abdc6;
 }
+
+.tool-call-indicator {
+  background-color: rgba(10, 189, 198, 0.1);
+  border: 1px solid #0abdc6;
+  color: #0abdc6;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  margin-top: 5px;
+  align-self: flex-start;
+}

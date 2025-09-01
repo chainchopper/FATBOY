@@ -10,7 +10,7 @@
           <img [src]="msg.avatar" alt="Agent Avatar" class="avatar">
           <div class="status-dot" [ngClass]="agentStatus"></div>
         </div>
-        <div class="agent-content"> <!-- Container for message bubble and questions -->
+        <div class="agent-content">
           <div class="message-bubble">
             <p>{{ msg.text }}</p>
             <span class="timestamp">{{ msg.timestamp | date:'shortTime' }}</span>
@@ -32,13 +32,20 @@
           <img [src]="msg.avatar" alt="User Avatar" class="avatar">
         </div>
       </ng-container>
+      
+      <!-- Display tool calls if present in an agent message -->
+      <ng-container *ngIf="msg.sender === 'agent' && msg.toolCalls && msg.toolCalls.length > 0">
+        <div class="tool-call-indicator">
+          ⚙️ Executing: {{ msg.toolCalls[0].function.name }}...
+        </div>
+      </ng-container>
     </div>
     <div *ngIf="isAgentTyping" class="message message-agent">
        <div class="avatar-container">
         <img [src]="agentAvatar" alt="Agent Avatar" class="avatar">
         <div class="status-dot" [ngClass]="agentStatus"></div>
       </div>
-      <div class="agent-content"> <!-- Container for typing indicator -->
+      <div class="agent-content">
         <div class="message-bubble typing-indicator">
           <span></span><span></span><span></span>
         </div>
