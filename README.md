@@ -25,36 +25,35 @@ In a world saturated with confusing food labels and hidden ingredients, Fat Boy 
 
 ## ✨ Features Deep Dive
 
-### 📱 The Core Loop: Dual-Mode Scanning
-At the heart of Fat Boy is a powerful, dual-mode scanning system designed for speed and versatility.
--   **📄 Label Scan (OCR):** The default and most powerful mode. Using **Tesseract.js**, the app performs live Optical Character Recognition on a product's ingredient list. It's perfect for items without barcodes, like fresh bakery goods or produce from a local market.
--   **barcode Barcode Scan:** For packaged goods, the barcode scanner offers a lightning-fast way to retrieve product information from our database, powered by the Open Food Facts API.
+### 🤖 The Command Center: Your AI Agent Console
+Interact directly with the app's AI through a sleek, chat-like interface. Use intuitive **slash commands** to get instant insights and perform powerful actions.
+-   **/suggest:** Get personalized product recommendations based on your history.
+-   **/summarize:** Receive a concise summary of your recent dietary activity.
+-   **/find `[ingredient]`:** Instantly search the community database for products containing a specific ingredient.
+-   **/playwright `[test]`:** (For developers) Trigger end-to-end tests directly from the app.
+
+### 📱 The Core Loop: Unified Intelligent Scanner
+The heart of Fat Boy is a powerful, full-screen scanning experience. The intelligent camera automatically detects what you're pointing at—be it a **barcode, an ingredient label, or a full receipt**—and analyzes it in real-time.
+-   **Full-Screen Immersive UI:** The camera feed fills the entire screen, with a semi-transparent header and footer for an unobstructed, futuristic feel.
+-   **Multi-Target Detection:** Seamlessly switch between scanning barcodes for instant database lookups and capturing labels or receipts for detailed OCR analysis.
 
 ### 🧠 The Brain: Your Personal AI Rule Engine
-Fanalogy isn't just a scanner; it's a decision engine. The verdict you receive is not a generic "healthy" or "unhealthy" rating. It's a personalized judgment based on a sophisticated set of rules that you control.
--   **Fully Customizable:** On the **Preferences** screen, you can fine-tune your "avoid list." Toggle switches for common offenders like Artificial Sweeteners, High-Fructose Corn Syrup, MSG, and more.
--   **Set Your Limits:** Use a slider to define your maximum calories per serving.
--   **Goal-Oriented:** Choose a primary goal—like "Strictly Natural" or "Calorie Count"—to help the engine prioritize its analysis.
+Fat Boy's verdict is not a generic "healthy" or "unhealthy" rating. It's a personalized judgment based on a sophisticated set of rules that you control.
+-   **Granular Ingredient Control:** Fine-tune your "avoid list" by selecting from dozens of pre-defined ingredients across categories like Artificial Sweeteners, Preservatives, and more.
+-   **Custom Avoid List:** Manually add any ingredient you want to avoid for truly personalized analysis.
+-   **Set Your Limits:** Use sliders to define your maximum calories per serving and your overall daily calorie target.
 
-### 💾 The Arsenal: Your Personal Food Archive
-Approved products aren't just a memory; they're an asset. The **Saved Products** page is a beautiful, interactive gallery of every item that has met your standards.
--   **Visual Gallery:** Each saved product is displayed as a card with its image, name, and brand.
--   **Interactive Actions:** Each card features an action bar with icons to **Star** (favorite), **Share**, or **Remove** the item. This is the foundation for future AI-powered nutritional analysis and sharing features.
+### 🤝 The Alliance: Interactive Community Feed
+Contribute to a global database of food products and see what others are discovering in a dynamic, social feed.
+-   **Contribute from History:** Effortlessly share products from your scan history. The app pre-fills all the information for you.
+-   **Social Engagement:** **Like** and **comment** on contributions from other users.
+-   **Shareable Metadata:** When you contribute, you can choose to attach metadata like your username, health goal, and leaderboard rank, which are all configurable in your privacy settings.
 
-### 🏆 The Challenge: Gamified Progress & Achievements
-Making healthy choices should be rewarding. Fanalogy includes a full-fledged gamification system to keep you motivated.
--   **Unlock Badges:** Earn achievements for milestones like your first scan, saving an approved product, or contributing to the community.
--   **Achievements Page:** A dedicated screen displays all possible badges. Unlocked achievements are vibrant and glowing, while locked ones are grayed out, showing you what to aim for next.
-
-### 🛒 The Strategy: Smart Shopping & Scan History
-Fanalogy helps you plan your next grocery run and learn from your past choices.
--   **Shopping List:** Add any approved product to your shopping list directly from the results or saved products pages. On the **Shopping List** page, you can check off items as you shop or clear the list.
--   **Comprehensive History:** Every scan, good or bad, is automatically logged to your **History** page. You can review past verdicts, see which ingredients are most frequently flagged, and filter your history by category.
-
-### 🤝 The Alliance: Community-Powered Database
-A single agent is strong, but a network is unstoppable. The **Community** page allows you to contribute to the Fanalogy database.
--   **Submit New Products:** If you scan a product that isn't in our database, you can easily submit its name, brand, and ingredients.
--   **Earn Rewards:** Contributing to the community is a key way to unlock exclusive achievements.
+### 🏆 The Challenge: Gamified Progress & Social Leaderboards
+Making healthy choices should be rewarding. Fat Boy includes a full-fledged gamification system to keep you motivated.
+-   **Earn Points & Achievements:** Gain points for scanning products, adding healthy items to your lists, and contributing to the community. Unlock badges for reaching key milestones.
+-   **Compete on the Leaderboard:** See how you stack up against the global community and your friends.
+-   **Friends System:** Add friends, see their activity, and engage in friendly competition.
 
 ---
 
@@ -62,9 +61,11 @@ A single agent is strong, but a network is unstoppable. The **Community** page a
 
 -   **Frontend:** Angular & TypeScript
 -   **Styling:** Custom CSS with a Cyberpunk Aesthetic
--   **Authentication:** Supabase (OAuth for Google, Facebook, etc.)
+-   **Authentication & DB:** Supabase
 -   **OCR:** Tesseract.js
 -   **Notifications:** ngx-toastr
+-   **On-Device AI:** ONNX Runtime Web
+-   **Cloud AI:** Hugging Face Inference
 -   **Deployment:** Docker & Nginx
 
 ## 🏁 Getting Started
