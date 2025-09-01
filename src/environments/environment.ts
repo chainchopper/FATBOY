@@ -1,14 +1,20 @@
+// NOTE: The build system has been reverted to the standard Angular builder to fix compilation errors.
+// Environment variables from .env are no longer automatically injected.
+// You will need to manage your keys and endpoints here manually for now.
+
 export const environment = {
   production: false,
-  ttsApiEndpoint: process.env['TTS_API_ENDPOINT'],
-  ttsApiKey: process.env['TTS_API_KEY'],
-  suggestionsApiEndpoint: process.env['SUGGESTIONS_API_ENDPOINT'],
-  suggestionsApiKey: process.env['SUGGESTIONS_API_KEY'],
-  metadataApiEndpoint: process.env['METADATA_API_ENDPOINT'],
-  metadataApiKey: process.env['METADATA_API_KEY'],
   
-  // New OpenAI-like service config
-  openaiApiBaseUrl: process.env['OPENAI_API_BASE_URL'],
-  openaiApiKey: process.env['OPENAI_API_KEY'],
-  visionModelName: process.env['VISION_MODEL_NAME']
+  // Specialized services (replace with your actual values)
+  ttsApiEndpoint: "https://your-tts-api.com/synthesize",
+  ttsApiKey: "your_tts_api_key_here",
+  suggestionsApiEndpoint: "https://your-suggestions-agent.com/generate",
+  suggestionsApiKey: "your_suggestions_api_key_here",
+  metadataApiEndpoint: "https://your-metadata-scraper.com/fetch",
+  metadataApiKey: "your_metadata_api_key_here",
+  
+  // OpenAI-like service config (replace with your actual values)
+  openaiApiBaseUrl: "http://api.blacknation.io:8981/v1",
+  openaiApiKey: "your_openai_compatible_api_key",
+  visionModelName: "moondream2"
 };

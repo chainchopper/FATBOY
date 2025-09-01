@@ -36,11 +36,8 @@
       "prefix": "app",
       "architect": {
         "build": {
-          "builder": "@angular-builders/custom-webpack:browser",
+          "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "customWebpackConfig": {
-              "path": "./webpack.config.js"
-            },
             "outputPath": "dist/fanalogy-angular-template",
             "index": "src/index.html",
             "main": "src/main.ts",
@@ -50,7 +47,12 @@
             "tsConfig": "tsconfig.app.json",
             "assets": [
               "src/favicon.ico",
-              "src/assets"
+              "src/assets",
+              {
+                "glob": "*.wasm",
+                "input": "node_modules/onnxruntime-web/dist/",
+                "output": "./"
+              }
             ],
             "styles": [
               "src/styles.css"
@@ -82,7 +84,7 @@
           "defaultConfiguration": "production"
         },
         "serve": {
-          "builder": "@angular-builders/custom-webpack:dev-server",
+          "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
             "port": 3000
           },
