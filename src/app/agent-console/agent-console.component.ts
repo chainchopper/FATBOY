@@ -3,12 +3,14 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AiIntegrationService } from '../services/ai-integration.service';
 import { SpeechService } from '../services/speech.service';
-import { Subscription } from 'rxjs';
+import { Subscription, interval } from 'rxjs';
 
 interface Message {
   sender: 'user' | 'agent';
   text: string;
   timestamp: Date;
+  avatar: string;
+  status?: 'online' | 'offline';
 }
 
 interface SlashCommand {
@@ -32,7 +34,9 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
   showSlashCommands = false;
   isAgentTyping = false;
   isListening = false;
+  agentStatus: 'online' | 'offline' = 'offline';
   private speechSubscription!: Subscription;
+  private statusSubscription!: Subscription;
   
   availableCommands: SlashCommand[] = [
     { command: '/suggest', description: 'Get a personalized product suggestion.', usage: '/suggest' },
@@ -48,10 +52,15 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
   ) {}
 
   ngOnInit() {
+    this.checkStatus();
+    this.statusSubscription = interval(300000).subscribe(() => this.checkStatus()); // Check every 5 minutes
+
     this.messages.push({
       sender: 'agent',
       text: 'Hello! I am Fat Boy, your personal AI co-pilot, powered by NIRVANA from Fanalogy. How can I help you today?',
-      timestamp: new Date()
+      timestamp: new Date(),
+      avatar: 'assets/logo.png',
+      status: this.agentStatus
     });
 
     this.speechSubscription = this.speechService.commandRecognized.subscribe(transcript => {
@@ -62,14 +71,21 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
   }
 
   ngOnDestroy() {
-    if (this.speechSubscription) {
-      this.speechSubscription.unsubscribe();
-    }
+    if (this.speechSubscription) this.speechSubscription.unsubscribe();
+    if (this.statusSubscription) this.statusSubscription.unsubscribe();
     this.speechService.stopListening();
   }
 
   ngAfterViewChecked() {
     this.scrollToBottom();
+  }
+
+  async checkStatus() {
+    const isOnline = await this.aiService.checkAgentStatus();
+    this.agentStatus = isOnline ? 'online' : 'offline';
+    if (this.messages.length > 0) {
+      this.messages[0].status = this.agentStatus;
+    }
   }
 
   toggleVoiceListening() {
@@ -100,16 +116,16 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
     const text = this.userInput.trim();
     if (!text) return;
 
-    this.messages.push({ sender: 'user', text, timestamp: new Date() });
+    this.messages.push({ sender: 'user', text, timestamp: new Date(), avatar: '' });
     this.userInput = '';
     this.showSlashCommands = false;
     this.isAgentTyping = true;
 
     try {
       const responseText = await this.aiService.getChatCompletion(text);
-      this.messages.push({ sender: 'agent', text: responseText, timestamp: new Date() });
+      this.messages.push({ sender: 'agent', text: responseText, timestamp: new Date(), avatar: 'assets/logo.png', status: this.agentStatus });
     } catch (error) {
-      this.messages.push({ sender: 'agent', text: 'Sorry, I encountered an error. Please try again.', timestamp: new Date() });
+      this.messages.push({ sender: 'agent', text: 'Sorry, I encountered an error. Please try again.', timestamp: new Date(), avatar: 'assets/logo.png', status: this.agentStatus });
     } finally {
       this.isAgentTyping = false;
     }

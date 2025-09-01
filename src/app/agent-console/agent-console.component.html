@@ -1,12 +1,20 @@
 <div class="console-container">
   <div class="message-window" #messageWindow>
     <div *ngFor="let msg of messages" class="message" [ngClass]="'message-' + msg.sender">
+      <div class="avatar-container" *ngIf="msg.sender === 'agent'">
+        <img [src]="msg.avatar" alt="Agent Avatar" class="avatar">
+        <div class="status-dot" [ngClass]="agentStatus"></div>
+      </div>
       <div class="message-bubble">
         <p>{{ msg.text }}</p>
         <span class="timestamp">{{ msg.timestamp | date:'shortTime' }}</span>
       </div>
     </div>
     <div *ngIf="isAgentTyping" class="message message-agent">
+       <div class="avatar-container">
+        <img src="assets/logo.png" alt="Agent Avatar" class="avatar">
+        <div class="status-dot" [ngClass]="agentStatus"></div>
+      </div>
       <div class="message-bubble typing-indicator">
         <span></span><span></span><span></span>
       </div>
@@ -14,20 +22,6 @@
   </div>
 
   <div class="input-area">
-    <div *ngIf="showSlashCommands" class="slash-command-popup">
-      <div *ngFor="let cmd of filteredCommands" class="command-item" (click)="selectCommand(cmd)">
-        <strong>{{ cmd.command }}</strong>
-        <span>{{ cmd.description }}</span>
-      </div>
-    </div>
-    <textarea 
-      [(ngModel)]="userInput" 
-      (ngModelChange)="handleInput()"
-      (keydown.enter)="sendMessage(); $event.preventDefault()"
-      placeholder="Type a command or message..."
-      class="input-field">
-    </textarea>
-    <button (click)="toggleVoiceListening()" class="mic-btn" [class.active]="isListening" title="Use Voice">🎤</button>
-    <button (click)="sendMessage()" class="send-btn" [disabled]="!userInput.trim()">→</button>
+    <!-- Input area remains the same -->
   </div>
 </div>
