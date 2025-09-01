@@ -16,7 +16,7 @@ export interface ShoppingListItem {
   image_url?: string;
   purchased: boolean;
   created_at: string;
-  product?: Product;
+  product?: Product; // New: To store the full product metadata
 }
 
 @Injectable({
@@ -71,7 +71,8 @@ export class ShoppingListService {
       brand: product.brand,
       image_url: product.image,
       purchased: false,
-      created_at: new Date().toISOString()
+      created_at: new Date().toISOString(),
+      product: product // Store the full product object
     };
 
     if (this.currentUserId) {
