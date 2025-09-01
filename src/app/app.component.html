@@ -1,7 +1,10 @@
 <nav class="main-nav">
   <div class="nav-left-placeholder"></div>
 
-  <app-logo></app-logo>
+  <div class="logo-container" (click)="goToHome()">
+    <app-logo></app-logo>
+    <div class="app-title">Fat Boy Time</div>
+  </div>
 
   <div class="nav-actions">
     <button class="hamburger-menu" (click)="toggleMenu()" [class.open]="isMenuOpen" aria-label="Toggle menu">
