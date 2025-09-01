@@ -149,9 +149,9 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
       flaggedIngredients: evaluation.flaggedIngredients.map(f => f.ingredient)
     };
 
-    const savedProduct = this.productDb.addProduct(productInfo); // Add to DB and get full Product object
+    const savedProduct = await this.productDb.addProduct(productInfo); // AWAIT here
     sessionStorage.setItem('scannedProduct', JSON.stringify(savedProduct));
-    this.aiService.setLastDiscussedProduct(savedProduct); // Set last discussed product with full object
+    this.aiService.setLastDiscussedProduct(savedProduct); // Now 'savedProduct' is a Product
     this.router.navigate(['/results']);
   }
 
@@ -205,7 +205,7 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
     }
   }
 
-  private processExtractedText(text: string): void {
+  private async processExtractedText(text: string): Promise<void> { // Made async
     const enhancedIngredients = this.ocrEnhancer.enhanceIngredientDetection(text);
     const productName = this.ocrEnhancer.detectProductName(text);
     const brand = this.ocrEnhancer.detectBrand(text);
@@ -224,9 +224,9 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
       ocrText: text
     };
 
-    const product = this.productDb.addProduct(productInfo);
+    const product = await this.productDb.addProduct(productInfo); // AWAIT here
     sessionStorage.setItem('viewingProduct', JSON.stringify(product));
-    this.aiService.setLastDiscussedProduct(product);
+    this.aiService.setLastDiscussedProduct(product); // Now 'product' is a Product
     this.isProcessingOcr = false;
     this.router.navigate(['/ocr-results']);
   }

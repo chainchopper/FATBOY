@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { AuthService } from './auth.service';
 import { LeaderboardService } from './leaderboard.service';
+import { supabase } from '../../integrations/supabase/client'; // Import Supabase client
 
 export interface Product {
   id: string;
@@ -38,28 +39,65 @@ export class ProductDbService {
   ) {
     this.authService.currentUser$.subscribe(user => {
       this.currentUserId = user?.id || null;
-      this.loadFromStorage(); // Reload all data when user changes
+      this.loadFromSupabase(); // Reload all data when user changes
     });
   }
 
-  addProduct(product: Omit<Product, 'id' | 'scanDate'>): Product {
+  async addProduct(product: Omit<Product, 'id' | 'scanDate'>): Promise<Product> {
+    if (!this.currentUserId) {
+      console.warn('Cannot add product: User not authenticated.');
+      // Fallback for unauthenticated users (e.g., store in session storage temporarily)
+      const tempProduct: Product = { ...product, id: this.generateId(), scanDate: new Date() };
+      this.products.unshift(tempProduct);
+      this.productsSubject.next([...this.products]);
+      return tempProduct;
+    }
+
     const newProduct: Product = {
       ...product,
-      id: this.generateId(),
+      id: this.generateId(), // Generate client-side ID for consistency, Supabase will generate its own UUID
       scanDate: new Date()
     };
     
-    this.products.unshift(newProduct);
-    this.saveToStorage();
-    this.productsSubject.next([...this.products]);
+    const { data, error } = await supabase
+      .from('user_products')
+      .insert({
+        user_id: this.currentUserId,
+        product_data: newProduct,
+        type: 'scanned' // All products added via scanner/manual entry are 'scanned'
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error adding product to Supabase:', error);
+      throw error; // Propagate error
+    }
+
+    // Update local state from Supabase data
+    await this.loadFromSupabase();
     
     // Add 10 points for each scan
     this.leaderboardService.incrementScore(10).subscribe();
 
-    return newProduct;
+    return newProduct; // Return the client-side generated product for immediate use
   }
 
-  addAvoidedProduct(product: Omit<Product, 'id' | 'scanDate'>): Product {
+  async addAvoidedProduct(product: Omit<Product, 'id' | 'scanDate'>): Promise<Product> {
+    if (!this.currentUserId) {
+      console.warn('Cannot add avoided product: User not authenticated.');
+      const tempProduct: Product = {
+        ...product,
+        id: this.generateId(),
+        scanDate: new Date(),
+        verdict: 'bad',
+        flaggedIngredients: product.flaggedIngredients.length > 0 ? product.flaggedIngredients : ['Manually added to avoid list']
+      };
+      this.avoidedProducts.unshift(tempProduct);
+      this.avoidedProductsSubject.next([...this.avoidedProducts]);
+      return tempProduct;
+    }
+
     const newProduct: Product = {
       ...product,
       id: this.generateId(),
@@ -68,11 +106,40 @@ export class ProductDbService {
       flaggedIngredients: product.flaggedIngredients.length > 0 ? product.flaggedIngredients : ['Manually added to avoid list']
     };
 
-    if (!this.avoidedProducts.some(p => p.barcode === newProduct.barcode && p.barcode)) { // Prevent duplicates by barcode
-      this.avoidedProducts.unshift(newProduct);
-      this.saveAvoidedToStorage();
-      this.avoidedProductsSubject.next([...this.avoidedProducts]);
+    // Check for duplicates by barcode if available
+    const { data: existingProducts, error: selectError } = await supabase
+      .from('user_products')
+      .select('product_data')
+      .eq('user_id', this.currentUserId)
+      .eq('type', 'saved_avoided')
+      .filter('product_data->>barcode', 'eq', newProduct.barcode);
+
+    if (selectError) {
+      console.error('Error checking for existing avoided product:', selectError);
+      throw selectError;
     }
+
+    if (newProduct.barcode && existingProducts && existingProducts.length > 0) {
+      console.warn('Avoided product with this barcode already exists for user.');
+      return newProduct; // Return existing product without adding
+    }
+
+    const { data, error } = await supabase
+      .from('user_products')
+      .insert({
+        user_id: this.currentUserId,
+        product_data: newProduct,
+        type: 'saved_avoided'
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error adding avoided product to Supabase:', error);
+      throw error;
+    }
+
+    await this.loadFromSupabase();
     return newProduct;
   }
 
@@ -80,7 +147,6 @@ export class ProductDbService {
     return this.products.find(p => p.id === id);
   }
 
-  // New method to get a snapshot of the current products
   getProductsSnapshot(): Product[] {
     return this.productsSubject.getValue();
   }
@@ -103,62 +169,114 @@ export class ProductDbService {
       .sort((a, b) => b.count - a.count);
   }
 
-  removeProduct(id: string): void {
-    this.products = this.products.filter(p => p.id !== id);
-    this.saveToStorage();
-    this.productsSubject.next([...this.products]);
+  async removeProduct(id: string): Promise<void> {
+    if (!this.currentUserId) {
+      this.products = this.products.filter(p => p.id !== id);
+      this.productsSubject.next([...this.products]);
+      return;
+    }
+
+    const { error } = await supabase
+      .from('user_products')
+      .delete()
+      .eq('user_id', this.currentUserId)
+      .filter('product_data->>id', 'eq', id); // Filter by client-side product_data.id
+
+    if (error) {
+      console.error('Error removing product from Supabase:', error);
+      throw error;
+    }
+    await this.loadFromSupabase();
   }
 
-  removeAvoidedProduct(id: string): void {
-    this.avoidedProducts = this.avoidedProducts.filter(p => p.id !== id);
-    this.saveAvoidedToStorage();
-    this.avoidedProductsSubject.next([...this.avoidedProducts]);
+  async removeAvoidedProduct(id: string): Promise<void> {
+    if (!this.currentUserId) {
+      this.avoidedProducts = this.avoidedProducts.filter(p => p.id !== id);
+      this.avoidedProductsSubject.next([...this.avoidedProducts]);
+      return;
+    }
+
+    const { error } = await supabase
+      .from('user_products')
+      .delete()
+      .eq('user_id', this.currentUserId)
+      .eq('type', 'saved_avoided')
+      .filter('product_data->>id', 'eq', id);
+
+    if (error) {
+      console.error('Error removing avoided product from Supabase:', error);
+      throw error;
+    }
+    await this.loadFromSupabase();
   }
 
-  clearAll(): void {
-    this.products = [];
-    this.avoidedProducts = [];
-    this.saveToStorage();
-    this.saveAvoidedToStorage();
-    this.productsSubject.next([]);
-    this.avoidedProductsSubject.next([]);
+  async clearAll(): Promise<void> {
+    if (!this.currentUserId) {
+      this.products = [];
+      this.avoidedProducts = [];
+      this.productsSubject.next([]);
+      this.avoidedProductsSubject.next([]);
+      return;
+    }
+
+    const { error } = await supabase
+      .from('user_products')
+      .delete()
+      .eq('user_id', this.currentUserId);
+
+    if (error) {
+      console.error('Error clearing all products from Supabase:', error);
+      throw error;
+    }
+    await this.loadFromSupabase();
   }
 
   private generateId(): string {
     return Date.now().toString(36) + Math.random().toString(36).substring(2);
   }
 
-  private getProductsStorageKey(): string {
-    return this.currentUserId ? `fatBoyProducts_${this.currentUserId}` : 'fatBoyProducts_anonymous';
-  }
-
-  private getAvoidedProductsStorageKey(): string {
-    return this.currentUserId ? `fatBoyAvoidedProducts_${this.currentUserId}` : 'fatBoyAvoidedProducts_anonymous';
-  }
-
-  private loadFromStorage(): void {
-    const storedProducts = localStorage.getItem(this.getProductsStorageKey());
-    if (storedProducts) {
-      this.products = JSON.parse(storedProducts);
-    } else {
+  private async loadFromSupabase(): Promise<void> {
+    if (!this.currentUserId) {
       this.products = [];
-    }
-    this.productsSubject.next([...this.products]);
-
-    const storedAvoided = localStorage.getItem(this.getAvoidedProductsStorageKey());
-    if (storedAvoided) {
-      this.avoidedProducts = JSON.parse(storedAvoided);
-    } else {
       this.avoidedProducts = [];
+      this.productsSubject.next([]);
+      this.avoidedProductsSubject.next([]);
+      return;
     }
+
+    const { data, error } = await supabase
+      .from('user_products')
+      .select('product_data, type')
+      .eq('user_id', this.currentUserId)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Error loading products from Supabase:', error);
+      this.products = [];
+      this.avoidedProducts = [];
+      this.productsSubject.next([]);
+      this.avoidedProductsSubject.next([]);
+      return;
+    }
+
+    const loadedProducts: Product[] = [];
+    const loadedAvoidedProducts: Product[] = [];
+
+    data.forEach((item: any) => {
+      const product: Product = {
+        ...item.product_data,
+        scanDate: new Date(item.product_data.scanDate) // Ensure scanDate is a Date object
+      };
+      if (item.type === 'scanned') {
+        loadedProducts.push(product);
+      } else if (item.type === 'saved_avoided') {
+        loadedAvoidedProducts.push(product);
+      }
+    });
+
+    this.products = loadedProducts;
+    this.avoidedProducts = loadedAvoidedProducts;
+    this.productsSubject.next([...this.products]);
     this.avoidedProductsSubject.next([...this.avoidedProducts]);
-  }
-
-  private saveToStorage(): void {
-    localStorage.setItem(this.getProductsStorageKey(), JSON.stringify(this.products));
-  }
-
-  private saveAvoidedToStorage(): void {
-    localStorage.setItem(this.getAvoidedProductsStorageKey(), JSON.stringify(this.avoidedProducts));
   }
 }

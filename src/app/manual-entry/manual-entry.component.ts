@@ -7,7 +7,7 @@ import { IngredientParserService } from '../services/ingredient-parser.service';
 import { NotificationService } from '../services/notification.service';
 import { ModalService } from '../services/modal.service';
 import { PreferencesService } from '../services/preferences.service';
-import { AiIntegrationService } from '../services/ai-integration.service'; // Import AiIntegrationService
+import { AiIntegrationService } from '../services/ai-integration.service';
 
 @Component({
   selector: 'app-manual-entry',
@@ -31,10 +31,10 @@ export class ManualEntryComponent {
     private notificationService: NotificationService,
     private modalService: ModalService,
     private preferencesService: PreferencesService,
-    private aiService: AiIntegrationService // Inject AiIntegrationService
+    private aiService: AiIntegrationService
   ) {}
 
-  submitProduct() {
+  async submitProduct() { // Made async
     if (!this.productData.name || !this.productData.brand || !this.productData.ingredients) {
       this.notificationService.showError('Please fill out all required fields.');
       return;
@@ -57,11 +57,11 @@ export class ManualEntryComponent {
       image: 'https://via.placeholder.com/150?text=Manually+Added'
     };
 
-    const savedProduct = this.productDb.addProduct(newProduct);
+    const savedProduct = await this.productDb.addProduct(newProduct); // AWAIT here
 
-    this.aiService.setLastDiscussedProduct(savedProduct); // Set last discussed product
+    this.aiService.setLastDiscussedProduct(savedProduct); // Now 'savedProduct' is a Product
     // Open the modal with the new product and then navigate home
-    this.modalService.open(savedProduct);
+    this.modalService.open(savedProduct); // Now 'savedProduct' is a Product
     this.router.navigate(['/scanner']);
   }
 }

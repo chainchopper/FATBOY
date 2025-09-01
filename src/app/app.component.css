@@ -51,6 +51,17 @@
   font-family: 'Righteous', cursive;
   font-size: 1.75rem;
   animation: neon-flicker 5s infinite alternate ease-in-out;
+  display: flex; /* Allow inline elements */
+  align-items: baseline; /* Align text baselines */
+  gap: 8px; /* Space between main title and powered-by text */
+}
+
+.app-title .powered-by {
+  font-family: 'Inter', sans-serif; /* Use a more subtle font */
+  font-size: 0.8rem; /* Smaller text */
+  color: #a0a0c0; /* Muted color */
+  text-shadow: none; /* No neon flicker for this part */
+  animation: none; /* No animation for this part */
 }
 
 .nav-actions {

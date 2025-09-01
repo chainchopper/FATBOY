@@ -51,3 +51,9 @@
   box-shadow: 0 0 10px #0abdc6;
   color: #0abdc6;
 }
+
+.powered-by-fanalogy {
+  margin-top: 30px;
+  font-size: 0.8rem;
+  color: #a0a0c0;
+}
