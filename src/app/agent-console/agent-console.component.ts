@@ -52,7 +52,7 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
   ngOnInit() {
     this.messages.push({
       sender: 'agent',
-      text: 'Welcome to the Agent Console. Type a message, use a `/` command, or tap the mic to speak.',
+      text: 'Welcome to the Agent Console. I am powered by RStar Coder Qwen3. How can I help you today?',
       timestamp: new Date()
     });
 
@@ -107,39 +107,24 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
     this.showSlashCommands = false;
     this.isAgentTyping = true;
 
-    setTimeout(() => {
-      const responseText = this.mockAgentResponse(text);
+    try {
+      const prompt = this.buildPrompt(text);
+      const responseText = await this.aiService.analyzeImageWithVisionModel('', prompt); // Using the vision model endpoint for chat
       this.messages.push({ sender: 'agent', text: responseText, timestamp: new Date() });
+    } catch (error) {
+      this.messages.push({ sender: 'agent', text: 'Sorry, I encountered an error. Please try again.', timestamp: new Date() });
+    } finally {
       this.isAgentTyping = false;
-    }, 1500);
+    }
   }
 
-  mockAgentResponse(command: string): string {
-    const lowerCommand = command.toLowerCase();
-
-    if (lowerCommand === 'hi' || lowerCommand === 'hello') {
-      return 'Hello! How can I help you today? You can ask me to summarize your activity, suggest a product, or find items with specific ingredients.';
-    }
-    if (lowerCommand.includes('suggest') || lowerCommand.includes('recommend')) {
-      return "Based on your recent activity, I suggest trying 'Organic Berry Granola'. It aligns with your preference for natural ingredients.";
-    }
-    if (lowerCommand.includes('summarize') || lowerCommand.includes('summary')) {
-      const history = this.productDb.getProductsSnapshot();
-      if (history.length === 0) {
-        return "You haven't scanned any products yet. Start scanning to get a summary of your activity!";
-      }
-      const goodScans = history.filter(p => p.verdict === 'good').length;
-      return `You've scanned ${history.length} products recently. ${goodScans} of them were Fat Boy Approved. Keep up the great work!`;
-    }
-    if (lowerCommand.startsWith('/find') || lowerCommand.startsWith('find')) {
-      const ingredient = command.split(' ').slice(1).join(' ') || 'anything';
-      return `I've searched the community database for products containing '${ingredient}' and found 3 matches. Would you like to see them?`;
-    }
-    if (lowerCommand.includes('playwright')) {
-      const test = command.split(' ')[1] || 'login';
-      return `Executing Playwright test '${test}'... Test passed successfully in 2.3s. All assertions met.`;
-    }
-    return "I'm sorry, I don't understand that command. Type `/` to see what I can do, or just ask me a question.";
+  private buildPrompt(userInput: string): string {
+    const history = this.productDb.getProductsSnapshot();
+    const summary = `The user has scanned ${history.length} products. ${history.filter(p => p.verdict === 'good').length} were approved.`;
+    
+    return `You are Fat Boy, an AI nutritional co-pilot. Your responses should be concise (1-2 sentences). 
+            Current user scan summary: ${summary}. 
+            User's request: "${userInput}"`;
   }
 
   private scrollToBottom(): void {

@@ -14,7 +14,7 @@ export const environment = {
   metadataApiKey: "your_metadata_api_key_here",
   
   // OpenAI-like service config (replace with your actual values)
-  openaiApiBaseUrl: "http://api.blacknation.io:8981/v1",
+  openaiApiBaseUrl: "http://169.254.83.107:8981/v1",
   openaiApiKey: "your_openai_compatible_api_key",
-  visionModelName: "moondream2"
+  visionModelName: "RStar Coder Qwen3 0.6B"
 };
