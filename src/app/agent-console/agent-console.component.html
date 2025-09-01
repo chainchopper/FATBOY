@@ -28,14 +28,16 @@
         <span>{{ cmd.description }}</span>
       </div>
     </div>
-    <textarea 
-      [(ngModel)]="userInput" 
-      (ngModelChange)="handleInput()"
-      (keydown.enter)="sendMessage(); $event.preventDefault()"
-      placeholder="Type a command or message..."
-      class="input-field">
-    </textarea>
-    <button (click)="toggleVoiceListening()" class="mic-btn" [class.active]="isListening" title="Use Voice">🎤</button>
-    <button (click)="sendMessage()" class="send-btn" [disabled]="!userInput.trim()">→</button>
+    <div class="input-wrapper">
+      <textarea 
+        [(ngModel)]="userInput" 
+        (ngModelChange)="handleInput()"
+        (keydown.enter)="sendMessage(); $event.preventDefault()"
+        placeholder="Type a command or message..."
+        class="input-field">
+      </textarea>
+      <button (click)="toggleVoiceListening()" class="mic-btn" [class.active]="isListening" title="Use Voice">🎤</button>
+      <button (click)="sendMessage()" class="send-btn" [disabled]="!userInput.trim()">→</button>
+    </div>
   </div>
 </div>
