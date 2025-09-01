@@ -1,10 +1,8 @@
-// @ts-ignore
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-// @ts-ignore
 import { createClient } from 'npm:@supabase/supabase-js@2.45.0'; // Use npm: specifier
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*', // Replace '*' with your frontend's domain in production
+  'Access-Control-Allow-Origin': '*', // Replace with your frontend's domain in production
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
@@ -90,9 +88,7 @@ serve(async (req: Request) => {
 
     // Create a Supabase client with the service role key
     const supabaseClient = createClient(
-      // @ts-ignore
       Deno.env.get('SUPABASE_URL') ?? '',
-      // @ts-ignore
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '', // Use service role key
       {
         auth: {
