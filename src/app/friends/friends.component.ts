@@ -1,49 +1,76 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+
+interface Friend {
+  id: string;
+  name: string;
+  avatarUrl: string;
+  rank: number;
+  isOnline: boolean;
+}
+
+interface FriendRequest {
+  id: string;
+  name: string;
+  avatarUrl: string;
+  mutualFriends: number;
+}
 
 @Component({
   selector: 'app-friends',
   standalone: true,
-  imports: [CommonModule],
-  template: `
-    <div class="friends-container">
-      <h2>Your Friends (Coming Soon!)</h2>
-      <p>Connect with friends, share your healthy finds, and challenge each other!</p>
-      <div class="placeholder-content">
-        <span class="icon">🤝</span>
-        <p>This feature is under development. Stay tuned for social connections!</p>
-      </div>
-    </div>
-  `,
-  styles: [`
-    .friends-container {
-      max-width: 800px;
-      margin: 2rem auto;
-      padding: 20px;
-      color: #e0e0e0;
-      text-align: center;
-    }
-    h2 {
-      color: #0abdc6;
-      text-shadow: 0 0 8px #0abdc6;
-      margin-bottom: 1rem;
-    }
-    p {
-      color: #a0a0c0;
-      margin-bottom: 2rem;
-    }
-    .placeholder-content {
-      background: rgba(15, 15, 30, 0.8);
-      border: 1px solid #f038ff;
-      border-radius: 12px;
-      padding: 40px;
-      box-shadow: 0 0 25px rgba(240, 56, 255, 0.5);
-    }
-    .icon {
-      font-size: 4rem;
-      display: block;
-      margin-bottom: 20px;
-    }
-  `]
+  imports: [CommonModule, FormsModule],
+  templateUrl: './friends.component.html',
+  styleUrls: ['./friends.component.css']
 })
-export class FriendsComponent {}
+export class FriendsComponent implements OnInit {
+  friends: Friend[] = [];
+  friendRequests: FriendRequest[] = [];
+  searchQuery: string = '';
+
+  ngOnInit() {
+    this.loadMockData();
+  }
+
+  loadMockData() {
+    this.friends = [
+      { id: '1', name: 'NeonRunner', avatarUrl: 'https://api.dicebear.com/8.x/bottts/svg?seed=neon', rank: 12, isOnline: true },
+      { id: '2', name: 'EcoWarrior', avatarUrl: 'https://api.dicebear.com/8.x/bottts/svg?seed=eco', rank: 5, isOnline: false },
+      { id: '3', name: 'CyberChef', avatarUrl: 'https://api.dicebear.com/8.x/bottts/svg?seed=chef', rank: 23, isOnline: true },
+    ];
+
+    this.friendRequests = [
+      { id: '4', name: 'DataDiver', avatarUrl: 'https://api.dicebear.com/8.x/bottts/svg?seed=data', mutualFriends: 2 },
+    ];
+  }
+
+  acceptRequest(requestId: string) {
+    const request = this.friendRequests.find(r => r.id === requestId);
+    if (request) {
+      this.friends.push({
+        id: request.id,
+        name: request.name,
+        avatarUrl: request.avatarUrl,
+        rank: 100, // Placeholder rank
+        isOnline: true
+      });
+      this.friendRequests = this.friendRequests.filter(r => r.id !== requestId);
+    }
+  }
+
+  declineRequest(requestId: string) {
+    this.friendRequests = this.friendRequests.filter(r => r.id !== requestId);
+  }
+
+  removeFriend(friendId: string) {
+    if (confirm('Are you sure you want to remove this friend?')) {
+      this.friends = this.friends.filter(f => f.id !== friendId);
+    }
+  }
+
+  searchFriends() {
+    // Placeholder for real search functionality
+    console.log('Searching for:', this.searchQuery);
+  }
+}
