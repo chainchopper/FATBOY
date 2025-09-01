@@ -20,8 +20,8 @@ export class AiIntegrationService {
 
   private apiBaseUrl = environment.openaiApiBaseUrl;
   private apiKey = environment.openaiApiKey;
-  private chatModelName = environment.visionModelName; // Renamed for clarity
-  private embeddingModelName = environment.embeddingModelName; // New: for embedding model
+  private chatModelName = environment.visionModelName;
+  private embeddingModelName = environment.embeddingModelName;
 
   constructor(
     private productDb: ProductDbService,
@@ -32,10 +32,6 @@ export class AiIntegrationService {
     private gamificationService: GamificationService
   ) { }
 
-  /**
-   * Checks if the AI model endpoint is reachable by fetching the models list.
-   * @returns A promise that resolves with true if the endpoint is online, false otherwise.
-   */
   async checkAgentStatus(): Promise<boolean> {
     const endpoint = `${this.apiBaseUrl}/models`;
     try {
@@ -48,13 +44,12 @@ export class AiIntegrationService {
   }
 
   /**
-   * (Future: For RAG) Gets embeddings for a given text using the embedding model.
-   * This method will be fully implemented once the embedding model is available.
+   * Gets embeddings for a given text using the configured embedding model.
    * @param text The text to embed.
    * @returns A promise that resolves with the embedding vector.
    */
   async getEmbeddings(text: string): Promise<number[]> {
-    const endpoint = `${this.apiBaseUrl}/embeddings`; // Assuming an /embeddings endpoint
+    const endpoint = `${this.apiBaseUrl}/embeddings`;
     if (!endpoint || !this.embeddingModelName) {
       console.warn("Embedding endpoint or model name not configured.");
       return [];
@@ -84,18 +79,13 @@ export class AiIntegrationService {
       }
 
       const data = await response.json();
-      return data.data[0].embedding; // Assuming the structure of OpenAI-compatible embedding API
+      return data.data[0].embedding;
     } catch (error) {
       console.error('Network or other error calling Embeddings API:', error);
       return [];
     }
   }
 
-  /**
-   * Sends a prompt directly to the chat completions endpoint from the browser.
-   * @param userInput The raw text from the user.
-   * @returns A promise that resolves with the model's text response and follow-up questions.
-   */
   async getChatCompletion(userInput: string): Promise<AiResponse> {
     const endpoint = `${this.apiBaseUrl}/chat/completions`;
     if (!endpoint || !this.chatModelName) {
@@ -145,6 +135,18 @@ export class AiIntegrationService {
     `;
     // --- End Gather comprehensive user context ---
     
+    // --- RAG Integration (Phase 1: Get embedding for user input) ---
+    let userQueryEmbedding: number[] = [];
+    if (this.embeddingModelName) {
+      try {
+        userQueryEmbedding = await this.getEmbeddings(userInput);
+        console.log('User query embedding generated:', userQueryEmbedding.slice(0, 5), '...'); // Log first 5 dimensions
+      } catch (embedError) {
+        console.error('Error generating user query embedding:', embedError);
+      }
+    }
+    // --- End RAG Integration Phase 1 ---
+
     // Updated system message to instruct for follow-up questions
     const systemMessage = `You are Fat Boy, an AI nutritional co-pilot powered by NIRVANA from Fanalogy. Your responses must be concise (1-2 sentences). If the user asks about a food item, provide its benefits and key characteristics/ingredients. Always conclude your response by generating exactly 3 relevant follow-up questions in a JSON array format, prefixed with '[FOLLOW_UP_QUESTIONS]'. Example: "Main response text. [FOLLOW_UP_QUESTIONS] [\"Question 1?\", \"Question 2?\", \"Question 3?\"]".
     
@@ -159,7 +161,7 @@ export class AiIntegrationService {
         { role: 'user', content: userInput }
       ],
       temperature: 0.7,
-      max_tokens: 300, // Increased token limit to accommodate questions
+      max_tokens: 300,
       stream: false
     };
 
@@ -193,11 +195,10 @@ export class AiIntegrationService {
         try {
           const parsedQuestions = JSON.parse(jsonString);
           if (Array.isArray(parsedQuestions) && parsedQuestions.every(q => typeof q === 'string')) {
-            followUpQuestions = parsedQuestions.slice(0, 3); // Ensure max 3 questions
+            followUpQuestions = parsedQuestions.slice(0, 3);
           }
         } catch (jsonError) {
           console.warn('Failed to parse follow-up questions JSON:', jsonError);
-          // Fallback: if JSON parsing fails, treat the whole thing as text
           mainText = fullResponseText;
           followUpQuestions = [];
         }

@@ -17,5 +17,5 @@ export const environment = {
   openaiApiBaseUrl: "http://100.67.233.36:8981/v1",
   openaiApiKey: "your_openai_compatible_api_key",
   visionModelName: "rstar-coder-qwen3-0.6b@bf16",
-  embeddingModelName: "sentence-transformers/all-MiniLM-L6-v2" // New: Embedding model name
+  embeddingModelName: "fatboy-embeddings-v4-text-retrieval" // Updated to the new model
 };
