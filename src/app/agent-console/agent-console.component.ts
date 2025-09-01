@@ -117,6 +117,9 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
   mockAgentResponse(command: string): string {
     const lowerCommand = command.toLowerCase();
 
+    if (lowerCommand === 'hi' || lowerCommand === 'hello') {
+      return 'Hello! How can I help you today? You can ask me to summarize your activity, suggest a product, or find items with specific ingredients.';
+    }
     if (lowerCommand.includes('suggest') || lowerCommand.includes('recommend')) {
       return "Based on your recent activity, I suggest trying 'Organic Berry Granola'. It aligns with your preference for natural ingredients.";
     }
