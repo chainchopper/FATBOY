@@ -126,7 +126,7 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
     this.messages.push(agentMessage);
 
     try {
-      await this.aiService.getChatCompletionStream(text, (chunk) => {
+      await this.aiService.getChatCompletionStream(text, (chunk: string) => {
         agentMessage.text += chunk;
         this.cdr.detectChanges();
       });
