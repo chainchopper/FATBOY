@@ -14,9 +14,9 @@ interface Message {
   text: string;
   timestamp: Date;
   avatar: string;
-  suggestedPrompts?: string[]; // Renamed from followUpQuestions
-  toolCalls?: any[];
-  humanReadableToolCall?: string;
+  followUpQuestions?: string[];
+  toolCalls?: any[]; // Store the raw tool calls
+  humanReadableToolCall?: string; // New: for human-readable description
 }
 
 interface SlashCommand {
@@ -114,7 +114,7 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
         text: 'Hello! I am Fat Boy, your personal AI co-pilot, powered by NIRVANA from Fanalogy. How can I help you today?',
         timestamp: new Date(),
         avatar: this.agentAvatar,
-        suggestedPrompts: [
+        followUpQuestions: [
           'What are some healthy snack options?',
           'Can you summarize my recent food diary entries?',
           'How do I add a product to my shopping list?'
@@ -215,7 +215,7 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
         text: aiResponse.text,
         timestamp: new Date(),
         avatar: this.agentAvatar,
-        suggestedPrompts: aiResponse.suggestedPrompts
+        followUpQuestions: aiResponse.followUpQuestions
       });
       this.speechService.speak(aiResponse.text); // Only speak the final AI response
     } catch (error) {
@@ -226,8 +226,8 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
     }
   }
 
-  submitSuggestedPrompt(prompt: string) { // Renamed from submitFollowUpQuestion
-    this.userInput = prompt;
+  submitFollowUpQuestion(question: string) {
+    this.userInput = question;
     this.sendMessage();
   }
 
@@ -270,7 +270,7 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
           text: 'Hello! I am Fat Boy, your personal AI co-pilot, powered by NIRVANA from Fanalogy. How can I help you today?',
           timestamp: new Date(),
           avatar: this.agentAvatar,
-          suggestedPrompts: [
+          followUpQuestions: [
             'What are some healthy snack options?',
             'Can you summarize my recent food diary entries?',
             'How do I add a product to my shopping list?'
