@@ -1,13 +1,15 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ShoppingListService, ShoppingListItem } from '../services/shopping-list.service';
-import { AppModalService } from '../services/app-modal.service'; // Import AppModalService
+import { AppModalService } from '../services/app-modal.service';
 import { Observable } from 'rxjs';
+import { ProductCardComponent } from '../components/product-card/product-card.component'; // Import ProductCardComponent
+import { Product } from '../services/product-db.service'; // Import Product for event emitters
 
 @Component({
   selector: 'app-shopping-list',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ProductCardComponent], // Add ProductCardComponent to imports
   templateUrl: './shopping-list.component.html',
   styleUrls: ['./shopping-list.component.css']
 })
@@ -16,7 +18,7 @@ export class ShoppingListComponent implements OnInit {
 
   constructor(
     private shoppingListService: ShoppingListService,
-    private appModalService: AppModalService // Inject AppModalService
+    private appModalService: AppModalService
   ) {}
 
   ngOnInit() {
@@ -41,5 +43,24 @@ export class ShoppingListComponent implements OnInit {
         this.shoppingListService.clearList();
       }
     });
+  }
+
+  // Event handlers for ProductCardComponent
+  onTogglePurchased(itemId: string) {
+    this.toggleItem(itemId);
+  }
+
+  onRemoveItem(itemId: string) {
+    this.removeItem(itemId);
+  }
+
+  onShareProduct(product: Product) {
+    // Implement share logic here, or pass to a ShareService
+    console.log('Share product:', product);
+  }
+
+  onAddToFoodDiary(product: Product) {
+    // Implement add to food diary logic here
+    console.log('Add to food diary:', product);
   }
 }

@@ -9,17 +9,20 @@
       <p>Your shopping list is empty. Add approved products from the results or saved pages!</p>
     </div>
 
-    <ul class="list-items">
-      <li *ngFor="let item of list" class="list-item" [class.purchased]="item.purchased">
-        <div class="item-info">
-          <input type="checkbox" [checked]="item.purchased" (change)="toggleItem(item.id)">
-          <div class="item-details">
-            <span class="item-name">{{ item.product_name }}</span>
-            <span class="item-brand">{{ item.brand }}</span>
-          </div>
-        </div>
-        <button (click)="removeItem(item.id)" class="remove-btn">×</button>
-      </li>
-    </ul>
+    <div class="list-items-grid"> <!-- Use a grid for better layout of cards -->
+      <app-product-card 
+        *ngFor="let item of list" 
+        [product]="item.product!" 
+        [showCheckbox]="true"
+        [isPurchased]="item.purchased"
+        [showRemoveButton]="true"
+        [showShareButton]="true"
+        [showAddToFoodDiaryButton]="true"
+        (togglePurchased)="onTogglePurchased(item.id)"
+        (remove)="onRemoveItem(item.id)"
+        (share)="onShareProduct($event)"
+        (addToFoodDiary)="onAddToFoodDiary($event)"
+      ></app-product-card>
+    </div>
   </div>
 </div>

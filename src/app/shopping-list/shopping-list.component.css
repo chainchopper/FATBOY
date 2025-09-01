@@ -29,56 +29,8 @@
   border-radius: 8px;
 }
 
-.list-items {
-  list-style: none;
-  padding: 0;
-}
-
-.list-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 15px;
-  background: rgba(15, 15, 30, 0.8);
-  border: 1px solid #4a4a6e;
-  border-radius: 8px;
-  margin-bottom: 10px;
-  transition: all 0.3s ease;
-}
-
-.list-item.purchased {
-  opacity: 0.5;
-}
-
-.list-item.purchased .item-name {
-  text-decoration: line-through;
-  color: #a0a0c0;
-}
-
-.item-info {
-  display: flex;
-  align-items: center;
+.list-items-grid { /* New grid for product cards */
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 15px;
-}
-
-.item-info input[type="checkbox"] {
-  width: 20px;
-  height: 20px;
-}
-
-.item-name {
-  font-weight: 500;
-}
-
-.item-brand {
-  font-size: 14px;
-  color: #a0a0c0;
-}
-
-.remove-btn {
-  background: none;
-  border: none;
-  font-size: 24px;
-  cursor: pointer;
-  color: #a0a0c0;
 }
