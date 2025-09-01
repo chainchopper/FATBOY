@@ -30,6 +30,7 @@
     <a routerLink="/preferences" routerLinkActive="active" (click)="closeMenu()">⚙️ Preferences</a>
     <hr class="nav-divider">
     <a routerLink="/profile" routerLinkActive="active" (click)="closeMenu()">👤 Profile</a>
+    <a *ngIf="currentUser$ | async" routerLink="/admin" routerLinkActive="active" (click)="closeMenu()">🛠️ Admin</a>
     <ng-container *ngIf="(currentUser$ | async) as user; else loginLink">
       <a (click)="signOut()" class="logout-link">👋 Logout ({{ (displayName$ | async) || user.email }})</a>
     </ng-container>

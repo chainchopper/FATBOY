@@ -11,6 +11,7 @@ import { AchievementsComponent } from './achievements/achievements.component';
 import { LoginComponent } from './login/login.component';
 import { FoodDiaryComponent } from './food-diary/food-diary.component';
 import { AuthGuard } from './guards/auth.guard';
+import { AdminGuard } from './guards/admin.guard'; // Import the new guard
 import { UnifiedScannerComponent } from './unified-scanner/unified-scanner.component';
 import { ProfileComponent } from './profile/profile.component';
 import { ManualEntryComponent } from './manual-entry/manual-entry.component';
@@ -21,12 +22,14 @@ import { AdminDashboardComponent } from './admin-dashboard/admin-dashboard.compo
 import { DevConsoleComponent } from './dev-console/dev-console.component';
 
 export const routes: Routes = [
+  // Public and User Routes
   { path: '', redirectTo: '/scanner', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
   { path: 'scanner', component: UnifiedScannerComponent },
   { path: 'results', component: ResultsComponent },
   { path: 'ocr-results', component: OcrResultsComponent },
-  // Protected routes
+  
+  // Authenticated User Routes
   { path: 'saved', component: SavedComponent, canActivate: [AuthGuard] },
   { path: 'preferences', component: PreferencesComponent, canActivate: [AuthGuard] },
   { path: 'history', component: HistoryComponent, canActivate: [AuthGuard] },
@@ -40,6 +43,15 @@ export const routes: Routes = [
   { path: 'leaderboard', component: LeaderboardComponent, canActivate: [AuthGuard] },
   { path: 'friends', component: FriendsComponent, canActivate: [AuthGuard] },
   { path: 'console', component: AgentConsoleComponent, canActivate: [AuthGuard] },
-  { path: 'admin', component: AdminDashboardComponent, canActivate: [AuthGuard] }, // Admin route
-  { path: 'dev', component: DevConsoleComponent, canActivate: [AuthGuard] } // Dev route
+
+  // Protected Admin Routes
+  { 
+    path: 'admin', 
+    canActivate: [AdminGuard],
+    children: [
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+      { path: 'dashboard', component: AdminDashboardComponent },
+      { path: 'dev-console', component: DevConsoleComponent }
+    ]
+  }
 ];
