@@ -217,7 +217,7 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
         avatar: this.agentAvatar,
         followUpQuestions: aiResponse.followUpQuestions
       });
-      this.speechService.speak(aiResponse.text);
+      this.speechService.speak(aiResponse.text); // Only speak the final AI response
     } catch (error) {
       this.messages.push({ sender: 'agent', text: 'Sorry, I encountered an error. Please try again.', timestamp: new Date(), avatar: this.agentAvatar });
     } finally {

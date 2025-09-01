@@ -223,9 +223,6 @@ export class AiIntegrationService {
     3.  **NO Internal Reasoning in 'content':** Absolutely DO NOT include any internal thought process or reasoning in your 'content' field. Your 'content' should be purely the user-facing response.
     4.  **Consistent Follow-up Questions:** After your direct response (and any tool calls), always conclude by generating exactly 3 relevant, diverse follow-up questions in a JSON array format, prefixed with '[FOLLOW_UP_QUESTIONS]'. These questions must be highly relevant to the *preceding conversation* and *user data*. They can suggest actions (e.g., "Would you like to add [item] to your shopping list?") but should prioritize diverse topics like nutritional facts, comparisons, health impacts, or related items.
     
-    **Example of Expected Output Format (after direct answer and optional tool call):**
-    "Your concise natural language response here. [FOLLOW_UP_QUESTIONS] [\"Question 1?\", \"Question 2?\", \"Question 3?\"]"
-    
     Here is the current user's context:
     ${userContext}
     `;
@@ -309,7 +306,8 @@ export class AiIntegrationService {
               if (productToAdd.name && productToAdd.brand && functionArgs.meal_type) {
                 // AWAIT here to ensure it's added before proceeding
                 await this.foodDiaryService.addEntry(productToAdd, functionArgs.meal_type as MealType);
-                // Notification and audio are handled by the service itself
+                this.notificationService.showSuccess(`${productToAdd.name} added to your ${functionArgs.meal_type} diary!`);
+                this.audioService.playSuccessSound();
                 toolOutput = `Successfully added "${productToAdd.name}" to food diary for ${functionArgs.meal_type}.`;
               } else {
                 toolOutput = `Failed to add to food diary: Missing product name, brand, or meal type.`;
@@ -321,7 +319,8 @@ export class AiIntegrationService {
               if (productToAdd.name && productToAdd.brand) {
                 // AWAIT here to ensure it's added before proceeding
                 await this.shoppingListService.addItem(productToAdd);
-                // Notification and audio are handled by the service itself
+                this.notificationService.showSuccess(`${productToAdd.name} added to your shopping list!`);
+                this.audioService.playSuccessSound();
                 toolOutput = `Successfully added "${productToAdd.name}" to shopping list.`;
               } else {
                 toolOutput = `Failed to add to shopping list: Missing product name or brand.`;
