@@ -7,11 +7,12 @@ import { User } from '@supabase/supabase-js';
 import { ProfileService, Profile } from './services/profile.service';
 import { map } from 'rxjs/operators';
 import { AddToListModalComponent } from './add-to-list-modal/add-to-list-modal.component';
+import { LogoComponent } from './logo/logo.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, AddToListModalComponent],
+  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, AddToListModalComponent, LogoComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
