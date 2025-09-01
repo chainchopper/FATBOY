@@ -1,22 +1,58 @@
+@keyframes neon-flicker {
+  0%, 100% {
+    text-shadow:
+      0 0 2px #fff,
+      0 0 5px #fff,
+      0 0 8px #fff,
+      0 0 10px #f038ff,
+      0 0 18px #f038ff,
+      0 0 25px #f038ff,
+      0 0 40px #f038ff;
+    color: #f8c3ff;
+  }
+  50% {
+    text-shadow:
+      0 0 2px #fff,
+      0 0 6px #fff,
+      0 0 10px #fff,
+      0 0 15px #0abdc6,
+      0 0 25px #0abdc6,
+      0 0 35px #0abdc6,
+      0 0 50px #0abdc6;
+    color: #c7faff;
+  }
+}
+
 .main-nav {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end; /* Push all items to the right */
   align-items: center;
   padding: 15px 20px;
-  background: rgba(26, 26, 46, 0.6); /* Made background more transparent */
+  background: rgba(26, 26, 46, 0.6);
   backdrop-filter: blur(10px);
-  border-bottom: 1px solid #f038ff; /* Neon pink border */
-  position: fixed; /* Changed to fixed */
-  top: 0; /* Fixed at the top */
+  border-bottom: 1px solid #f038ff;
+  position: fixed;
+  top: 0;
   left: 0;
   right: 0;
   z-index: 1001;
+}
+
+.app-title {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: 'Righteous', cursive;
+  font-size: 1.75rem;
+  animation: neon-flicker 5s infinite alternate ease-in-out;
 }
 
 .nav-actions {
   display: flex;
   align-items: center;
   gap: 15px;
+  position: relative; /* Ensure it stays on top of the absolute title */
+  z-index: 2;
 }
 
 /* Hamburger Menu Button */
