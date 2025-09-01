@@ -1,8 +1,9 @@
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewChecked, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { AiIntegrationService, AiResponse } from '../services/ai-integration.service'; // Import AiResponse interface
+import { AiIntegrationService, AiResponse } from '../services/ai-integration.service';
 import { SpeechService } from '../services/speech.service';
+import { AuthService } from '../services/auth.service'; // Import AuthService
 import { Subscription, interval } from 'rxjs';
 
 interface Message {
@@ -10,7 +11,7 @@ interface Message {
   text: string;
   timestamp: Date;
   avatar: string;
-  followUpQuestions?: string[]; // Add this
+  followUpQuestions?: string[];
 }
 
 interface SlashCommand {
@@ -37,7 +38,9 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
   agentStatus: 'online' | 'offline' = 'offline';
   private speechSubscription!: Subscription;
   private statusSubscription!: Subscription;
-  private agentAvatar = 'https://api.dicebear.com/8.x/bottts-neutral/svg?seed=nirvana'; // Use a consistent avatar for the agent
+  private authSubscription!: Subscription; // New subscription for auth changes
+  private agentAvatar = 'https://api.dicebear.com/8.x/bottts-neutral/svg?seed=nirvana';
+  private currentUserId: string | null = null; // To store the current user ID
   
   availableCommands: SlashCommand[] = [
     { command: '/suggest', description: 'Get a personalized product suggestion.', usage: '/suggest' },
@@ -50,6 +53,7 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
   constructor(
     private aiService: AiIntegrationService,
     private speechService: SpeechService,
+    private authService: AuthService, // Inject AuthService
     private cdr: ChangeDetectorRef
   ) {}
 
@@ -57,12 +61,22 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
     this.checkStatus();
     this.statusSubscription = interval(300000).subscribe(() => this.checkStatus()); // Check every 5 minutes
 
-    this.messages.push({
-      sender: 'agent',
-      text: 'Hello! I am Fat Boy, your personal AI co-pilot, powered by NIRVANA from Fanalogy. How can I help you today?',
-      timestamp: new Date(),
-      avatar: this.agentAvatar
+    this.authSubscription = this.authService.currentUser$.subscribe(user => {
+      const previousUserId = this.currentUserId;
+      this.currentUserId = user?.id || null;
+      if (this.currentUserId !== previousUserId) {
+        this.loadChatHistory(); // Reload history if user changes
+      }
     });
+
+    if (this.messages.length === 0) {
+      this.messages.push({
+        sender: 'agent',
+        text: 'Hello! I am Fat Boy, your personal AI co-pilot, powered by NIRVANA from Fanalogy. How can I help you today?',
+        timestamp: new Date(),
+        avatar: this.agentAvatar
+      });
+    }
 
     this.speechSubscription = this.speechService.commandRecognized.subscribe(transcript => {
       this.userInput = transcript;
@@ -74,6 +88,7 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
   ngOnDestroy() {
     if (this.speechSubscription) this.speechSubscription.unsubscribe();
     if (this.statusSubscription) this.statusSubscription.unsubscribe();
+    if (this.authSubscription) this.authSubscription.unsubscribe(); // Unsubscribe from auth changes
     this.speechService.stopListening();
   }
 
@@ -121,18 +136,19 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
     this.isAgentTyping = true;
 
     try {
-      const aiResponse: AiResponse = await this.aiService.getChatCompletion(text); // Use AiResponse type
+      const aiResponse: AiResponse = await this.aiService.getChatCompletion(text);
       this.messages.push({
         sender: 'agent',
         text: aiResponse.text,
         timestamp: new Date(),
         avatar: this.agentAvatar,
-        followUpQuestions: aiResponse.followUpQuestions // Assign follow-up questions
+        followUpQuestions: aiResponse.followUpQuestions
       });
     } catch (error) {
       this.messages.push({ sender: 'agent', text: 'Sorry, I encountered an error. Please try again.', timestamp: new Date(), avatar: this.agentAvatar });
     } finally {
       this.isAgentTyping = false;
+      this.saveChatHistory(); // Save history after each message
     }
   }
 
@@ -145,5 +161,40 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
     try {
       this.messageWindow.nativeElement.scrollTop = this.messageWindow.nativeElement.scrollHeight;
     } catch(err) { }
+  }
+
+  private getStorageKey(): string {
+    return this.currentUserId ? `fatBoyChatHistory_${this.currentUserId}` : 'fatBoyChatHistory_anonymous';
+  }
+
+  private loadChatHistory(): void {
+    const stored = localStorage.getItem(this.getStorageKey());
+    if (stored) {
+      // Parse stored messages and convert timestamp strings back to Date objects
+      this.messages = JSON.parse(stored).map((msg: Message) => ({
+        ...msg,
+        timestamp: new Date(msg.timestamp)
+      }));
+    } else {
+      this.messages = [];
+    }
+  }
+
+  private saveChatHistory(): void {
+    localStorage.setItem(this.getStorageKey(), JSON.stringify(this.messages));
+  }
+
+  clearChatHistory(): void {
+    if (confirm('Are you sure you want to clear your chat history?')) {
+      localStorage.removeItem(this.getStorageKey());
+      this.messages = [{
+        sender: 'agent',
+        text: 'Hello! I am Fat Boy, your personal AI co-pilot, powered by NIRVANA from Fanalogy. How can I help you today?',
+        timestamp: new Date(),
+        avatar: this.agentAvatar
+      }];
+      this.cdr.detectChanges(); // Trigger change detection to update UI
+      this.scrollToBottom();
+    }
   }
 }

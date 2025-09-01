@@ -1,4 +1,8 @@
 <div class="console-container">
+  <div class="console-header">
+    <h2>🤖 Agent Console</h2>
+    <button (click)="clearChatHistory()" class="clear-chat-btn">Clear Chat</button>
+  </div>
   <div class="message-window" #messageWindow>
     <div *ngFor="let msg of messages" class="message" [ngClass]="'message-' + msg.sender">
       <div class="avatar-container" *ngIf="msg.sender === 'agent'">
