@@ -1,8 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, TitleCasePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { GamificationService } from '../services/gamification.service';
-import { AuthService } from '../services/auth.service';
 import { LeaderboardService } from '../services/leaderboard.service';
 import { ProductDbService, Product } from '../services/product-db.service';
 import { CommunityService } from '../services/community.service';
@@ -20,12 +19,13 @@ interface CommunityContribution {
   likes: number;
   profile: { first_name: string, last_name: string, avatar_url: string };
   comments: any[];
+  metadata: any; // Keeping metadata for potential future use
 }
 
 @Component({
   selector: 'app-community',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, TitleCasePipe],
   templateUrl: './community.component.html',
   styleUrls: ['./community.component.css']
 })
@@ -109,7 +109,12 @@ export class CommunityComponent implements OnInit {
     if (newComment) {
       const contribution = this.communityContributions.find(c => c.id === contributionId);
       if (contribution) {
-        contribution.comments.push(newComment);
+        // Add the profile data to the new comment for immediate display
+        const newCommentWithProfile = {
+          ...newComment,
+          username: `${newComment.profile.first_name || 'User'}`
+        };
+        contribution.comments.push(newCommentWithProfile);
       }
       this.newCommentText[contributionId] = '';
     }

@@ -18,7 +18,7 @@
     </div>
     <div *ngFor="let contribution of communityContributions" class="contribution-card">
       <div class="card-header">
-        <h4>{{ contribution.productName }}</h4>
+        <h4>{{ contribution.product_name }}</h4>
         <span class="status-badge status-{{ contribution.status }}">{{ contribution.status | titlecase }}</span>
       </div>
       <p class="card-brand">{{ contribution.brand }}</p>
@@ -27,22 +27,18 @@
       
       <div class="metadata-footer">
         <div class="user-info">
-          <span class="username">👤 {{ contribution.metadata.username || 'Anonymous' }}</span>
-          <span class="goal" *ngIf="contribution.metadata.goal">🎯 {{ contribution.metadata.goal | titlecase }}</span>
-        </div>
-        <div class="leaderboard-status" *ngIf="contribution.metadata.leaderboardStatus">
-          🏅 Rank {{ contribution.metadata.leaderboardStatus.rank }} ({{ contribution.metadata.leaderboardStatus.score }} pts)
+          <span class="username">👤 {{ contribution.profile?.first_name || 'Anonymous' }}</span>
         </div>
       </div>
 
       <div class="social-actions">
-        <button (click)="toggleLike(contribution.id)" class="like-btn">👍 {{ contribution.likes }}</button>
+        <button (click)="toggleLike(contribution)" class="like-btn">👍 {{ contribution.likes }}</button>
         <span class="comment-count">💬 {{ contribution.comments.length }}</span>
       </div>
 
       <div class="comments-section">
         <div *ngFor="let comment of contribution.comments" class="comment-item">
-          <strong>{{ comment.username }}:</strong> {{ comment.text }}
+          <strong>{{ comment.profile?.first_name || 'User' }}:</strong> {{ comment.text }}
         </div>
         <div class="add-comment">
           <input type="text" [(ngModel)]="newCommentText[contribution.id]" placeholder="Add a comment..." (keydown.enter)="addComment(contribution.id)" [ngModelOptions]="{standalone: true}">

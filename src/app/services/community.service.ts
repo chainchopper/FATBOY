@@ -2,9 +2,6 @@ import { Injectable } from '@angular/core';
 import { supabase } from '../../integrations/supabase/client';
 import { AuthService } from './auth.service';
 
-// Interfaces will be defined in the component for now
-// to keep this service focused on DB interactions.
-
 @Injectable({
   providedIn: 'root'
 })
@@ -18,7 +15,7 @@ export class CommunityService {
       .select(`
         *,
         profile:profiles(first_name, last_name, avatar_url),
-        comments:contribution_comments(*)
+        comments:contribution_comments(*, profile:profiles(first_name, last_name))
       `)
       .eq('status', 'approved')
       .order('created_at', { ascending: false });
@@ -64,12 +61,13 @@ export class CommunityService {
     const { data, error } = await supabase
       .from('contribution_comments')
       .insert([{ contribution_id: contributionId, user_id: userId, text }])
-      .select();
+      .select(`*, profile:profiles(first_name, last_name)`)
+      .single();
 
     if (error) {
       console.error('Error adding comment:', error);
       return null;
     }
-    return data[0];
+    return data;
   }
 }
