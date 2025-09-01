@@ -114,16 +114,35 @@
   max-height: 100px;
 }
 
-.send-btn {
-  background: linear-gradient(135deg, #0abdc6, #089da3);
+.mic-btn, .send-btn {
+  background: transparent;
   border: none;
-  color: white;
+  color: #a0a0c0;
   width: 40px;
   height: 40px;
   border-radius: 50%;
   font-size: 1.5rem;
   cursor: pointer;
   transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mic-btn:hover {
+  background-color: #2a2a4e;
+  color: #0abdc6;
+}
+
+.mic-btn.active {
+  background-color: #f038ff;
+  color: white;
+  box-shadow: 0 0 10px #f038ff;
+}
+
+.send-btn {
+  background: linear-gradient(135deg, #0abdc6, #089da3);
+  color: white;
 }
 .send-btn:hover {
   box-shadow: 0 0 10px #0abdc6;

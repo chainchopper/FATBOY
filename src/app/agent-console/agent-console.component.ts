@@ -1,8 +1,10 @@
-import { Component, OnInit, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AiIntegrationService } from '../services/ai-integration.service';
 import { ProductDbService } from '../services/product-db.service';
+import { SpeechService } from '../services/speech.service';
+import { Subscription } from 'rxjs';
 
 interface Message {
   sender: 'user' | 'agent';
@@ -23,13 +25,15 @@ interface SlashCommand {
   templateUrl: './agent-console.component.html',
   styleUrls: ['./agent-console.component.css']
 })
-export class AgentConsoleComponent implements OnInit, AfterViewChecked {
+export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecked {
   @ViewChild('messageWindow') private messageWindow!: ElementRef;
 
   messages: Message[] = [];
   userInput: string = '';
   showSlashCommands = false;
   isAgentTyping = false;
+  isListening = false;
+  private speechSubscription!: Subscription;
   
   availableCommands: SlashCommand[] = [
     { command: '/suggest', description: 'Get a personalized product suggestion.', usage: '/suggest' },
@@ -41,19 +45,42 @@ export class AgentConsoleComponent implements OnInit, AfterViewChecked {
 
   constructor(
     private aiService: AiIntegrationService,
-    private productDb: ProductDbService
+    private productDb: ProductDbService,
+    private speechService: SpeechService
   ) {}
 
   ngOnInit() {
     this.messages.push({
       sender: 'agent',
-      text: 'Welcome to the Agent Console. Type `/` to see available commands.',
+      text: 'Welcome to the Agent Console. Type a message, use a `/` command, or tap the mic to speak.',
       timestamp: new Date()
     });
+
+    this.speechSubscription = this.speechService.commandRecognized.subscribe(transcript => {
+      this.userInput = transcript;
+      this.sendMessage();
+      this.isListening = false;
+    });
+  }
+
+  ngOnDestroy() {
+    if (this.speechSubscription) {
+      this.speechSubscription.unsubscribe();
+    }
+    this.speechService.stopListening();
   }
 
   ngAfterViewChecked() {
     this.scrollToBottom();
+  }
+
+  toggleVoiceListening() {
+    this.isListening = !this.isListening;
+    if (this.isListening) {
+      this.speechService.startListening();
+    } else {
+      this.speechService.stopListening();
+    }
   }
 
   handleInput() {
@@ -88,27 +115,28 @@ export class AgentConsoleComponent implements OnInit, AfterViewChecked {
   }
 
   mockAgentResponse(command: string): string {
-    if (command.startsWith('/suggest')) {
+    const lowerCommand = command.toLowerCase();
+
+    if (lowerCommand.includes('suggest') || lowerCommand.includes('recommend')) {
       return "Based on your recent activity, I suggest trying 'Organic Berry Granola'. It aligns with your preference for natural ingredients.";
     }
-    if (command.startsWith('/summarize')) {
+    if (lowerCommand.includes('summarize') || lowerCommand.includes('summary')) {
       const history = this.productDb.getProductsSnapshot();
       if (history.length === 0) {
         return "You haven't scanned any products yet. Start scanning to get a summary of your activity!";
       }
       const goodScans = history.filter(p => p.verdict === 'good').length;
-      const badScans = history.filter(p => p.verdict === 'bad').length;
-      return `Summary: You have scanned ${history.length} products. ${goodScans} were approved and ${badScans} were denied.`;
+      return `You've scanned ${history.length} products recently. ${goodScans} of them were Fat Boy Approved. Keep up the great work!`;
     }
-    if (command.startsWith('/find')) {
-      const ingredient = command.split(' ')[1] || 'anything';
-      return `Searching for products containing '${ingredient}'... I've found 3 matching products in our community database. Would you like to add them to a list?`;
+    if (lowerCommand.startsWith('/find') || lowerCommand.startsWith('find')) {
+      const ingredient = command.split(' ').slice(1).join(' ') || 'anything';
+      return `I've searched the community database for products containing '${ingredient}' and found 3 matches. Would you like to see them?`;
     }
-    if (command.startsWith('/playwright')) {
+    if (lowerCommand.includes('playwright')) {
       const test = command.split(' ')[1] || 'login';
       return `Executing Playwright test '${test}'... Test passed successfully in 2.3s. All assertions met.`;
     }
-    return "I'm sorry, I don't understand that command. Type `/` to see what I can do.";
+    return "I'm sorry, I don't understand that command. Type `/` to see what I can do, or just ask me a question.";
   }
 
   private scrollToBottom(): void {
