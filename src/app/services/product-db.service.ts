@@ -80,6 +80,11 @@ export class ProductDbService {
     return this.products.find(p => p.id === id);
   }
 
+  // New method to get a snapshot of the current products
+  getProductsSnapshot(): Product[] {
+    return this.productsSubject.getValue();
+  }
+
   getProductsByCategory(category: string): Product[] {
     return this.products.filter(p => p.categories.includes(category));
   }

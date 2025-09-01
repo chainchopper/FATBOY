@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AiIntegrationService } from '../services/ai-integration.service';
+import { ProductDbService } from '../services/product-db.service';
 
 interface Message {
   sender: 'user' | 'agent';
@@ -22,20 +23,26 @@ interface SlashCommand {
   templateUrl: './agent-console.component.html',
   styleUrls: ['./agent-console.component.css']
 })
-export class AgentConsoleComponent implements OnInit {
+export class AgentConsoleComponent implements OnInit, AfterViewChecked {
+  @ViewChild('messageWindow') private messageWindow!: ElementRef;
+
   messages: Message[] = [];
   userInput: string = '';
   showSlashCommands = false;
+  isAgentTyping = false;
   
   availableCommands: SlashCommand[] = [
     { command: '/suggest', description: 'Get a personalized product suggestion.', usage: '/suggest' },
-    { command: '/summarize', description: 'Summarize your recent activity.', usage: '/summarize <period>' },
+    { command: '/summarize', description: 'Summarize your recent activity.', usage: '/summarize' },
     { command: '/find', description: 'Find products with a specific ingredient.', usage: '/find <ingredient>' },
     { command: '/playwright', description: 'Run a Playwright test.', usage: '/playwright <test_name>' }
   ];
   filteredCommands: SlashCommand[] = [];
 
-  constructor(private aiService: AiIntegrationService) {}
+  constructor(
+    private aiService: AiIntegrationService,
+    private productDb: ProductDbService
+  ) {}
 
   ngOnInit() {
     this.messages.push({
@@ -43,6 +50,10 @@ export class AgentConsoleComponent implements OnInit {
       text: 'Welcome to the Agent Console. Type `/` to see available commands.',
       timestamp: new Date()
     });
+  }
+
+  ngAfterViewChecked() {
+    this.scrollToBottom();
   }
 
   handleInput() {
@@ -67,14 +78,13 @@ export class AgentConsoleComponent implements OnInit {
     this.messages.push({ sender: 'user', text, timestamp: new Date() });
     this.userInput = '';
     this.showSlashCommands = false;
+    this.isAgentTyping = true;
 
-    // Mock agent thinking time
-    setTimeout(async () => {
-      // In a real app, this would call the AI service
-      // const responseText = await this.aiService.executeAgentCommand(text);
+    setTimeout(() => {
       const responseText = this.mockAgentResponse(text);
       this.messages.push({ sender: 'agent', text: responseText, timestamp: new Date() });
-    }, 1000);
+      this.isAgentTyping = false;
+    }, 1500);
   }
 
   mockAgentResponse(command: string): string {
@@ -82,7 +92,13 @@ export class AgentConsoleComponent implements OnInit {
       return "Based on your recent activity, I suggest trying 'Organic Berry Granola'. It aligns with your preference for natural ingredients.";
     }
     if (command.startsWith('/summarize')) {
-      return "Summary for last 7 days: You've scanned 12 products, logged 21 meals, and your daily performance verdict has been 'Good' or 'Excellent' 85% of the time. Keep it up!";
+      const history = this.productDb.getProductsSnapshot();
+      if (history.length === 0) {
+        return "You haven't scanned any products yet. Start scanning to get a summary of your activity!";
+      }
+      const goodScans = history.filter(p => p.verdict === 'good').length;
+      const badScans = history.filter(p => p.verdict === 'bad').length;
+      return `Summary: You have scanned ${history.length} products. ${goodScans} were approved and ${badScans} were denied.`;
     }
     if (command.startsWith('/find')) {
       const ingredient = command.split(' ')[1] || 'anything';
@@ -93,5 +109,11 @@ export class AgentConsoleComponent implements OnInit {
       return `Executing Playwright test '${test}'... Test passed successfully in 2.3s. All assertions met.`;
     }
     return "I'm sorry, I don't understand that command. Type `/` to see what I can do.";
+  }
+
+  private scrollToBottom(): void {
+    try {
+      this.messageWindow.nativeElement.scrollTop = this.messageWindow.nativeElement.scrollHeight;
+    } catch(err) { }
   }
 }

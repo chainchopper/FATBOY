@@ -1,9 +1,14 @@
 <div class="console-container">
-  <div class="message-window">
+  <div class="message-window" #messageWindow>
     <div *ngFor="let msg of messages" class="message" [ngClass]="'message-' + msg.sender">
       <div class="message-bubble">
         <p>{{ msg.text }}</p>
         <span class="timestamp">{{ msg.timestamp | date:'shortTime' }}</span>
+      </div>
+    </div>
+    <div *ngIf="isAgentTyping" class="message message-agent">
+      <div class="message-bubble typing-indicator">
+        <span></span><span></span><span></span>
       </div>
     </div>
   </div>
@@ -22,6 +27,6 @@
       placeholder="Type a command or message..."
       class="input-field">
     </textarea>
-    <button (click)="sendMessage()" class="send-btn">→</button>
+    <button (click)="sendMessage()" class="send-btn" [disabled]="!userInput.trim()">→</button>
   </div>
 </div>
