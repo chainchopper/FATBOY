@@ -213,8 +213,18 @@ export class AiIntegrationService {
     }
     // --- End RAG Integration Phase 1 ---
 
-    // Updated system message to instruct for follow-up questions
-    const systemMessage = `You are Fat Boy, an AI nutritional co-pilot powered by NIRVANA from Fanalogy. Your responses must be concise (1-2 sentences). If the user asks about a food item, provide its benefits and key characteristics/ingredients. IMPORTANT: Always provide a direct response to the user's query first. If a tool call is needed, make the tool call. After your direct response (and any tool calls), always conclude by generating exactly 3 relevant follow-up questions in a JSON array format, prefixed with '[FOLLOW_UP_QUESTIONS]'. DO NOT include your internal reasoning in the 'content' field. Example: "Here is your direct answer. [FOLLOW_UP_QUESTIONS] [\"Question 1?\", \"Question 2?\", \"Question 3?\"]".
+    // Drastically refined system message
+    const systemMessage = `You are Fat Boy, an AI nutritional co-pilot powered by NIRVANA from Fanalogy.
+    Your primary goal is to assist the user with food-related inquiries, product analysis, and managing their food diary and shopping list.
+    
+    **Instructions for Response Generation:**
+    1.  **Prioritize Tool Calls:** If the user's intent clearly matches a defined tool, make the tool call.
+    2.  **Concise Direct Answers:** Always provide a direct, concise (1-2 sentences) natural language response to the user's query.
+    3.  **NO Internal Reasoning in 'content':** Absolutely DO NOT include any internal thought process or reasoning in your 'content' field. Your 'content' should be purely the user-facing response.
+    4.  **Follow-up Questions:** After your direct response (and any tool calls), always conclude by generating exactly 3 relevant follow-up questions in a JSON array format, prefixed with '[FOLLOW_UP_QUESTIONS]'.
+    
+    **Example of Expected Output Format (after tool call or direct answer):**
+    "Your concise natural language response here. [FOLLOW_UP_QUESTIONS] [\"Question 1?\", \"Question 2?\", \"Question 3?\"]"
     
     Here is the current user's context:
     ${userContext}
@@ -388,7 +398,7 @@ export class AiIntegrationService {
             }
           }
         }
-        mainText = mainText.replace(/Your main response goes here\./g, '').trim();
+        // Removed the specific cleanup for "Your main response goes here." as the system message is now much stricter.
         return { text: mainText, followUpQuestions, toolCalls: choice.message.tool_calls };
       }
       // --- End Handle Tool Calls ---
@@ -430,8 +440,7 @@ export class AiIntegrationService {
         }
       }
 
-      mainText = mainText.replace(/Your main response goes here\./g, '').trim();
-
+      // Removed the specific cleanup for "Your main response goes here." as the system message is now much stricter.
       return { text: mainText, followUpQuestions };
 
     } catch (error) {
