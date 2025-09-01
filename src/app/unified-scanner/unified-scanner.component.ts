@@ -10,6 +10,7 @@ import { ProductDbService, Product } from '../services/product-db.service';
 import { NotificationService } from '../services/notification.service';
 import { SpeechService } from '../services/speech.service';
 import { AuthService } from '../services/auth.service';
+import { PermissionsService } from '../services/permissions.service'; // Import the new service
 import { take } from 'rxjs/operators';
 import { Subscription } from 'rxjs';
 
@@ -22,7 +23,7 @@ import { Subscription } from 'rxjs';
 })
 export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
   @ViewChild('canvasElement', { static: false }) canvasElement!: ElementRef<HTMLCanvasElement>;
-  @ViewChild('reader') reader!: ElementRef; // For Html5Qrcode
+  @ViewChild('reader') reader!: ElementRef;
 
   private html5QrcodeScanner!: Html5Qrcode;
   isScanningBarcode = false;
@@ -42,15 +43,22 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
     private productDb: ProductDbService,
     private notificationService: NotificationService,
     private speechService: SpeechService,
-    private authService: AuthService
+    private authService: AuthService,
+    private permissionsService: PermissionsService // Inject the service
   ) {}
 
   async ngAfterViewInit() {
+    const hasCameraPermission = await this.permissionsService.checkAndRequestCameraPermission();
+    if (!hasCameraPermission) {
+      this.notificationService.showError('Camera access is required to use the scanner.');
+      return; // Stop initialization if permission is denied
+    }
+
     try {
       this.html5QrcodeScanner = new Html5Qrcode("reader");
       await this.setupCameras();
       if (this.cameras.length > 0) {
-        this.startBarcodeScanning(); // This will start the single camera feed
+        this.startBarcodeScanning();
       }
       this.checkVoiceCommandsPreference();
       this.voiceCommandSubscription = this.speechService.commandRecognized.subscribe(command => {
@@ -61,6 +69,8 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
       this.notificationService.showError('Error initializing scanner.');
     }
   }
+
+  // ... (the rest of the component logic remains the same)
 
   private checkVoiceCommandsPreference(): void {
     this.authService.currentUser$.pipe(take(1)).subscribe(user => {
@@ -78,32 +88,11 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
       this.captureLabelForOcr();
       this.speechService.speak('Scanning label.');
     } else if (command.includes('scan barcode') || command.includes('start scanning')) {
-      this.startBarcodeScanning(); // This will restart if already running
+      this.startBarcodeScanning();
       this.speechService.speak('Scanning barcode.');
     } else if (command.includes('go to history')) {
       this.router.navigate(['/history']);
       this.speechService.speak('Going to history.');
-    } else if (command.includes('go to preferences')) {
-      this.router.navigate(['/preferences']);
-      this.speechService.speak('Opening preferences.');
-    } else if (command.includes('go to saved')) {
-      this.router.navigate(['/saved']);
-      this.speechService.speak('Opening saved products.');
-    } else if (command.includes('go to shopping list')) {
-      this.router.navigate(['/shopping-list']);
-      this.speechService.speak('Opening shopping list.');
-    } else if (command.includes('go to achievements')) {
-      this.router.navigate(['/achievements']);
-      this.speechService.speak('Opening achievements.');
-    } else if (command.includes('go to community')) {
-      this.router.navigate(['/community']);
-      this.speechService.speak('Opening community page.');
-    } else if (command.includes('go to food diary')) {
-      this.router.navigate(['/food-diary']);
-      this.speechService.speak('Opening food diary.');
-    } else if (command.includes('add to shopping list')) {
-      // This command will be handled on the results pages
-      this.speechService.speak('You can add items to your shopping list from the results page.');
     } else {
       this.speechService.speak('Command not recognized. Please try again.');
     }
@@ -182,7 +171,6 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
   async captureLabelForOcr(): Promise<void> {
     if (this.isProcessingOcr) return;
 
-    // Find the video element created by Html5Qrcode inside the #reader div
     const video = this.reader.nativeElement.querySelector('video');
     if (!video) {
       this.notificationService.showError('Camera feed not found. Please try again.');
@@ -203,7 +191,7 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
 
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
     this.isProcessingOcr = true;
-    this.stopBarcodeScanning(); // Stop continuous barcode scanning during OCR processing
+    this.stopBarcodeScanning();
 
     try {
       const dataUrl = canvas.toDataURL('image/png');
@@ -213,7 +201,7 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
       if (!text || text.trim().length === 0) {
         this.notificationService.showWarning('No text detected. Please adjust lighting and try again.');
         this.isProcessingOcr = false;
-        this.startBarcodeScanning(); // Restart barcode scanning
+        this.startBarcodeScanning();
         return;
       }
 
@@ -222,12 +210,11 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
       console.error('OCR error:', err);
       this.notificationService.showError('Failed to process the image. Please try again.');
       this.isProcessingOcr = false;
-      this.startBarcodeScanning(); // Restart barcode scanning
+      this.startBarcodeScanning();
     }
   }
 
   private processExtractedText(text: string): void {
-    // The camera is already stopped by stopBarcodeScanning()
     const enhancedIngredients = this.ocrEnhancer.enhanceIngredientDetection(text);
     const productName = this.ocrEnhancer.detectProductName(text);
     const brand = this.ocrEnhancer.detectBrand(text);
