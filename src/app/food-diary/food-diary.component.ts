@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, KeyValuePipe, TitleCasePipe, DatePipe } from '@angular/common';
 import { FoodDiaryService, DiaryEntry, MealType, DailyVerdict } from '../services/food-diary.service';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -7,7 +7,7 @@ import { map } from 'rxjs/operators';
 @Component({
   selector: 'app-food-diary',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, KeyValuePipe, TitleCasePipe, DatePipe],
   templateUrl: './food-diary.component.html',
   styleUrls: ['./food-diary.component.css']
 })
@@ -24,6 +24,7 @@ export class FoodDiaryComponent implements OnInit {
   lunch$!: Observable<DiaryEntry[]>;
   dinner$!: Observable<DiaryEntry[]>;
   snacks$!: Observable<DiaryEntry[]>;
+  drinks$!: Observable<DiaryEntry[]>;
 
   currentDate: Date = new Date(); // Track the currently viewed date
 
@@ -49,6 +50,7 @@ export class FoodDiaryComponent implements OnInit {
     this.lunch$ = this.filterEntriesByMeal('Lunch');
     this.dinner$ = this.filterEntriesByMeal('Dinner');
     this.snacks$ = this.filterEntriesByMeal('Snack');
+    this.drinks$ = this.filterEntriesByMeal('Drinks');
   }
 
   private filterEntriesByMeal(meal: MealType): Observable<DiaryEntry[]> {

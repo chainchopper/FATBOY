@@ -5,7 +5,7 @@ import { NotificationService } from './notification.service';
 import { AuthService } from './auth.service';
 import { SpeechService } from './speech.service';
 
-export type MealType = 'Breakfast' | 'Lunch' | 'Dinner' | 'Snack';
+export type MealType = 'Breakfast' | 'Lunch' | 'Dinner' | 'Snack' | 'Drinks';
 
 export interface DiaryEntry {
   id: string;

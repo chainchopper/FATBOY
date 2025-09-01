@@ -1,43 +1,57 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, KeyValuePipe, TitleCasePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NotificationService } from '../services/notification.service';
 import { AuthService } from '../services/auth.service';
+import { IngredientParserService } from '../services/ingredient-parser.service';
 
 @Component({
   selector: 'app-preferences',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, KeyValuePipe, TitleCasePipe],
   templateUrl: './preferences.component.html',
   styleUrls: ['./preferences.component.css']
 })
 export class PreferencesComponent implements OnInit {
   preferences = {
-    // Food preferences
-    avoidArtificialSweeteners: true,
-    avoidArtificialColors: true,
-    avoidHFCS: true,
-    avoidPreservatives: false,
-    avoidMSG: false,
-    avoidTransFats: true,
+    avoidedIngredients: ['aspartame', 'sucralose', 'red 40', 'yellow 5', 'high-fructose corn syrup', 'partially hydrogenated'],
     maxCalories: 200,
     dailyCalorieTarget: 2000,
     goal: 'avoidChemicals',
-    // Privacy settings
     shareUsername: true,
     shareGoal: true,
     shareLeaderboardStatus: true
   };
 
+  ingredientCategories: { [key: string]: { name: string, items: string[] } };
   private currentUserId: string | null = null;
 
-  constructor(private notificationService: NotificationService, private authService: AuthService) {}
+  constructor(
+    private notificationService: NotificationService, 
+    private authService: AuthService,
+    private ingredientParser: IngredientParserService
+  ) {
+    this.ingredientCategories = this.ingredientParser.INGREDIENT_DATABASE;
+  }
 
   ngOnInit() {
     this.authService.currentUser$.subscribe(user => {
       this.currentUserId = user?.id || null;
       this.loadPreferences();
     });
+  }
+
+  isIngredientAvoided(ingredient: string): boolean {
+    return this.preferences.avoidedIngredients.includes(ingredient);
+  }
+
+  toggleAvoidIngredient(ingredient: string): void {
+    const index = this.preferences.avoidedIngredients.indexOf(ingredient);
+    if (index > -1) {
+      this.preferences.avoidedIngredients.splice(index, 1);
+    } else {
+      this.preferences.avoidedIngredients.push(ingredient);
+    }
   }
 
   savePreferences() {
@@ -52,7 +66,6 @@ export class PreferencesComponent implements OnInit {
   private loadPreferences() {
     const saved = localStorage.getItem(this.getStorageKey());
     if (saved) {
-      // Merge saved preferences with defaults to ensure new settings are not lost
       const savedPrefs = JSON.parse(saved);
       this.preferences = { ...this.preferences, ...savedPrefs };
     }

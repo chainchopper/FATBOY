@@ -16,32 +16,51 @@ export interface ProductEvaluation {
 })
 export class IngredientParserService {
 
-  private readonly AVOID_LISTS: { [key: string]: string[] } = {
-    avoidArtificialSweeteners: ['aspartame', 'sucralose', 'saccharin', 'acesulfame potassium', 'neotame', 'advantame'],
-    avoidArtificialColors: ['red 40', 'yellow 5', 'yellow 6', 'blue 1', 'blue 2', 'green 3', 'fd&c'],
-    avoidHFCS: ['high-fructose corn syrup', 'hfcs'],
-    avoidPreservatives: ['bht', 'bha', 'sodium benzoate', 'potassium sorbate', 'sodium nitrate', 'sodium nitrite', 'sulfites', 'tbhq'],
-    avoidMSG: ['monosodium glutamate', 'msg'],
-    avoidTransFats: ['partially hydrogenated', 'hydrogenated oil']
+  public readonly INGREDIENT_DATABASE: { [key: string]: { name: string, items: string[] } } = {
+    artificialSweeteners: {
+      name: 'Artificial Sweeteners',
+      items: ['aspartame', 'sucralose', 'saccharin', 'acesulfame potassium', 'neotame', 'advantame']
+    },
+    artificialColors: {
+      name: 'Artificial Colors',
+      items: ['red 40', 'yellow 5', 'yellow 6', 'blue 1', 'blue 2', 'green 3', 'fd&c']
+    },
+    fatsAndOils: {
+      name: 'Fats & Oils',
+      items: ['partially hydrogenated', 'hydrogenated oil', 'palm oil', 'shortening']
+    },
+    preservatives: {
+      name: 'Preservatives',
+      items: ['bht', 'bha', 'sodium benzoate', 'potassium sorbate', 'sodium nitrate', 'sodium nitrite', 'sulfites', 'tbhq']
+    },
+    syrupsAndSugars: {
+      name: 'Syrups & Sugars',
+      items: ['high-fructose corn syrup', 'hfcs', 'corn syrup', 'glucose', 'dextrose']
+    },
+    additives: {
+      name: 'Additives & Flavor Enhancers',
+      items: ['monosodium glutamate', 'msg', 'yeast extract', 'disodium guanylate']
+    },
+    allergens: {
+      name: 'Common Allergens',
+      items: ['gluten', 'wheat', 'soy', 'dairy', 'lactose', 'casein', 'whey']
+    }
   };
 
   evaluateProduct(ingredients: string[], calories: number | undefined, preferences: any): ProductEvaluation {
     const flagged: { ingredient: string, reason: string }[] = [];
+    const avoidedIngredients = preferences.avoidedIngredients || [];
 
-    // 1. Check ingredients against preference lists
-    for (const key in this.AVOID_LISTS) {
-      if (preferences[key]) {
-        this.AVOID_LISTS[key].forEach(avoidItem => {
-          ingredients.forEach(ingredient => {
-            if (ingredient.toLowerCase().includes(avoidItem)) {
-              if (!flagged.some(f => f.ingredient === ingredient)) {
-                flagged.push({ ingredient, reason: this.getReasonForKey(key) });
-              }
-            }
-          });
-        });
-      }
-    }
+    // 1. Check ingredients against the user's custom avoid list
+    avoidedIngredients.forEach((avoidItem: string) => {
+      ingredients.forEach(ingredient => {
+        if (ingredient.toLowerCase().includes(avoidItem)) {
+          if (!flagged.some(f => f.ingredient === ingredient)) {
+            flagged.push({ ingredient, reason: `Contains ${avoidItem}, which you avoid.` });
+          }
+        }
+      });
+    });
 
     // 2. Check calorie limit
     if (preferences.maxCalories && calories && calories > preferences.maxCalories) {
@@ -54,26 +73,14 @@ export class IngredientParserService {
     };
   }
 
-  private getReasonForKey(key: string): string {
-    const reasons: { [key: string]: string } = {
-      avoidArtificialSweeteners: 'Artificial Sweetener',
-      avoidArtificialColors: 'Artificial Color',
-      avoidHFCS: 'High-Fructose Corn Syrup',
-      avoidPreservatives: 'Preservative',
-      avoidMSG: 'MSG',
-      avoidTransFats: 'Trans Fat'
-    };
-    return reasons[key] || 'Flagged Ingredient';
-  }
-
   categorizeProduct(ingredients: string[]): string[] {
     const categories = new Set<string>();
     ingredients.forEach(ingredient => {
       const lowerIngredient = ingredient.toLowerCase();
-      for (const key in this.AVOID_LISTS) {
-        this.AVOID_LISTS[key].forEach(avoidItem => {
+      for (const key in this.INGREDIENT_DATABASE) {
+        this.INGREDIENT_DATABASE[key].items.forEach(avoidItem => {
           if (lowerIngredient.includes(avoidItem)) {
-            categories.add(this.getCategoryNameForKey(key));
+            categories.add(key);
           }
         });
       }
@@ -83,20 +90,7 @@ export class IngredientParserService {
     }
     return Array.from(categories);
   }
-
-  private getCategoryNameForKey(key: string): string {
-    const names: { [key: string]: string } = {
-      avoidArtificialSweeteners: 'artificialSweeteners',
-      avoidArtificialColors: 'artificialColors',
-      avoidHFCS: 'hfcs',
-      avoidPreservatives: 'preservatives',
-      avoidMSG: 'msg',
-      avoidTransFats: 'transFats'
-    };
-    return names[key] || 'other';
-  }
   
-  // This is a simplified version for broad checks, the main logic is now in evaluateProduct
   evaluateIngredients(ingredients: string[], preferences: any): string[] {
     const evaluation = this.evaluateProduct(ingredients, undefined, preferences);
     return evaluation.flaggedIngredients.map(f => f.ingredient);

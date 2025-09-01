@@ -23,7 +23,7 @@ h2 {
 }
 
 .preference-section h3 {
-  margin-bottom: 20px;
+  margin-bottom: 10px;
   font-size: 1.2rem;
   color: #0abdc6;
   text-shadow: 0 0 5px #0abdc6;
@@ -31,11 +31,30 @@ h2 {
   padding-bottom: 10px;
 }
 
+.section-description {
+  font-size: 0.9rem;
+  color: #a0a0c0;
+  margin-bottom: 20px;
+}
+
+.ingredient-category h4 {
+  color: #f038ff;
+  margin-top: 20px;
+  margin-bottom: 15px;
+  font-size: 1.1rem;
+}
+
+.ingredient-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+}
+
 .preference-item {
-  margin: 15px 0;
+  margin: 5px 0;
   display: flex;
   align-items: center;
-  font-size: 1rem;
+  font-size: 0.9rem;
 }
 
 .preference-item input[type="checkbox"] {

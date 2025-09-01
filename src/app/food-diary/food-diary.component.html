@@ -77,5 +77,16 @@
         <p *ngIf="entries.length === 0" class="empty-meal">No snack items logged.</p>
       </div>
     </div>
+
+    <div class="meal-section">
+      <h3>🥤 Drinks</h3>
+      <div *ngIf="(drinks$ | async) as entries" class="meal-list">
+        <div *ngFor="let entry of entries" class="diary-item">
+          <span>{{ entry.product.name }}</span>
+          <span class="brand">{{ entry.product.brand }}</span>
+        </div>
+        <p *ngIf="entries.length === 0" class="empty-meal">No drinks logged.</p>
+      </div>
+    </div>
   </div>
 </div>

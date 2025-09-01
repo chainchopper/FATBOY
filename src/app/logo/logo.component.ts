@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
   selector: 'app-logo',
   standalone: true,
   template: `
-    <svg width="140" height="40" viewBox="0 0 140 40" xmlns="http://www.w3.org/2000/svg" class="logo-svg" (click)="goToHome()">
+    <svg width="40" height="40" viewBox="-22 -22 44 44" xmlns="http://www.w3.org/2000/svg" class="logo-svg" (click)="goToHome()">
       <defs>
         <filter id="neon-glow-logo" x="-50%" y="-50%" width="200%" height="200%">
           <feGaussianBlur stdDeviation="2.5" result="coloredBlur"/>
@@ -21,7 +21,7 @@ import { Router } from '@angular/router';
       </defs>
       
       <!-- Fat Clock Man -->
-      <g transform="translate(20, 20)" class="clock-man">
+      <g class="clock-man">
         <!-- Body/Clock Face -->
         <circle cx="0" cy="0" r="18" fill="url(#scan-gradient)" filter="url(#neon-glow-logo)"/>
         
@@ -38,33 +38,21 @@ import { Router } from '@angular/router';
           <line x1="0" y1="0" x2="6" y2="4" stroke="#1a1a2e" stroke-width="2" stroke-linecap="round" class="hour-hand"/>
         </g>
       </g>
-      
-      <!-- Text -->
-      <text x="45" y="30" class="logo-text" filter="url(#neon-glow-logo)">Fat Boy</text>
     </svg>
   `,
   styles: [`
     .logo-svg {
-      font-family: 'Roboto Mono', monospace;
-      font-weight: 700;
-      font-size: 28px;
-      letter-spacing: 1px;
       cursor: pointer;
       transition: transform 0.2s ease-in-out;
     }
     .logo-svg:hover {
-      transform: scale(1.05);
-    }
-    .logo-text {
-      fill: #f038ff;
-      stroke: #f038ff;
-      stroke-width: 0.5px;
+      transform: scale(1.1);
     }
     .clock-man {
       transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
     }
     .logo-svg:hover .clock-man {
-      transform: translate(20, 20) rotate(10deg) scale(1.1);
+      transform: rotate(10deg) scale(1.1);
     }
     
     .hands-container {

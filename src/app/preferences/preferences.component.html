@@ -2,36 +2,21 @@
   <h2>Your Food Preferences</h2>
   
   <div class="preference-section">
-    <h3>What do you want to avoid?</h3>
+    <h3>Ingredients to Avoid</h3>
+    <p class="section-description">Select specific ingredients you want to avoid. Any product containing these will be marked as 'Denied'.</p>
     
-    <div class="preference-item">
-      <input type="checkbox" id="avoidArtificialSweeteners" [(ngModel)]="preferences.avoidArtificialSweeteners">
-      <label for="avoidArtificialSweeteners">Artificial Sweeteners (Aspartame, Sucralose)</label>
-    </div>
-    
-    <div class="preference-item">
-      <input type="checkbox" id="avoidArtificialColors" [(ngModel)]="preferences.avoidArtificialColors">
-      <label for="avoidArtificialColors">Artificial Colors (Red #40, Yellow #5)</label>
-    </div>
-    
-    <div class="preference-item">
-      <input type="checkbox" id="avoidHFCS" [(ngModel)]="preferences.avoidHFCS">
-      <label for="avoidHFCS">High-Fructose Corn Syrup</label>
-    </div>
-    
-    <div class="preference-item">
-      <input type="checkbox" id="avoidPreservatives" [(ngModel)]="preferences.avoidPreservatives">
-      <label for="avoidPreservatives">Preservatives (BHT, Sodium Benzoate)</label>
-    </div>
-    
-    <div class="preference-item">
-      <input type="checkbox" id="avoidMSG" [(ngModel)]="preferences.avoidMSG">
-      <label for="avoidMSG">MSG</label>
-    </div>
-    
-    <div class="preference-item">
-      <input type="checkbox" id="avoidTransFats" [(ngModel)]="preferences.avoidTransFats">
-      <label for="avoidTransFats">Trans Fats</label>
+    <div *ngFor="let category of ingredientCategories | keyvalue" class="ingredient-category">
+      <h4>{{ category.value.name }}</h4>
+      <div class="ingredient-grid">
+        <div *ngFor="let item of category.value.items" class="preference-item">
+          <input 
+            type="checkbox" 
+            [id]="item" 
+            [checked]="isIngredientAvoided(item)"
+            (change)="toggleAvoidIngredient(item)">
+          <label [for]="item">{{ item | titlecase }}</label>
+        </div>
+      </div>
     </div>
   </div>
   
