@@ -9,6 +9,7 @@ import { NotificationService } from '../services/notification.service';
 import { ProductDbService } from '../services/product-db.service';
 import { FoodDiaryService } from '../services/food-diary.service';
 import { ScanContextService } from '../services/scan-context.service';
+import { ModalService } from '../services/modal.service';
 
 @Component({
   selector: 'app-ocr-results',
@@ -30,7 +31,8 @@ export class OcrResultsComponent implements OnInit {
     private notificationService: NotificationService,
     private productDb: ProductDbService,
     private foodDiaryService: FoodDiaryService,
-    private scanContextService: ScanContextService
+    private scanContextService: ScanContextService,
+    private modalService: ModalService
   ) {}
 
   ngOnInit(): void {
@@ -74,32 +76,12 @@ export class OcrResultsComponent implements OnInit {
     return this.flaggedItems.some(fi => fi.ingredient.toLowerCase() === ingredient.toLowerCase());
   }
 
-  saveProduct(): void {
-    if (!this.product) return;
-
-    const savedProducts = JSON.parse(localStorage.getItem('savedProducts') || '[]');
-    savedProducts.push(this.product);
-    localStorage.setItem('savedProducts', JSON.stringify(savedProducts));
-    this.notificationService.showSuccess('Product saved!', 'Saved!');
-    this.speechService.speak('Product saved to your gallery!');
-  }
-
-  addToAvoidList() {
-    if (!this.product) return;
-    const productInfo: Omit<Product, 'id' | 'scanDate'> = {
-      name: this.product.name || 'Unknown Product',
-      brand: this.product.brand || 'Unknown Brand',
-      barcode: this.product.barcode,
-      ingredients: Array.isArray(this.product.ingredients) ? this.product.ingredients : [],
-      calories: this.product.calories,
-      image: this.product.image,
-      categories: this.ingredientParser.categorizeProduct(Array.isArray(this.product.ingredients) ? this.product.ingredients : []),
-      verdict: 'bad',
-      flaggedIngredients: this.flaggedItems.map(f => f.ingredient)
-    };
-    this.productDb.addAvoidedProduct(productInfo);
-    this.notificationService.showInfo(`${this.product.name} added to your avoid list.`, 'Avoided!');
-    this.speechService.speak(`${this.product.name} added to your avoid list.`);
+  addToList() {
+    if (this.product) {
+      this.modalService.open(this.product);
+    } else {
+      this.notificationService.showError('Product data not available to add to a list.');
+    }
   }
 
   scanAgain(): void {

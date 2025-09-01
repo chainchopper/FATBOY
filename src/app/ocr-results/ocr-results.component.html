@@ -34,8 +34,7 @@
 
   <div class="action-buttons">
     <button (click)="scanAgain()" class="outline-btn">Scan Another</button>
-    <button *ngIf="verdict === 'good'" (click)="saveProduct()" class="filled-btn">Save Product</button>
+    <button (click)="addToList()" class="filled-btn">Add to...</button>
     <button (click)="viewRawText()" class="text-btn">View Raw Text</button>
-    <button (click)="addToAvoidList()" class="filled-btn">Add to Avoid List</button>
   </div>
 </div>

@@ -4,11 +4,11 @@ import { CommonModule } from '@angular/common';
 import { IngredientParserService } from '../services/ingredient-parser.service';
 import { ProductDbService, Product } from '../services/product-db.service';
 import { AudioService } from '../services/audio.service';
-import { ShoppingListService } from '../services/shopping-list.service';
 import { NotificationService } from '../services/notification.service';
-import { FoodDiaryService } from '../services/food-diary.service';
 import { SpeechService } from '../services/speech.service';
 import { ScanContextService } from '../services/scan-context.service';
+import { FoodDiaryService } from '../services/food-diary.service';
+import { ModalService } from '../services/modal.service';
 
 @Component({
   selector: 'app-results',
@@ -21,17 +21,18 @@ export class ResultsComponent implements OnInit {
   product: any;
   verdict: 'good' | 'bad' = 'bad';
   flaggedItems: { ingredient: string, reason: string }[] = [];
+  productForModal: Product | null = null;
 
   constructor(
     private router: Router,
     private ingredientParser: IngredientParserService,
     private productDb: ProductDbService,
     private audioService: AudioService,
-    private shoppingListService: ShoppingListService,
     private notificationService: NotificationService,
-    private foodDiaryService: FoodDiaryService,
     private speechService: SpeechService,
-    private scanContextService: ScanContextService
+    private scanContextService: ScanContextService,
+    private foodDiaryService: FoodDiaryService,
+    private modalService: ModalService
   ) {}
 
   ngOnInit() {
@@ -39,7 +40,7 @@ export class ResultsComponent implements OnInit {
     if (productData) {
       this.product = JSON.parse(productData);
       this.evaluateProduct();
-      this.addToHistory(); // This also saves the product to session storage
+      this.addToHistory();
       this.checkScanContext();
     } else {
       this.router.navigate(['/scanner']);
@@ -84,55 +85,23 @@ export class ResultsComponent implements OnInit {
     };
 
     const saved = this.productDb.addProduct(productInfo);
-    sessionStorage.setItem('viewingProduct', JSON.stringify(saved));
+    this.productForModal = saved; // Store the full product object for the modal
   }
 
   private checkScanContext() {
     const mealType = this.scanContextService.getMealType();
-    if (mealType) {
-      const productFromHistory = this.productDb.getProductById(JSON.parse(sessionStorage.getItem('viewingProduct') || '{}').id);
-      if (productFromHistory) {
-        this.foodDiaryService.addEntry(productFromHistory, mealType);
-      }
+    if (mealType && this.productForModal) {
+      this.foodDiaryService.addEntry(this.productForModal, mealType);
       this.scanContextService.clearContext();
     }
   }
 
-  saveProduct() {
-    this.notificationService.showSuccess(`${this.product.name} saved to your gallery!`);
-  }
-
-  addToShoppingList() {
-    const productFromHistory = this.productDb.getProductById(JSON.parse(sessionStorage.getItem('viewingProduct') || '{}').id);
-    if (productFromHistory) {
-      this.shoppingListService.addItem(productFromHistory);
+  addToList() {
+    if (this.productForModal) {
+      this.modalService.open(this.productForModal);
+    } else {
+      this.notificationService.showError('Product data not available to add to a list.');
     }
-  }
-
-  addToDiary() {
-    const productFromHistory = this.productDb.getProductById(JSON.parse(sessionStorage.getItem('viewingProduct') || '{}').id);
-    if (productFromHistory) {
-      // For now, defaults to 'Snack'. A future version could ask the user.
-      this.foodDiaryService.addEntry(productFromHistory, 'Snack');
-    }
-  }
-
-  addToAvoidList() {
-    if (!this.product) return;
-    const productInfo: Omit<Product, 'id' | 'scanDate'> = {
-      name: this.product.name || 'Unknown Product',
-      brand: this.product.brand || 'Unknown Brand',
-      barcode: this.product.barcode,
-      ingredients: Array.isArray(this.product.ingredients) ? this.product.ingredients : [],
-      calories: this.product.calories,
-      image: this.product.image,
-      categories: this.ingredientParser.categorizeProduct(Array.isArray(this.product.ingredients) ? this.product.ingredients : []),
-      verdict: 'bad',
-      flaggedIngredients: this.flaggedItems.map(f => f.ingredient)
-    };
-    this.productDb.addAvoidedProduct(productInfo);
-    this.notificationService.showInfo(`${this.product.name} added to your avoid list.`, 'Avoided!');
-    this.speechService.speak(`${this.product.name} added to your avoid list.`);
   }
 
   scanAgain() {
