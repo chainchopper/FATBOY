@@ -1,21 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-
-interface Friend {
-  id: string;
-  name: string;
-  avatarUrl: string;
-  rank: number;
-  isOnline: boolean;
-}
-
-interface FriendRequest {
-  id: string;
-  name: string;
-  avatarUrl: string;
-  mutualFriends: number;
-}
+import { FriendsService, Friend, FriendRequest } from '../services/friends.service';
+import { NotificationService } from '../services/notification.service';
 
 @Component({
   selector: 'app-friends',
@@ -28,49 +15,46 @@ export class FriendsComponent implements OnInit {
   friends: Friend[] = [];
   friendRequests: FriendRequest[] = [];
   searchQuery: string = '';
+  isLoading = true;
+
+  constructor(
+    private friendsService: FriendsService,
+    private notificationService: NotificationService
+  ) {}
 
   ngOnInit() {
-    this.loadMockData();
+    this.loadData();
   }
 
-  loadMockData() {
-    this.friends = [
-      { id: '1', name: 'NeonRunner', avatarUrl: 'https://api.dicebear.com/8.x/bottts/svg?seed=neon', rank: 12, isOnline: true },
-      { id: '2', name: 'EcoWarrior', avatarUrl: 'https://api.dicebear.com/8.x/bottts/svg?seed=eco', rank: 5, isOnline: false },
-      { id: '3', name: 'CyberChef', avatarUrl: 'https://api.dicebear.com/8.x/bottts/svg?seed=chef', rank: 23, isOnline: true },
-    ];
-
-    this.friendRequests = [
-      { id: '4', name: 'DataDiver', avatarUrl: 'https://api.dicebear.com/8.x/bottts/svg?seed=data', mutualFriends: 2 },
-    ];
+  async loadData() {
+    this.isLoading = true;
+    this.friendRequests = await this.friendsService.getFriendRequests();
+    this.friends = await this.friendsService.getFriends();
+    this.isLoading = false;
   }
 
-  acceptRequest(requestId: string) {
-    const request = this.friendRequests.find(r => r.id === requestId);
-    if (request) {
-      this.friends.push({
-        id: request.id,
-        name: request.name,
-        avatarUrl: request.avatarUrl,
-        rank: 100, // Placeholder rank
-        isOnline: true
-      });
-      this.friendRequests = this.friendRequests.filter(r => r.id !== requestId);
-    }
+  async acceptRequest(requestId: number) {
+    await this.friendsService.updateFriendRequest(requestId, 'accepted');
+    this.notificationService.showSuccess('Friend request accepted!');
+    this.loadData(); // Refresh the lists
   }
 
-  declineRequest(requestId: string) {
-    this.friendRequests = this.friendRequests.filter(r => r.id !== requestId);
+  async declineRequest(requestId: number) {
+    await this.friendsService.removeFriendship(requestId);
+    this.notificationService.showInfo('Friend request declined.');
+    this.loadData(); // Refresh the lists
   }
 
-  removeFriend(friendId: string) {
+  async removeFriend(friendshipId: number) {
     if (confirm('Are you sure you want to remove this friend?')) {
-      this.friends = this.friends.filter(f => f.id !== friendId);
+      await this.friendsService.removeFriendship(friendshipId);
+      this.notificationService.showInfo('Friend removed.');
+      this.loadData(); // Refresh the lists
     }
   }
 
   searchFriends() {
     // Placeholder for real search functionality
-    console.log('Searching for:', this.searchQuery);
+    this.notificationService.showInfo(`Searching for "${this.searchQuery}"... (Feature coming soon!)`);
   }
 }
