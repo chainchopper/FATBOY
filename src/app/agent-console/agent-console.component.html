@@ -22,6 +22,20 @@
   </div>
 
   <div class="input-area">
-    <!-- Input area remains the same -->
+    <div *ngIf="showSlashCommands" class="slash-command-popup">
+      <div *ngFor="let cmd of filteredCommands" class="command-item" (click)="selectCommand(cmd)">
+        <strong>{{ cmd.command }}</strong>
+        <span>{{ cmd.description }}</span>
+      </div>
+    </div>
+    <textarea 
+      [(ngModel)]="userInput" 
+      (ngModelChange)="handleInput()"
+      (keydown.enter)="sendMessage(); $event.preventDefault()"
+      placeholder="Type a command or message..."
+      class="input-field">
+    </textarea>
+    <button (click)="toggleVoiceListening()" class="mic-btn" [class.active]="isListening" title="Use Voice">🎤</button>
+    <button (click)="sendMessage()" class="send-btn" [disabled]="!userInput.trim()">→</button>
   </div>
 </div>

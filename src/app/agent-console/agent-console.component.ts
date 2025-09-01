@@ -117,7 +117,6 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
     this.showSlashCommands = false;
     this.isAgentTyping = true;
 
-    // Create a new message for the agent's response
     const agentMessage: Message = {
       sender: 'agent',
       text: '',
@@ -129,7 +128,7 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
     try {
       await this.aiService.getChatCompletionStream(text, (chunk) => {
         agentMessage.text += chunk;
-        this.cdr.detectChanges(); // Manually trigger change detection
+        this.cdr.detectChanges();
       });
     } catch (error) {
       agentMessage.text = 'Sorry, I encountered an error. Please try again.';
