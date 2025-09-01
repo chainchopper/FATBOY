@@ -39,6 +39,8 @@ interface CommunityContribution {
 export class CommunityComponent implements OnInit {
   mode: 'select' | 'manual' = 'select';
   scanHistory$!: Observable<Product[]>;
+  isAddingNewProduct = false; // New state to control form visibility
+  communityContributions: CommunityContribution[] = [];
   
   newContribution = {
     productName: '',
@@ -64,6 +66,14 @@ export class CommunityComponent implements OnInit {
       this.currentUserId = user?.id || null;
     });
     this.scanHistory$ = this.productDb.products$;
+    // Load contributions from local storage or a service in a real app
+  }
+
+  toggleAddMode() {
+    this.isAddingNewProduct = !this.isAddingNewProduct;
+    if (!this.isAddingNewProduct) {
+      this.resetForm();
+    }
   }
 
   setMode(mode: 'select' | 'manual') {
@@ -84,7 +94,6 @@ export class CommunityComponent implements OnInit {
   async submitContribution() {
     const metadata = await this.buildMetadata();
     
-    // This part would save to a real backend in the future
     console.log('Submitting contribution with metadata:', metadata);
     
     this.isSubmitted = true;
@@ -93,8 +102,7 @@ export class CommunityComponent implements OnInit {
 
     setTimeout(() => {
       this.isSubmitted = false;
-      this.resetForm();
-      this.mode = 'select';
+      this.toggleAddMode(); // Hide form after submission
     }, 3000);
   }
 

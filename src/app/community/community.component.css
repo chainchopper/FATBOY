@@ -19,6 +19,34 @@ p {
   color: #a0a0c0;
 }
 
+.add-contribution-section {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.add-btn {
+  padding: 12px 24px;
+  border-radius: 30px;
+  font-size: 1rem;
+  cursor: pointer;
+  background: transparent;
+  transition: all 0.3s;
+  border: 2px solid #0abdc6;
+  color: #0abdc6;
+}
+.add-btn:hover {
+  background-color: rgba(10, 189, 198, 0.1);
+  box-shadow: 0 0 15px #0abdc6;
+}
+
+.contribution-workflow {
+  margin-bottom: 2rem;
+  padding: 20px;
+  background: rgba(15, 15, 30, 0.8);
+  border: 1px solid #4a4a6e;
+  border-radius: 12px;
+}
+
 .contribution-toggle {
   display: flex;
   justify-content: center;
@@ -56,7 +84,7 @@ p {
 .history-item {
   display: flex;
   align-items: center;
-  background: rgba(15, 15, 30, 0.8);
+  background: #1a1a2e;
   border: 1px solid #4a4a6e;
   border-radius: 8px;
   padding: 15px;
@@ -115,10 +143,7 @@ p {
 }
 
 .contribution-form {
-  background: rgba(15, 15, 30, 0.8);
-  padding: 30px;
-  border-radius: 12px;
-  border: 1px solid #4a4a6e;
+  padding-top: 20px;
 }
 
 .form-group {
@@ -168,4 +193,8 @@ p {
 .submit-btn:hover {
   background-color: rgba(10, 189, 198, 0.1);
   box-shadow: 0 0 15px #0abdc6;
+}
+
+.community-feed {
+  margin-top: 2rem;
 }

@@ -1,53 +1,74 @@
 <div class="community-container">
-  <h2>Contribute to the Community</h2>
-  <p>Help others by sharing products from your history or adding new ones.</p>
+  <h2>Community Feed</h2>
+  <p>See what others are discovering and contribute your own finds!</p>
 
-  <div class="contribution-toggle">
-    <button (click)="setMode('select')" [class.active]="mode === 'select'">Contribute from History</button>
-    <button (click)="setMode('manual')" [class.active]="mode === 'manual'">Add Manually</button>
+  <!-- This button will toggle the contribution form -->
+  <div class="add-contribution-section">
+    <button (click)="toggleAddMode()" class="add-btn">
+      {{ isAddingNewProduct ? 'Cancel' : '＋ Add New Product' }}
+    </button>
   </div>
 
-  <!-- View for selecting from history -->
-  <div *ngIf="mode === 'select'">
-    <div *ngIf="(scanHistory$ | async) as history" class="history-list">
-      <div *ngIf="history.length === 0" class="empty-state">
-        <p>Your scan history is empty. Scan some products to contribute them!</p>
-      </div>
-      <div *ngFor="let product of history" class="history-item" (click)="selectProduct(product)">
-        <img [src]="product.image || 'https://via.placeholder.com/50'" alt="{{ product.name }}" class="product-thumb">
-        <div class="product-info">
-          <h4>{{ product.name }}</h4>
-          <p>{{ product.brand }}</p>
+  <!-- Contribution UI (hidden by default) -->
+  <div *ngIf="isAddingNewProduct" class="contribution-workflow">
+    <div class="contribution-toggle">
+      <button (click)="setMode('select')" [class.active]="mode === 'select'">Contribute from History</button>
+      <button (click)="setMode('manual')" [class.active]="mode === 'manual'">Add Manually</button>
+    </div>
+
+    <!-- View for selecting from history -->
+    <div *ngIf="mode === 'select'">
+      <div *ngIf="(scanHistory$ | async) as history" class="history-list">
+        <div *ngIf="history.length === 0" class="empty-state">
+          <p>Your scan history is empty. Scan some products to contribute them!</p>
         </div>
-        <button class="select-btn">→</button>
+        <div *ngFor="let product of history" class="history-item" (click)="selectProduct(product)">
+          <img [src]="product.image || 'https://via.placeholder.com/50'" alt="{{ product.name }}" class="product-thumb">
+          <div class="product-info">
+            <h4>{{ product.name }}</h4>
+            <p>{{ product.brand }}</p>
+          </div>
+          <button class="select-btn">→</button>
+        </div>
       </div>
+    </div>
+
+    <!-- View for manual entry/confirmation -->
+    <div *ngIf="mode === 'manual'">
+      <div *ngIf="isSubmitted" class="success-message">
+        <p>Thank you for your contribution! Your submission is pending review.</p>
+      </div>
+      
+      <form (ngSubmit)="submitContribution()" class="contribution-form">
+        <!-- Form fields remain the same -->
+        <div class="form-group">
+          <label for="productName">Product Name</label>
+          <input type="text" id="productName" [(ngModel)]="newContribution.productName" name="productName" required>
+        </div>
+        <div class="form-group">
+          <label for="brand">Brand</label>
+          <input type="text" id="brand" [(ngModel)]="newContribution.brand" name="brand" required>
+        </div>
+        <div class="form-group">
+          <label for="ingredients">Ingredients (comma separated)</label>
+          <textarea id="ingredients" [(ngModel)]="newContribution.ingredients" name="ingredients" rows="4" required></textarea>
+        </div>
+        <div class="form-group">
+          <label for="notes">Additional Notes (e.g., where you found it)</label>
+          <textarea id="notes" [(ngModel)]="newContribution.notes" name="notes" rows="3"></textarea>
+        </div>
+        <button type="submit" class="submit-btn">Submit Contribution</button>
+      </form>
     </div>
   </div>
 
-  <!-- View for manual entry/confirmation -->
-  <div *ngIf="mode === 'manual'">
-    <div *ngIf="isSubmitted" class="success-message">
-      <p>Thank you for your contribution! Your submission is pending review.</p>
+  <!-- The Community Feed -->
+  <div class="community-feed">
+    <div *ngIf="communityContributions.length === 0 && !isAddingNewProduct" class="empty-state">
+      <p>No contributions yet. Be the first to share!</p>
     </div>
-    
-    <form (ngSubmit)="submitContribution()" class="contribution-form">
-      <div class="form-group">
-        <label for="productName">Product Name</label>
-        <input type="text" id="productName" [(ngModel)]="newContribution.productName" name="productName" required>
-      </div>
-      <div class="form-group">
-        <label for="brand">Brand</label>
-        <input type="text" id="brand" [(ngModel)]="newContribution.brand" name="brand" required>
-      </div>
-      <div class="form-group">
-        <label for="ingredients">Ingredients (comma separated)</label>
-        <textarea id="ingredients" [(ngModel)]="newContribution.ingredients" name="ingredients" rows="4" required></textarea>
-      </div>
-      <div class="form-group">
-        <label for="notes">Additional Notes (e.g., where you found it)</label>
-        <textarea id="notes" [(ngModel)]="newContribution.notes" name="notes" rows="3"></textarea>
-      </div>
-      <button type="submit" class="submit-btn">Submit Contribution</button>
-    </form>
+    <div *ngFor="let contribution of communityContributions" class="contribution-card">
+      <!-- Card content remains the same -->
+    </div>
   </div>
 </div>
