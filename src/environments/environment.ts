@@ -16,5 +16,5 @@ export const environment = {
   // OpenAI-like service config (replace with your actual values)
   openaiApiBaseUrl: "http://169.254.83.107:8981/v1",
   openaiApiKey: "your_openai_compatible_api_key",
-  visionModelName: "RStar Coder Qwen3 0.6B"
+  visionModelName: "rstar-coder-qwen3-0.6b@bf16"
 };

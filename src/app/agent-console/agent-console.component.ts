@@ -2,7 +2,6 @@ import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewChecked }
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AiIntegrationService } from '../services/ai-integration.service';
-import { ProductDbService } from '../services/product-db.service';
 import { SpeechService } from '../services/speech.service';
 import { Subscription } from 'rxjs';
 
@@ -45,7 +44,6 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
 
   constructor(
     private aiService: AiIntegrationService,
-    private productDb: ProductDbService,
     private speechService: SpeechService
   ) {}
 
@@ -108,23 +106,13 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
     this.isAgentTyping = true;
 
     try {
-      const prompt = this.buildPrompt(text);
-      const responseText = await this.aiService.analyzeImageWithVisionModel('', prompt); // Using the vision model endpoint for chat
+      const responseText = await this.aiService.getChatCompletion(text);
       this.messages.push({ sender: 'agent', text: responseText, timestamp: new Date() });
     } catch (error) {
       this.messages.push({ sender: 'agent', text: 'Sorry, I encountered an error. Please try again.', timestamp: new Date() });
     } finally {
       this.isAgentTyping = false;
     }
-  }
-
-  private buildPrompt(userInput: string): string {
-    const history = this.productDb.getProductsSnapshot();
-    const summary = `The user has scanned ${history.length} products. ${history.filter(p => p.verdict === 'good').length} were approved.`;
-    
-    return `You are Fat Boy, an AI nutritional co-pilot. Your responses should be concise (1-2 sentences). 
-            Current user scan summary: ${summary}. 
-            User's request: "${userInput}"`;
   }
 
   private scrollToBottom(): void {

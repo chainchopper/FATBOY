@@ -3,76 +3,29 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { lastValueFrom } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { Product } from './product-db.service';
-import { InferenceSession, Tensor } from 'onnxruntime-web';
-import { HfInference } from '@huggingface/inference';
+import { ProductDbService } from './product-db.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AiIntegrationService {
 
-  // OpenAI-like service
   private openaiApiBaseUrl = environment.openaiApiBaseUrl;
   private openaiApiKey = environment.openaiApiKey;
-  private visionModelName = environment.visionModelName;
+  private modelName = environment.visionModelName; // Using this for chat model as well
 
-  // ONNX session for on-device inference
-  private onnxSession: InferenceSession | null = null;
-
-  // Hugging Face client
-  private hf: HfInference;
-
-  constructor(private http: HttpClient) {
-    // Initialize Hugging Face client if a token is provided
-    // In a real app, you'd get this from a secure source
-    const hfToken = ''; // Placeholder for a Hugging Face token
-    this.hf = new HfInference(hfToken);
-  }
+  constructor(private http: HttpClient, private productDb: ProductDbService) { }
 
   /**
-   * Initializes an ONNX session for on-device inference.
-   * @param modelUrl The URL to the .onnx model file.
+   * Sends a prompt to the chat completions endpoint and gets a response.
+   * @param userInput The raw text from the user.
+   * @returns A promise that resolves with the model's text response.
    */
-  async initializeOnnxSession(modelUrl: string): Promise<void> {
-    try {
-      this.onnxSession = await InferenceSession.create(modelUrl);
-      console.log('ONNX session initialized successfully.');
-    } catch (error) {
-      console.error('Failed to initialize ONNX session:', error);
-    }
-  }
-
-  /**
-   * Runs on-device inference using the loaded ONNX model.
-   * This is a placeholder and needs to be implemented based on the specific model's inputs/outputs.
-   * @param inputData The pre-processed input tensor for the model.
-   * @returns The model's output tensor.
-   */
-  async runOnDeviceInference(inputData: Tensor): Promise<any> {
-    if (!this.onnxSession) {
-      throw new Error('ONNX session not initialized. Call initializeOnnxSession first.');
-    }
-    try {
-      const feeds = { [this.onnxSession.inputNames[0]]: inputData };
-      const results = await this.onnxSession.run(feeds);
-      return results[this.onnxSession.outputNames[0]];
-    } catch (error) {
-      console.error('On-device inference failed:', error);
-      return null;
-    }
-  }
-
-  /**
-   * Analyzes an image using a cloud-based vision model (e.g., moondream2).
-   * @param imageUrl The URL of the image to analyze (can be a data URL).
-   * @param prompt The text prompt to guide the analysis.
-   * @returns A promise that resolves with the model's response.
-   */
-  async analyzeImageWithVisionModel(imageUrl: string, prompt: string): Promise<any> {
+  async getChatCompletion(userInput: string): Promise<string> {
     const endpoint = `${this.openaiApiBaseUrl}/chat/completions`;
-    if (!endpoint || !this.visionModelName) {
-      console.warn('Vision model endpoint or name not configured.');
-      return null;
+    if (!endpoint || !this.modelName) {
+      console.warn('Chat model endpoint or name not configured.');
+      return "Chat model not configured.";
     }
 
     const headers = new HttpHeaders({
@@ -80,26 +33,28 @@ export class AiIntegrationService {
       ...(this.openaiApiKey && { 'Authorization': `Bearer ${this.openaiApiKey}` })
     });
 
+    // Build the context and system message
+    const history = this.productDb.getProductsSnapshot();
+    const summary = `The user has scanned ${history.length} products. ${history.filter(p => p.verdict === 'good').length} were approved.`;
+    const systemMessage = `You are Fat Boy, an AI nutritional co-pilot. Your responses must be concise (1-2 sentences). Current user scan summary: ${summary}.`;
+
     const payload = {
-      model: this.visionModelName,
+      model: this.modelName,
       messages: [
-        {
-          role: 'user',
-          content: [
-            { type: 'text', text: prompt },
-            { type: 'image_url', image_url: { url: imageUrl } }
-          ]
-        }
+        { role: 'system', content: systemMessage },
+        { role: 'user', content: userInput }
       ],
-      max_tokens: 300
+      temperature: 0.7,
+      max_tokens: 300, // Limit resource usage
+      stream: false // We are not using streaming for now
     };
 
     try {
       const response = await lastValueFrom(this.http.post<any>(endpoint, payload, { headers }));
       return response.choices[0].message.content;
     } catch (error) {
-      console.error('Vision Model API Error:', error);
-      return null;
+      console.error('Chat Completions API Error:', error);
+      return "Sorry, I encountered an error while trying to respond.";
     }
   }
 }
