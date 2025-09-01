@@ -19,7 +19,6 @@ interface CommunityContribution {
   likes: number;
   profile: { first_name: string, last_name: string, avatar_url: string };
   comments: any[];
-  metadata: any; // Keeping metadata for potential future use
 }
 
 @Component({
