@@ -148,7 +148,7 @@ export class AiIntegrationService {
     // --- End RAG Integration Phase 1 ---
 
     // Updated system message to instruct for follow-up questions
-    const systemMessage = `You are Fat Boy, an AI nutritional co-pilot powered by NIRVANA from Fanalogy. Your responses must be concise (1-2 sentences). If the user asks about a food item, provide its benefits and key characteristics/ingredients. IMPORTANT: Always conclude your response by generating exactly 3 relevant follow-up questions in a JSON array format, prefixed with '[FOLLOW_UP_QUESTIONS]'. DO NOT include these questions in your main response text. Example: "Your main response here. [FOLLOW_UP_QUESTIONS] [\"Question 1?\", \"Question 2?\", \"Question 3?\"]".
+    const systemMessage = `You are Fat Boy, an AI nutritional co-pilot powered by NIRVANA from Fanalogy. Your responses must be concise (1-2 sentences). If the user asks about a food item, provide its benefits and key characteristics/ingredients. IMPORTANT: Always conclude your response by generating exactly 3 relevant follow-up questions in a JSON array format, prefixed with '[FOLLOW_UP_QUESTIONS]'. DO NOT include these questions in your main response text. Example: "Your main response goes here. [FOLLOW_UP_QUESTIONS] [\"Question 1?\", \"Question 2?\", \"Question 3?\"]".
     
     Here is the current user's context:
     ${userContext}
@@ -161,7 +161,7 @@ export class AiIntegrationService {
         { role: 'user', content: userInput }
       ],
       temperature: 0.7,
-      max_tokens: 1024, // Increased token limit to 1024 characters
+      max_tokens: 1024,
       stream: false
     };
 
@@ -224,7 +224,8 @@ export class AiIntegrationService {
       }
 
       // Remove the literal example text from the main response if it somehow still appears
-      mainText = mainText.replace(/Your main response here\./g, '').trim();
+      // Changed example text, so this cleanup is now more specific and less likely to remove valid content.
+      mainText = mainText.replace(/Your main response goes here\./g, '').trim();
 
       return { text: mainText, followUpQuestions };
 
