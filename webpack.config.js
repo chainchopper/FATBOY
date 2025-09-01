@@ -3,14 +3,14 @@
  * This enables Select UI to Edit feature in Dyad.sh
  */
 
-const AngularComponentTagger = require('./angular-webpack-component-tagger');
+// const AngularComponentTagger = require('./angular-webpack-component-tagger'); // Temporarily disabled
 const webpack = require('webpack');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 require('dotenv').config();
 
 module.exports = {
   plugins: [
-    new AngularComponentTagger(),
+    // new AngularComponentTagger(), // Temporarily disabled to fix build errors
     new webpack.DefinePlugin({
       'process.env': {
         TTS_API_ENDPOINT: JSON.stringify(process.env.TTS_API_ENDPOINT),
