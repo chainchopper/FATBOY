@@ -1,8 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { lastValueFrom } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { Product } from './product-db.service';
 import { ProductDbService } from './product-db.service';
 
 @Injectable({
@@ -12,9 +9,9 @@ export class AiIntegrationService {
 
   private openaiApiBaseUrl = environment.openaiApiBaseUrl;
   private openaiApiKey = environment.openaiApiKey;
-  private modelName = environment.visionModelName; // Using this for chat model as well
+  private modelName = environment.visionModelName;
 
-  constructor(private http: HttpClient, private productDb: ProductDbService) { }
+  constructor(private productDb: ProductDbService) { }
 
   /**
    * Sends a prompt to the chat completions endpoint and gets a response.
@@ -28,15 +25,16 @@ export class AiIntegrationService {
       return "Chat model not configured.";
     }
 
-    const headers = new HttpHeaders({
+    const headers: HeadersInit = {
       'Content-Type': 'application/json',
-      ...(this.openaiApiKey && { 'Authorization': `Bearer ${this.openaiApiKey}` })
-    });
+    };
+    if (this.openaiApiKey) {
+      headers['Authorization'] = `Bearer ${this.openaiApiKey}`;
+    }
 
-    // Build the context and system message
     const history = this.productDb.getProductsSnapshot();
     const summary = `The user has scanned ${history.length} products. ${history.filter(p => p.verdict === 'good').length} were approved.`;
-    const systemMessage = `You are Fat Boy, an AI nutritional co-pilot. Your responses must be concise (1-2 sentences). Current user scan summary: ${summary}.`;
+    const systemMessage = `You are Fat Boy, an AI nutritional co-pilot powered by NIRVANA from Fanalogy. Your responses must be concise (1-2 sentences). Current user scan summary: ${summary}.`;
 
     const payload = {
       model: this.modelName,
@@ -45,16 +43,28 @@ export class AiIntegrationService {
         { role: 'user', content: userInput }
       ],
       temperature: 0.7,
-      max_tokens: 300, // Limit resource usage
-      stream: false // We are not using streaming for now
+      max_tokens: 150, // Keeping a safe limit
+      stream: false
     };
 
     try {
-      const response = await lastValueFrom(this.http.post<any>(endpoint, payload, { headers }));
-      return response.choices[0].message.content;
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) {
+        const errorBody = await response.text();
+        console.error('Chat Completions API Error:', response.status, errorBody);
+        return `Sorry, I encountered an error (${response.status}). Please check the console for details.`;
+      }
+
+      const data = await response.json();
+      return data.choices[0].message.content;
     } catch (error) {
-      console.error('Chat Completions API Error:', error);
-      return "Sorry, I encountered an error while trying to respond.";
+      console.error('Network or other error calling Chat Completions API:', error);
+      return "Sorry, I couldn't connect to the AI service. Please check your network connection and the endpoint configuration.";
     }
   }
 }

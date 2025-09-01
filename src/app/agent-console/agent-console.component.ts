@@ -50,7 +50,7 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
   ngOnInit() {
     this.messages.push({
       sender: 'agent',
-      text: 'Welcome to the Agent Console. I am powered by RStar Coder Qwen3. How can I help you today?',
+      text: 'Hello! I am Fat Boy, your personal AI co-pilot, powered by NIRVANA from Fanalogy. How can I help you today?',
       timestamp: new Date()
     });
 
