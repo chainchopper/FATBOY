@@ -60,6 +60,50 @@ Making healthy choices should be rewarding. Fat Boy includes a full-fledged gami
 
 ---
 
+## 🏛️ System Architecture
+
+The application is a decoupled system where the Angular frontend acts as the central hub, interacting with various specialized backend services.
+
+```mermaid
+graph TD
+    subgraph "User Device"
+        A[📱 Angular Frontend]
+    end
+
+    subgraph "Cloud Services"
+        B(Supabase)
+        C(AI Services / LM Studio)
+        D[Open Food Facts API]
+    end
+
+    subgraph "Supabase Platform"
+        B1[Authentication]
+        B2[Postgres Database]
+        B3[Edge Functions]
+    end
+
+    subgraph "AI Endpoints"
+        C1[LLM Chat Model]
+        C2[Embedding Model]
+    end
+
+    A -- "Auth, DB Queries" --> B
+    A -- "AI Chat & Embeddings" --> C
+    A -- "Barcode Lookups" --> D
+    
+    B -- Manages --> B1
+    B -- Manages --> B2
+    B -- Manages --> B3
+
+    B3 -- "Server-side Logic" --> B2
+    B3 -- "Can call external APIs" --> D
+
+    C -- Hosts --> C1
+    C -- Hosts --> C2
+```
+
+---
+
 ## 🛠️ Tech Stack
 
 -   **Frontend:** Angular & TypeScript
