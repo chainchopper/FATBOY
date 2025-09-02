@@ -9,7 +9,7 @@
       <h4>{{ category.value.name }}</h4>
       
       <!-- Dropdown for selecting ingredients -->
-      <select (change)="addAvoidedIngredient($event.target.value); $event.target.value=''" class="ingredient-select">
+      <select (change)="onIngredientSelected($event)" class="ingredient-select">
         <option value="" disabled selected>-- Add an ingredient to avoid --</option>
         <option *ngFor="let item of category.value.items" [value]="item">
           {{ item | titlecase }}

@@ -37,6 +37,15 @@ export class PreferencesComponent implements OnInit {
     });
   }
 
+  onIngredientSelected(event: Event): void {
+    const selectElement = event.target as HTMLSelectElement;
+    const ingredient = selectElement.value;
+    if (ingredient) {
+      this.addAvoidedIngredient(ingredient);
+      selectElement.value = ''; // Reset the dropdown
+    }
+  }
+
   // Get the list of avoided ingredients that belong to a specific category
   getAvoidedIngredientsForCategory(categoryKey: string): string[] {
     const categoryItems = this.ingredientCategories[categoryKey].items;
