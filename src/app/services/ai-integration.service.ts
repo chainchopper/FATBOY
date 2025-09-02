@@ -213,16 +213,20 @@ export class AiIntegrationService {
     }
     // --- End RAG Integration Phase 1 ---
 
-    // Drastically refined system message
-    const systemMessage = `You are Fat Boy, an AI nutritional co-pilot powered by NIRVANA from Fanalogy.
-    Your primary goal is to assist the user with food-related inquiries, product analysis, and managing their food diary and shopping list.
-    
-    **Instructions for Response Generation:**
-    1.  **Primary Goal: Answer the User's Question Directly.** Always provide a direct, concise (1-2 sentences) natural language response to the user's query.
-    2.  **Tool Calls (When Appropriate):** If the user's intent clearly matches a defined tool, make the tool call. This should complement, not replace, your direct answer.
-    3.  **NO Internal Reasoning in 'content':** Absolutely DO NOT include any internal thought process or reasoning in your 'content' field. Your 'content' should be purely the user-facing response.
-    4.  **Consistent Suggested Prompts:** After your direct response (and any tool calls), always conclude by generating exactly 3 relevant, diverse suggested prompts for the user to ask you, in a JSON array format, prefixed with '[SUGGESTED_PROMPTS]'. These prompts must be highly relevant to the *preceding conversation* and *user data*. They can suggest actions (e.g., "Add [item] to my shopping list") but should prioritize diverse topics like nutritional facts, comparisons, health impacts, or related items.
-    
+    const systemMessage = `You are Fat Boy, an AI nutritional co-pilot. Your goal is to assist users with food inquiries and manage their lists.
+    **RESPONSE FORMATTING IS CRITICAL:**
+    Your *entire* output MUST be a single, valid JSON object. Do not include any text, markdown, or explanations outside of this JSON object.
+    The JSON object must have two keys:
+    1. "response": A string containing your friendly, user-facing message. This message must be natural and conversational.
+    2. "suggestions": An array of exactly 3 unique, relevant, and diverse string prompts for the user to ask next.
+
+    **INSTRUCTIONS:**
+    - Analyze the user's query and the provided context.
+    - If the user's intent matches a tool, call the tool.
+    - Use the tool's output to formulate your final "response" message.
+    - NEVER include technical jargon, internal reasoning, or bracketed text like '[PROMPT]' in your "response" string.
+    - Always provide 3 helpful "suggestions".
+
     Here is the current user's context:
     ${userContext}
     `;
@@ -290,13 +294,13 @@ export class AiIntegrationService {
 
           // Create a dummy product for adding to lists if not fully specified
           const productToAdd: Product = {
-            id: Date.now().toString(), // Generate a simple ID
+            id: this.lastDiscussedProduct?.id || Date.now().toString(),
             name: productName || 'Unknown Product',
             brand: brand || 'Unknown Brand',
-            ingredients: [], // Can be empty for quick adds
-            categories: [], // Added missing categories property
-            verdict: 'good', // Assume good for manual adds via AI
-            flaggedIngredients: [],
+            ingredients: this.lastDiscussedProduct?.ingredients || [],
+            categories: this.lastDiscussedProduct?.categories || [],
+            verdict: this.lastDiscussedProduct?.verdict || 'good',
+            flaggedIngredients: this.lastDiscussedProduct?.flaggedIngredients || [],
             scanDate: new Date(),
             image: this.lastDiscussedProduct?.image || 'https://via.placeholder.com/150?text=AI+Added'
           };
@@ -304,26 +308,23 @@ export class AiIntegrationService {
           switch (functionName) {
             case 'add_to_food_diary':
               if (productToAdd.name && productToAdd.brand && functionArgs.meal_type) {
-                // AWAIT here to ensure it's added before proceeding
                 await this.foodDiaryService.addEntry(productToAdd, functionArgs.meal_type as MealType);
-                // Notification and audio are handled by the service itself
-                toolOutput = `Successfully added "${productToAdd.name}" to food diary for ${functionArgs.meal_type}.`;
+                toolOutput = `PRODUCT_ADDED: Successfully added "${productToAdd.name}" to food diary for ${functionArgs.meal_type}.`;
               } else {
-                toolOutput = `Failed to add to food diary: Missing product name, brand, or meal type.`;
-                this.notificationService.showError(toolOutput);
-                this.audioService.playErrorSound();
+                toolOutput = `FAILED: Missing product name, brand, or meal type.`;
               }
               break;
             case 'add_to_shopping_list':
               if (productToAdd.name && productToAdd.brand) {
-                // AWAIT here to ensure it's added before proceeding
-                await this.shoppingListService.addItem(productToAdd);
-                // Notification and audio are handled by the service itself
-                toolOutput = `Successfully added "${productToAdd.name}" to shopping list.`;
+                const isOnList = this.shoppingListService.isItemOnList(productToAdd.id);
+                if (isOnList) {
+                  toolOutput = `PRODUCT_EXISTS: The product '${productToAdd.name}' is already on the shopping list. Inform the user of this.`;
+                } else {
+                  await this.shoppingListService.addItem(productToAdd);
+                  toolOutput = `PRODUCT_ADDED: The product '${productToAdd.name}' was successfully added to the shopping list. Confirm this with the user.`;
+                }
               } else {
-                toolOutput = `Failed to add to shopping list: Missing product name or brand.`;
-                this.notificationService.showError(toolOutput);
-                this.audioService.playErrorSound();
+                toolOutput = `FAILED: Missing product name or brand.`;
               }
               break;
             default:
@@ -373,72 +374,41 @@ export class AiIntegrationService {
         const toolData = await toolResponse.json();
         const toolResponseMessage = toolData.choices[0].message.content;
         
-        // Parse tool response for follow-up questions
-        let mainText = toolResponseMessage;
-        let suggestedPrompts: string[] = [];
-        const marker = '[SUGGESTED_PROMPTS]';
-        const markerIndex = toolResponseMessage.indexOf(marker);
-
-        if (markerIndex !== -1) {
-          mainText = toolResponseMessage.substring(0, markerIndex).trim();
-          let potentialJsonString = toolResponseMessage.substring(markerIndex + marker.length).trim();
-          const jsonArrayRegex = /(\[[\s\S]*?\])/;
-          const match = potentialJsonString.match(jsonArrayRegex);
-          if (match && match[1]) {
-            try {
-              const parsedQuestions = JSON.parse(match[1]);
-              if (Array.isArray(parsedQuestions) && parsedQuestions.every(q => typeof q === 'string')) {
-                suggestedPrompts = parsedQuestions.slice(0, 3);
-              }
-            } catch (jsonError) {
-              console.warn('Failed to parse suggested prompts JSON from tool response:', jsonError);
-            }
+        try {
+          const parsedResponse = JSON.parse(toolResponseMessage);
+          if (parsedResponse.response && Array.isArray(parsedResponse.suggestions)) {
+            return {
+              text: parsedResponse.response,
+              suggestedPrompts: parsedResponse.suggestions.slice(0, 3),
+              toolCalls: choice.message.tool_calls
+            };
           }
+        } catch (e) {
+          console.error("Failed to parse AI tool response as JSON:", toolResponseMessage, e);
+          return { text: toolResponseMessage, suggestedPrompts: [] };
         }
-        // Removed the specific cleanup for "Your main response goes here." as the system message is now much stricter.
-        return { text: mainText, suggestedPrompts, toolCalls: choice.message.tool_calls };
       }
       // --- End Handle Tool Calls ---
 
       let fullResponseText = choice.message.content;
-      let mainText = fullResponseText;
-      let suggestedPrompts: string[] = [];
-
-      const marker = '[SUGGESTED_PROMPTS]';
-      const markerIndex = fullResponseText.indexOf(marker);
-
-      if (markerIndex !== -1) {
-        mainText = fullResponseText.substring(0, markerIndex).trim();
-        let potentialJsonString = fullResponseText.substring(markerIndex + marker.length).trim();
-
-        const jsonArrayRegex = /(\[[\s\S]*?\])/;
-        const match = potentialJsonString.match(jsonArrayRegex);
-
-        if (match && match[1]) {
-          const jsonString = match[1];
-          try {
-            const parsedQuestions = JSON.parse(jsonString);
-            if (Array.isArray(parsedQuestions) && parsedQuestions.every(q => typeof q === 'string')) {
-              suggestedPrompts = parsedQuestions.slice(0, 3);
-            } else {
-              console.warn('Parsed suggested prompts are not an array of strings or not in expected format:', parsedQuestions);
-              mainText = fullResponseText;
-              suggestedPrompts = [];
-            }
-          } catch (jsonError) {
-            console.warn('Failed to parse suggested prompts JSON:', jsonError);
-            mainText = fullResponseText;
-            suggestedPrompts = [];
-          }
+      
+      try {
+        const parsedResponse = JSON.parse(fullResponseText);
+        if (parsedResponse.response && Array.isArray(parsedResponse.suggestions)) {
+          return {
+            text: parsedResponse.response,
+            suggestedPrompts: parsedResponse.suggestions.slice(0, 3)
+          };
         } else {
-          console.warn('Could not find a valid JSON array after the SUGGESTED_PROMPTS marker.');
-          mainText = fullResponseText;
-          suggestedPrompts = [];
+          throw new Error("Parsed JSON is missing required keys.");
         }
+      } catch (e) {
+        console.error("Failed to parse AI response as JSON:", fullResponseText, e);
+        return {
+          text: fullResponseText,
+          suggestedPrompts: ["How can I help?", "What's in my shopping list?", "Suggest a healthy dinner."]
+        };
       }
-
-      // Removed the specific cleanup for "Your main response goes here." as the system message is now much stricter.
-      return { text: mainText, suggestedPrompts };
 
     } catch (error) {
       console.error('Network or other error calling Chat Completions API:', error);

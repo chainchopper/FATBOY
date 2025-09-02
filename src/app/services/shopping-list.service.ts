@@ -51,10 +51,20 @@ export class ShoppingListService {
     }
   }
 
+  public isItemOnList(productId: string): boolean {
+    return this.shoppingList.some(item => item.product_id === productId);
+  }
+
   async addItem(product: Product): Promise<void> {
     if (!this.currentUserId) {
       this.notificationService.showError('Please log in to add items to your shopping list.');
       this.speechService.speak('Please log in to add items to your shopping list.');
+      return;
+    }
+
+    if (this.isItemOnList(product.id)) {
+      this.notificationService.showWarning('This item is already on your shopping list.', 'Already Added');
+      this.speechService.speak('This item is already on your shopping list.');
       return;
     }
 
@@ -67,24 +77,6 @@ export class ShoppingListService {
       purchased: false,
       product: product
     };
-
-    const { data: existingItems, error: checkError } = await supabase
-      .from('shopping_list_items')
-      .select('id')
-      .eq('user_id', this.currentUserId)
-      .eq('product_id', product.id);
-
-    if (checkError) {
-      console.error('Error checking for existing shopping list item in Supabase:', checkError);
-      this.notificationService.showError('Failed to check shopping list for duplicates.');
-      return;
-    }
-
-    if (existingItems && existingItems.length > 0) {
-      this.notificationService.showWarning('This item is already on your shopping list.', 'Already Added');
-      this.speechService.speak('This item is already on your shopping list.');
-      return;
-    }
     
     const { error } = await supabase
       .from('shopping_list_items')
