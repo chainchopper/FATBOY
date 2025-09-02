@@ -1,8 +1,9 @@
-import { Injectable, isDevMode } from '@angular/core'; // Import isDevMode
+import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { AuthService } from './auth.service';
 import { LeaderboardService } from './leaderboard.service';
 import { supabase } from '../../integrations/supabase/client';
+import { NotificationService } from './notification.service';
 
 export interface Product {
   id: string;
@@ -35,24 +36,20 @@ export class ProductDbService {
 
   constructor(
     private authService: AuthService,
-    private leaderboardService: LeaderboardService
+    private leaderboardService: LeaderboardService,
+    private notificationService: NotificationService
   ) {
     this.authService.currentUser$.subscribe(user => {
       this.currentUserId = user?.id || null;
-      this.loadData(); // Use a unified load method
+      this.loadData();
     });
-  }
-
-  private getStorageKey(type: 'products' | 'avoidedProducts'): string {
-    return this.currentUserId ? `fatBoy${type}_${this.currentUserId}` : `fatBoy${type}_anonymous_dev`;
   }
 
   private async loadData(): Promise<void> {
     if (this.currentUserId) {
       await this.loadFromSupabase();
-    } else if (isDevMode()) {
-      this.loadFromSessionStorage(); // Load from session storage in dev mode if not logged in
     } else {
+      // If no user, clear local data
       this.products = [];
       this.avoidedProducts = [];
       this.productsSubject.next([]);
@@ -99,65 +96,43 @@ export class ProductDbService {
     this.avoidedProductsSubject.next([...this.avoidedProducts]);
   }
 
-  private loadFromSessionStorage(): void {
-    const storedProducts = sessionStorage.getItem(this.getStorageKey('products'));
-    if (storedProducts) {
-      this.products = JSON.parse(storedProducts).map((p: Product) => ({ ...p, scanDate: new Date(p.scanDate) }));
-    } else {
-      this.products = [];
+  async addProduct(product: Omit<Product, 'id' | 'scanDate'>): Promise<Product | null> {
+    if (!this.currentUserId) {
+      this.notificationService.showError('You must be logged in to save products.');
+      return null;
     }
 
-    const storedAvoidedProducts = sessionStorage.getItem(this.getStorageKey('avoidedProducts'));
-    if (storedAvoidedProducts) {
-      this.avoidedProducts = JSON.parse(storedAvoidedProducts).map((p: Product) => ({ ...p, scanDate: new Date(p.scanDate) }));
-    } else {
-      this.avoidedProducts = [];
-    }
-    this.productsSubject.next([...this.products]);
-    this.avoidedProductsSubject.next([...this.avoidedProducts]);
-  }
-
-  private saveToSessionStorage(): void {
-    sessionStorage.setItem(this.getStorageKey('products'), JSON.stringify(this.products));
-    sessionStorage.setItem(this.getStorageKey('avoidedProducts'), JSON.stringify(this.avoidedProducts));
-  }
-
-  async addProduct(product: Omit<Product, 'id' | 'scanDate'>): Promise<Product> {
     const newProduct: Product = {
       ...product,
       id: this.generateId(),
       scanDate: new Date()
     };
 
-    if (this.currentUserId) {
-      const { data, error } = await supabase
-        .from('user_products')
-        .insert({
-          user_id: this.currentUserId,
-          product_data: newProduct,
-          type: 'scanned'
-        })
-        .select()
-        .single();
+    const { error } = await supabase
+      .from('user_products')
+      .insert({
+        user_id: this.currentUserId,
+        product_data: newProduct,
+        type: 'scanned'
+      });
 
-      if (error) {
-        console.error('Error adding product to Supabase:', error);
-        throw error;
-      }
-      await this.loadFromSupabase();
-    } else if (isDevMode()) {
-      this.products.unshift(newProduct);
-      this.saveToSessionStorage();
-      this.productsSubject.next([...this.products]);
-    } else {
-      console.warn('Cannot add product: User not authenticated in production mode.');
+    if (error) {
+      console.error('Error adding product to Supabase:', error);
+      this.notificationService.showError('Failed to save product.');
+      return null;
     }
     
+    await this.loadData();
     this.leaderboardService.incrementScore(10).subscribe();
     return newProduct;
   }
 
-  async addAvoidedProduct(product: Omit<Product, 'id' | 'scanDate'>): Promise<Product> {
+  async addAvoidedProduct(product: Omit<Product, 'id' | 'scanDate'>): Promise<Product | null> {
+    if (!this.currentUserId) {
+      this.notificationService.showError('You must be logged in to save products.');
+      return null;
+    }
+
     const newProduct: Product = {
       ...product,
       id: this.generateId(),
@@ -166,46 +141,21 @@ export class ProductDbService {
       flaggedIngredients: product.flaggedIngredients.length > 0 ? product.flaggedIngredients : ['Manually added to avoid list']
     };
 
-    if (this.currentUserId) {
-      const { data: existingProducts, error: selectError } = await supabase
-        .from('user_products')
-        .select('product_data')
-        .eq('user_id', this.currentUserId)
-        .eq('type', 'saved_avoided')
-        .filter('product_data->>barcode', 'eq', newProduct.barcode);
+    const { error } = await supabase
+      .from('user_products')
+      .insert({
+        user_id: this.currentUserId,
+        product_data: newProduct,
+        type: 'saved_avoided'
+      });
 
-      if (selectError) {
-        console.error('Error checking for existing avoided product:', selectError);
-        throw selectError;
-      }
-
-      if (newProduct.barcode && existingProducts && existingProducts.length > 0) {
-        console.warn('Avoided product with this barcode already exists for user.');
-        return newProduct;
-      }
-
-      const { data, error } = await supabase
-        .from('user_products')
-        .insert({
-          user_id: this.currentUserId,
-          product_data: newProduct,
-          type: 'saved_avoided'
-        })
-        .select()
-        .single();
-
-      if (error) {
-        console.error('Error adding avoided product to Supabase:', error);
-        throw error;
-      }
-      await this.loadFromSupabase();
-    } else if (isDevMode()) {
-      this.avoidedProducts.unshift(newProduct);
-      this.saveToSessionStorage();
-      this.avoidedProductsSubject.next([...this.avoidedProducts]);
-    } else {
-      console.warn('Cannot add avoided product: User not authenticated in production mode.');
+    if (error) {
+      console.error('Error adding avoided product to Supabase:', error);
+      this.notificationService.showError('Failed to save avoided product.');
+      return null;
     }
+    
+    await this.loadData();
     return newProduct;
   }
 
@@ -214,26 +164,21 @@ export class ProductDbService {
   }
 
   async getProductByClientSideId(clientSideId: string): Promise<Product | null> {
-    if (this.currentUserId) {
-      const { data, error } = await supabase
-        .from('user_products')
-        .select('product_data')
-        .filter('product_data->>id', 'eq', clientSideId)
-        .limit(1)
-        .single();
+    if (!this.currentUserId) return null;
 
-      if (error && error.code !== 'PGRST116') {
-        console.error('Error fetching product by client-side ID from Supabase:', error);
-        return null;
-      }
-      if (data) {
-        return { ...data.product_data, scanDate: new Date(data.product_data.scanDate) } as Product;
-      }
-    } else if (isDevMode()) {
-      // Fallback to session storage for dev mode
-      const allProducts = [...this.products, ...this.avoidedProducts];
-      const foundProduct = allProducts.find(p => p.id === clientSideId);
-      return foundProduct || null;
+    const { data, error } = await supabase
+      .from('user_products')
+      .select('product_data')
+      .filter('product_data->>id', 'eq', clientSideId)
+      .limit(1)
+      .single();
+
+    if (error && error.code !== 'PGRST116') {
+      console.error('Error fetching product by client-side ID from Supabase:', error);
+      return null;
+    }
+    if (data) {
+      return { ...data.product_data, scanDate: new Date(data.product_data.scanDate) } as Product;
     }
     return null;
   }
@@ -259,71 +204,63 @@ export class ProductDbService {
   }
 
   async removeProduct(id: string): Promise<void> {
-    if (this.currentUserId) {
-      const { error } = await supabase
-        .from('user_products')
-        .delete()
-        .eq('user_id', this.currentUserId)
-        .filter('product_data->>id', 'eq', id);
-
-      if (error) {
-        console.error('Error removing product from Supabase:', error);
-        throw error;
-      }
-      await this.loadFromSupabase();
-    } else if (isDevMode()) {
-      this.products = this.products.filter(p => p.id !== id);
-      this.saveToSessionStorage();
-      this.productsSubject.next([...this.products]);
-    } else {
-      console.warn('Cannot remove product: User not authenticated in production mode.');
+    if (!this.currentUserId) {
+      this.notificationService.showError('You must be logged in to modify products.');
+      return;
     }
+
+    const { error } = await supabase
+      .from('user_products')
+      .delete()
+      .eq('user_id', this.currentUserId)
+      .filter('product_data->>id', 'eq', id);
+
+    if (error) {
+      console.error('Error removing product from Supabase:', error);
+      this.notificationService.showError('Failed to remove product.');
+      return;
+    }
+    await this.loadData();
   }
 
   async removeAvoidedProduct(id: string): Promise<void> {
-    if (this.currentUserId) {
-      const { error } = await supabase
-        .from('user_products')
-        .delete()
-        .eq('user_id', this.currentUserId)
-        .eq('type', 'saved_avoided')
-        .filter('product_data->>id', 'eq', id);
-
-      if (error) {
-        console.error('Error removing avoided product from Supabase:', error);
-        throw error;
-      }
-      await this.loadFromSupabase();
-    } else if (isDevMode()) {
-      this.avoidedProducts = this.avoidedProducts.filter(p => p.id !== id);
-      this.saveToSessionStorage();
-      this.avoidedProductsSubject.next([...this.avoidedProducts]);
-    } else {
-      console.warn('Cannot remove avoided product: User not authenticated in production mode.');
+    if (!this.currentUserId) {
+      this.notificationService.showError('You must be logged in to modify products.');
+      return;
     }
+
+    const { error } = await supabase
+      .from('user_products')
+      .delete()
+      .eq('user_id', this.currentUserId)
+      .eq('type', 'saved_avoided')
+      .filter('product_data->>id', 'eq', id);
+
+    if (error) {
+      console.error('Error removing avoided product from Supabase:', error);
+      this.notificationService.showError('Failed to remove avoided product.');
+      return;
+    }
+    await this.loadData();
   }
 
   async clearAll(): Promise<void> {
-    if (this.currentUserId) {
-      const { error } = await supabase
-        .from('user_products')
-        .delete()
-        .eq('user_id', this.currentUserId);
-
-      if (error) {
-        console.error('Error clearing all products from Supabase:', error);
-        throw error;
-      }
-      await this.loadFromSupabase();
-    } else if (isDevMode()) {
-      this.products = [];
-      this.avoidedProducts = [];
-      this.saveToSessionStorage();
-      this.productsSubject.next([]);
-      this.avoidedProductsSubject.next([]);
-    } else {
-      console.warn('Cannot clear all products: User not authenticated in production mode.');
+    if (!this.currentUserId) {
+      this.notificationService.showError('You must be logged in to clear your history.');
+      return;
     }
+
+    const { error } = await supabase
+      .from('user_products')
+      .delete()
+      .eq('user_id', this.currentUserId);
+
+    if (error) {
+      console.error('Error clearing all products from Supabase:', error);
+      this.notificationService.showError('Failed to clear history.');
+      return;
+    }
+    await this.loadData();
   }
 
   private generateId(): string {

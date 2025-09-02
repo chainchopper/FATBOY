@@ -25,8 +25,8 @@ export class AppModalComponent implements OnInit {
   modalMessage: string = '';
   confirmButtonText: string = 'Confirm';
   cancelButtonText: string = 'Cancel';
-  onConfirm: (() => void) | null | undefined = null; // Updated type to allow undefined
-  onCancel: (() => void) | null | undefined = null;   // Updated type to allow undefined
+  onConfirm: (() => void) | null | undefined = null;
+  onCancel: (() => void) | null | undefined = null;
   isConfirmation: boolean = false;
 
   constructor(
@@ -91,10 +91,12 @@ export class AppModalComponent implements OnInit {
     this.close();
   }
 
-  addToAvoidList() {
+  async addToAvoidList() {
     if (this.currentProduct) {
-      this.productDbService.addAvoidedProduct(this.currentProduct);
-      this.notificationService.showInfo(`${this.currentProduct.name} added to your avoid list.`);
+      const addedProduct = await this.productDbService.addAvoidedProduct(this.currentProduct);
+      if (addedProduct) {
+        this.notificationService.showInfo(`${addedProduct.name} added to your avoid list.`);
+      }
     }
     this.close();
   }

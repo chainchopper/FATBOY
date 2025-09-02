@@ -1,4 +1,4 @@
-import { Injectable, isDevMode } from '@angular/core'; // Import isDevMode
+import { Injectable } from '@angular/core';
 import { AuthService } from './auth.service';
 import { BehaviorSubject } from 'rxjs';
 import { supabase } from '../../integrations/supabase/client';
@@ -45,10 +45,6 @@ export class PreferencesService {
     });
   }
 
-  private getStorageKey(): string {
-    return this.currentUserId ? `fatBoyPreferences_${this.currentUserId}` : 'fatBoyPreferences_anonymous_dev';
-  }
-
   async loadPreferences(): Promise<void> {
     if (this.currentUserId) {
       const { data, error } = await supabase
@@ -57,40 +53,21 @@ export class PreferencesService {
         .eq('user_id', this.currentUserId)
         .single();
 
-      if (error && error.code !== 'PGRST116') {
+      if (error && error.code !== 'PGRST116') { // PGRST116 means no rows found
         console.error('Error loading preferences from Supabase:', error);
-        // Fallback to session storage or default if Supabase fails
-        if (isDevMode()) {
-          this.loadFromSessionStorage();
-        } else {
-          this.preferencesSubject.next(this.defaultPreferences);
-        }
+        this.preferencesSubject.next(this.defaultPreferences);
         return;
       }
 
       if (data) {
         this.preferencesSubject.next({ ...this.defaultPreferences, ...data.preferences_data });
       } else {
-        // No preferences found in Supabase, try session storage or use defaults
-        if (isDevMode()) {
-          const stored = sessionStorage.getItem(this.getStorageKey());
-          if (stored) {
-            const loadedPrefs = { ...this.defaultPreferences, ...JSON.parse(stored) };
-            this.preferencesSubject.next(loadedPrefs);
-            await this.savePreferencesToSupabase(loadedPrefs); // Migrate to Supabase
-          } else {
-            this.preferencesSubject.next(this.defaultPreferences);
-            await this.savePreferencesToSupabase(this.defaultPreferences); // Save default to Supabase
-          }
-        } else {
-          this.preferencesSubject.next(this.defaultPreferences);
-          await this.savePreferencesToSupabase(this.defaultPreferences); // Save default to Supabase
-        }
+        // No preferences found in Supabase, save the default ones for the new user
+        this.preferencesSubject.next(this.defaultPreferences);
+        await this.savePreferencesToSupabase(this.defaultPreferences);
       }
-    } else if (isDevMode()) {
-      // Not logged in, use session storage for dev mode
-      this.loadFromSessionStorage();
     } else {
+      // Not logged in, use default preferences
       this.preferencesSubject.next(this.defaultPreferences);
     }
   }
@@ -103,10 +80,8 @@ export class PreferencesService {
     this.preferencesSubject.next(prefs);
     if (this.currentUserId) {
       await this.savePreferencesToSupabase(prefs);
-    } else if (isDevMode()) {
-      sessionStorage.setItem(this.getStorageKey(), JSON.stringify(prefs));
     } else {
-      console.warn('Cannot save preferences: User not authenticated in production mode.');
+      console.warn('Cannot save preferences: User not authenticated.');
     }
   }
 
@@ -122,18 +97,6 @@ export class PreferencesService {
 
     if (error) {
       console.error('Error saving preferences to Supabase:', error);
-    } else {
-      // Clear session storage for authenticated user to avoid conflicts
-      sessionStorage.removeItem(this.getStorageKey());
-    }
-  }
-
-  private loadFromSessionStorage(): void {
-    const stored = sessionStorage.getItem(this.getStorageKey());
-    if (stored) {
-      this.preferencesSubject.next({ ...this.defaultPreferences, ...JSON.parse(stored) });
-    } else {
-      this.preferencesSubject.next(this.defaultPreferences);
     }
   }
 }

@@ -1,4 +1,4 @@
-import { Injectable, isDevMode } from '@angular/core'; // Import isDevMode
+import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { Product } from './product-db.service';
 import { NotificationService } from './notification.service';
@@ -35,19 +35,13 @@ export class FoodDiaryService {
   ) {
     this.authService.currentUser$.subscribe(user => {
       this.currentUserId = user?.id || null;
-      this.loadData(); // Use a unified load method
+      this.loadData();
     });
-  }
-
-  private getStorageKey(): string {
-    return this.currentUserId ? `fatBoyFoodDiary_${this.currentUserId}` : 'fatBoyFoodDiary_anonymous_dev';
   }
 
   private async loadData(): Promise<void> {
     if (this.currentUserId) {
       await this.loadFromSupabase();
-    } else if (isDevMode()) {
-      this.loadFromSessionStorage(); // Load from session storage in dev mode if not logged in
     } else {
       this.diary = new Map();
       this.diarySubject.next(new Map());
@@ -55,6 +49,12 @@ export class FoodDiaryService {
   }
 
   async addEntry(product: Product, meal: MealType): Promise<void> {
+    if (!this.currentUserId) {
+      this.notificationService.showError('Please log in to add items to your food diary.');
+      this.speechService.speak('Please log in to add items to your food diary.');
+      return;
+    }
+
     const today = new Date().toISOString().split('T')[0];
     const newEntry: Omit<DiaryEntry, 'id'> = {
       date: today,
@@ -62,37 +62,23 @@ export class FoodDiaryService {
       product
     };
 
-    if (this.currentUserId) {
-      const { data, error } = await supabase
-        .from('food_diary_entries')
-        .insert({
-          user_id: this.currentUserId,
-          entry_date: newEntry.date,
-          meal_type: newEntry.meal,
-          product_data: newEntry.product
-        })
-        .select()
-        .single();
+    const { error } = await supabase
+      .from('food_diary_entries')
+      .insert({
+        user_id: this.currentUserId,
+        entry_date: newEntry.date,
+        meal_type: newEntry.meal,
+        product_data: newEntry.product
+      });
 
-      if (error) {
-        console.error('Error adding food diary entry to Supabase:', error);
-        this.notificationService.showError('Failed to add item to food diary.');
-        this.speechService.speak('Failed to add item to food diary.');
-        throw error;
-      }
-      await this.loadFromSupabase();
-    } else if (isDevMode()) {
-      const entries = this.diary.get(today) || [];
-      entries.push({ ...newEntry, id: `${today}-${Date.now()}` }); // Generate ID for session storage
-      this.diary.set(today, entries);
-      this.saveToSessionStorage();
-      this.diarySubject.next(new Map(this.diary));
-    } else {
-      console.warn('Cannot add food diary entry: User not authenticated in production mode.');
-      this.notificationService.showError('Please log in to add items to your food diary.');
-      this.speechService.speak('Please log in to add items to your food diary.');
+    if (error) {
+      console.error('Error adding food diary entry to Supabase:', error);
+      this.notificationService.showError('Failed to add item to food diary.');
+      this.speechService.speak('Failed to add item to food diary.');
       return;
     }
+    
+    await this.loadData();
     this.notificationService.showSuccess(`${product.name} added to ${meal}.`);
     this.speechService.speak(`${product.name} added to ${meal}.`);
   }
@@ -210,22 +196,5 @@ export class FoodDiaryService {
 
     this.diary = loadedDiary;
     this.diarySubject.next(new Map(this.diary));
-  }
-
-  private loadFromSessionStorage(): void {
-    const stored = sessionStorage.getItem(this.getStorageKey());
-    if (stored) {
-      this.diary = new Map(JSON.parse(stored).map(([date, entries]: [string, any[]]) => 
-        [date, entries.map(entry => ({ ...entry, product: { ...entry.product, scanDate: new Date(entry.product.scanDate) } }))]
-      ));
-      this.diarySubject.next(new Map(this.diary));
-    } else {
-      this.diary = new Map();
-      this.diarySubject.next(new Map());
-    }
-  }
-
-  private saveToSessionStorage(): void {
-    sessionStorage.setItem(this.getStorageKey(), JSON.stringify(Array.from(this.diary.entries())));
   }
 }

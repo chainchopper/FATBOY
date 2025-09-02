@@ -34,7 +34,7 @@ export class ManualEntryComponent {
     private aiService: AiIntegrationService
   ) {}
 
-  async submitProduct() { // Made async
+  async submitProduct() {
     if (!this.productData.name || !this.productData.brand || !this.productData.ingredients) {
       this.notificationService.showError('Please fill out all required fields.');
       return;
@@ -57,11 +57,11 @@ export class ManualEntryComponent {
       image: 'https://via.placeholder.com/150?text=Manually+Added'
     };
 
-    const savedProduct = await this.productDb.addProduct(newProduct); // AWAIT here
+    const savedProduct = await this.productDb.addProduct(newProduct);
+    if (!savedProduct) return; // Stop if product wasn't saved (e.g., user not logged in)
 
-    this.aiService.setLastDiscussedProduct(savedProduct); // Now 'savedProduct' is a Product
-    // Open the modal with the new product and then navigate home
-    this.modalService.open(savedProduct); // Now 'savedProduct' is a Product
+    this.aiService.setLastDiscussedProduct(savedProduct);
+    this.modalService.open(savedProduct);
     this.router.navigate(['/scanner']);
   }
 }
