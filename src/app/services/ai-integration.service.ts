@@ -146,6 +146,45 @@ export class AiIntegrationService {
   ];
   // --- End Tool Definitions ---
 
+  private _extractJson(text: string): any | null {
+    // Find the first '{' and the last '}' to extract the JSON part.
+    const jsonStart = text.indexOf('{');
+    const jsonEnd = text.lastIndexOf('}');
+
+    if (jsonStart === -1 || jsonEnd === -1 || jsonEnd < jsonStart) {
+        return null;
+    }
+
+    const jsonString = text.substring(jsonStart, jsonEnd + 1);
+
+    try {
+        return JSON.parse(jsonString);
+    } catch (error) {
+        console.error("Failed to parse extracted JSON string:", jsonString, error);
+        return null;
+    }
+  }
+
+  private _parseAiResponse(fullResponseText: string): AiResponse {
+    const parsedJson = this._extractJson(fullResponseText);
+    const defaultSuggestions = ["How can I help?", "What's in my shopping list?", "Suggest a healthy dinner."];
+
+    if (parsedJson && parsedJson.response) {
+        return {
+            text: parsedJson.response,
+            suggestedPrompts: Array.isArray(parsedJson.suggestions) ? parsedJson.suggestions.slice(0, 3) : defaultSuggestions
+        };
+    } else {
+        console.error("Failed to parse AI response or find 'response' key:", fullResponseText);
+        // Fallback to returning the raw text if parsing fails, but clean it up a bit.
+        const cleanedText = fullResponseText.replace(/```json/g, '').replace(/```/g, '').trim();
+        return {
+            text: cleanedText || "I'm sorry, I had trouble formatting my response. Please try again.",
+            suggestedPrompts: defaultSuggestions
+        };
+    }
+  }
+
   async getChatCompletion(userInput: string, messagesHistory: any[] = []): Promise<AiResponse> {
     const endpoint = `${this.apiBaseUrl}/chat/completions`;
     if (!endpoint || !this.chatModelName) {
@@ -201,31 +240,21 @@ export class AiIntegrationService {
     `;
     // --- End Gather comprehensive user context ---
     
-    // --- RAG Integration (Phase 1: Get embedding for user input) ---
-    let userQueryEmbedding: number[] = [];
-    if (this.embeddingModelName) {
-      try {
-        userQueryEmbedding = await this.getEmbeddings(userInput);
-        console.log('User query embedding generated:', userQueryEmbedding.slice(0, 5), '...'); // Log first 5 dimensions
-      } catch (embedError) {
-        console.error('Error generating user query embedding:', embedError);
-      }
-    }
-    // --- End RAG Integration Phase 1 ---
-
-    const systemMessage = `You are Fat Boy, an AI nutritional co-pilot. Your goal is to assist users with food inquiries and manage their lists.
-    **RESPONSE FORMATTING IS CRITICAL:**
-    Your *entire* output MUST be a single, valid JSON object. Do not include any text, markdown, or explanations outside of this JSON object.
+    const systemMessage = `You are Fat Boy, an AI nutritional co-pilot.
+    **CRITICAL: YOUR ENTIRE RESPONSE MUST BE A SINGLE, VALID JSON OBJECT AND NOTHING ELSE. NO INTRODUCTORY TEXT, NO EXPLANATIONS, NO MARKDOWN.
     The JSON object must have two keys:
-    1. "response": A string containing your friendly, user-facing message. This message must be natural and conversational.
-    2. "suggestions": An array of exactly 3 unique, relevant, and diverse string prompts for the user to ask next.
+    1. "response": (string) Your friendly, user-facing message. This must be natural, conversational, and contain no technical jargon.
+    2. "suggestions": (array of 3 strings) Three unique, relevant, and diverse follow-up prompts for the user.
+
+    Example of a PERFECT response:
+    {"response": "I've added Organic Berry Granola to your shopping list for you. Is there anything else I can help with?","suggestions": ["Summarize my food diary for today.", "What are some low-calorie snacks?", "Remove the granola from my list."]}
 
     **INSTRUCTIONS:**
     - Analyze the user's query and the provided context.
     - If the user's intent matches a tool, call the tool.
     - Use the tool's output to formulate your final "response" message.
-    - NEVER include technical jargon, internal reasoning, or bracketed text like '[PROMPT]' in your "response" string.
     - Always provide 3 helpful "suggestions".
+    - Failure to provide a valid JSON object as your entire response will result in an error.
 
     Here is the current user's context:
     ${userContext}
@@ -245,8 +274,8 @@ export class AiIntegrationService {
     const payload = {
       model: this.chatModelName,
       messages: messagesForApi,
-      tools: this.tools, // Include tools in the payload
-      tool_choice: "auto", // Allow the model to decide whether to call a tool
+      tools: this.tools,
+      tool_choice: "auto",
       temperature: 0.7,
       max_tokens: 1024,
       stream: false
@@ -281,7 +310,6 @@ export class AiIntegrationService {
           const functionArgs = JSON.parse(toolCall.function.arguments);
           let toolOutput = '';
 
-          // Attempt to use lastDiscussedProduct if arguments are missing
           let productName = functionArgs.product_name;
           let brand = functionArgs.brand;
 
@@ -292,7 +320,6 @@ export class AiIntegrationService {
             brand = this.lastDiscussedProduct.brand;
           }
 
-          // Create a dummy product for adding to lists if not fully specified
           const productToAdd: Product = {
             id: this.lastDiscussedProduct?.id || Date.now().toString(),
             name: productName || 'Unknown Product',
@@ -337,10 +364,9 @@ export class AiIntegrationService {
           });
         }
 
-        // Send tool outputs back to the model to get a natural language response
         const toolResponseMessages = [
           ...messagesForApi,
-          choice.message, // The message that contained the tool call
+          choice.message,
           ...toolOutputs.map(output => ({
             role: "tool",
             tool_call_id: output.tool_call_id,
@@ -374,41 +400,12 @@ export class AiIntegrationService {
         const toolData = await toolResponse.json();
         const toolResponseMessage = toolData.choices[0].message.content;
         
-        try {
-          const parsedResponse = JSON.parse(toolResponseMessage);
-          if (parsedResponse.response && Array.isArray(parsedResponse.suggestions)) {
-            return {
-              text: parsedResponse.response,
-              suggestedPrompts: parsedResponse.suggestions.slice(0, 3),
-              toolCalls: choice.message.tool_calls
-            };
-          }
-        } catch (e) {
-          console.error("Failed to parse AI tool response as JSON:", toolResponseMessage, e);
-          return { text: toolResponseMessage, suggestedPrompts: [] };
-        }
+        const parsedToolResponse = this._parseAiResponse(toolResponseMessage);
+        return { ...parsedToolResponse, toolCalls: choice.message.tool_calls };
       }
       // --- End Handle Tool Calls ---
 
-      let fullResponseText = choice.message.content;
-      
-      try {
-        const parsedResponse = JSON.parse(fullResponseText);
-        if (parsedResponse.response && Array.isArray(parsedResponse.suggestions)) {
-          return {
-            text: parsedResponse.response,
-            suggestedPrompts: parsedResponse.suggestions.slice(0, 3)
-          };
-        } else {
-          throw new Error("Parsed JSON is missing required keys.");
-        }
-      } catch (e) {
-        console.error("Failed to parse AI response as JSON:", fullResponseText, e);
-        return {
-          text: fullResponseText,
-          suggestedPrompts: ["How can I help?", "What's in my shopping list?", "Suggest a healthy dinner."]
-        };
-      }
+      return this._parseAiResponse(choice.message.content);
 
     } catch (error) {
       console.error('Network or other error calling Chat Completions API:', error);
