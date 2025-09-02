@@ -44,10 +44,34 @@ h2 {
   font-size: 1.1rem;
 }
 
-.ingredient-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 15px;
+.ingredient-select {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #4a4a6e;
+  border-radius: 4px;
+  background-color: #1a1a2e;
+  color: #e0e0e0;
+  font-size: 1rem;
+  margin-bottom: 15px;
+}
+
+.selected-ingredients-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed #2a2a4e;
+}
+
+.selected-ingredient-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #2a2a4e;
+  padding: 5px 12px;
+  border-radius: 15px;
+  font-size: 0.9rem;
+  border: 1px solid #4a4a6e;
 }
 
 .preference-item {

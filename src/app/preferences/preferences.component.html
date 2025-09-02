@@ -3,18 +3,24 @@
   
   <div class="preference-section">
     <h3>Ingredients to Avoid</h3>
-    <p class="section-description">Select specific ingredients you want to avoid. Any product containing these will be marked as 'Denied'.</p>
+    <p class="section-description">Select ingredients from the dropdowns below. Your choices will appear in a list for easy review.</p>
     
     <div *ngFor="let category of ingredientCategories | keyvalue" class="ingredient-category">
       <h4>{{ category.value.name }}</h4>
-      <div class="ingredient-grid">
-        <div *ngFor="let item of category.value.items" class="preference-item">
-          <input 
-            type="checkbox" 
-            [id]="item" 
-            [checked]="isIngredientAvoided(item)"
-            (change)="toggleAvoidIngredient(item)">
-          <label [for]="item">{{ item | titlecase }}</label>
+      
+      <!-- Dropdown for selecting ingredients -->
+      <select (change)="addAvoidedIngredient($event.target.value); $event.target.value=''" class="ingredient-select">
+        <option value="" disabled selected>-- Add an ingredient to avoid --</option>
+        <option *ngFor="let item of category.value.items" [value]="item">
+          {{ item | titlecase }}
+        </option>
+      </select>
+
+      <!-- Display selected ingredients for this category -->
+      <div class="selected-ingredients-list" *ngIf="getAvoidedIngredientsForCategory(category.key).length > 0">
+        <div *ngFor="let item of getAvoidedIngredientsForCategory(category.key)" class="selected-ingredient-item">
+          <span>{{ item | titlecase }}</span>
+          <button (click)="removeAvoidedIngredient(item)" class="remove-btn">×</button>
         </div>
       </div>
     </div>
@@ -22,7 +28,7 @@
 
   <div class="preference-section">
     <h3>Custom Ingredients to Avoid</h3>
-    <p class="section-description">Manually add any other ingredients you want to avoid.</p>
+    <p class="section-description">Manually add any other ingredients. We'll try to categorize them for you automatically.</p>
     <div class="custom-ingredient-form">
       <input 
         type="text" 

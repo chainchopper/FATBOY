@@ -105,4 +105,16 @@ export class IngredientParserService {
     const evaluation = this.evaluateProduct(ingredients, undefined, preferences);
     return evaluation.flaggedIngredients.map(f => f.ingredient);
   }
+
+  // New method to find the category for a single ingredient
+  categorizeSingleIngredient(ingredient: string): string | null {
+    const lowerIngredient = ingredient.toLowerCase();
+    for (const categoryKey in this.INGREDIENT_DATABASE) {
+      const category = this.INGREDIENT_DATABASE[categoryKey];
+      if (category.items.some(item => lowerIngredient.includes(item))) {
+        return categoryKey;
+      }
+    }
+    return null; // Return null if no category is found
+  }
 }

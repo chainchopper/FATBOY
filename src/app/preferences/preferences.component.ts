@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { NotificationService } from '../services/notification.service';
 import { AuthService } from '../services/auth.service';
 import { IngredientParserService } from '../services/ingredient-parser.service';
-import { PreferencesService } from '../services/preferences.service'; // Import PreferencesService
+import { PreferencesService } from '../services/preferences.service';
 
 @Component({
   selector: 'app-preferences',
@@ -14,7 +14,7 @@ import { PreferencesService } from '../services/preferences.service'; // Import 
   styleUrls: ['./preferences.component.css']
 })
 export class PreferencesComponent implements OnInit {
-  preferences: any; // Will be managed by PreferencesService
+  preferences: any;
 
   ingredientCategories: { [key: string]: { name: string, items: string[] } };
   newCustomIngredient: string = '';
@@ -24,29 +24,37 @@ export class PreferencesComponent implements OnInit {
     private notificationService: NotificationService, 
     private authService: AuthService,
     private ingredientParser: IngredientParserService,
-    private preferencesService: PreferencesService // Inject PreferencesService
+    private preferencesService: PreferencesService
   ) {
     this.ingredientCategories = this.ingredientParser.INGREDIENT_DATABASE;
-    this.preferences = this.preferencesService.getPreferences(); // Initialize with current preferences
+    this.preferences = this.preferencesService.getPreferences();
   }
 
   ngOnInit() {
     this.authService.currentUser$.subscribe(user => {
       this.currentUserId = user?.id || null;
-      this.preferences = this.preferencesService.getPreferences(); // Load preferences for current user
+      this.preferences = this.preferencesService.getPreferences();
     });
   }
 
-  isIngredientAvoided(ingredient: string): boolean {
-    return this.preferences.avoidedIngredients.includes(ingredient);
+  // Get the list of avoided ingredients that belong to a specific category
+  getAvoidedIngredientsForCategory(categoryKey: string): string[] {
+    const categoryItems = this.ingredientCategories[categoryKey].items;
+    return this.preferences.avoidedIngredients.filter((item: string) => categoryItems.includes(item));
   }
 
-  toggleAvoidIngredient(ingredient: string): void {
+  // Add a new ingredient to the avoided list from a dropdown
+  addAvoidedIngredient(ingredient: string): void {
+    if (ingredient && !this.preferences.avoidedIngredients.includes(ingredient)) {
+      this.preferences.avoidedIngredients.push(ingredient);
+    }
+  }
+
+  // Remove an ingredient from the avoided list
+  removeAvoidedIngredient(ingredient: string): void {
     const index = this.preferences.avoidedIngredients.indexOf(ingredient);
     if (index > -1) {
       this.preferences.avoidedIngredients.splice(index, 1);
-    } else {
-      this.preferences.avoidedIngredients.push(ingredient);
     }
   }
 
@@ -54,6 +62,14 @@ export class PreferencesComponent implements OnInit {
     const ingredient = this.newCustomIngredient.trim().toLowerCase();
     if (ingredient && !this.preferences.customAvoidedIngredients.includes(ingredient)) {
       this.preferences.customAvoidedIngredients.push(ingredient);
+      
+      // Automatically categorize and add to the main list if a category is found
+      const category = this.ingredientParser.categorizeSingleIngredient(ingredient);
+      if (category) {
+        this.addAvoidedIngredient(ingredient);
+        this.notificationService.showInfo(`Added "${ingredient}" and auto-categorized it.`);
+      }
+      
       this.newCustomIngredient = '';
     }
   }
