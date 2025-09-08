@@ -17,5 +17,8 @@ export const environment = {
   openaiApiBaseUrl: "http://100.67.233.36:8981/v1",
   openaiApiKey: "your_openai_compatible_api_key",
   chatModelName: "rstar-coder-qwen3-0.6b@bf16", // Renamed from visionModelName
-  embeddingModelName: "fatboy-embeddings-v4-text-retrieval"
+  embeddingModelName: "fatboy-embeddings-v4-text-retrieval",
+
+  // New Barcode Lookup API Key
+  barcodeLookupApiKey: "nkg2i7b01p0xnu16igpuvq3rjy2mik"
 };

@@ -13,6 +13,7 @@ import { AuthService } from '../services/auth.service';
 import { PermissionsService } from '../services/permissions.service';
 import { PreferencesService } from '../services/preferences.service';
 import { AiIntegrationService } from '../services/ai-integration.service';
+import { BarcodeLookupService } from '../services/barcode-lookup.service'; // Import the new service
 import { take } from 'rxjs/operators';
 import { Subscription } from 'rxjs';
 
@@ -49,7 +50,8 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
     private authService: AuthService,
     private permissionsService: PermissionsService,
     private preferencesService: PreferencesService,
-    private aiService: AiIntegrationService
+    private aiService: AiIntegrationService,
+    private barcodeLookupService: BarcodeLookupService // Inject the new service
   ) {}
 
   async ngAfterViewInit() {
@@ -126,31 +128,49 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
 
   async onBarcodeScanSuccess(decodedText: string): Promise<void> {
     this.stopBarcodeScanning();
+    this.notificationService.showInfo('Barcode detected! Fetching product data...', 'Scanning');
 
-    const productFromApi = await this.offService.getProductByBarcode(decodedText);
-    
-    const ingredients = Array.isArray(productFromApi.ingredients) && productFromApi.ingredients.length > 0
-      ? productFromApi.ingredients
+    // Step 1: Try the new, high-quality Barcode Lookup API first.
+    let productData = await this.barcodeLookupService.getProductByBarcode(decodedText);
+
+    // Step 2: If it fails, fall back to the Open Food Facts API.
+    if (!productData) {
+      this.notificationService.showInfo('Primary source failed. Trying fallback...', 'Scanning');
+      productData = await this.offService.getProductByBarcode(decodedText);
+    }
+
+    // Step 3: If both fail, inform the user.
+    if (!productData) {
+      this.notificationService.showError('Product not found in any database.', 'Not Found');
+      this.startBarcodeScanning(); // Restart scanning
+      return;
+    }
+
+    const ingredients = productData.ingredients && productData.ingredients.length > 0
+      ? productData.ingredients
       : ["Ingredients not available"];
 
     const preferences = this.preferencesService.getPreferences();
     const categories = this.ingredientParser.categorizeProduct(ingredients);
-    const evaluation = this.ingredientParser.evaluateProduct(ingredients, productFromApi.calories, preferences);
+    const evaluation = this.ingredientParser.evaluateProduct(ingredients, productData.calories, preferences);
 
     const productInfo: Omit<Product, 'id' | 'scanDate'> = {
-      barcode: productFromApi.barcode,
-      name: productFromApi.name || "Unknown Product",
-      brand: productFromApi.brand || "Unknown Brand",
+      barcode: decodedText,
+      name: productData.name || "Unknown Product",
+      brand: productData.brand || "Unknown Brand",
       ingredients: ingredients,
-      calories: productFromApi.calories ?? undefined,
-      image: productFromApi.image || "https://via.placeholder.com/150",
+      calories: productData.calories ?? undefined,
+      image: productData.image || "https://via.placeholder.com/150",
       categories,
       verdict: evaluation.verdict,
       flaggedIngredients: evaluation.flaggedIngredients.map(f => f.ingredient)
     };
 
     const savedProduct = await this.productDb.addProduct(productInfo);
-    if (!savedProduct) return; // Stop if product wasn't saved (e.g., user not logged in)
+    if (!savedProduct) {
+      this.startBarcodeScanning(); // Restart if saving fails (e.g., not logged in)
+      return;
+    }
 
     sessionStorage.setItem('scannedProduct', JSON.stringify(savedProduct));
     this.aiService.setLastDiscussedProduct(savedProduct);
