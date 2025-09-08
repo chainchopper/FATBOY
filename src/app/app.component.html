@@ -41,19 +41,9 @@
 </div>
 
 <!-- Floating Action Button (FAB) -->
-<button class="fab-button" (click)="toggleFabMenu()" [class.open]="isFabMenuOpen">
-  <span class="plus-icon" [class.rotate]="isFabMenuOpen">+</span>
+<button class="fab-button" (click)="goToAgentConsole()" title="Open Fat Boy Assistant">
+  <lucide-icon name="message-circle" [size]="32"></lucide-icon>
 </button>
-
-<!-- FAB Action Sheet -->
-<div class="fab-action-sheet" [class.open]="isFabMenuOpen" (click)="$event.stopPropagation()">
-  <button class="fab-action-item" (click)="goToScanner()">
-    📸 Scan items using your camera
-  </button>
-  <button class="fab-action-item" (click)="goToManualEntry()">
-    ✍️ Manually enter items to save to your lists
-  </button>
-</div>
 
 <main>
   <router-outlet></router-outlet>

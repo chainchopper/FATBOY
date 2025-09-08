@@ -142,6 +142,28 @@ export class AiIntegrationService {
           required: ["product_name", "brand"]
         }
       }
+    },
+    {
+      type: "function",
+      function: {
+        name: "update_avoided_ingredients",
+        description: "Adds or removes ingredients from the user's avoided ingredients list.",
+        parameters: {
+          type: "object",
+          properties: {
+            add: {
+              type: "array",
+              items: { "type": "string" },
+              description: "A list of ingredients to add to the avoid list."
+            },
+            remove: {
+              type: "array",
+              items: { "type": "string" },
+              description: "A list of ingredients to remove from the avoid list."
+            }
+          }
+        }
+      }
     }
   ];
   // --- End Tool Definitions ---
@@ -353,6 +375,18 @@ export class AiIntegrationService {
               } else {
                 toolOutput = `FAILED: Missing product name or brand.`;
               }
+              break;
+            case 'update_avoided_ingredients':
+              const toAdd = functionArgs.add || [];
+              const toRemove = functionArgs.remove || [];
+              
+              toAdd.forEach((ing: string) => this.preferencesService.addCustomAvoidedIngredient(ing));
+              toRemove.forEach((ing: string) => this.preferencesService.removeAvoidedIngredient(ing));
+              
+              let outputParts = [];
+              if (toAdd.length > 0) outputParts.push(`Added: ${toAdd.join(', ')}.`);
+              if (toRemove.length > 0) outputParts.push(`Removed: ${toRemove.join(', ')}.`);
+              toolOutput = `PREFERENCES_UPDATED: ${outputParts.join(' ')}`;
               break;
             default:
               toolOutput = `Unknown tool: ${functionName}`;

@@ -6,19 +6,19 @@ import { Observable } from 'rxjs';
 import { User } from '@supabase/supabase-js';
 import { ProfileService, Profile } from './services/profile.service';
 import { map } from 'rxjs/operators';
-import { AppModalComponent } from './app-modal/app-modal.component'; // Explicitly re-importing
+import { AppModalComponent } from './app-modal/app-modal.component';
 import { LogoComponent } from './logo/logo.component';
+import { LucideAngularModule } from 'lucide-angular';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, AppModalComponent, LogoComponent],
+  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, AppModalComponent, LogoComponent, LucideAngularModule],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
 export class AppComponent implements OnInit {
   isMenuOpen = false;
-  isFabMenuOpen = false;
   currentUser$!: Observable<User | null>;
   displayName$!: Observable<string | null>;
 
@@ -42,34 +42,14 @@ export class AppComponent implements OnInit {
 
   toggleMenu(): void {
     this.isMenuOpen = !this.isMenuOpen;
-    if (this.isMenuOpen) {
-      this.isFabMenuOpen = false;
-    }
   }
 
   closeMenu(): void {
     this.isMenuOpen = false;
   }
 
-  toggleFabMenu(): void {
-    this.isFabMenuOpen = !this.isFabMenuOpen;
-    if (this.isFabMenuOpen) {
-      this.isMenuOpen = false;
-    }
-  }
-
-  closeFabMenu(): void {
-    this.isFabMenuOpen = false;
-  }
-
-  goToScanner(): void {
-    this.router.navigate(['/scanner']);
-    this.closeFabMenu();
-  }
-
-  goToManualEntry(): void {
-    this.router.navigate(['/manual-entry']);
-    this.closeFabMenu();
+  goToAgentConsole(): void {
+    this.router.navigate(['/console']);
   }
 
   goToHome(): void {

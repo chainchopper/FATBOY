@@ -85,6 +85,32 @@ export class PreferencesService {
     }
   }
 
+  public addCustomAvoidedIngredient(ingredient: string): void {
+    const prefs = this.getPreferences();
+    const lowerIngredient = ingredient.trim().toLowerCase();
+    if (lowerIngredient && !prefs.customAvoidedIngredients.includes(lowerIngredient)) {
+      prefs.customAvoidedIngredients.push(lowerIngredient);
+      this.savePreferences(prefs);
+    }
+  }
+
+  public removeAvoidedIngredient(ingredient: string): void {
+    const prefs = this.getPreferences();
+    const lowerIngredient = ingredient.trim().toLowerCase();
+    
+    let index = prefs.avoidedIngredients.indexOf(lowerIngredient);
+    if (index > -1) {
+      prefs.avoidedIngredients.splice(index, 1);
+    }
+
+    index = prefs.customAvoidedIngredients.indexOf(lowerIngredient);
+    if (index > -1) {
+      prefs.customAvoidedIngredients.splice(index, 1);
+    }
+    
+    this.savePreferences(prefs);
+  }
+
   private async savePreferencesToSupabase(prefs: UserPreferences): Promise<void> {
     if (!this.currentUserId) return;
 
