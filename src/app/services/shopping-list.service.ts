@@ -55,6 +55,10 @@ export class ShoppingListService {
     return this.shoppingList.some(item => item.product_id === productId);
   }
 
+  public getListSnapshot(): ShoppingListItem[] {
+    return this.listSubject.getValue();
+  }
+
   async addItem(product: Product): Promise<void> {
     if (!this.currentUserId) {
       this.notificationService.showError('Please log in to add items to your shopping list.');

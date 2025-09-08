@@ -1,12 +1,27 @@
 <div class="suggestions-container">
+  
+  <div *ngIf="conflicts.length > 0" class="conflicts-section">
+    <h3>⚠️ Preference Conflicts Found</h3>
+    <p>Some items on your lists now conflict with your updated preferences.</p>
+    <div class="conflicts-grid">
+      <div *ngFor="let conflict of conflicts" class="conflict-card">
+        <h4>{{ conflict.product.name }}</h4>
+        <p class="conflict-details">
+          On your <strong>{{ conflict.listType }}</strong>, contains <strong>{{ conflict.conflictingIngredient }}</strong>.
+        </p>
+        <button (click)="resolveConflict(conflict)" class="resolve-btn">Remove from List</button>
+      </div>
+    </div>
+  </div>
+
   <h2>Product Suggestions</h2>
   <p>Based on your preferences and scanning history, here are some products you might like:</p>
   
-  <div *ngIf="isLoading" class="loading">
+  <div *ngIf="isLoading && suggestions.length === 0" class="loading">
     <p>🤖 Analyzing your preferences...</p>
   </div>
   
-  <div *ngIf="!isLoading && suggestions.length === 0" class="empty-state">
+  <div *ngIf="!isLoading && suggestions.length === 0 && conflicts.length === 0" class="empty-state">
     <p>Scan more products to get personalized suggestions!</p>
   </div>
   
