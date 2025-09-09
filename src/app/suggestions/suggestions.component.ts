@@ -82,9 +82,21 @@ export class SuggestionsComponent implements OnInit {
 
   private async fetchSuggestionsFromAI() {
     try {
-      const prompt = `Based on my user context, suggest 3 products I might like. Respond with ONLY a valid JSON array of objects. Each object must have three keys: 'name' (string), 'brand' (string), and 'reason' (string).`;
+      const scanHistory = this.productDb.getProductsSnapshot();
+      const approvedProducts = scanHistory.filter(p => p.verdict === 'good').slice(0, 5); // Use up to 5 approved products
+
+      if (approvedProducts.length === 0) {
+        this.suggestions = [];
+        this.isLoading = false;
+        return;
+      }
+
+      const productExamples = approvedProducts.map(p => `- ${p.name} by ${p.brand}`).join('\n');
+      const prompt = `The user likes the following products:\n${productExamples}\n\nBased on these, suggest 3 similar products they might also enjoy. Respond with ONLY a valid JSON array of objects. Each object must have three keys: 'name' (string), 'brand' (string), and 'reason' (string, explaining why it's a good match).`;
+      
       const aiResponse = await this.aiService.getChatCompletion(prompt);
       
+      // The AI service now returns a structured object, so we access the 'text' property
       const parsedSuggestions = JSON.parse(aiResponse.text);
       if (!Array.isArray(parsedSuggestions)) {
         throw new Error("AI response is not an array.");
@@ -111,7 +123,7 @@ export class SuggestionsComponent implements OnInit {
             categories: ['suggestion'],
             image: 'https://via.placeholder.com/150?text=Suggestion'
           },
-          similarity: Math.floor(Math.random() * (95 - 85 + 1) + 85),
+          similarity: 0, // Removed random similarity
           reason: suggestion.reason
         };
       });

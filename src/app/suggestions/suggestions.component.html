@@ -27,7 +27,6 @@
   
   <div *ngIf="!isLoading && suggestions.length > 0" class="suggestions-grid">
     <div *ngFor="let suggestion of suggestions" class="suggestion-card">
-      <div class="similarity-badge">{{suggestion.similarity}}% match</div>
       
       <div class="suggestion-info">
         <h3>{{suggestion.product.name}}</h3>
