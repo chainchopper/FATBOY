@@ -1,0 +1,71 @@
+.diary-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  background-color: #1a1a2e;
+  padding: 10px;
+  border-radius: 8px;
+  border-left: 4px solid #4a4a6e;
+  transition: all 0.3s ease;
+}
+
+.diary-item:hover {
+  background-color: #2a2a4e;
+}
+
+.diary-item.good {
+  border-left-color: #0abdc6;
+}
+
+.diary-item.bad {
+  border-left-color: #f038ff;
+}
+
+.product-image {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.item-info {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.product-name {
+  color: #e0e0e0;
+  font-weight: 500;
+}
+
+.product-brand {
+  color: #a0a0c0;
+  font-size: 0.8rem;
+}
+
+.item-calories {
+  color: #f038ff;
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+
+.remove-btn {
+  background: transparent;
+  border: 1px solid #4a4a6e;
+  color: #a0a0c0;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.remove-btn:hover {
+  background-color: #F44336;
+  border-color: #F44336;
+  color: #fff;
+}

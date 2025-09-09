@@ -6,16 +6,16 @@ import { map } from 'rxjs/operators';
 import { ScanContextService } from '../services/scan-context.service';
 import { Router } from '@angular/router';
 import { PreferencesService, UserPreferences } from '../services/preferences.service';
-import { ProductCardComponent } from '../product-card.component';
 import { Product } from '../services/product-db.service';
 import { ShareService } from '../services/share.service';
 import { ShoppingListService } from '../services/shopping-list.service';
 import { DailySummaryCardComponent } from '../daily-summary-card.component';
+import { DiaryItemComponent } from '../diary-item/diary-item.component'; // Import the new component
 
 @Component({
   selector: 'app-food-diary',
   standalone: true,
-  imports: [CommonModule, KeyValuePipe, TitleCasePipe, DatePipe, ProductCardComponent, DailySummaryCardComponent],
+  imports: [CommonModule, KeyValuePipe, TitleCasePipe, DatePipe, DailySummaryCardComponent, DiaryItemComponent], // Add DiaryItemComponent
   templateUrl: './food-diary.component.html',
   styleUrls: ['./food-diary.component.css']
 })

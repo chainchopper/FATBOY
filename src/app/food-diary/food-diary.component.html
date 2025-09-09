@@ -21,16 +21,11 @@
         <button (click)="scanForMeal('Breakfast')" class="scan-meal-btn">Scan Item</button>
       </div>
       <div *ngIf="(breakfast$ | async) as entries" class="meal-list">
-        <app-product-card 
+        <app-diary-item 
           *ngFor="let entry of entries"
           [product]="entry.product"
-          [showRemoveButton]="true"
-          [showShareButton]="true"
-          [showAddToShoppingListButton]="true"
-          (remove)="onRemoveEntry(entry.id)"
-          (share)="onShareProduct($event)"
-          (addToShoppingList)="onAddToShoppingList($event)">
-        </app-product-card>
+          (remove)="onRemoveEntry(entry.id)">
+        </app-diary-item>
         <p *ngIf="entries.length === 0" class="empty-meal">No breakfast items logged.</p>
       </div>
     </div>
@@ -41,16 +36,11 @@
         <button (click)="scanForMeal('Lunch')" class="scan-meal-btn">Scan Item</button>
       </div>
       <div *ngIf="(lunch$ | async) as entries" class="meal-list">
-        <app-product-card 
+        <app-diary-item 
           *ngFor="let entry of entries"
           [product]="entry.product"
-          [showRemoveButton]="true"
-          [showShareButton]="true"
-          [showAddToShoppingListButton]="true"
-          (remove)="onRemoveEntry(entry.id)"
-          (share)="onShareProduct($event)"
-          (addToShoppingList)="onAddToShoppingList($event)">
-        </app-product-card>
+          (remove)="onRemoveEntry(entry.id)">
+        </app-diary-item>
         <p *ngIf="entries.length === 0" class="empty-meal">No lunch items logged.</p>
       </div>
     </div>
@@ -61,16 +51,11 @@
         <button (click)="scanForMeal('Dinner')" class="scan-meal-btn">Scan Item</button>
       </div>
       <div *ngIf="(dinner$ | async) as entries" class="meal-list">
-        <app-product-card 
+        <app-diary-item 
           *ngFor="let entry of entries"
           [product]="entry.product"
-          [showRemoveButton]="true"
-          [showShareButton]="true"
-          [showAddToShoppingListButton]="true"
-          (remove)="onRemoveEntry(entry.id)"
-          (share)="onShareProduct($event)"
-          (addToShoppingList)="onAddToShoppingList($event)">
-        </app-product-card>
+          (remove)="onRemoveEntry(entry.id)">
+        </app-diary-item>
         <p *ngIf="entries.length === 0" class="empty-meal">No dinner items logged.</p>
       </div>
     </div>
@@ -81,16 +66,11 @@
         <button (click)="scanForMeal('Snack')" class="scan-meal-btn">Scan Item</button>
       </div>
       <div *ngIf="(snacks$ | async) as entries" class="meal-list">
-        <app-product-card 
+        <app-diary-item 
           *ngFor="let entry of entries"
           [product]="entry.product"
-          [showRemoveButton]="true"
-          [showShareButton]="true"
-          [showAddToShoppingListButton]="true"
-          (remove)="onRemoveEntry(entry.id)"
-          (share)="onShareProduct($event)"
-          (addToShoppingList)="onAddToShoppingList($event)">
-        </app-product-card>
+          (remove)="onRemoveEntry(entry.id)">
+        </app-diary-item>
         <p *ngIf="entries.length === 0" class="empty-meal">No snack items logged.</p>
       </div>
     </div>
@@ -101,16 +81,11 @@
         <button (click)="scanForMeal('Drinks')" class="scan-meal-btn">Scan Item</button>
       </div>
       <div *ngIf="(drinks$ | async) as entries" class="meal-list">
-        <app-product-card 
+        <app-diary-item 
           *ngFor="let entry of entries"
           [product]="entry.product"
-          [showRemoveButton]="true"
-          [showShareButton]="true"
-          [showAddToShoppingListButton]="true"
-          (remove)="onRemoveEntry(entry.id)"
-          (share)="onShareProduct($event)"
-          (addToShoppingList)="onAddToShoppingList($event)">
-        </app-product-card>
+          (remove)="onRemoveEntry(entry.id)">
+        </app-diary-item>
         <p *ngIf="entries.length === 0" class="empty-meal">No drinks logged.</p>
       </div>
     </div>

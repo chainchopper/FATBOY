@@ -1,0 +1,13 @@
+<div class="diary-item" [class.good]="product.verdict === 'good'" [class.bad]="product.verdict === 'bad'">
+  <img [src]="product.image" alt="{{product.name}}" class="product-image">
+  <div class="item-info">
+    <span class="product-name">{{ product.name }}</span>
+    <span class="product-brand">{{ product.brand }}</span>
+  </div>
+  <div class="item-calories">
+    {{ product.calories || 'N/A' }} kcal
+  </div>
+  <button (click)="onRemove()" class="remove-btn" title="Remove from Diary">
+    <lucide-icon name="x" [size]="18"></lucide-icon>
+  </button>
+</div>
