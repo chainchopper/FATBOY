@@ -20,6 +20,7 @@ import { FriendsComponent } from './friends/friends.component';
 import { AgentConsoleComponent } from './agent-console/agent-console.component';
 import { AdminDashboardComponent } from './admin-dashboard/admin-dashboard.component';
 import { DevConsoleComponent } from './dev-console/dev-console.component';
+import { AdminUsersComponent } from './admin-users/admin-users.component';
 
 export const routes: Routes = [
   // Public and User Routes
@@ -51,6 +52,7 @@ export const routes: Routes = [
     children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: 'dashboard', component: AdminDashboardComponent },
+      { path: 'users', component: AdminUsersComponent },
       { path: 'dev-console', component: DevConsoleComponent }
     ]
   }

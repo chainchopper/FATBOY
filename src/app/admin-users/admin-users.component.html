@@ -1,0 +1,48 @@
+<div class="admin-container">
+  <a routerLink="/admin/dashboard" class="back-link">← Back to Dashboard</a>
+  <h2>User Management</h2>
+  <p>View all registered users and manage their roles.</p>
+
+  <div class="dashboard-section">
+    <h3>All Users ({{ users.length }})</h3>
+    
+    <div *ngIf="isLoading" class="loading-state">
+      <p>Loading users...</p>
+    </div>
+
+    <div *ngIf="!isLoading && users.length === 0" class="empty-state">
+      <p>No users found.</p>
+    </div>
+
+    <div *ngIf="!isLoading && users.length > 0" class="users-table">
+      <table>
+        <thead>
+          <tr>
+            <th>User</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Last Updated</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let user of users">
+            <td>
+              <div class="user-cell">
+                <img [src]="user.avatar_url" alt="Avatar" class="avatar">
+                <span>{{ user.first_name }} {{ user.last_name }}</span>
+              </div>
+            </td>
+            <td>{{ user.id }}</td>
+            <td>
+              <select [value]="user.role" (change)="changeRole(user, $event)" class="role-select">
+                <option value="user">User</option>
+                <option value="admin">Admin</option>
+              </select>
+            </td>
+            <td>{{ user.updated_at | date:'medium' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,102 @@
+.admin-container {
+  max-width: 1000px;
+  margin: 2rem auto;
+  padding: 20px;
+  color: #e0e0e0;
+}
+
+.back-link {
+  color: #0abdc6;
+  text-decoration: none;
+  margin-bottom: 1.5rem;
+  display: inline-block;
+}
+
+h2 {
+  text-align: center;
+  margin-bottom: 1rem;
+  font-size: 1.8rem;
+  color: #0abdc6;
+  text-shadow: 0 0 8px #0abdc6;
+}
+
+p {
+  text-align: center;
+  margin-bottom: 2rem;
+  color: #a0a0c0;
+}
+
+.dashboard-section {
+  background: rgba(15, 15, 30, 0.8);
+  border: 1px solid #4a4a6e;
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.dashboard-section h3 {
+  color: #f038ff;
+  margin-bottom: 1.5rem;
+  font-size: 1.5rem;
+  text-shadow: 0 0 5px #f038ff;
+}
+
+.loading-state, .empty-state {
+  text-align: center;
+  padding: 40px;
+  color: #a0a0c0;
+}
+
+.users-table {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead {
+  border-bottom: 2px solid #f038ff;
+}
+
+th {
+  padding: 12px 15px;
+  text-align: left;
+  color: #f038ff;
+  font-size: 1rem;
+}
+
+tbody tr {
+  border-bottom: 1px solid #2a2a4e;
+}
+
+tbody tr:last-child {
+  border-bottom: none;
+}
+
+td {
+  padding: 12px 15px;
+  vertical-align: middle;
+}
+
+.user-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.role-select {
+  background-color: #1a1a2e;
+  color: #e0e0e0;
+  border: 1px solid #4a4a6e;
+  padding: 8px;
+  border-radius: 4px;
+  font-family: inherit;
+}

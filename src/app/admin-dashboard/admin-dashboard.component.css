@@ -32,6 +32,17 @@ p {
   border-radius: 12px;
   padding: 20px;
   text-align: center;
+  transition: all 0.3s ease;
+}
+
+.stat-card.interactive {
+  cursor: pointer;
+}
+
+.stat-card.interactive:hover {
+  border-color: #0abdc6;
+  transform: translateY(-5px);
+  box-shadow: 0 0 15px #0abdc6;
 }
 
 .stat-value {

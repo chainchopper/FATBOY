@@ -61,4 +61,31 @@ export class AdminService {
     }
     return data[0];
   }
+
+  async getAllUsers() {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .order('updated_at', { ascending: false });
+    
+    if (error) {
+      console.error('Error fetching all users:', error);
+      return [];
+    }
+    return data;
+  }
+
+  async updateUserRole(userId: string, role: 'user' | 'admin') {
+    const { data, error } = await supabase
+      .from('profiles')
+      .update({ role })
+      .eq('id', userId)
+      .select();
+    
+    if (error) {
+      console.error('Error updating user role:', error);
+      return null;
+    }
+    return data[0];
+  }
 }
