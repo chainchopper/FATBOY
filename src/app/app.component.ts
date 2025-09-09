@@ -9,6 +9,8 @@ import { map, filter } from 'rxjs/operators';
 import { AppModalComponent } from './app-modal/app-modal.component';
 import { LogoComponent } from './logo/logo.component';
 import { LucideAngularModule } from 'lucide-angular';
+import { UserNotificationService } from './services/user-notification.service';
+import { NotificationsComponent } from './notifications/notifications.component';
 
 @Component({
   selector: 'app-root',
@@ -20,7 +22,8 @@ import { LucideAngularModule } from 'lucide-angular';
     RouterLinkActive, 
     AppModalComponent, 
     LogoComponent, 
-    LucideAngularModule
+    LucideAngularModule,
+    NotificationsComponent
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
@@ -31,15 +34,20 @@ export class AppComponent implements OnInit {
   displayName$!: Observable<string | null>;
   isAdmin$!: Observable<boolean>;
   isScannerPage = false;
+  
+  showNotifications = false;
+  unreadNotifications$!: Observable<number>;
 
   constructor(
     private authService: AuthService, 
     private router: Router,
-    private profileService: ProfileService
+    private profileService: ProfileService,
+    private userNotificationService: UserNotificationService
   ) {}
 
   ngOnInit(): void {
     this.currentUser$ = this.authService.currentUser$;
+    this.unreadNotifications$ = this.userNotificationService.unreadCount$;
     
     const profile$ = this.profileService.getProfile();
 
@@ -60,14 +68,21 @@ export class AppComponent implements OnInit {
       filter((event): event is NavigationEnd => event instanceof NavigationEnd)
     ).subscribe((event: NavigationEnd) => {
       this.isScannerPage = event.urlAfterRedirects === '/scanner';
+      this.showNotifications = false; // Close notifications on navigation
     });
   }
 
   toggleMenu(): void {
     this.isMenuOpen = !this.isMenuOpen;
+    this.showNotifications = false;
   }
 
   closeMenu(): void {
+    this.isMenuOpen = false;
+  }
+
+  toggleNotifications(): void {
+    this.showNotifications = !this.showNotifications;
     this.isMenuOpen = false;
   }
 

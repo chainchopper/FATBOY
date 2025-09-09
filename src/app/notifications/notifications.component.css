@@ -1,0 +1,79 @@
+.notifications-panel {
+  position: absolute;
+  top: 65px;
+  right: 20px;
+  width: 350px;
+  max-height: 400px;
+  background: #1a1a2e;
+  border: 1px solid #f038ff;
+  border-radius: 8px;
+  box-shadow: 0 0 25px rgba(240, 56, 255, 0.5);
+  z-index: 1005;
+  display: flex;
+  flex-direction: column;
+  color: #e0e0e0;
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  border-bottom: 1px solid #4a4a6e;
+}
+
+.panel-header h3 {
+  margin: 0;
+  color: #f038ff;
+}
+
+.mark-all-read-btn {
+  background: none;
+  border: none;
+  color: #0abdc6;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+
+.notifications-list {
+  overflow-y: auto;
+  flex-grow: 1;
+}
+
+.notification-item {
+  display: flex;
+  gap: 15px;
+  padding: 15px;
+  border-bottom: 1px solid #2a2a4e;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.notification-item:hover {
+  background-color: #2a2a4e;
+}
+
+.notification-item.unread {
+  background-color: rgba(240, 56, 255, 0.1);
+}
+
+.notification-icon {
+  color: #0abdc6;
+  flex-shrink: 0;
+}
+
+.notification-content p {
+  margin: 0 0 5px 0;
+  font-size: 0.9rem;
+}
+
+.timestamp {
+  font-size: 0.8rem;
+  color: #a0a0c0;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px;
+  color: #a0a0c0;
+}

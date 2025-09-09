@@ -6,6 +6,12 @@
   <div class="app-title">Fat Boy Time <span class="powered-by">Powered by Fanalogy</span></div>
 
   <div class="nav-actions">
+    <button class="notification-btn" (click)="toggleNotifications()">
+      <lucide-icon name="bell" [size]="24"></lucide-icon>
+      <span *ngIf="(unreadNotifications$ | async) as count" class="notification-badge" [class.visible]="count > 0">
+        {{ count }}
+      </span>
+    </button>
     <button class="hamburger-menu" (click)="toggleMenu()" [class.open]="isMenuOpen" aria-label="Toggle menu">
       <div class="bar"></div>
       <div class="bar"></div>
@@ -13,6 +19,8 @@
     </button>
   </div>
 </nav>
+
+<app-notifications *ngIf="showNotifications" (close)="showNotifications = false"></app-notifications>
 
 <div class="nav-overlay" [class.open]="isMenuOpen" (click)="closeMenu()">
   <div class="nav-menu" [class.open]="isMenuOpen" (click)="$event.stopPropagation()">

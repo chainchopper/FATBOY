@@ -1,0 +1,25 @@
+<div class="notifications-panel">
+  <div class="panel-header">
+    <h3>Notifications</h3>
+    <button (click)="markAllAsRead()" class="mark-all-read-btn">Mark all as read</button>
+  </div>
+  <div class="notifications-list">
+    <div *ngIf="(notifications$ | async) as notifications">
+      <div *ngIf="notifications.length === 0" class="empty-state">
+        <p>You have no new notifications.</p>
+      </div>
+      <div *ngFor="let notification of notifications" 
+           class="notification-item" 
+           [class.unread]="!notification.is_read"
+           (click)="handleNotificationClick(notification)">
+        <div class="notification-icon">
+          <lucide-icon [name]="getIconForType(notification.type)" [size]="20"></lucide-icon>
+        </div>
+        <div class="notification-content">
+          <p>{{ notification.message }}</p>
+          <span class="timestamp">{{ notification.created_at | date:'short' }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
