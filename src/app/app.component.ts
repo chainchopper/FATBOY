@@ -8,12 +8,24 @@ import { ProfileService, Profile } from './services/profile.service';
 import { map, filter } from 'rxjs/operators';
 import { AppModalComponent } from './app-modal/app-modal.component';
 import { LogoComponent } from './logo/logo.component';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideAngularModule, LucideIconProvider, icons } from 'lucide-angular';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, AppModalComponent, LogoComponent, LucideAngularModule],
+  imports: [
+    CommonModule, 
+    RouterOutlet, 
+    RouterLink, 
+    RouterLinkActive, 
+    AppModalComponent, 
+    LogoComponent, 
+    LucideAngularModule
+  ],
+  providers: [
+    // Provide all lucide icons to fix any potential missing icon errors
+    { provide: LucideIconProvider, useValue: new LucideIconProvider(icons) }
+  ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })

@@ -105,8 +105,14 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
     if (this.isScanningBarcode) return;
     try {
       this.isScanningBarcode = true;
+      
+      // FIX: Create a config object with only one of the camera selection properties.
+      const cameraConfig = this.selectedCameraId
+        ? { deviceId: { exact: this.selectedCameraId } }
+        : { facingMode: "environment" };
+
       await this.html5QrcodeScanner.start(
-        { deviceId: this.selectedCameraId ? { exact: this.selectedCameraId } : undefined, facingMode: "environment" },
+        cameraConfig,
         { fps: 10, qrbox: { width: 250, height: 250 } },
         this.onBarcodeScanSuccess.bind(this),
         this.onBarcodeScanFailure.bind(this)
