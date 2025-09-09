@@ -5,6 +5,7 @@ import { NotificationService } from '../services/notification.service';
 import { AuthService } from '../services/auth.service';
 import { IngredientParserService } from '../services/ingredient-parser.service';
 import { PreferencesService } from '../services/preferences.service';
+import { GamificationService } from '../services/gamification.service';
 
 @Component({
   selector: 'app-preferences',
@@ -24,7 +25,8 @@ export class PreferencesComponent implements OnInit {
     private notificationService: NotificationService, 
     private authService: AuthService,
     private ingredientParser: IngredientParserService,
-    private preferencesService: PreferencesService
+    private preferencesService: PreferencesService,
+    private gamificationService: GamificationService
   ) {
     this.ingredientCategories = this.ingredientParser.INGREDIENT_DATABASE;
     this.preferences = this.preferencesService.getPreferences();
@@ -90,5 +92,6 @@ export class PreferencesComponent implements OnInit {
   savePreferences() {
     this.preferencesService.savePreferences(this.preferences);
     this.notificationService.showSuccess('Preferences saved!');
+    this.gamificationService.checkAndUnlockAchievements(); // Check for new badges
   }
 }

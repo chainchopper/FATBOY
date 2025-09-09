@@ -3,7 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { FriendsService, Friend, FriendRequest, Profile } from '../services/friends.service';
 import { NotificationService } from '../services/notification.service';
-import { AppModalService } from '../services/app-modal.service'; // Import AppModalService
+import { AppModalService } from '../services/app-modal.service';
+import { GamificationService } from '../services/gamification.service';
 
 @Component({
   selector: 'app-friends',
@@ -23,7 +24,8 @@ export class FriendsComponent implements OnInit {
   constructor(
     private friendsService: FriendsService,
     private notificationService: NotificationService,
-    private appModalService: AppModalService // Inject AppModalService
+    private appModalService: AppModalService,
+    private gamificationService: GamificationService
   ) {}
 
   ngOnInit() {
@@ -41,6 +43,7 @@ export class FriendsComponent implements OnInit {
     await this.friendsService.updateFriendRequest(requestId, 'accepted');
     this.notificationService.showSuccess('Friend request accepted!');
     this.loadData(); // Refresh the lists
+    this.gamificationService.checkAndUnlockAchievements(); // Check for new badges
   }
 
   async declineRequest(requestId: number) {

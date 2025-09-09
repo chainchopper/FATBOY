@@ -27,6 +27,22 @@ export class CommunityService {
     return data;
   }
 
+  async getMyContributions() {
+    const userId = this.authService.getCurrentUserId();
+    if (!userId) return [];
+
+    const { data, error } = await supabase
+      .from('community_contributions')
+      .select('*')
+      .eq('user_id', userId);
+
+    if (error) {
+      console.error('Error fetching my contributions:', error);
+      return [];
+    }
+    return data;
+  }
+
   async addContribution(contribution: any) {
     const userId = this.authService.getCurrentUserId();
     if (!userId) return null;
