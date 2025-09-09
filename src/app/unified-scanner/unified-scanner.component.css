@@ -24,11 +24,20 @@
   background: rgba(15, 15, 30, 0.8);
   border: 1px solid #0abdc6;
   color: #0abdc6;
-  padding: 4px 12px;
-  border-radius: 4px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
   cursor: pointer;
-  font-size: 1.5rem;
   z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.switch-camera-btn:hover {
+  transform: rotate(90deg);
+  box-shadow: 0 0 10px #0abdc6;
 }
 
 .barcode-reader-container {

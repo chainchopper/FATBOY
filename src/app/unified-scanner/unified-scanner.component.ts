@@ -16,11 +16,12 @@ import { AiIntegrationService } from '../services/ai-integration.service';
 import { BarcodeLookupService } from '../services/barcode-lookup.service'; // Import the new service
 import { take } from 'rxjs/operators';
 import { Subscription } from 'rxjs';
+import { LucideAngularModule } from 'lucide-angular';
 
 @Component({
   selector: 'app-unified-scanner',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, LucideAngularModule],
   templateUrl: './unified-scanner.component.html',
   styleUrls: ['./unified-scanner.component.css']
 })
@@ -33,7 +34,7 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
   isProcessingOcr = false;
   isVoiceListening = false;
 
-  private cameras: MediaDeviceInfo[] = [];
+  public cameras: MediaDeviceInfo[] = [];
   private selectedCameraId: string | null = null;
   private currentCameraIndex = 0;
   private voiceCommandSubscription!: Subscription;
@@ -117,17 +118,18 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
     }
   }
 
-  stopBarcodeScanning() {
-    if (!this.isScanningBarcode) return;
-    this.html5QrcodeScanner.stop().then(() => {
+  async stopBarcodeScanning() {
+    if (!this.isScanningBarcode || !this.html5QrcodeScanner.isScanning) return;
+    try {
+      await this.html5QrcodeScanner.stop();
       this.isScanningBarcode = false;
-    }).catch((error) => {
+    } catch (error) {
       console.error('Error stopping barcode scanner:', error);
-    });
+    }
   }
 
   async onBarcodeScanSuccess(decodedText: string): Promise<void> {
-    this.stopBarcodeScanning();
+    await this.stopBarcodeScanning();
     this.notificationService.showInfo('Barcode detected! Fetching product data...', 'Scanning');
 
     // Step 1: Try the new, high-quality Barcode Lookup API first.
@@ -204,7 +206,7 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
 
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
     this.isProcessingOcr = true;
-    this.stopBarcodeScanning();
+    await this.stopBarcodeScanning();
 
     try {
       const dataUrl = canvas.toDataURL('image/png');
@@ -253,6 +255,19 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
     this.aiService.setLastDiscussedProduct(product);
     this.isProcessingOcr = false;
     this.router.navigate(['/ocr-results']);
+  }
+
+  async switchCamera() {
+    if (this.cameras.length < 2) {
+      this.notificationService.showInfo('No other camera found.');
+      return;
+    }
+    await this.stopBarcodeScanning();
+    this.currentCameraIndex = (this.currentCameraIndex + 1) % this.cameras.length;
+    this.selectedCameraId = this.cameras[this.currentCameraIndex].deviceId;
+    localStorage.setItem('fatBoySelectedCamera', this.selectedCameraId);
+    this.notificationService.showSuccess(`Switched to ${this.cameras[this.currentCameraIndex].label}`);
+    await this.startBarcodeScanning();
   }
 
   ngOnDestroy(): void {

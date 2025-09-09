@@ -4,6 +4,10 @@
     <div id="reader" #reader class="barcode-reader-container"></div> 
     <canvas #canvasElement class="capture-canvas" style="display: none;"></canvas>
     
+    <button *ngIf="cameras.length > 1" (click)="switchCamera()" class="switch-camera-btn" title="Switch Camera">
+      <lucide-icon name="refresh-cw" [size]="24"></lucide-icon>
+    </button>
+
     <div class="viewfinder">
       <div class="tagline">
         <span class="tagline-word">Scan.</span>
