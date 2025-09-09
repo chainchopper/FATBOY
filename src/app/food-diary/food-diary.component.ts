@@ -10,7 +10,7 @@ import { ProductCardComponent } from '../components/product-card/product-card.co
 import { Product } from '../services/product-db.service';
 import { ShareService } from '../services/share.service';
 import { ShoppingListService } from '../services/shopping-list.service';
-import { DailySummaryCardComponent } from '@/app/components/daily-summary-card/daily-summary-card.component';
+import { DailySummaryCardComponent } from '../components/daily-summary-card/daily-summary-card.component';
 
 @Component({
   selector: 'app-food-diary',

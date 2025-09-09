@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { Product } from './product-db.service';
 
-interface ConfirmationData {
+export interface ConfirmationData {
   title: string;
   message: string;
   onConfirm: () => void;
