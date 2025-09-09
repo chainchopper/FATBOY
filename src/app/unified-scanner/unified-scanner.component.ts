@@ -33,12 +33,21 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
   isScanningBarcode = false;
   isProcessingOcr = false;
   isVoiceListening = false;
+  isStable = false; // New state for camera stability
 
   public cameras: MediaDeviceInfo[] = [];
   private selectedCameraId: string | null = null;
   private currentCameraIndex = 0;
   private voiceCommandSubscription!: Subscription;
   private preferencesSubscription!: Subscription;
+
+  // --- Stability Detection Properties ---
+  private stabilityCheckInterval: any;
+  private lastFrame: ImageData | null = null;
+  private stabilityThreshold = 500000; // Adjust this value based on testing
+  private stableCounter = 0;
+  private requiredStableFrames = 3; // Requires 1.5 seconds of stability (3 * 500ms)
+  // --- End Stability Detection Properties ---
 
   constructor(
     private router: Router,
@@ -52,7 +61,7 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
     private permissionsService: PermissionsService,
     private preferencesService: PreferencesService,
     private aiService: AiIntegrationService,
-    private barcodeLookupService: BarcodeLookupService // Inject the new service
+    private barcodeLookupService: BarcodeLookupService
   ) {}
 
   async ngAfterViewInit() {
@@ -111,7 +120,6 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
     try {
       this.isScanningBarcode = true;
       
-      // FIX: Create a config object with only one of the camera selection properties.
       const cameraConfig = this.selectedCameraId
         ? { deviceId: { exact: this.selectedCameraId } }
         : { facingMode: "environment" };
@@ -122,6 +130,7 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
         this.onBarcodeScanSuccess.bind(this),
         this.onBarcodeScanFailure.bind(this)
       );
+      this.startStabilityDetector(); // Start auto-capture detector
     } catch (error) {
       console.error('Error starting barcode scanner:', error);
       this.notificationService.showError('Failed to start barcode scanner.');
@@ -130,6 +139,7 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
   }
 
   async stopBarcodeScanning() {
+    this.stopStabilityDetector(); // Stop auto-capture detector
     if (!this.isScanningBarcode || !this.html5QrcodeScanner.isScanning) return;
     try {
       await this.html5QrcodeScanner.stop();
@@ -143,19 +153,16 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
     await this.stopBarcodeScanning();
     this.notificationService.showInfo('Barcode detected! Fetching product data...', 'Scanning');
 
-    // Step 1: Try the new, high-quality Barcode Lookup API first.
     let productData = await this.barcodeLookupService.getProductByBarcode(decodedText);
 
-    // Step 2: If it fails, fall back to the Open Food Facts API.
     if (!productData) {
       this.notificationService.showInfo('Primary source failed. Trying fallback...', 'Scanning');
       productData = await this.offService.getProductByBarcode(decodedText);
     }
 
-    // Step 3: If both fail, inform the user.
     if (!productData) {
       this.notificationService.showError('Product not found in any database.', 'Not Found');
-      this.startBarcodeScanning(); // Restart scanning
+      this.startBarcodeScanning();
       return;
     }
 
@@ -181,7 +188,7 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
 
     const savedProduct = await this.productDb.addProduct(productInfo);
     if (!savedProduct) {
-      this.startBarcodeScanning(); // Restart if saving fails (e.g., not logged in)
+      this.startBarcodeScanning();
       return;
     }
 
@@ -190,9 +197,7 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
     this.router.navigate(['/results']);
   }
 
-  onBarcodeScanFailure(error: string) {
-    // console.log('Barcode scan attempt failed:', error); // Too noisy for console
-  }
+  onBarcodeScanFailure(error: string) {}
 
   async captureLabelForOcr(): Promise<void> {
     if (this.isProcessingOcr) return;
@@ -260,7 +265,7 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
     };
 
     const product = await this.productDb.addProduct(productInfo);
-    if (!product) return; // Stop if product wasn't saved (e.g., user not logged in)
+    if (!product) return;
 
     sessionStorage.setItem('viewingProduct', JSON.stringify(product));
     this.aiService.setLastDiscussedProduct(product);
@@ -312,4 +317,61 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
       this.notificationService.showError('Could not enumerate camera devices.');
     }
   }
+
+  // --- Stability Detection Methods ---
+  private startStabilityDetector() {
+    this.stopStabilityDetector(); // Ensure no multiple intervals are running
+    this.stabilityCheckInterval = setInterval(() => {
+      this.checkForStability();
+    }, 500);
+  }
+
+  private stopStabilityDetector() {
+    if (this.stabilityCheckInterval) {
+      clearInterval(this.stabilityCheckInterval);
+      this.stabilityCheckInterval = null;
+    }
+    this.lastFrame = null;
+    this.stableCounter = 0;
+    this.isStable = false;
+  }
+
+  private checkForStability() {
+    if (this.isProcessingOcr || !this.isScanningBarcode) return;
+
+    const video = this.reader.nativeElement.querySelector('video');
+    if (!video || video.readyState < video.HAVE_METADATA) return;
+
+    const canvas = document.createElement('canvas');
+    const scale = 0.25;
+    canvas.width = video.videoWidth * scale;
+    canvas.height = video.videoHeight * scale;
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+    if (!ctx) return;
+
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    const currentFrame = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+    if (this.lastFrame) {
+      let diff = 0;
+      for (let i = 0; i < currentFrame.data.length; i += 4) {
+        diff += Math.abs(currentFrame.data[i] - this.lastFrame.data[i]);
+      }
+
+      if (diff < this.stabilityThreshold) {
+        this.stableCounter++;
+      } else {
+        this.stableCounter = 0;
+      }
+    }
+
+    this.lastFrame = currentFrame;
+    this.isStable = this.stableCounter > 0;
+
+    if (this.stableCounter >= this.requiredStableFrames) {
+      this.notificationService.showInfo('Camera is stable, analyzing label...', 'Auto-Scan');
+      this.captureLabelForOcr();
+    }
+  }
+  // --- End Stability Detection Methods ---
 }

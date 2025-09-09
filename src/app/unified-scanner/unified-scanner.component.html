@@ -26,10 +26,10 @@
       <span class="tagline-word">Know.</span>
       <span class="tagline-word">Choose.</span>
     </div>
-    <div class="scan-area">
+    <div class="scan-area" [class.stable]="isStable">
       <div *ngIf="isScanningBarcode || isProcessingOcr" class="scan-line"></div>
     </div>
-    <p>Position barcode, label, or receipt in the area</p>
+    <p>{{ isStable ? 'Analyzing...' : 'Hold steady to scan a label' }}</p>
   </div>
 
   <!-- New Immersive Footer -->
