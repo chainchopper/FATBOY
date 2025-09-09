@@ -1,0 +1,84 @@
+.list-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  background-color: #1a1a2e;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #4a4a6e;
+  transition: all 0.3s ease;
+}
+
+.list-item.purchased {
+  opacity: 0.6;
+}
+
+.list-item.purchased .product-name {
+  text-decoration: line-through;
+  color: #a0a0c0;
+}
+
+.checkbox-container {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.custom-checkbox {
+  width: 24px;
+  height: 24px;
+  border: 2px solid #f038ff;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s;
+}
+
+.list-item.purchased .custom-checkbox {
+  background-color: #f038ff;
+  border-color: #f038ff;
+  color: #1a1a2e;
+}
+
+.product-image {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.item-info {
+  flex-grow: 1;
+}
+
+.product-name {
+  color: #e0e0e0;
+  font-weight: 500;
+  transition: all 0.3s;
+}
+
+.product-brand {
+  color: #a0a0c0;
+  font-size: 0.9rem;
+}
+
+.remove-btn {
+  background: transparent;
+  border: 1px solid #4a4a6e;
+  color: #a0a0c0;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.remove-btn:hover {
+  background-color: #F44336;
+  border-color: #F44336;
+  color: #fff;
+}

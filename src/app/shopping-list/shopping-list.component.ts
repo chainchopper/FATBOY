@@ -4,14 +4,12 @@ import { ShoppingListService, ShoppingListItem } from '../services/shopping-list
 import { AppModalService } from '../services/app-modal.service';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { ProductCardComponent } from '../product-card/product-card.component';
-import { Product, ProductDbService } from '../services/product-db.service';
-import { ShareService } from '../services/share.service';
+import { ShoppingListItemComponent } from '../shopping-list-item/shopping-list-item.component';
 
 @Component({
   selector: 'app-shopping-list',
   standalone: true,
-  imports: [CommonModule, ProductCardComponent],
+  imports: [CommonModule, ShoppingListItemComponent],
   templateUrl: './shopping-list.component.html',
   styleUrls: ['./shopping-list.component.css']
 })
@@ -21,9 +19,7 @@ export class ShoppingListComponent implements OnInit {
 
   constructor(
     private shoppingListService: ShoppingListService,
-    private appModalService: AppModalService,
-    private productDb: ProductDbService,
-    private shareService: ShareService
+    private appModalService: AppModalService
   ) {}
 
   ngOnInit() {
@@ -56,21 +52,5 @@ export class ShoppingListComponent implements OnInit {
         this.shoppingListService.clearList();
       }
     });
-  }
-
-  onShareProduct(product: Product) {
-    this.shareService.shareProduct(product);
-  }
-
-  onAddToFoodDiary(product: Product) {
-    this.appModalService.open(product);
-  }
-
-  isFavorite(productId: string): boolean {
-    return this.productDb.isFavorite(productId);
-  }
-
-  toggleFavorite(productId: string) {
-    this.productDb.toggleFavorite(productId);
   }
 }

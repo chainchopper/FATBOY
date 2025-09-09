@@ -9,43 +9,25 @@
       <p>Your shopping list is empty. Add approved products from the results or saved pages!</p>
     </div>
 
-    <div class="list-items-grid">
-      <app-product-card 
-        *ngFor="let item of unpurchasedList" 
-        [product]="item.product!" 
-        [isFavorite]="isFavorite(item.product!.id)"
-        [showCheckbox]="true"
-        [isPurchased]="item.purchased"
-        [showRemoveButton]="true"
-        [showShareButton]="true"
-        [showAddToFoodDiaryButton]="true"
-        (togglePurchased)="onTogglePurchased(item.id)"
-        (remove)="onRemoveItem(item.id)"
-        (share)="onShareProduct($event)"
-        (addToFoodDiary)="onAddToFoodDiary($event)"
-        (toggleFavorite)="toggleFavorite($event)"
-      ></app-product-card>
+    <div class="list-items-container">
+      <app-shopping-list-item
+        *ngFor="let item of unpurchasedList"
+        [item]="item"
+        (togglePurchased)="onTogglePurchased($event)"
+        (remove)="onRemoveItem($event)">
+      </app-shopping-list-item>
     </div>
 
     <div *ngIf="(purchasedItems$ | async) as purchasedList">
       <div *ngIf="purchasedList.length > 0" class="purchased-section">
         <h3 class="purchased-header">Purchased Items ({{ purchasedList.length }})</h3>
-        <div class="list-items-grid">
-          <app-product-card 
-            *ngFor="let item of purchasedList" 
-            [product]="item.product!" 
-            [isFavorite]="isFavorite(item.product!.id)"
-            [showCheckbox]="true"
-            [isPurchased]="item.purchased"
-            [showRemoveButton]="true"
-            [showShareButton]="true"
-            [showAddToFoodDiaryButton]="true"
-            (togglePurchased)="onTogglePurchased(item.id)"
-            (remove)="onRemoveItem(item.id)"
-            (share)="onShareProduct($event)"
-            (addToFoodDiary)="onAddToFoodDiary($event)"
-            (toggleFavorite)="toggleFavorite($event)"
-          ></app-product-card>
+        <div class="list-items-container">
+          <app-shopping-list-item
+            *ngFor="let item of purchasedList"
+            [item]="item"
+            (togglePurchased)="onTogglePurchased($event)"
+            (remove)="onRemoveItem($event)">
+          </app-shopping-list-item>
         </div>
       </div>
     </div>

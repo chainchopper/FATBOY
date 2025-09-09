@@ -1,0 +1,15 @@
+<div class="list-item" [class.purchased]="item.purchased">
+  <div class="checkbox-container" (click)="onToggle()">
+    <div class="custom-checkbox">
+      <lucide-icon *ngIf="item.purchased" name="check" [size]="18"></lucide-icon>
+    </div>
+  </div>
+  <img [src]="item.image_url" alt="{{item.product_name}}" class="product-image">
+  <div class="item-info">
+    <span class="product-name">{{ item.product_name }}</span>
+    <span class="product-brand">{{ item.brand }}</span>
+  </div>
+  <button (click)="onRemove()" class="remove-btn" title="Remove from List">
+    <lucide-icon name="x" [size]="18"></lucide-icon>
+  </button>
+</div>
