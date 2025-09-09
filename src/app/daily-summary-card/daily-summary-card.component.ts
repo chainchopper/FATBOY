@@ -1,7 +1,7 @@
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule, KeyValuePipe, TitleCasePipe } from '@angular/common';
-import { DailyVerdict } from './services/food-diary.service';
-import { UserPreferences } from './services/preferences.service';
+import { DailyVerdict } from '../services/food-diary.service';
+import { UserPreferences } from '../services/preferences.service';
 
 @Component({
   selector: 'app-daily-summary-card',

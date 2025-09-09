@@ -9,7 +9,7 @@ import { PreferencesService, UserPreferences } from '../services/preferences.ser
 import { Product } from '../services/product-db.service';
 import { ShareService } from '../services/share.service';
 import { ShoppingListService } from '../services/shopping-list.service';
-import { DailySummaryCardComponent } from '../daily-summary-card.component';
+import { DailySummaryCardComponent } from '../daily-summary-card/daily-summary-card.component';
 import { DiaryItemComponent } from '../diary-item/diary-item.component'; // Import the new component
 
 @Component({

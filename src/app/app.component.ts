@@ -6,8 +6,8 @@ import { Observable } from 'rxjs';
 import { User } from '@supabase/supabase-js';
 import { ProfileService, Profile } from './services/profile.service';
 import { map, filter } from 'rxjs/operators';
-import { AppModalComponent } from './app-modal.component';
-import { LogoComponent } from './logo.component';
+import { AppModalComponent } from './app-modal/app-modal.component';
+import { LogoComponent } from './logo/logo.component';
 import { LucideAngularModule } from 'lucide-angular';
 
 @Component({
