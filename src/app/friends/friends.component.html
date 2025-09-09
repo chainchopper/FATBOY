@@ -3,8 +3,30 @@
   <p>Connect with friends, share your healthy finds, and challenge each other!</p>
 
   <div class="search-section">
-    <input type="text" [(ngModel)]="searchQuery" placeholder="Search for friends by username..." class="search-input">
+    <input type="text" [(ngModel)]="searchQuery" placeholder="Search for friends by username..." class="search-input" (keyup.enter)="searchFriends()">
     <button (click)="searchFriends()" class="search-btn">Search</button>
+  </div>
+
+  <!-- Search Results Section -->
+  <div *ngIf="searchQuery && !isSearching" class="section">
+    <h3>Search Results</h3>
+    <div *ngIf="searchResults.length === 0" class="empty-state">
+      <p>No users found matching your search.</p>
+    </div>
+    <div *ngFor="let user of searchResults" class="friend-card">
+      <div class="friend-info">
+        <img [src]="user.avatar_url || 'https://api.dicebear.com/8.x/bottts/svg'" alt="Avatar" class="avatar">
+        <div>
+          <span class="name">{{ user.first_name || 'User' }} {{ user.last_name || '' }}</span>
+        </div>
+      </div>
+      <div class="friend-actions">
+        <button (click)="sendRequest(user.id)" class="action-btn add" title="Add Friend">＋</button>
+      </div>
+    </div>
+  </div>
+  <div *ngIf="isSearching" class="loading-state">
+    <p>Searching...</p>
   </div>
 
   <div *ngIf="isLoading" class="loading-state">

@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { FriendsService, Friend, FriendRequest } from '../services/friends.service';
+import { FriendsService, Friend, FriendRequest, Profile } from '../services/friends.service';
 import { NotificationService } from '../services/notification.service';
 import { AppModalService } from '../services/app-modal.service'; // Import AppModalService
 
@@ -15,8 +15,10 @@ import { AppModalService } from '../services/app-modal.service'; // Import AppMo
 export class FriendsComponent implements OnInit {
   friends: Friend[] = [];
   friendRequests: FriendRequest[] = [];
+  searchResults: Profile[] = [];
   searchQuery: string = '';
   isLoading = true;
+  isSearching = false;
 
   constructor(
     private friendsService: FriendsService,
@@ -61,8 +63,23 @@ export class FriendsComponent implements OnInit {
     });
   }
 
-  searchFriends() {
-    // Placeholder for real search functionality
-    this.notificationService.showInfo(`Searching for "${this.searchQuery}"... (Feature coming soon!)`);
+  async searchFriends() {
+    if (!this.searchQuery.trim()) {
+      this.searchResults = [];
+      return;
+    }
+    this.isSearching = true;
+    this.searchResults = await this.friendsService.searchUsers(this.searchQuery);
+    this.isSearching = false;
+  }
+
+  async sendRequest(addresseeId: string) {
+    const result = await this.friendsService.sendFriendRequest(addresseeId);
+    if (result) {
+      this.notificationService.showSuccess('Friend request sent!');
+      this.searchResults = this.searchResults.filter(user => user.id !== addresseeId);
+    } else {
+      this.notificationService.showError('Failed to send friend request.');
+    }
   }
 }

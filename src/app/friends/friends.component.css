@@ -121,11 +121,11 @@ p {
   transition: all 0.3s;
 }
 
-.accept {
+.accept, .add {
   background-color: #0abdc6;
   color: #1a1a2e;
 }
-.accept:hover {
+.accept:hover, .add:hover {
   box-shadow: 0 0 10px #0abdc6;
 }
 
@@ -149,7 +149,7 @@ p {
   box-shadow: 0 0 8px #0abdc6;
 }
 
-.empty-state {
+.empty-state, .loading-state {
   text-align: center;
   padding: 40px;
   color: #a0a0c0;
