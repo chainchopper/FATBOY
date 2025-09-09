@@ -19,7 +19,7 @@ interface Suggestion {
 interface Conflict {
   product: Product;
   conflictingIngredient: string;
-  listType: 'Shopping List' | 'Saved Products';
+  listType: 'Shopping List' | 'Favorites';
 }
 
 interface SuggestionsCache {
@@ -160,18 +160,18 @@ export class SuggestionsComponent implements OnInit {
     if (avoidList.length === 0) return;
 
     combineLatest([
-      this.productDb.products$,
+      this.productDb.favorites$,
       this.shoppingListService.list$
-    ]).pipe(take(1)).subscribe(([savedProducts, shoppingListItems]) => {
+    ]).pipe(take(1)).subscribe(([favoriteProducts, shoppingListItems]) => {
       const newConflicts: Conflict[] = [];
 
-      // Check saved products
-      savedProducts.forEach(product => {
+      // Check favorite products
+      favoriteProducts.forEach(product => {
         const conflict = avoidList.find(avoided => 
           product.ingredients.some(ing => ing.toLowerCase().includes(avoided.toLowerCase()))
         );
         if (conflict) {
-          newConflicts.push({ product, conflictingIngredient: conflict, listType: 'Saved Products' });
+          newConflicts.push({ product, conflictingIngredient: conflict, listType: 'Favorites' });
         }
       });
 
@@ -196,8 +196,8 @@ export class SuggestionsComponent implements OnInit {
   }
 
   resolveConflict(conflict: Conflict) {
-    if (conflict.listType === 'Saved Products') {
-      this.productDb.removeProduct(conflict.product.id);
+    if (conflict.listType === 'Favorites') {
+      this.productDb.toggleFavorite(conflict.product.id);
     } else {
       const shoppingListItem = this.shoppingListService.getListSnapshot().find(item => item.product_id === conflict.product.id);
       if (shoppingListItem) {
