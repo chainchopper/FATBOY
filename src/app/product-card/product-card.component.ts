@@ -7,7 +7,7 @@ import { FoodIconComponent } from '../food-icon/food-icon.component';
 @Component({
   selector: 'app-product-card',
   standalone: true,
-  imports: [CommonModule, TitleCasePipe, LucideAngularModule, FoodIconComponent],
+  imports: [CommonModule, LucideAngularModule, FoodIconComponent], // Removed TitleCasePipe from direct imports
   templateUrl: './product-card.component.html',
   styleUrls: ['./product-card.component.css']
 })
@@ -27,14 +27,14 @@ export class ProductCardComponent {
   @Output() addToShoppingList = new EventEmitter<Product>();
   @Output() addToFoodDiary = new EventEmitter<Product>();
   @Output() toggleFavorite = new EventEmitter<string>();
-  @Output() viewDetails = new EventEmitter<Product>(); // New output event
+  @Output() viewDetails = new EventEmitter<Product>();
 
   isExpanded: boolean = false;
 
   toggleExpand() {
     this.isExpanded = !this.isExpanded;
     if (this.isExpanded) {
-      this.viewDetails.emit(this.product); // Emit when expanded
+      this.viewDetails.emit(this.product);
     }
   }
 
