@@ -6,7 +6,7 @@
         <button *ngIf="isCurrentUserProfile" class="edit-profile-btn" routerLink="/profile/edit">Edit Profile</button>
       </div>
       <h2>{{ profile.first_name }} {{ profile.last_name }}</h2>
-      <p *ngIf="isCurrentUserProfile" class="email">{{ profile.id }}</p> <!-- Assuming email is not on profile table -->
+      <p *ngIf="isCurrentUserProfile" class="email">{{ profile.id }}</p> <!-- Email is not on the public profile table -->
       
       <div class="profile-section stats-section" *ngIf="(leaderboardStats$ | async) as stats">
         <div class="stat-item">
