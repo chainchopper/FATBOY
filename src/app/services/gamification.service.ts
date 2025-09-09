@@ -3,6 +3,7 @@ import { BehaviorSubject } from 'rxjs';
 import { ProductDbService } from './product-db.service';
 import { NotificationService } from './notification.service';
 import { AuthService } from './auth.service';
+import { supabase } from '../../integrations/supabase/client';
 
 export interface Badge {
   id: string;
@@ -45,9 +46,9 @@ export class GamificationService {
   }
 
   checkAndUnlockAchievements() {
-    const scanHistory = JSON.parse(localStorage.getItem(this.getProductsStorageKey()) || '[]');
-    const savedProducts = JSON.parse(localStorage.getItem(this.getSavedProductsStorageKey()) || '[]');
-    const contributions = JSON.parse(localStorage.getItem(this.getContributionsStorageKey()) || '[]');
+    const scanHistory = this.productDb.getProductsSnapshot();
+    const savedProducts = scanHistory.filter(p => p.verdict === 'good');
+    // Contributions need to be handled by the community service
     let newAchievementUnlocked = false;
 
     // Check scan-based achievements
@@ -78,25 +79,29 @@ export class GamificationService {
       newAchievementUnlocked = true;
     }
 
-    // Check contribution-based achievements
-    if (contributions.length >= 1 && !this.unlockedBadges.has('first_contribution')) {
-      this.unlockBadge('first_contribution');
-      newAchievementUnlocked = true;
-    }
-
     if (newAchievementUnlocked) {
       this.updateBadgesState();
-      this.saveProgress();
     }
   }
 
-  private unlockBadge(id: string) {
-    if (this.unlockedBadges.has(id)) return;
+  private async unlockBadge(id: string) {
+    if (this.unlockedBadges.has(id) || !this.currentUserId) return;
+    
+    const { error } = await supabase
+      .from('user_badges')
+      .insert({ user_id: this.currentUserId, badge_id: id });
+
+    if (error) {
+      console.error('Error unlocking badge:', error);
+      return;
+    }
+
     this.unlockedBadges.add(id);
     const badge = this.allBadges.find(b => b.id === id);
     if (badge) {
       this.notificationService.showSuccess(`You've unlocked the "${badge.name}" badge!`, '🏆 Achievement Unlocked!');
     }
+    this.updateBadgesState();
   }
 
   private updateBadgesState() {
@@ -107,32 +112,23 @@ export class GamificationService {
     this.badgesSubject.next(updatedBadges);
   }
 
-  private getUnlockedBadgesStorageKey(): string {
-    return this.currentUserId ? `fatBoyUnlockedBadges_${this.currentUserId}` : 'fatBoyUnlockedBadges_anonymous';
-  }
-
-  private getProductsStorageKey(): string {
-    return this.currentUserId ? `fatBoyProducts_${this.currentUserId}` : 'fatBoyProducts_anonymous';
-  }
-
-  private getSavedProductsStorageKey(): string {
-    return this.currentUserId ? `savedProducts_${this.currentUserId}` : 'savedProducts_anonymous';
-  }
-
-  private getContributionsStorageKey(): string {
-    return this.currentUserId ? `communityContributions_${this.currentUserId}` : 'communityContributions_anonymous';
-  }
-
-  private saveProgress() {
-    localStorage.setItem(this.getUnlockedBadgesStorageKey(), JSON.stringify(Array.from(this.unlockedBadges)));
-  }
-
-  private loadProgress() {
-    const saved = localStorage.getItem(this.getUnlockedBadgesStorageKey());
-    if (saved) {
-      this.unlockedBadges = new Set(JSON.parse(saved));
-    } else {
+  private async loadProgress() {
+    if (!this.currentUserId) {
       this.unlockedBadges = new Set();
+      this.updateBadgesState();
+      return;
+    }
+
+    const { data, error } = await supabase
+      .from('user_badges')
+      .select('badge_id')
+      .eq('user_id', this.currentUserId);
+
+    if (error) {
+      console.error('Error loading badges:', error);
+      this.unlockedBadges = new Set();
+    } else {
+      this.unlockedBadges = new Set(data.map(b => b.badge_id));
     }
     this.updateBadgesState();
   }
