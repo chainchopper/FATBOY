@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, TitleCasePipe } from '@angular/common';
 import { supabase } from '../../integrations/supabase/client';
 import { Provider } from '@supabase/supabase-js';
 import { Router } from '@angular/router';
@@ -8,7 +8,7 @@ import { NotificationService } from '../services/notification.service';
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, TitleCasePipe],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']
 })

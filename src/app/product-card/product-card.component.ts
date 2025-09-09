@@ -7,7 +7,7 @@ import { FoodIconComponent } from '../food-icon/food-icon.component';
 @Component({
   selector: 'app-product-card',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, FoodIconComponent],
+  imports: [CommonModule, TitleCasePipe, LucideAngularModule, FoodIconComponent],
   templateUrl: './product-card.component.html',
   styleUrls: ['./product-card.component.css']
 })

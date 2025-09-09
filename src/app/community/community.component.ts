@@ -32,7 +32,7 @@ interface CommunityContribution {
 @Component({
   selector: 'app-community',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, TitleCasePipe],
   templateUrl: './community.component.html',
   styleUrls: ['./community.component.css']
 })

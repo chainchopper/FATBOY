@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, TitleCasePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DevConsoleService, PrepopulationResult } from '../services/dev-console.service';
 import { NotificationService } from '../services/notification.service';
@@ -7,7 +7,7 @@ import { NotificationService } from '../services/notification.service';
 @Component({
   selector: 'app-dev-console',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, TitleCasePipe],
   templateUrl: './dev-console.component.html',
   styleUrls: ['./dev-console.component.css']
 })
