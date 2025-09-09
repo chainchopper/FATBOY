@@ -4,14 +4,14 @@
     <button (click)="clearList()" class="clear-btn">Clear All</button>
   </div>
 
-  <div *ngIf="(shoppingList$ | async) as list">
-    <div *ngIf="list.length === 0" class="empty-state">
+  <div *ngIf="(unpurchasedItems$ | async) as unpurchasedList">
+    <div *ngIf="unpurchasedList.length === 0 && (purchasedItems$ | async)?.length === 0" class="empty-state">
       <p>Your shopping list is empty. Add approved products from the results or saved pages!</p>
     </div>
 
-    <div class="list-items-grid"> <!-- Use a grid for better layout of cards -->
+    <div class="list-items-grid">
       <app-product-card 
-        *ngFor="let item of list" 
+        *ngFor="let item of unpurchasedList" 
         [product]="item.product!" 
         [isFavorite]="isFavorite(item.product!.id)"
         [showCheckbox]="true"
@@ -25,6 +25,29 @@
         (addToFoodDiary)="onAddToFoodDiary($event)"
         (toggleFavorite)="toggleFavorite($event)"
       ></app-product-card>
+    </div>
+
+    <div *ngIf="(purchasedItems$ | async) as purchasedList">
+      <div *ngIf="purchasedList.length > 0" class="purchased-section">
+        <h3 class="purchased-header">Purchased Items ({{ purchasedList.length }})</h3>
+        <div class="list-items-grid">
+          <app-product-card 
+            *ngFor="let item of purchasedList" 
+            [product]="item.product!" 
+            [isFavorite]="isFavorite(item.product!.id)"
+            [showCheckbox]="true"
+            [isPurchased]="item.purchased"
+            [showRemoveButton]="true"
+            [showShareButton]="true"
+            [showAddToFoodDiaryButton]="true"
+            (togglePurchased)="onTogglePurchased(item.id)"
+            (remove)="onRemoveItem(item.id)"
+            (share)="onShareProduct($event)"
+            (addToFoodDiary)="onAddToFoodDiary($event)"
+            (toggleFavorite)="toggleFavorite($event)"
+          ></app-product-card>
+        </div>
+      </div>
     </div>
   </div>
 </div>

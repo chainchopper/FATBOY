@@ -34,3 +34,16 @@
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 15px;
 }
+
+.purchased-section {
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 2px solid #4a4a6e;
+}
+
+.purchased-header {
+  color: #a0a0c0;
+  margin-bottom: 20px;
+  text-align: center;
+  font-size: 1.2rem;
+}

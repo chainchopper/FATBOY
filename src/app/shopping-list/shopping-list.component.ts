@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ShoppingListService, ShoppingListItem } from '../services/shopping-list.service';
 import { AppModalService } from '../services/app-modal.service';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { ProductCardComponent } from '../product-card/product-card.component';
 import { Product, ProductDbService } from '../services/product-db.service';
 import { ShareService } from '../services/share.service';
@@ -15,7 +16,8 @@ import { ShareService } from '../services/share.service';
   styleUrls: ['./shopping-list.component.css']
 })
 export class ShoppingListComponent implements OnInit {
-  shoppingList$!: Observable<ShoppingListItem[]>;
+  unpurchasedItems$!: Observable<ShoppingListItem[]>;
+  purchasedItems$!: Observable<ShoppingListItem[]>;
 
   constructor(
     private shoppingListService: ShoppingListService,
@@ -25,7 +27,15 @@ export class ShoppingListComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.shoppingList$ = this.shoppingListService.list$;
+    const shoppingList$ = this.shoppingListService.list$;
+
+    this.unpurchasedItems$ = shoppingList$.pipe(
+      map(list => list.filter(item => !item.purchased))
+    );
+
+    this.purchasedItems$ = shoppingList$.pipe(
+      map(list => list.filter(item => item.purchased))
+    );
   }
 
   onTogglePurchased(itemId: string) {
