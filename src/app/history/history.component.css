@@ -21,35 +21,6 @@
   cursor: pointer;
 }
 
-.tabs {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 2rem;
-  gap: 15px;
-}
-
-.tab-button {
-  background: transparent;
-  border: 1px solid #4a4a6e;
-  color: #e0e0e0;
-  padding: 10px 20px;
-  border-radius: 20px;
-  cursor: pointer;
-  transition: all 0.3s;
-  font-size: 1rem;
-}
-
-.tab-button.active {
-  background-color: #f038ff;
-  color: #1a1a2e;
-  border-color: #f038ff;
-  box-shadow: 0 0 10px #f038ff;
-}
-
-.tab-button:hover:not(.active) {
-  background-color: rgba(74, 74, 110, 0.2);
-}
-
 .stats-section {
   background-color: rgba(15, 15, 30, 0.8);
   padding: 20px;
@@ -109,107 +80,15 @@
   box-shadow: 0 0 10px #f038ff;
 }
 
-.products-list {
-  display: flex;
-  flex-direction: column;
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 15px;
-}
-
-.product-card {
-  background: rgba(15, 15, 30, 0.8);
-  padding: 20px;
-  border-radius: 8px;
-  border: 1px solid #4a4a6e;
-}
-
-.product-card.bad {
-  border-left: 4px solid #f038ff;
-}
-
-.product-card:not(.bad) {
-  border-left: 4px solid #0abdc6;
-}
-
-.product-card.purchased {
-  opacity: 0.6;
-  border-left: 4px solid #4a4a6e;
-}
-
-.product-header {
-  display: flex;
-  align-items: center;
-  margin-bottom: 10px;
-}
-
-.verdict-badge {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-right: 10px;
-  font-weight: bold;
-  color: #1a1a2e;
-}
-
-.verdict-badge.good {
-  background-color: #0abdc6;
-}
-
-.verdict-badge:not(.good) {
-  background-color: #f038ff;
-}
-
-.product-header h3 {
-  flex: 1;
-  margin: 0;
-}
-
-.remove-btn {
-  background: none;
-  border: none;
-  font-size: 24px;
-  cursor: pointer;
-  color: #a0a0c0;
-}
-
-.product-brand {
-  color: #a0a0c0;
-  margin: 5px 0;
-}
-
-.scan-date {
-  color: #888;
-  font-size: 12px;
-  margin: 5px 0;
-}
-
-.product-categories {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin: 15px 0;
-}
-
-.category-tag {
-  background-color: #2a2a4e;
-  padding: 4px 8px;
-  border-radius: 12px;
-  font-size: 12px;
-}
-
-.view-btn {
-  background-color: #0abdc6;
-  color: #1a1a2e;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 4px;
-  cursor: pointer;
 }
 
 .empty-state {
   text-align: center;
   padding: 40px;
   color: #a0a0c0;
+  grid-column: 1 / -1; /* Make empty state span full width of grid */
 }

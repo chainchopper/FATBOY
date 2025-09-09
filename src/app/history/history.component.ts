@@ -6,13 +6,15 @@ import { IngredientParserService } from '../services/ingredient-parser.service';
 import { FoodDiaryService, DiaryEntry } from '../services/food-diary.service';
 import { ShoppingListService, ShoppingListItem } from '../services/shopping-list.service';
 import { AppModalService } from '../services/app-modal.service';
-import { Observable, combineLatest } from 'rxjs';
+import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { ProductCardComponent } from '../components/product-card/product-card.component';
+import { ShareService } from '../services/share.service';
 
 @Component({
   selector: 'app-history',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ProductCardComponent],
   templateUrl: './history.component.html',
   styleUrls: ['./history.component.css']
 })
@@ -20,18 +22,13 @@ export class HistoryComponent implements OnInit {
   products: Product[] = [];
   stats: {ingredient: string, count: number}[] = [];
   selectedCategory: string | null = null;
-  selectedTab: 'scans' | 'diary' | 'shopping' = 'scans';
-
-  diaryEntries$!: Observable<DiaryEntry[]>;
-  shoppingListItems$!: Observable<ShoppingListItem[]>;
-
+  
   constructor(
     private productDb: ProductDbService,
-    private ingredientParser: IngredientParserService,
     private router: Router,
-    private foodDiaryService: FoodDiaryService,
     private shoppingListService: ShoppingListService,
-    private appModalService: AppModalService
+    private appModalService: AppModalService,
+    private shareService: ShareService
   ) {}
 
   ngOnInit() {
@@ -39,16 +36,6 @@ export class HistoryComponent implements OnInit {
       this.products = products;
       this.stats = this.productDb.getFlaggedIngredientsStats();
     });
-
-    this.diaryEntries$ = this.foodDiaryService.diary$.pipe(
-      map(diaryMap => {
-        const allEntries: DiaryEntry[] = [];
-        diaryMap.forEach(entries => allEntries.push(...entries));
-        return allEntries.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-      })
-    );
-
-    this.shoppingListItems$ = this.shoppingListService.list$;
   }
 
   filterByCategory(category: string | null) {
@@ -62,31 +49,6 @@ export class HistoryComponent implements OnInit {
     return this.products.filter(product => 
       product.categories.includes(this.selectedCategory as string)
     );
-  }
-
-  selectTab(tab: 'scans' | 'diary' | 'shopping') {
-    this.selectedTab = tab;
-  }
-
-  viewProduct(product: Product) {
-    sessionStorage.setItem('viewingProduct', JSON.stringify(product));
-    this.router.navigate(['/ocr-results']);
-  }
-
-  // New method to convert ShoppingListItem to a basic Product for viewing
-  viewProductFromShoppingItem(item: ShoppingListItem) {
-    const product: Product = {
-      id: item.product_id,
-      name: item.product_name,
-      brand: item.brand,
-      image: item.image_url,
-      ingredients: [], // Not available in ShoppingListItem, so empty
-      verdict: 'good', // Default or infer if possible, for now 'good'
-      flaggedIngredients: [], // Not available
-      scanDate: new Date(item.created_at),
-      categories: [] // Not available
-    };
-    this.viewProduct(product);
   }
 
   removeProduct(id: string) {
@@ -107,6 +69,14 @@ export class HistoryComponent implements OnInit {
 
   addToShoppingList(product: Product) {
     this.shoppingListService.addItem(product);
+  }
+
+  addToFoodDiary(product: Product) {
+    this.appModalService.open(product);
+  }
+
+  shareProduct(product: Product) {
+    this.shareService.shareProduct(product);
   }
 
   getCategoryIcon(category: string): string {
