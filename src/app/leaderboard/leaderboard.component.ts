@@ -30,8 +30,12 @@ export class LeaderboardComponent implements OnInit {
   ngOnInit() {
     this.authService.currentUser$.subscribe(user => {
       this.currentUserId = user?.id || null;
+      // Refresh leaderboards when user context is available
+      this.loadLeaderboards();
     });
+  }
 
+  loadLeaderboards() {
     this.globalLeaderboard$ = from(this.leaderboardService.getGlobalLeaderboard()).pipe(
       map(leaderboard => leaderboard.map(entry => ({
         ...entry,
@@ -39,9 +43,11 @@ export class LeaderboardComponent implements OnInit {
       })))
     );
 
-    // Mock friends leaderboard (for now, just a subset of global)
-    this.friendsLeaderboard$ = this.globalLeaderboard$.pipe(
-      map(board => board.filter(entry => entry.rank <= 3 || entry.isCurrentUser))
+    this.friendsLeaderboard$ = from(this.leaderboardService.getFriendsLeaderboard()).pipe(
+      map(leaderboard => leaderboard.map(entry => ({
+        ...entry,
+        isCurrentUser: entry.user_id === this.currentUserId
+      })))
     );
   }
 
