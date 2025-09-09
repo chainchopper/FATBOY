@@ -5,12 +5,16 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ScanContextService } from '../services/scan-context.service';
 import { Router } from '@angular/router';
-import { PreferencesService } from '../services/preferences.service'; // Import PreferencesService
+import { PreferencesService } from '../services/preferences.service';
+import { ProductCardComponent } from '../components/product-card/product-card.component';
+import { Product } from '../services/product-db.service';
+import { ShareService } from '../services/share.service';
+import { ShoppingListService } from '../services/shopping-list.service';
 
 @Component({
   selector: 'app-food-diary',
   standalone: true,
-  imports: [CommonModule, KeyValuePipe, TitleCasePipe, DatePipe],
+  imports: [CommonModule, KeyValuePipe, TitleCasePipe, DatePipe, ProductCardComponent],
   templateUrl: './food-diary.component.html',
   styleUrls: ['./food-diary.component.css']
 })
@@ -35,7 +39,9 @@ export class FoodDiaryComponent implements OnInit {
     private foodDiaryService: FoodDiaryService,
     private scanContextService: ScanContextService,
     private router: Router,
-    private preferencesService: PreferencesService // Inject PreferencesService
+    private preferencesService: PreferencesService,
+    private shareService: ShareService,
+    private shoppingListService: ShoppingListService
   ) {}
 
   ngOnInit() {
@@ -50,7 +56,7 @@ export class FoodDiaryComponent implements OnInit {
 
     this.todayEntries$.subscribe(entries => {
       this.dailySummary = this.foodDiaryService.getDailySummary(dateString);
-      const preferences = this.preferencesService.getPreferences(); // Get preferences from service
+      const preferences = this.preferencesService.getPreferences();
       this.dailyVerdict = this.foodDiaryService.getDailyPerformanceVerdict(dateString, preferences);
     });
 
@@ -85,5 +91,17 @@ export class FoodDiaryComponent implements OnInit {
   isToday(): boolean {
     const today = new Date();
     return this.currentDate.toDateString() === today.toDateString();
+  }
+
+  onRemoveEntry(entryId: string) {
+    this.foodDiaryService.removeEntry(entryId);
+  }
+
+  onShareProduct(product: Product) {
+    this.shareService.shareProduct(product);
+  }
+
+  onAddToShoppingList(product: Product) {
+    this.shoppingListService.addItem(product);
   }
 }

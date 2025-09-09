@@ -83,6 +83,28 @@ export class FoodDiaryService {
     this.speechService.speak(`${product.name} added to ${meal}.`);
   }
 
+  async removeEntry(entryId: string): Promise<void> {
+    if (!this.currentUserId) {
+      this.notificationService.showError('Please log in to modify your food diary.');
+      return;
+    }
+
+    const { error } = await supabase
+      .from('food_diary_entries')
+      .delete()
+      .eq('id', entryId)
+      .eq('user_id', this.currentUserId);
+
+    if (error) {
+      console.error('Error removing food diary entry from Supabase:', error);
+      this.notificationService.showError('Failed to remove item from food diary.');
+      return;
+    }
+
+    await this.loadData();
+    this.notificationService.showInfo('Item removed from your diary.');
+  }
+
   getEntriesForDate(date: string): DiaryEntry[] {
     return this.diary.get(date) || [];
   }

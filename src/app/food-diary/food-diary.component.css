@@ -166,7 +166,7 @@
 
 .diary-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: 20px;
 }
 
@@ -205,18 +205,10 @@
   box-shadow: 0 0 10px #0abdc6;
 }
 
-.diary-item {
+.meal-list {
   display: flex;
-  justify-content: space-between;
-  padding: 10px;
-  border-radius: 4px;
-  margin-bottom: 8px;
-  background-color: #2a2a4e;
-}
-
-.diary-item .brand {
-  color: #a0a0c0;
-  font-size: 0.9rem;
+  flex-direction: column;
+  gap: 10px; /* Add gap between product cards */
 }
 
 .empty-meal {
