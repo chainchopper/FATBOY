@@ -6,7 +6,7 @@ import { UserPreferences } from '../services/preferences.service';
 @Component({
   selector: 'app-daily-summary-card',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, TitleCasePipe, KeyValuePipe],
   templateUrl: './daily-summary-card.component.html',
   styleUrls: ['./daily-summary-card.component.css']
 })
