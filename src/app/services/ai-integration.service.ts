@@ -14,6 +14,7 @@ export interface AiResponse {
   text: string;
   suggestedPrompts: string[]; // Renamed from followUpQuestions
   toolCalls?: any[];
+  humanReadableToolCall?: string;
 }
 
 @Injectable({
@@ -162,6 +163,22 @@ export class AiIntegrationService {
               description: "A list of ingredients to remove from the avoid list."
             }
           }
+        }
+      }
+    },
+    {
+      type: "function",
+      function: {
+        name: "summarize_food_diary",
+        description: "Summarizes the user's food diary for a specific date, including total calories and flagged ingredients.",
+        parameters: {
+          type: "object",
+          properties: {
+            date: {
+              type: "string",
+              description: "The date to summarize in YYYY-MM-DD format. Defaults to today if not provided."
+            }
+          },
         }
       }
     }
@@ -326,6 +343,7 @@ export class AiIntegrationService {
       if (choice.message.tool_calls && choice.message.tool_calls.length > 0) {
         console.log('AI suggested tool calls:', choice.message.tool_calls);
         const toolOutputs: any[] = [];
+        let humanReadableSummary = '';
 
         for (const toolCall of choice.message.tool_calls) {
           const functionName = toolCall.function.name;
@@ -359,6 +377,7 @@ export class AiIntegrationService {
               if (productToAdd.name && productToAdd.brand && functionArgs.meal_type) {
                 await this.foodDiaryService.addEntry(productToAdd, functionArgs.meal_type as MealType);
                 toolOutput = `PRODUCT_ADDED: Successfully added "${productToAdd.name}" to food diary for ${functionArgs.meal_type}.`;
+                humanReadableSummary = `Adding "${productToAdd.name}" to ${functionArgs.meal_type}.`;
               } else {
                 toolOutput = `FAILED: Missing product name, brand, or meal type.`;
               }
@@ -372,6 +391,7 @@ export class AiIntegrationService {
                   await this.shoppingListService.addItem(productToAdd);
                   toolOutput = `PRODUCT_ADDED: The product '${productToAdd.name}' was successfully added to the shopping list. Confirm this with the user.`;
                 }
+                humanReadableSummary = `Adding "${productToAdd.name}" to shopping list.`;
               } else {
                 toolOutput = `FAILED: Missing product name or brand.`;
               }
@@ -387,6 +407,13 @@ export class AiIntegrationService {
               if (toAdd.length > 0) outputParts.push(`Added: ${toAdd.join(', ')}.`);
               if (toRemove.length > 0) outputParts.push(`Removed: ${toRemove.join(', ')}.`);
               toolOutput = `PREFERENCES_UPDATED: ${outputParts.join(' ')}`;
+              humanReadableSummary = `Updating your ingredient preferences.`;
+              break;
+            case 'summarize_food_diary':
+              const date = functionArgs.date || new Date().toISOString().split('T')[0];
+              const summary = this.foodDiaryService.getDailySummary(date);
+              toolOutput = `DIARY_SUMMARY: Date: ${date}, Total Calories: ${summary.totalCalories}, Flagged Items: ${summary.totalFlaggedItems}, Top Flagged: ${Object.keys(summary.flaggedIngredients).slice(0,3).join(', ')}.`;
+              humanReadableSummary = `Summarizing your food diary for ${date}.`;
               break;
             default:
               toolOutput = `Unknown tool: ${functionName}`;
@@ -435,7 +462,7 @@ export class AiIntegrationService {
         const toolResponseMessage = toolData.choices[0].message.content;
         
         const parsedToolResponse = this._parseAiResponse(toolResponseMessage);
-        return { ...parsedToolResponse, toolCalls: choice.message.tool_calls };
+        return { ...parsedToolResponse, toolCalls: choice.message.tool_calls, humanReadableToolCall: humanReadableSummary };
       }
       // --- End Handle Tool Calls ---
 

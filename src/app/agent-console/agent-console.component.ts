@@ -178,7 +178,8 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
         timestamp: new Date(),
         avatar: this.agentAvatar,
         suggestedPrompts: aiResponse.suggestedPrompts,
-        toolCalls: aiResponse.toolCalls
+        toolCalls: aiResponse.toolCalls,
+        humanReadableToolCall: aiResponse.humanReadableToolCall
       };
       
       this.messages.push(agentMessage);
