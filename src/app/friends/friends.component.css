@@ -178,6 +178,7 @@ p {
 .activity-item {
   display: flex;
   gap: 15px;
+  align-items: flex-start;
   border-bottom: 1px solid #2a2a4e;
   padding: 15px 0;
 }
@@ -185,9 +186,16 @@ p {
   border-bottom: none;
 }
 
-.activity-item .avatar {
+.activity-icon {
+  background-color: #2a2a4e;
+  border-radius: 50%;
   width: 40px;
   height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #0abdc6;
+  flex-shrink: 0;
 }
 
 .activity-content p {

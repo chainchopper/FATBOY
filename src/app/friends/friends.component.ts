@@ -1,16 +1,17 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { FriendsService, Friend, FriendRequest, Profile, ActivityFeedItem } from '../services/friends.service';
 import { NotificationService } from '../services/notification.service';
 import { AppModalService } from '../services/app-modal.service';
 import { GamificationService } from '../services/gamification.service';
 import { RouterLink } from '@angular/router';
+import { LucideAngularModule } from 'lucide-angular';
 
 @Component({
   selector: 'app-friends',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, LucideAngularModule, DatePipe],
   templateUrl: './friends.component.html',
   styleUrls: ['./friends.component.css']
 })
@@ -86,6 +87,18 @@ export class FriendsComponent implements OnInit {
       this.searchResults = this.searchResults.filter(user => user.id !== addresseeId);
     } else {
       this.notificationService.showError('Failed to send friend request.');
+    }
+  }
+
+  getIconForActivity(type: string): string {
+    switch (type) {
+      case 'scan': return 'camera';
+      case 'community': return 'users';
+      case 'shopping_list': return 'shopping-cart';
+      case 'achievement': return 'award';
+      case 'friendship': return 'user-plus';
+      case 'food_diary': return 'book-open';
+      default: return 'activity';
     }
   }
 }

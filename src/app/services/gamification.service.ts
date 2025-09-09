@@ -113,7 +113,6 @@ export class GamificationService {
       .insert({ user_id: this.currentUserId, badge_id: id });
 
     if (error) {
-      // We ignore 'duplicate key value' errors, as it just means the badge was already unlocked.
       if (error.code !== '23505') {
         console.error('Error unlocking badge:', error);
       }
@@ -123,6 +122,10 @@ export class GamificationService {
     this.unlockedBadges.add(id);
     const badge = this.allBadges.find(b => b.id === id);
     if (badge) {
+      supabase.rpc('log_user_activity', { 
+        activity_type: 'achievement', 
+        activity_description: `Unlocked the "${badge.name}" badge! 🏆` 
+      }).then();
       this.notificationService.showSuccess(`You've unlocked the "${badge.name}" badge!`, '🏆 Achievement Unlocked!');
     }
     return true;

@@ -84,7 +84,9 @@
         <p>Your friends haven't been active recently. Encourage them to scan something!</p>
       </div>
       <div *ngFor="let item of activityFeed" class="activity-item">
-        <img [src]="item.avatar_url || 'https://api.dicebear.com/8.x/bottts/svg'" alt="Avatar" class="avatar">
+        <div class="activity-icon">
+          <lucide-icon [name]="getIconForActivity(item.activity_type)" [size]="20"></lucide-icon>
+        </div>
         <div class="activity-content">
           <p><strong>{{ item.first_name || 'A friend' }}</strong> {{ item.activity_description }}</p>
           <span class="timestamp">{{ item.created_at | date:'short' }}</span>

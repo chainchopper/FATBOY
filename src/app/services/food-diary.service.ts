@@ -78,6 +78,11 @@ export class FoodDiaryService {
       return;
     }
     
+    supabase.rpc('log_user_activity', { 
+      activity_type: 'food_diary', 
+      activity_description: `Added ${product.name} to their ${meal} diary.` 
+    }).then();
+
     await this.loadData();
     this.notificationService.showSuccess(`${product.name} added to ${meal}.`);
     this.speechService.speak(`${product.name} added to ${meal}.`);
