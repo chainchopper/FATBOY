@@ -53,6 +53,29 @@
           <p>Loading contributions...</p>
         </ng-template>
       </div>
+
+      <div class="profile-section">
+        <h3>Recent Activity</h3>
+        <div *ngIf="(activityFeed$ | async) as feed; else loadingActivity">
+          <div *ngIf="feed.length > 0" class="activity-feed-list">
+            <div *ngFor="let item of feed" class="activity-item">
+              <div class="activity-icon">
+                <lucide-icon [name]="getIconForActivity(item.activity_type)" [size]="20"></lucide-icon>
+              </div>
+              <div class="activity-content">
+                <p>{{ item.activity_description }}</p>
+                <span class="timestamp">{{ item.created_at | date:'short' }}</span>
+              </div>
+            </div>
+          </div>
+          <div *ngIf="feed.length === 0" class="empty-state-small">
+            <p>This user has no recent activity.</p>
+          </div>
+        </div>
+        <ng-template #loadingActivity>
+          <p>Loading activity...</p>
+        </ng-template>
+      </div>
       
     </div>
   </div>

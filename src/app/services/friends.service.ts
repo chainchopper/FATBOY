@@ -171,4 +171,14 @@ export class FriendsService {
     }
     return data as ActivityFeedItem[];
   }
+
+  // Fetches the activity feed for a specific user
+  async getUserActivity(userId: string): Promise<ActivityFeedItem[]> {
+    const { data, error } = await supabase.rpc('get_user_activity_feed', { user_id_param: userId });
+    if (error) {
+      console.error(`Error fetching activity feed for user ${userId}:`, error);
+      return [];
+    }
+    return data as ActivityFeedItem[];
+  }
 }

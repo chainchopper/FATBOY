@@ -221,3 +221,49 @@ h2 {
   color: #a0a0c0;
   font-style: italic;
 }
+
+/* Activity Feed on Profile */
+.activity-feed-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  text-align: left;
+}
+
+.activity-item {
+  display: flex;
+  gap: 15px;
+  align-items: flex-start;
+  background: #1a1a2e;
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px solid #4a4a6e;
+}
+
+.activity-icon {
+  background-color: #2a2a4e;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #0abdc6;
+  flex-shrink: 0;
+}
+
+.activity-content p {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.activity-content strong {
+  color: #f038ff;
+}
+
+.timestamp {
+  font-size: 0.8rem;
+  color: #a0a0c0;
+  margin-top: 4px;
+  display: block;
+}
