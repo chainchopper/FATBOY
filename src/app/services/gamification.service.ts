@@ -63,7 +63,7 @@ export class GamificationService {
   async checkAndUnlockAchievements() {
     if (!this.currentUserId) return;
 
-    // --- Data Gathering ---
+    // --- Data Gathering from Services (No localStorage) ---
     const scanHistory = this.productDb.getProductsSnapshot();
     const shoppingList = this.shoppingListService.getListSnapshot();
     const preferences = this.preferencesService.getPreferences();
