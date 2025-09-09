@@ -5,6 +5,18 @@
       <h2>{{ profile.first_name }} {{ profile.last_name }}</h2>
       <p class="email">{{ user.email }}</p>
       
+      <div class="profile-section stats-section" *ngIf="(leaderboardStats$ | async) as stats">
+        <div class="stat-item">
+          <span class="stat-value">{{ stats.rank || 'N/A' }}</span>
+          <span class="stat-label">Global Rank</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-value">{{ stats.score || 0 }}</span>
+          <span class="stat-label">Total Score</span>
+        </div>
+        <button class="leaderboard-btn" routerLink="/leaderboard">View Leaderboard</button>
+      </div>
+
       <div class="profile-section">
         <h3>Your Badges</h3>
         <div class="badges-grid">
@@ -15,7 +27,6 @@
         </div>
       </div>
       
-      <!-- Future sections for stats, contributions, etc. -->
     </div>
   </div>
   

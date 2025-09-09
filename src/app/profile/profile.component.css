@@ -43,6 +43,51 @@ h2 {
   padding-top: 20px;
 }
 
+.stats-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.stat-item {
+  background-color: #1a1a2e;
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px solid #4a4a6e;
+}
+
+.stat-value {
+  display: block;
+  font-size: 2rem;
+  font-weight: bold;
+  color: #0abdc6;
+}
+
+.stat-label {
+  font-size: 0.9rem;
+  color: #a0a0c0;
+}
+
+.leaderboard-btn {
+  grid-column: 1 / -1; /* Span both columns */
+  background: transparent;
+  border: 1px solid #f038ff;
+  color: #f038ff;
+  padding: 10px 20px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  margin-top: 10px;
+}
+
+.leaderboard-btn:hover {
+  background-color: rgba(240, 56, 255, 0.1);
+  box-shadow: 0 0 10px #f038ff;
+}
+
 .profile-section h3 {
   color: #0abdc6;
   font-size: 1.5rem;
