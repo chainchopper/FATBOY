@@ -34,6 +34,7 @@
     <app-product-card 
       *ngFor="let product of filteredProducts"
       [product]="product"
+      [isFavorite]="isFavorite(product.id)"
       [showRemoveButton]="true"
       [showShareButton]="true"
       [showAddToShoppingListButton]="true"
@@ -41,7 +42,8 @@
       (remove)="removeProduct($event)"
       (share)="shareProduct($event)"
       (addToShoppingList)="addToShoppingList($event)"
-      (addToFoodDiary)="addToFoodDiary($event)">
+      (addToFoodDiary)="addToFoodDiary($event)"
+      (toggleFavorite)="toggleFavorite($event)">
     </app-product-card>
     
     <div *ngIf="filteredProducts.length === 0" class="empty-state">

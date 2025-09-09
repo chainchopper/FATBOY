@@ -113,6 +113,12 @@
   border-color: #F44336;
 }
 
+.favorite-btn.active {
+  background-color: #f038ff;
+  color: #fff;
+  border-color: #f038ff;
+}
+
 .checkbox-container {
   margin-left: auto;
   display: flex;

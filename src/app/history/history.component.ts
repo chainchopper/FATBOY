@@ -2,12 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { ProductDbService, Product } from '../services/product-db.service';
-import { IngredientParserService } from '../services/ingredient-parser.service';
-import { FoodDiaryService, DiaryEntry } from '../services/food-diary.service';
-import { ShoppingListService, ShoppingListItem } from '../services/shopping-list.service';
+import { ShoppingListService } from '../services/shopping-list.service';
 import { AppModalService } from '../services/app-modal.service';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
 import { ProductCardComponent } from '../product-card/product-card.component';
 import { ShareService } from '../services/share.service';
 
@@ -25,7 +21,6 @@ export class HistoryComponent implements OnInit {
   
   constructor(
     private productDb: ProductDbService,
-    private router: Router,
     private shoppingListService: ShoppingListService,
     private appModalService: AppModalService,
     private shareService: ShareService
@@ -77,6 +72,14 @@ export class HistoryComponent implements OnInit {
 
   shareProduct(product: Product) {
     this.shareService.shareProduct(product);
+  }
+
+  isFavorite(productId: string): boolean {
+    return this.productDb.isFavorite(productId);
+  }
+
+  toggleFavorite(productId: string) {
+    this.productDb.toggleFavorite(productId);
   }
 
   getCategoryIcon(category: string): string {

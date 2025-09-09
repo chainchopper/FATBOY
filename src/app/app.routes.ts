@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import { ResultsComponent } from './results/results.component';
-import { SavedComponent } from './saved/saved.component';
+import { FavoritesComponent } from './favorites/favorites.component';
 import { PreferencesComponent } from './preferences/preferences.component';
 import { OcrResultsComponent } from './ocr-results/ocr-results.component';
 import { HistoryComponent } from './history/history.component';
@@ -11,7 +11,7 @@ import { AchievementsComponent } from './achievements/achievements.component';
 import { LoginComponent } from './login/login.component';
 import { FoodDiaryComponent } from './food-diary/food-diary.component';
 import { AuthGuard } from './guards/auth.guard';
-import { AdminGuard } from './guards/admin.guard'; // Import the new guard
+import { AdminGuard } from './guards/admin.guard';
 import { UnifiedScannerComponent } from './unified-scanner/unified-scanner.component';
 import { ProfileComponent } from './profile/profile.component';
 import { ManualEntryComponent } from './manual-entry/manual-entry.component';
@@ -31,7 +31,7 @@ export const routes: Routes = [
   { path: 'ocr-results', component: OcrResultsComponent },
   
   // Authenticated User Routes
-  { path: 'saved', component: SavedComponent, canActivate: [AuthGuard] },
+  { path: 'favorites', component: FavoritesComponent, canActivate: [AuthGuard] },
   { path: 'preferences', component: PreferencesComponent, canActivate: [AuthGuard] },
   { path: 'history', component: HistoryComponent, canActivate: [AuthGuard] },
   { path: 'suggestions', component: SuggestionsComponent, canActivate: [AuthGuard] },

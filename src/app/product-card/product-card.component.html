@@ -26,6 +26,9 @@
   </div>
 
   <div class="card-actions">
+    <button (click)="onToggleFavorite()" class="action-btn favorite-btn" [class.active]="isFavorite" title="Toggle Favorite">
+      <lucide-icon name="heart" [size]="18"></lucide-icon>
+    </button>
     <button *ngIf="showAddToShoppingListButton" (click)="onAddToShoppingList()" class="action-btn" title="Add to Shopping List">
       <lucide-icon name="shopping-cart" [size]="18"></lucide-icon>
     </button>

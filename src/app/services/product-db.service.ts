@@ -32,6 +32,11 @@ export class ProductDbService {
   private avoidedProductsSubject = new BehaviorSubject<Product[]>([]);
   public avoidedProducts$ = this.avoidedProductsSubject.asObservable();
   
+  private favorites: Product[] = [];
+  private favoritesSubject = new BehaviorSubject<Product[]>([]);
+  public favorites$ = this.favoritesSubject.asObservable();
+  private favoriteProductIds = new Set<string>();
+  
   private currentUserId: string | null = null;
 
   constructor(
@@ -52,8 +57,11 @@ export class ProductDbService {
       // If no user, clear local data
       this.products = [];
       this.avoidedProducts = [];
+      this.favorites = [];
+      this.favoriteProductIds.clear();
       this.productsSubject.next([]);
       this.avoidedProductsSubject.next([]);
+      this.favoritesSubject.next([]);
     }
   }
 
@@ -94,6 +102,22 @@ export class ProductDbService {
     this.avoidedProducts = loadedAvoidedProducts;
     this.productsSubject.next([...this.products]);
     this.avoidedProductsSubject.next([...this.avoidedProducts]);
+
+    // Now load favorites
+    const { data: favoritesData, error: favoritesError } = await supabase
+      .from('fatboy_user_favorites')
+      .select('product_client_id')
+      .eq('user_id', this.currentUserId);
+
+    if (favoritesError) {
+      console.error('Error loading favorites from Supabase:', favoritesError);
+      this.favorites = [];
+      this.favoriteProductIds.clear();
+    } else {
+      this.favoriteProductIds = new Set(favoritesData.map(f => f.product_client_id));
+      this.favorites = this.products.filter(p => this.favoriteProductIds.has(p.id));
+    }
+    this.favoritesSubject.next([...this.favorites]);
   }
 
   async addProduct(product: Omit<Product, 'id' | 'scanDate'>): Promise<Product | null> {
@@ -122,7 +146,6 @@ export class ProductDbService {
       return null;
     }
     
-    // Log this activity
     supabase.rpc('log_user_activity', { 
       activity_type: 'scan', 
       activity_description: `Scanned: ${newProduct.name}` 
@@ -265,6 +288,47 @@ export class ProductDbService {
       console.error('Error clearing all products from Supabase:', error);
       this.notificationService.showError('Failed to clear history.');
       return;
+    }
+    await this.loadData();
+  }
+
+  isFavorite(productId: string): boolean {
+    return this.favoriteProductIds.has(productId);
+  }
+
+  async toggleFavorite(productId: string): Promise<void> {
+    if (!this.currentUserId) {
+      this.notificationService.showError('You must be logged in to manage favorites.');
+      return;
+    }
+
+    const isCurrentlyFavorite = this.isFavorite(productId);
+
+    if (isCurrentlyFavorite) {
+      const { error } = await supabase
+        .from('fatboy_user_favorites')
+        .delete()
+        .eq('user_id', this.currentUserId)
+        .eq('product_client_id', productId);
+      
+      if (error) {
+        this.notificationService.showError('Failed to remove favorite.');
+      } else {
+        this.notificationService.showInfo('Removed from favorites.');
+      }
+    } else {
+      const { error } = await supabase
+        .from('fatboy_user_favorites')
+        .insert({
+          user_id: this.currentUserId,
+          product_client_id: productId
+        });
+
+      if (error) {
+        this.notificationService.showError('Failed to add favorite.');
+      } else {
+        this.notificationService.showSuccess('Added to favorites!');
+      }
     }
     await this.loadData();
   }

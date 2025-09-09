@@ -2,12 +2,12 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Product } from '../services/product-db.service';
 import { LucideAngularModule } from 'lucide-angular';
-import { FoodIconComponent } from '../food-icon/food-icon.component'; // Import FoodIconComponent
+import { FoodIconComponent } from '../food-icon/food-icon.component';
 
 @Component({
   selector: 'app-product-card',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, FoodIconComponent], // Add FoodIconComponent to imports
+  imports: [CommonModule, LucideAngularModule, FoodIconComponent],
   templateUrl: './product-card.component.html',
   styleUrls: ['./product-card.component.css']
 })
@@ -19,12 +19,14 @@ export class ProductCardComponent {
   @Input() showShareButton: boolean = false;
   @Input() showAddToShoppingListButton: boolean = false;
   @Input() showAddToFoodDiaryButton: boolean = false;
+  @Input() isFavorite: boolean = false;
 
   @Output() togglePurchased = new EventEmitter<string>();
   @Output() remove = new EventEmitter<string>();
   @Output() share = new EventEmitter<Product>();
   @Output() addToShoppingList = new EventEmitter<Product>();
   @Output() addToFoodDiary = new EventEmitter<Product>();
+  @Output() toggleFavorite = new EventEmitter<string>();
 
   isExpanded: boolean = false;
 
@@ -50,5 +52,9 @@ export class ProductCardComponent {
 
   onAddToFoodDiary() {
     this.addToFoodDiary.emit(this.product);
+  }
+
+  onToggleFavorite() {
+    this.toggleFavorite.emit(this.product.id);
   }
 }
