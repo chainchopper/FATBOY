@@ -10,12 +10,12 @@ import { Product } from '../services/product-db.service';
 import { ShareService } from '../services/share.service';
 import { ShoppingListService } from '../services/shopping-list.service';
 import { DailySummaryCardComponent } from '../daily-summary-card/daily-summary-card.component';
-import { DiaryItemComponent } from '../diary-item/diary-item.component'; // Import the new component
+import { DiaryItemComponent } from '../diary-item/diary-item.component';
 
 @Component({
   selector: 'app-food-diary',
   standalone: true,
-  imports: [CommonModule, KeyValuePipe, TitleCasePipe, DatePipe, DailySummaryCardComponent, DiaryItemComponent], // Add DiaryItemComponent
+  imports: [CommonModule, KeyValuePipe, TitleCasePipe, DatePipe, DailySummaryCardComponent, DiaryItemComponent],
   templateUrl: './food-diary.component.html',
   styleUrls: ['./food-diary.component.css']
 })
