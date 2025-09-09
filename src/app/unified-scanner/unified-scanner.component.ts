@@ -17,11 +17,13 @@ import { BarcodeLookupService } from '../services/barcode-lookup.service'; // Im
 import { take } from 'rxjs/operators';
 import { Subscription } from 'rxjs';
 import { LucideAngularModule } from 'lucide-angular';
+import { UiService } from '../services/ui.service'; // Import UiService
+import { LogoComponent } from '../logo/logo.component'; // Import LogoComponent
 
 @Component({
   selector: 'app-unified-scanner',
   standalone: true,
-  imports: [CommonModule, RouterLink, LucideAngularModule],
+  imports: [CommonModule, RouterLink, LucideAngularModule, LogoComponent], // Add LogoComponent here
   templateUrl: './unified-scanner.component.html',
   styleUrls: ['./unified-scanner.component.css']
 })
@@ -61,7 +63,8 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
     private permissionsService: PermissionsService,
     private preferencesService: PreferencesService,
     private aiService: AiIntegrationService,
-    private barcodeLookupService: BarcodeLookupService
+    private barcodeLookupService: BarcodeLookupService,
+    public uiService: UiService // Inject UiService and make it public for template
   ) {}
 
   async ngAfterViewInit() {

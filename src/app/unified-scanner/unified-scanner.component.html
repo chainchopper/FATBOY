@@ -8,11 +8,17 @@
   <!-- New Immersive Header -->
   <div class="scanner-header">
     <div class="header-left">
+      <button class="header-btn" (click)="uiService.toggleMenu()" title="Open Menu">
+        <lucide-icon name="menu" [size]="24"></lucide-icon>
+      </button>
       <button class="header-btn" routerLink="/console">
         <lucide-icon name="message-circle" [size]="24"></lucide-icon>
       </button>
     </div>
-    <div class="header-title">SCANNER</div>
+    <div class="header-title">
+      <app-logo></app-logo>
+      <span>SCANNER</span>
+    </div>
     <div class="header-right">
       <button *ngIf="cameras.length > 1" (click)="switchCamera()" class="header-btn" title="Switch Camera">
         <lucide-icon name="refresh-cw" [size]="24"></lucide-icon>

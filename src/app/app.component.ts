@@ -11,6 +11,7 @@ import { LogoComponent } from './logo/logo.component';
 import { LucideAngularModule } from 'lucide-angular';
 import { UserNotificationService } from './services/user-notification.service';
 import { NotificationsComponent } from './notifications/notifications.component';
+import { UiService } from './services/ui.service'; // Import UiService
 
 @Component({
   selector: 'app-root',
@@ -42,7 +43,8 @@ export class AppComponent implements OnInit {
     private authService: AuthService, 
     private router: Router,
     private profileService: ProfileService,
-    private userNotificationService: UserNotificationService
+    private userNotificationService: UserNotificationService,
+    private uiService: UiService // Inject UiService
   ) {}
 
   ngOnInit(): void {
@@ -69,21 +71,27 @@ export class AppComponent implements OnInit {
     ).subscribe((event: NavigationEnd) => {
       this.isScannerPage = event.urlAfterRedirects === '/scanner';
       this.showNotifications = false; // Close notifications on navigation
+      this.uiService.closeMenu(); // Close menu on navigation
+    });
+
+    // Subscribe to UiService's menu state
+    this.uiService.isMenuOpen$.subscribe(isOpen => {
+      this.isMenuOpen = isOpen;
     });
   }
 
   toggleMenu(): void {
-    this.isMenuOpen = !this.isMenuOpen;
+    this.uiService.toggleMenu(); // Use UiService to toggle
     this.showNotifications = false;
   }
 
   closeMenu(): void {
-    this.isMenuOpen = false;
+    this.uiService.closeMenu(); // Use UiService to close
   }
 
   toggleNotifications(): void {
     this.showNotifications = !this.showNotifications;
-    this.isMenuOpen = false;
+    this.uiService.closeMenu(); // Close main menu when opening notifications
   }
 
   goToAgentConsole(): void {
