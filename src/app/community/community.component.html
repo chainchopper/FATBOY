@@ -73,6 +73,10 @@
       <div class="metadata-footer">
         <div class="user-info">
           <span class="username">👤 {{ contribution.profile.first_name || 'Anonymous' }}</span>
+          <span *ngIf="contribution.metadata?.goal" class="user-goal">🎯 Goal: {{ contribution.metadata.goal | titlecase }}</span>
+        </div>
+        <div *ngIf="contribution.metadata?.rank" class="leaderboard-status">
+          🏆 Rank #{{ contribution.metadata.rank }} ({{ contribution.metadata.score }} pts)
         </div>
       </div>
 

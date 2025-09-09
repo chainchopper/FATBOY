@@ -6,6 +6,8 @@ import { LeaderboardService } from '../services/leaderboard.service';
 import { ProductDbService, Product } from '../services/product-db.service';
 import { CommunityService } from '../services/community.service';
 import { Observable } from 'rxjs';
+import { PreferencesService } from '../services/preferences.service';
+import { AuthService } from '../services/auth.service';
 
 // Define interfaces for our data structures
 interface CommunityContribution {
@@ -19,6 +21,11 @@ interface CommunityContribution {
   likes: number;
   profile: { first_name: string, last_name: string, avatar_url: string };
   comments: any[];
+  metadata: {
+    goal?: string;
+    rank?: number;
+    score?: number;
+  };
 }
 
 @Component({
@@ -48,7 +55,9 @@ export class CommunityComponent implements OnInit {
     private gamificationService: GamificationService, 
     private leaderboardService: LeaderboardService,
     private productDb: ProductDbService,
-    private communityService: CommunityService
+    private communityService: CommunityService,
+    private preferencesService: PreferencesService,
+    private authService: AuthService
   ) {}
 
   ngOnInit() {
@@ -82,7 +91,30 @@ export class CommunityComponent implements OnInit {
   }
 
   async submitContribution() {
-    const savedContribution = await this.communityService.addContribution(this.newContribution);
+    const prefs = this.preferencesService.getPreferences();
+    const metadata: any = {};
+
+    if (prefs.shareGoal) {
+      metadata.goal = prefs.goal;
+    }
+    if (prefs.shareLeaderboardStatus) {
+      const userId = this.authService.getCurrentUserId();
+      if (userId) {
+        const leaderboard = await this.leaderboardService.getGlobalLeaderboard();
+        const userEntry = leaderboard.find(e => e.user_id === userId);
+        if (userEntry) {
+          metadata.rank = userEntry.rank;
+          metadata.score = userEntry.score;
+        }
+      }
+    }
+
+    const contributionData = {
+      ...this.newContribution,
+      metadata
+    };
+
+    const savedContribution = await this.communityService.addContribution(contributionData);
     if (savedContribution) {
       this.isSubmitted = true;
       this.leaderboardService.incrementScore(50).subscribe();
@@ -108,12 +140,7 @@ export class CommunityComponent implements OnInit {
     if (newComment) {
       const contribution = this.communityContributions.find(c => c.id === contributionId);
       if (contribution) {
-        // Add the profile data to the new comment for immediate display
-        const newCommentWithProfile = {
-          ...newComment,
-          username: `${newComment.profile.first_name || 'User'}`
-        };
-        contribution.comments.push(newCommentWithProfile);
+        contribution.comments.push(newComment);
       }
       this.newCommentText[contributionId] = '';
     }
