@@ -17,19 +17,14 @@
       </div>
       
       <div class="products-grid">
-        <div *ngFor="let product of products" class="product-card">
-          <span class="approved-badge">Approved</span>
-          <img [src]="product.image" alt="{{product.name}}" class="product-thumb">
-          <div class="product-info">
-            <h3>{{product.name}}</h3>
-            <p>{{product.brand}}</p>
-          </div>
-          <div class="product-actions">
-            <button class="action-btn" title="Star">⭐️</button>
-            <button class="action-btn" (click)="shareProduct(product)" title="Share">🔗</button>
-            <button class="action-btn remove-btn" (click)="removeApprovedProduct(product.id)" title="Remove">🗑️</button>
-          </div>
-        </div>
+        <app-product-card
+          *ngFor="let product of products"
+          [product]="product"
+          [showRemoveButton]="true"
+          [showShareButton]="true"
+          (remove)="removeApprovedProduct($event)"
+          (share)="shareProduct($event)">
+        </app-product-card>
       </div>
     </div>
   </div>
@@ -41,17 +36,12 @@
       </div>
       
       <div class="products-grid">
-        <div *ngFor="let product of products" class="product-card avoided">
-          <span class="avoided-badge">Avoided</span>
-          <img [src]="product.image" alt="{{product.name}}" class="product-thumb">
-          <div class="product-info">
-            <h3>{{product.name}}</h3>
-            <p>{{product.brand}}</p>
-          </div>
-          <div class="product-actions">
-            <button class="action-btn remove-btn" (click)="removeAvoidedProduct(product.id)" title="Remove">🗑️</button>
-          </div>
-        </div>
+        <app-product-card
+          *ngFor="let product of products"
+          [product]="product"
+          [showRemoveButton]="true"
+          (remove)="removeAvoidedProduct($event)">
+        </app-product-card>
       </div>
     </div>
   </div>

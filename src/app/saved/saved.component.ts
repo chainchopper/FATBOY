@@ -3,12 +3,13 @@ import { CommonModule } from '@angular/common';
 import { ProductDbService, Product } from '../services/product-db.service';
 import { map } from 'rxjs/operators';
 import { Observable } from 'rxjs';
-import { ShareService } from '../services/share.service'; // Import ShareService
+import { ShareService } from '../services/share.service';
+import { ProductCardComponent } from '../components/product-card/product-card.component'; // Import ProductCardComponent
 
 @Component({
   selector: 'app-saved',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ProductCardComponent], // Add ProductCardComponent
   templateUrl: './saved.component.html',
   styleUrls: ['./saved.component.css']
 })
@@ -19,10 +20,12 @@ export class SavedComponent implements OnInit {
 
   constructor(
     private productDb: ProductDbService,
-    private shareService: ShareService // Inject ShareService
+    private shareService: ShareService
   ) {}
 
   ngOnInit() {
+    // Note: The 'Saved' or 'Approved' list is currently the main scan history.
+    // This can be evolved later to be a separate, curated list.
     this.approvedProducts$ = this.productDb.products$.pipe(
       map(products => products.filter(p => p.verdict === 'good'))
     );
