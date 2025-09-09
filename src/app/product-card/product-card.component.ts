@@ -4,7 +4,7 @@ import { Product } from '../services/product-db.service';
 import { LucideAngularModule } from 'lucide-angular';
 import { FoodIconComponent } from '../food-icon/food-icon.component';
 import { CustomTitleCasePipe } from '../shared/custom-title-case.pipe';
-import { ButtonComponent } from '../components/ui/button/button.component.ts'; // Confirmed .ts extension
+import { ButtonComponent } from '../components/ui/button/button.component'; // Removed .ts extension
 
 @Component({
   selector: 'app-product-card',
