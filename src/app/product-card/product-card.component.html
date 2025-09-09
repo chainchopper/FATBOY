@@ -20,6 +20,14 @@
       <span *ngIf="product.flaggedIngredients.length > 0">{{ product.flaggedIngredients.join(', ') }}</span>
       <span *ngIf="product.flaggedIngredients.length === 0">None</span>
     </div>
+    <div class="detail-item categories">
+      <strong>Categories:</strong>
+      <div class="category-tags">
+        <span *ngFor="let category of product.categories" class="category-tag">
+          {{ category | titleCase }}
+        </span>
+      </div>
+    </div>
     <div class="detail-item">
       <strong>Ingredients:</strong> {{ product.ingredients.join(', ') }}
     </div>

@@ -79,6 +79,27 @@
   color: #0abdc6;
 }
 
+.categories {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.category-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.category-tag {
+  background-color: #2a2a4e;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  color: #a0a0c0;
+  border: 1px solid #4a4a6e;
+}
+
 .card-actions {
   margin-top: 15px;
   padding-top: 10px;
