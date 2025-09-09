@@ -1,13 +1,14 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { CommonModule, TitleCasePipe } from '@angular/common'; // Re-added CommonModule and TitleCasePipe
+import { CommonModule } from '@angular/common'; // Keep CommonModule for other common directives/pipes
 import { Product } from '../services/product-db.service';
 import { LucideAngularModule } from 'lucide-angular';
 import { FoodIconComponent } from '../food-icon/food-icon.component';
+import { CustomTitleCasePipe } from '../shared/custom-title-case.pipe'; // Import our custom pipe
 
 @Component({
   selector: 'app-product-card',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, FoodIconComponent, TitleCasePipe], // Explicitly import both
+  imports: [CommonModule, LucideAngularModule, FoodIconComponent, CustomTitleCasePipe], // Use CustomTitleCasePipe
   templateUrl: './product-card.component.html',
   styleUrls: ['./product-card.component.css']
 })
