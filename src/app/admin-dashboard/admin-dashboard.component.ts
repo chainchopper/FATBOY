@@ -13,6 +13,8 @@ import { NotificationService } from '../services/notification.service';
 export class AdminDashboardComponent implements OnInit {
   pendingContributions: any[] = [];
   isLoading = true;
+  dashboardStats = { totalUsers: 0, pendingContributions: 0, totalContributions: 0 };
+  expandedContributionId: string | null = null;
 
   constructor(
     private adminService: AdminService,
@@ -20,24 +22,29 @@ export class AdminDashboardComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.loadPendingContributions();
+    this.loadData();
   }
 
-  async loadPendingContributions() {
+  async loadData() {
     this.isLoading = true;
+    this.dashboardStats = await this.adminService.getDashboardStats();
     this.pendingContributions = await this.adminService.getPendingContributions();
     this.isLoading = false;
+  }
+
+  toggleExpand(id: string) {
+    this.expandedContributionId = this.expandedContributionId === id ? null : id;
   }
 
   async approve(id: string) {
     await this.adminService.updateContributionStatus(id, 'approved');
     this.notificationService.showSuccess('Contribution approved.');
-    this.loadPendingContributions(); // Refresh list
+    this.loadData(); // Refresh list
   }
 
   async reject(id: string) {
     await this.adminService.updateContributionStatus(id, 'rejected');
     this.notificationService.showInfo('Contribution rejected.');
-    this.loadPendingContributions(); // Refresh list
+    this.loadData(); // Refresh list
   }
 }

@@ -2,6 +2,21 @@
   <h2>Admin Dashboard</h2>
   <p>Review and moderate new community contributions.</p>
 
+  <div class="stats-grid">
+    <div class="stat-card">
+      <span class="stat-value">{{ dashboardStats.totalUsers }}</span>
+      <span class="stat-label">Total Users</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-value">{{ dashboardStats.pendingContributions }}</span>
+      <span class="stat-label">Pending Submissions</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-value">{{ dashboardStats.totalContributions }}</span>
+      <span class="stat-label">Total Contributions</span>
+    </div>
+  </div>
+
   <div class="dashboard-section">
     <h3>Pending Contributions ({{ pendingContributions.length }})</h3>
     
@@ -17,20 +32,32 @@
       <table>
         <thead>
           <tr>
+            <th></th>
             <th>Product Name</th>
             <th>Brand</th>
             <th>Submitted By</th>
             <th>Actions</th>
           </tr>
         </thead>
-        <tbody>
-          <tr *ngFor="let item of pendingContributions">
+        <tbody *ngFor="let item of pendingContributions">
+          <tr class="main-row" (click)="toggleExpand(item.id)">
+            <td>
+              <button class="expand-btn">{{ expandedContributionId === item.id ? '−' : '+' }}</button>
+            </td>
             <td>{{ item.product_name }}</td>
             <td>{{ item.brand }}</td>
             <td>{{ item.profile.first_name || 'Anonymous' }}</td>
             <td class="actions-cell">
-              <button (click)="approve(item.id)" class="action-btn approve">Approve</button>
-              <button (click)="reject(item.id)" class="action-btn reject">Reject</button>
+              <button (click)="approve(item.id); $event.stopPropagation()" class="action-btn approve">Approve</button>
+              <button (click)="reject(item.id); $event.stopPropagation()" class="action-btn reject">Reject</button>
+            </td>
+          </tr>
+          <tr *ngIf="expandedContributionId === item.id" class="details-row">
+            <td colspan="5">
+              <div class="contribution-details">
+                <p><strong>Ingredients:</strong> {{ item.ingredients }}</p>
+                <p *ngIf="item.notes"><strong>Notes:</strong> {{ item.notes }}</p>
+              </div>
             </td>
           </tr>
         </tbody>
