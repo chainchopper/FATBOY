@@ -86,6 +86,11 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
     }
   }
 
+  toggleVoiceListening() {
+    const currentPrefs = this.preferencesService.getPreferences();
+    this.preferencesService.savePreferences({ ...currentPrefs, enableVoiceCommands: !currentPrefs.enableVoiceCommands });
+  }
+
   private handleVoiceCommand(command: string): void {
     if (command.includes('scan label') || command.includes('capture label')) {
       this.captureLabelForOcr();

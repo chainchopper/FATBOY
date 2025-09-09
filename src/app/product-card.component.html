@@ -1,0 +1,46 @@
+<div class="product-card" [class.good]="product.verdict === 'good'" [class.bad]="product.verdict === 'bad'" [class.purchased]="isPurchased">
+  <div class="card-header" (click)="toggleExpand()">
+    <img [src]="product.image" alt="{{product.name}}" class="product-image">
+    <div class="product-summary">
+      <h4>{{product.name}}</h4>
+      <p>{{product.brand}}</p>
+    </div>
+    <div class="verdict-icon">
+      <span *ngIf="product.verdict === 'good'">✓</span>
+      <span *ngIf="product.verdict === 'bad'">✗</span>
+    </div>
+  </div>
+
+  <div class="card-details" *ngIf="isExpanded">
+    <div class="detail-item">
+      <strong>Calories:</strong> {{ product.calories || 'N/A' }}
+    </div>
+    <div class="detail-item">
+      <strong>Flagged:</strong> 
+      <span *ngIf="product.flaggedIngredients.length > 0">{{ product.flaggedIngredients.join(', ') }}</span>
+      <span *ngIf="product.flaggedIngredients.length === 0">None</span>
+    </div>
+    <div class="detail-item">
+      <strong>Ingredients:</strong> {{ product.ingredients.join(', ') }}
+    </div>
+  </div>
+
+  <div class="card-actions">
+    <button *ngIf="showAddToShoppingListButton" (click)="onAddToShoppingList()" class="action-btn" title="Add to Shopping List">
+      <lucide-icon name="shopping-cart" [size]="18"></lucide-icon>
+    </button>
+    <button *ngIf="showAddToFoodDiaryButton" (click)="onAddToFoodDiary()" class="action-btn" title="Add to Food Diary">
+      <lucide-icon name="book-plus" [size]="18"></lucide-icon>
+    </button>
+    <button *ngIf="showShareButton" (click)="onShare()" class="action-btn" title="Share">
+      <lucide-icon name="share-2" [size]="18"></lucide-icon>
+    </button>
+    <button *ngIf="showRemoveButton" (click)="onRemove()" class="action-btn remove-btn" title="Remove">
+      <lucide-icon name="trash-2" [size]="18"></lucide-icon>
+    </button>
+    <div *ngIf="showCheckbox" class="checkbox-container">
+      <input type="checkbox" [checked]="isPurchased" (change)="onTogglePurchased()">
+      <label>Purchased</label>
+    </div>
+  </div>
+</div>
