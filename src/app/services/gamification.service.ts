@@ -113,7 +113,10 @@ export class GamificationService {
       .insert({ user_id: this.currentUserId, badge_id: id });
 
     if (error) {
-      console.error('Error unlocking badge:', error);
+      // We ignore 'duplicate key value' errors, as it just means the badge was already unlocked.
+      if (error.code !== '23505') {
+        console.error('Error unlocking badge:', error);
+      }
       return false;
     }
 
