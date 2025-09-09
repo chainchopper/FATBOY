@@ -164,3 +164,53 @@ h2 {
   background-color: rgba(15, 15, 30, 0.8);
   border-radius: 8px;
 }
+
+.contributions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.contribution-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #1a1a2e;
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px solid #4a4a6e;
+}
+
+.contribution-info {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+.contribution-name {
+  font-weight: 500;
+  color: #e0e0e0;
+}
+
+.contribution-brand {
+  font-size: 0.9rem;
+  color: #a0a0c0;
+}
+
+.contribution-status {
+  padding: 5px 10px;
+  border-radius: 15px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  color: #1a1a2e;
+}
+
+.status-approved { background-color: #0abdc6; }
+.status-pending { background-color: #ffeb3b; }
+.status-rejected { background-color: #F44336; }
+
+.empty-state-small {
+  text-align: center;
+  color: #a0a0c0;
+  font-style: italic;
+}

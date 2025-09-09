@@ -29,6 +29,29 @@
           </div>
         </div>
       </div>
+
+      <div class="profile-section">
+        <h3>Community Contributions</h3>
+        <div *ngIf="(contributions$ | async) as contributions; else loadingContributions">
+          <div *ngIf="contributions.length > 0" class="contributions-list">
+            <div *ngFor="let contribution of contributions" class="contribution-item">
+              <div class="contribution-info">
+                <span class="contribution-name">{{ contribution.product_name }}</span>
+                <span class="contribution-brand">{{ contribution.brand }}</span>
+              </div>
+              <div class="contribution-status status-{{ contribution.status }}">
+                {{ contribution.status | titlecase }}
+              </div>
+            </div>
+          </div>
+          <div *ngIf="contributions.length === 0" class="empty-state-small">
+            <p>This user hasn't made any contributions yet.</p>
+          </div>
+        </div>
+        <ng-template #loadingContributions>
+          <p>Loading contributions...</p>
+        </ng-template>
+      </div>
       
     </div>
   </div>

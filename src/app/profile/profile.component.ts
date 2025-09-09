@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, TitleCasePipe } from '@angular/common';
 import { AuthService } from '../services/auth.service';
 import { GamificationService, Badge } from '../services/gamification.service';
 import { ProfileService, Profile } from '../services/profile.service';
@@ -8,11 +8,20 @@ import { User } from '@supabase/supabase-js';
 import { LeaderboardService, LeaderboardStats } from '../services/leaderboard.service';
 import { switchMap, map } from 'rxjs/operators';
 import { RouterLink, ActivatedRoute } from '@angular/router';
+import { CommunityService } from '../services/community.service';
+
+export interface Contribution {
+  id: string;
+  product_name: string;
+  brand: string;
+  status: 'pending' | 'approved' | 'rejected';
+  created_at: string;
+}
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, TitleCasePipe],
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.css']
 })
@@ -20,6 +29,7 @@ export class ProfileComponent implements OnInit {
   profile$!: Observable<Profile | null>;
   badges$!: Observable<Badge[]>;
   leaderboardStats$!: Observable<LeaderboardStats>;
+  contributions$!: Observable<Contribution[]>;
   isCurrentUserProfile: boolean = false;
   viewedUserId: string | null = null;
 
@@ -28,7 +38,8 @@ export class ProfileComponent implements OnInit {
     private authService: AuthService,
     private profileService: ProfileService,
     private gamificationService: GamificationService,
-    private leaderboardService: LeaderboardService
+    private leaderboardService: LeaderboardService,
+    private communityService: CommunityService
   ) {}
 
   ngOnInit() {
@@ -43,6 +54,7 @@ export class ProfileComponent implements OnInit {
         this.profile$ = this.profileService.getProfileById(this.viewedUserId);
         this.leaderboardStats$ = from(this.leaderboardService.getUserStats(this.viewedUserId));
         this.badges$ = from(this.gamificationService.getBadgesForUser(this.viewedUserId));
+        this.contributions$ = from(this.communityService.getContributionsByUserId(this.viewedUserId) as Promise<Contribution[]>);
       }
     });
   }

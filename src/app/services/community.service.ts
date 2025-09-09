@@ -51,6 +51,22 @@ export class CommunityService {
     return data;
   }
 
+  async getContributionsByUserId(userId: string) {
+    if (!userId) return [];
+
+    const { data, error } = await supabase
+      .from('community_contributions')
+      .select('id, product_name, brand, status, created_at')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error(`Error fetching contributions for user ${userId}:`, error);
+      return [];
+    }
+    return data;
+  }
+
   async addContribution(contribution: any) {
     const userId = this.authService.getCurrentUserId();
     if (!userId) return null;
