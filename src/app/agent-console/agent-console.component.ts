@@ -8,6 +8,7 @@ import { PreferencesService } from '../services/preferences.service';
 import { ProfileService } from '../services/profile.service';
 import { AppModalService } from '../services/app-modal.service';
 import { Subscription, interval } from 'rxjs';
+import { supabase } from '../../integrations/supabase/client';
 
 interface Message {
   sender: 'user' | 'agent' | 'tool';
@@ -75,7 +76,7 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
     this.authSubscription = this.authService.currentUser$.subscribe(user => {
       const previousUserId = this.currentUserId;
       this.currentUserId = user?.id || null;
-      if (this.currentUserId !== previousUserId) {
+      if (this.currentUserId && this.currentUserId !== previousUserId) {
         this.loadChatHistory();
       }
       if (user) {
@@ -91,6 +92,7 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
       } else {
         this.userName = 'You';
         this.userAvatar = 'https://api.dicebear.com/8.x/initials/svg?seed=Anonymous';
+        this.messages = []; // Clear messages if logged out
       }
     });
 
@@ -103,24 +105,6 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
         this.isListening = false;
       }
     });
-
-    // Load chat history first
-    this.loadChatHistory();
-
-    // If chat history is empty, add the initial greeting with more general follow-up questions
-    if (this.messages.length === 0) {
-      this.messages.push({
-        sender: 'agent',
-        text: 'Hello! I am Fat Boy, your personal AI co-pilot, powered by NIRVANA from Fanalogy. How can I help you today?',
-        timestamp: new Date(),
-        avatar: this.agentAvatar,
-        suggestedPrompts: [
-          'What are some healthy snack options?',
-          'Can you summarize my recent food diary entries?',
-          'How do I add a product to my shopping list?'
-        ]
-      });
-    }
 
     this.speechSubscription = this.speechService.commandRecognized.subscribe(transcript => {
       this.userInput = transcript;
@@ -171,13 +155,15 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
     const text = this.userInput.trim();
     if (!text) return;
 
-    this.messages.push({ sender: 'user', text, timestamp: new Date(), avatar: this.userAvatar });
+    const userMessage: Message = { sender: 'user', text, timestamp: new Date(), avatar: this.userAvatar };
+    this.messages.push(userMessage);
+    this.saveMessage(userMessage);
+
     this.userInput = '';
     this.showSlashCommands = false;
     this.isAgentTyping = true;
 
-    // Prepare messages history for the AI, excluding the initial greeting if it's the first message
-    const messagesHistoryForAi = this.messages.slice(1).map(msg => ({ // Exclude initial greeting
+    const messagesHistoryForAi = this.messages.slice(0, -1).map(msg => ({
       role: msg.sender === 'agent' ? 'assistant' : msg.sender,
       content: msg.text,
       ...(msg.toolCalls && { tool_calls: msg.toolCalls })
@@ -185,48 +171,30 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
 
     try {
       const aiResponse: AiResponse = await this.aiService.getChatCompletion(text, messagesHistoryForAi);
-
-      if (aiResponse.toolCalls && aiResponse.toolCalls.length > 0) {
-        const toolCall = aiResponse.toolCalls[0]; // Assuming one tool call for simplicity
-        const functionName = toolCall.function.name;
-        const functionArgs = JSON.parse(toolCall.function.arguments);
-        let humanReadableText = '';
-
-        if (functionName === 'add_to_shopping_list') {
-          humanReadableText = `Adding "${functionArgs.product_name}" by "${functionArgs.brand || 'Unknown Brand'}" to your shopping list.`;
-        } else if (functionName === 'add_to_food_diary') {
-          humanReadableText = `Adding "${functionArgs.product_name}" by "${functionArgs.brand || 'Unknown Brand'}" to your ${functionArgs.meal_type || 'Unknown'} diary.`;
-        } else {
-          humanReadableText = `Executing tool: ${functionName}...`;
-        }
-
-        this.messages.push({
-          sender: 'agent',
-          text: 'Executing tool...', // This will be replaced by the AI's natural language response
-          timestamp: new Date(),
-          avatar: this.agentAvatar,
-          toolCalls: aiResponse.toolCalls,
-          humanReadableToolCall: humanReadableText // Store human-readable text
-        });
-      }
-
-      this.messages.push({
+      
+      const agentMessage: Message = {
         sender: 'agent',
         text: aiResponse.text,
         timestamp: new Date(),
         avatar: this.agentAvatar,
-        suggestedPrompts: aiResponse.suggestedPrompts
-      });
-      this.speechService.speak(aiResponse.text); // Only speak the final AI response
+        suggestedPrompts: aiResponse.suggestedPrompts,
+        toolCalls: aiResponse.toolCalls
+      };
+      
+      this.messages.push(agentMessage);
+      this.saveMessage(agentMessage);
+      this.speechService.speak(aiResponse.text);
+
     } catch (error) {
-      this.messages.push({ sender: 'agent', text: 'Sorry, I encountered an error. Please try again.', timestamp: new Date(), avatar: this.agentAvatar });
+      const errorMessage: Message = { sender: 'agent', text: 'Sorry, I encountered an error. Please try again.', timestamp: new Date(), avatar: this.agentAvatar };
+      this.messages.push(errorMessage);
+      this.saveMessage(errorMessage);
     } finally {
       this.isAgentTyping = false;
-      this.saveChatHistory();
     }
   }
 
-  submitSuggestedPrompt(prompt: string) { // Renamed from submitFollowUpQuestion
+  submitSuggestedPrompt(prompt: string) {
     this.userInput = prompt;
     this.sendMessage();
   }
@@ -237,24 +205,65 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
     } catch(err) { }
   }
 
-  private getStorageKey(): string {
-    return this.currentUserId ? `fatBoyChatHistory_${this.currentUserId}` : 'fatBoyChatHistory_anonymous';
-  }
+  private async loadChatHistory(): Promise<void> {
+    if (!this.currentUserId) return;
 
-  private loadChatHistory(): void {
-    const stored = localStorage.getItem(this.getStorageKey());
-    if (stored) {
-      this.messages = JSON.parse(stored).map((msg: Message) => ({
-        ...msg,
-        timestamp: new Date(msg.timestamp)
+    const { data, error } = await supabase
+      .from('chat_messages')
+      .select('sender, content, created_at')
+      .eq('user_id', this.currentUserId)
+      .order('created_at', { ascending: true });
+
+    if (error) {
+      console.error('Error loading chat history:', error);
+      return;
+    }
+
+    if (data && data.length > 0) {
+      this.messages = data.map((item: any) => ({
+        sender: item.sender,
+        text: item.content.text,
+        timestamp: new Date(item.created_at),
+        avatar: item.sender === 'user' ? this.userAvatar : this.agentAvatar,
+        suggestedPrompts: item.content.suggestedPrompts,
+        toolCalls: item.content.toolCalls,
+        humanReadableToolCall: item.content.humanReadableToolCall
       }));
     } else {
-      this.messages = [];
+      this.messages = [{
+        sender: 'agent',
+        text: 'Hello! I am Fat Boy, your personal AI co-pilot, powered by NIRVANA from Fanalogy. How can I help you today?',
+        timestamp: new Date(),
+        avatar: this.agentAvatar,
+        suggestedPrompts: [
+          'What are some healthy snack options?',
+          'Can you summarize my recent food diary entries?',
+          'How do I add a product to my shopping list?'
+        ]
+      }];
     }
+    this.cdr.detectChanges();
   }
 
-  private saveChatHistory(): void {
-    localStorage.setItem(this.getStorageKey(), JSON.stringify(this.messages));
+  private async saveMessage(message: Message): Promise<void> {
+    if (!this.currentUserId) return;
+
+    const { error } = await supabase
+      .from('chat_messages')
+      .insert({
+        user_id: this.currentUserId,
+        sender: message.sender,
+        content: {
+          text: message.text,
+          suggestedPrompts: message.suggestedPrompts,
+          toolCalls: message.toolCalls,
+          humanReadableToolCall: message.humanReadableToolCall
+        }
+      });
+
+    if (error) {
+      console.error('Error saving chat message:', error);
+    }
   }
 
   clearChatHistory(): void {
@@ -263,22 +272,19 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
       message: 'Are you sure you want to clear your entire chat history? This action cannot be undone.',
       confirmText: 'Clear',
       cancelText: 'Keep Chat',
-      onConfirm: () => {
-        localStorage.removeItem(this.getStorageKey());
-        this.messages = [{
-          sender: 'agent',
-          text: 'Hello! I am Fat Boy, your personal AI co-pilot, powered by NIRVANA from Fanalogy. How can I help you today?',
-          timestamp: new Date(),
-          avatar: this.agentAvatar,
-          suggestedPrompts: [
-            'What are some healthy snack options?',
-            'Can you summarize my recent food diary entries?',
-            'How do I add a product to my shopping list?'
-          ]
-        }];
-        this.cdr.detectChanges();
-        this.scrollToBottom();
-        this.speechService.speak('Chat history cleared.');
+      onConfirm: async () => {
+        if (!this.currentUserId) return;
+        const { error } = await supabase
+          .from('chat_messages')
+          .delete()
+          .eq('user_id', this.currentUserId);
+
+        if (error) {
+          console.error('Error clearing chat history:', error);
+        } else {
+          this.loadChatHistory(); // Reload to show the initial greeting
+          this.speechService.speak('Chat history cleared.');
+        }
       },
       onCancel: () => {
         this.speechService.speak('Chat clearing cancelled.');
