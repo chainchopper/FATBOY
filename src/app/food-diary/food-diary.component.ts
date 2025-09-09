@@ -5,16 +5,17 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ScanContextService } from '../services/scan-context.service';
 import { Router } from '@angular/router';
-import { PreferencesService } from '../services/preferences.service';
+import { PreferencesService, UserPreferences } from '../services/preferences.service';
 import { ProductCardComponent } from '../components/product-card/product-card.component';
 import { Product } from '../services/product-db.service';
 import { ShareService } from '../services/share.service';
 import { ShoppingListService } from '../services/shopping-list.service';
+import { DailySummaryCardComponent } from '@/app/components/daily-summary-card/daily-summary-card.component';
 
 @Component({
   selector: 'app-food-diary',
   standalone: true,
-  imports: [CommonModule, KeyValuePipe, TitleCasePipe, DatePipe, ProductCardComponent],
+  imports: [CommonModule, KeyValuePipe, TitleCasePipe, DatePipe, ProductCardComponent, DailySummaryCardComponent],
   templateUrl: './food-diary.component.html',
   styleUrls: ['./food-diary.component.css']
 })
@@ -26,6 +27,7 @@ export class FoodDiaryComponent implements OnInit {
     flaggedIngredients: {}
   };
   dailyVerdict: DailyVerdict = 'fair';
+  userPreferences!: UserPreferences;
   
   breakfast$!: Observable<DiaryEntry[]>;
   lunch$!: Observable<DiaryEntry[]>;
@@ -45,7 +47,10 @@ export class FoodDiaryComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.loadDiaryForDate(this.currentDate);
+    this.preferencesService.preferences$.subscribe(prefs => {
+      this.userPreferences = prefs;
+      this.loadDiaryForDate(this.currentDate); // Reload data if preferences change
+    });
   }
 
   loadDiaryForDate(date: Date): void {
@@ -56,8 +61,7 @@ export class FoodDiaryComponent implements OnInit {
 
     this.todayEntries$.subscribe(entries => {
       this.dailySummary = this.foodDiaryService.getDailySummary(dateString);
-      const preferences = this.preferencesService.getPreferences();
-      this.dailyVerdict = this.foodDiaryService.getDailyPerformanceVerdict(dateString, preferences);
+      this.dailyVerdict = this.foodDiaryService.getDailyPerformanceVerdict(dateString, this.userPreferences);
     });
 
     this.breakfast$ = this.filterEntriesByMeal('Breakfast');
