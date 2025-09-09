@@ -1,0 +1,34 @@
+<div class="modal-overlay" *ngIf="(display$ | async) === 'open'" (click)="close()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <button class="close-btn" (click)="close()">×</button>
+
+    <!-- Confirmation Modal -->
+    <div *ngIf="isConfirmation">
+      <h3>{{ modalTitle }}</h3>
+      <p>{{ modalMessage }}</p>
+      <div class="modal-actions confirmation-actions">
+        <button (click)="handleCancel()" class="action-btn cancel-btn">{{ cancelButtonText }}</button>
+        <button (click)="handleConfirm()" class="action-btn confirm-btn">{{ confirmButtonText }}</button>
+      </div>
+    </div>
+
+    <!-- Product Action Modal -->
+    <div *ngIf="!isConfirmation && currentProduct">
+      <h3>Add '{{ currentProduct.name }}' to...</h3>
+      
+      <div class="modal-actions product-actions">
+        <button (click)="addToShoppingList()" class="action-btn">🛒 Shopping List</button>
+        <button (click)="addToAvoidList()" class="action-btn">🚫 Avoid List</button>
+        <button (click)="toggleMealOptions()" class="action-btn">🥗 Food Diary</button>
+      </div>
+
+      <div *ngIf="showMealOptions" class="meal-options">
+        <button (click)="addToDiary('Breakfast')" class="meal-btn">🍳 Breakfast</button>
+        <button (click)="addToDiary('Lunch')" class="meal-btn">🥗 Lunch</button>
+        <button (click)="addToDiary('Dinner')" class="meal-btn">🍲 Dinner</button>
+        <button (click)="addToDiary('Snack')" class="meal-btn">🍎 Snack</button>
+        <button (click)="addToDiary('Drinks')" class="meal-btn">🥤 Drinks</button>
+      </div>
+    </div>
+  </div>
+</div>
