@@ -1,0 +1,31 @@
+<div class="dev-console-container">
+  <h2>Developer Console</h2>
+  <p>Tools for managing and testing the application.</p>
+
+  <div class="console-section">
+    <h3>Pre-populate Product Database</h3>
+    <p class="section-description">
+      Enter a list of product names (one per line). The system will attempt to fetch their data from Open Food Facts and add them to the database as pre-populated, system-owned products.
+    </p>
+
+    <div class="prepopulate-form">
+      <textarea 
+        [(ngModel)]="productNames" 
+        rows="10" 
+        placeholder="e.g.,&#10;Organic Oats&#10;Whole Wheat Bread&#10;Almond Milk">
+      </textarea>
+      <button (click)="onPrepopulate()" [disabled]="isLoading" class="action-btn">
+        {{ isLoading ? 'Processing...' : 'Pre-populate Data' }}
+      </button>
+    </div>
+
+    <div *ngIf="results.length > 0" class="results-section">
+      <h4>Results</h4>
+      <div *ngFor="let result of results" class="result-item" [ngClass]="getResultClass(result.status)">
+        <span class="result-name">{{ result.foodName }}</span>
+        <span class="result-status">{{ result.status | titlecase }}</span>
+        <span *ngIf="result.error" class="result-error">({{ result.error }})</span>
+      </div>
+    </div>
+  </div>
+</div>

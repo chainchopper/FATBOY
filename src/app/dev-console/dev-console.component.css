@@ -1,0 +1,117 @@
+.dev-console-container {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 20px;
+  color: #e0e0e0;
+}
+
+h2 {
+  text-align: center;
+  margin-bottom: 1rem;
+  font-size: 1.8rem;
+  color: #0abdc6;
+  text-shadow: 0 0 8px #0abdc6;
+}
+
+p {
+  text-align: center;
+  margin-bottom: 2rem;
+  color: #a0a0c0;
+}
+
+.console-section {
+  background: rgba(15, 15, 30, 0.8);
+  border: 1px solid #4a4a6e;
+  border-radius: 12px;
+  padding: 25px;
+}
+
+.console-section h3 {
+  color: #f038ff;
+  margin-bottom: 10px;
+}
+
+.section-description {
+  font-size: 0.9rem;
+  color: #a0a0c0;
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.prepopulate-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #4a4a6e;
+  border-radius: 4px;
+  font-family: inherit;
+  background-color: #1a1a2e;
+  color: #e0e0e0;
+  font-size: 1rem;
+  resize: vertical;
+}
+
+.action-btn {
+  padding: 12px 24px;
+  border-radius: 30px;
+  font-size: 16px;
+  cursor: pointer;
+  background: transparent;
+  transition: all 0.3s;
+  border: 2px solid #0abdc6;
+  color: #0abdc6;
+  align-self: flex-start;
+}
+.action-btn:hover:not(:disabled) {
+  background-color: rgba(10, 189, 198, 0.1);
+  box-shadow: 0 0 15px #0abdc6;
+}
+.action-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.results-section {
+  margin-top: 30px;
+  border-top: 1px solid #4a4a6e;
+  padding-top: 20px;
+}
+
+.results-section h4 {
+  margin-bottom: 15px;
+  color: #e0e0e0;
+}
+
+.result-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  border-radius: 4px;
+  margin-bottom: 8px;
+  border-left: 4px solid;
+}
+
+.result-name {
+  font-weight: 500;
+}
+
+.result-status {
+  font-weight: bold;
+}
+
+.result-error {
+  font-size: 0.8rem;
+  color: #a0a0c0;
+  font-style: italic;
+}
+
+.status-success { border-color: #0abdc6; background-color: rgba(10, 189, 198, 0.1); }
+.status-skipped { border-color: #ffeb3b; background-color: rgba(255, 235, 59, 0.1); }
+.status-not-found { border-color: #a0a0c0; background-color: rgba(160, 160, 192, 0.1); }
+.status-failed { border-color: #F44336; background-color: rgba(244, 67, 54, 0.1); }
