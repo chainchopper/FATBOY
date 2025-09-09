@@ -8,6 +8,7 @@ import { CommunityService } from '../services/community.service';
 import { Observable } from 'rxjs';
 import { PreferencesService } from '../services/preferences.service';
 import { AuthService } from '../services/auth.service';
+import { NotificationService } from '../services/notification.service';
 
 // Define interfaces for our data structures
 interface CommunityContribution {
@@ -16,9 +17,9 @@ interface CommunityContribution {
   brand: string;
   ingredients: string;
   notes: string;
-  timestamp: Date;
+  created_at: Date;
   status: 'pending' | 'approved' | 'rejected';
-  likes: number;
+  likes: { user_id: string }[];
   profile: { first_name: string, last_name: string, avatar_url: string };
   comments: any[];
   metadata: {
@@ -57,7 +58,8 @@ export class CommunityComponent implements OnInit {
     private productDb: ProductDbService,
     private communityService: CommunityService,
     private preferencesService: PreferencesService,
-    private authService: AuthService
+    private authService: AuthService,
+    private notificationService: NotificationService
   ) {}
 
   ngOnInit() {
@@ -127,9 +129,29 @@ export class CommunityComponent implements OnInit {
     }
   }
 
+  currentUserHasLiked(contribution: CommunityContribution): boolean {
+    const userId = this.authService.getCurrentUserId();
+    if (!userId) return false;
+    return contribution.likes.some(like => like.user_id === userId);
+  }
+
   async toggleLike(contribution: CommunityContribution) {
-    contribution.likes++; // Optimistic update
-    await this.communityService.addLike(contribution.id, contribution.likes - 1);
+    const userId = this.authService.getCurrentUserId();
+    if (!userId) {
+      this.notificationService.showError('You must be logged in to like posts.');
+      return;
+    }
+
+    // Optimistic UI update
+    const userHasLiked = this.currentUserHasLiked(contribution);
+    if (userHasLiked) {
+      contribution.likes = contribution.likes.filter(like => like.user_id !== userId);
+    } else {
+      contribution.likes.push({ user_id: userId });
+    }
+
+    // Call the service
+    await this.communityService.toggleLike(contribution.id, contribution.likes);
   }
 
   async addComment(contributionId: string) {

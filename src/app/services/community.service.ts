@@ -13,9 +13,17 @@ export class CommunityService {
     const { data, error } = await supabase
       .from('community_contributions')
       .select(`
-        *,
+        id,
+        product_name,
+        brand,
+        ingredients,
+        notes,
+        created_at,
+        status,
+        metadata,
         profile:profiles(first_name, last_name, avatar_url),
-        comments:contribution_comments(*, profile:profiles(first_name, last_name))
+        comments:contribution_comments(*, profile:profiles(first_name, last_name)),
+        likes:nirvana_post_likes(user_id)
       `)
       .eq('status', 'approved')
       .order('created_at', { ascending: false });
@@ -66,14 +74,28 @@ export class CommunityService {
     return data[0];
   }
 
-  async addLike(contributionId: string, currentLikes: number) {
-    const { error } = await supabase
-      .from('community_contributions')
-      .update({ likes: currentLikes + 1 })
-      .eq('id', contributionId);
+  async toggleLike(postId: string, likes: { user_id: string }[]): Promise<any> {
+    const userId = this.authService.getCurrentUserId();
+    if (!userId) return null;
 
-    if (error) {
-      console.error('Error adding like:', error);
+    const userHasLiked = likes.some(like => like.user_id === userId);
+
+    if (userHasLiked) {
+      // Unlike
+      const { error } = await supabase
+        .from('nirvana_post_likes')
+        .delete()
+        .eq('post_id', postId)
+        .eq('user_id', userId);
+      if (error) console.error('Error unliking post:', error);
+      return { action: 'unliked' };
+    } else {
+      // Like
+      const { error } = await supabase
+        .from('nirvana_post_likes')
+        .insert({ post_id: postId, user_id: userId });
+      if (error) console.error('Error liking post:', error);
+      return { action: 'liked' };
     }
   }
 

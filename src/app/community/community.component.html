@@ -81,7 +81,7 @@
       </div>
 
       <div class="social-actions">
-        <button (click)="toggleLike(contribution)" class="like-btn">👍 {{ contribution.likes }}</button>
+        <button (click)="toggleLike(contribution)" class="like-btn" [class.active]="currentUserHasLiked(contribution)">👍 {{ contribution.likes.length }}</button>
         <span class="comment-count">💬 {{ contribution.comments.length }}</span>
       </div>
 

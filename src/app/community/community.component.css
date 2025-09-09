@@ -289,6 +289,13 @@ p {
   color: #f038ff;
 }
 
+.like-btn.active {
+  background-color: #f038ff;
+  color: #1a1a2e;
+  border-color: #f038ff;
+  box-shadow: 0 0 10px #f038ff;
+}
+
 .comment-count {
   color: #a0a0c0;
   display: flex;
