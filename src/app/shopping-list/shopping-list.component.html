@@ -14,7 +14,8 @@
         *ngFor="let item of unpurchasedList"
         [item]="item"
         (togglePurchased)="onTogglePurchased($event)"
-        (remove)="onRemoveItem($event)">
+        (remove)="onRemoveItem($event)"
+        (viewDetails)="onViewDetails($event)"> <!-- Bind new event here -->
       </app-shopping-list-item>
     </div>
 
@@ -26,7 +27,8 @@
             *ngFor="let item of purchasedList"
             [item]="item"
             (togglePurchased)="onTogglePurchased($event)"
-            (remove)="onRemoveItem($event)">
+            (remove)="onRemoveItem($event)"
+            (viewDetails)="onViewDetails($event)"> <!-- Bind new event here -->
           </app-shopping-list-item>
         </div>
       </div>

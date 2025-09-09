@@ -1,4 +1,4 @@
-<div class="diary-item" [class.good]="product.verdict === 'good'" [class.bad]="product.verdict === 'bad'">
+<div class="diary-item" [class.good]="product.verdict === 'good'" [class.bad]="product.verdict === 'bad'" (click)="onViewDetails()"> <!-- Bind click event here -->
   <img [src]="product.image" alt="{{product.name}}" class="product-image">
   <div class="item-info">
     <span class="product-name">{{ product.name }}</span>
@@ -7,7 +7,7 @@
   <div class="item-calories">
     {{ product.calories || 'N/A' }} kcal
   </div>
-  <button (click)="onRemove()" class="remove-btn" title="Remove from Diary">
+  <button (click)="onRemove(); $event.stopPropagation()" class="remove-btn" title="Remove from Diary"> <!-- Stop propagation -->
     <lucide-icon name="x" [size]="18"></lucide-icon>
   </button>
 </div>

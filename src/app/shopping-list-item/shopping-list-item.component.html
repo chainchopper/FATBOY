@@ -1,5 +1,5 @@
-<div class="list-item" [class.purchased]="item.purchased">
-  <div class="checkbox-container" (click)="onToggle()">
+<div class="list-item" [class.purchased]="item.purchased" (click)="onViewDetails()"> <!-- Bind click event here -->
+  <div class="checkbox-container" (click)="onToggle(); $event.stopPropagation()"> <!-- Stop propagation to prevent parent click -->
     <div class="custom-checkbox">
       <lucide-icon *ngIf="item.purchased" name="check" [size]="18"></lucide-icon>
     </div>
@@ -9,7 +9,7 @@
     <span class="product-name">{{ item.product_name }}</span>
     <span class="product-brand">{{ item.brand }}</span>
   </div>
-  <button (click)="onRemove()" class="remove-btn" title="Remove from List">
+  <button (click)="onRemove(); $event.stopPropagation()" class="remove-btn" title="Remove from List"> <!-- Stop propagation -->
     <lucide-icon name="x" [size]="18"></lucide-icon>
   </button>
 </div>

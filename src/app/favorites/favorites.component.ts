@@ -6,6 +6,7 @@ import { ShareService } from '../services/share.service';
 import { ProductCardComponent } from '../product-card/product-card.component';
 import { ShoppingListService } from '../services/shopping-list.service';
 import { AppModalService } from '../services/app-modal.service';
+import { AiIntegrationService } from '../services/ai-integration.service'; // Import AiIntegrationService
 
 @Component({
   selector: 'app-favorites',
@@ -21,7 +22,8 @@ export class FavoritesComponent implements OnInit {
     private productDb: ProductDbService,
     private shareService: ShareService,
     private shoppingListService: ShoppingListService,
-    private appModalService: AppModalService
+    private appModalService: AppModalService,
+    private aiService: AiIntegrationService // Inject AiIntegrationService
   ) {}
 
   ngOnInit() {
@@ -46,5 +48,9 @@ export class FavoritesComponent implements OnInit {
 
   addToFoodDiary(product: Product) {
     this.appModalService.open(product);
+  }
+
+  onViewDetails(product: Product) { // New method to handle viewDetails event
+    this.aiService.setLastDiscussedProduct(product);
   }
 }

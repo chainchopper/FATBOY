@@ -61,7 +61,7 @@
     <div *ngIf="communityContributions.length === 0 && !isAddingNewProduct" class="empty-state">
       <p>No contributions yet. Be the first to share!</p>
     </div>
-    <div *ngFor="let contribution of communityContributions" class="contribution-card">
+    <div *ngFor="let contribution of communityContributions" class="contribution-card" (click)="onContributionClick(contribution)"> <!-- Bind click event here -->
       <div class="card-header">
         <h4>{{ contribution.product_name }}</h4>
         <span class="status-badge status-{{ contribution.status }}">{{ contribution.status | titlecase }}</span>
@@ -81,7 +81,7 @@
       </div>
 
       <div class="social-actions">
-        <button (click)="toggleLike(contribution)" class="like-btn" [class.active]="currentUserHasLiked(contribution)">👍 {{ contribution.likes.length }}</button>
+        <button (click)="toggleLike(contribution); $event.stopPropagation()" class="like-btn" [class.active]="currentUserHasLiked(contribution)">👍 {{ contribution.likes.length }}</button>
         <span class="comment-count">💬 {{ contribution.comments.length }}</span>
       </div>
 

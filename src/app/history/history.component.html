@@ -43,7 +43,8 @@
       (share)="shareProduct($event)"
       (addToShoppingList)="addToShoppingList($event)"
       (addToFoodDiary)="addToFoodDiary($event)"
-      (toggleFavorite)="toggleFavorite($event)">
+      (toggleFavorite)="toggleFavorite($event)"
+      (viewDetails)="onViewDetails($event)"> <!-- Bind new event here -->
     </app-product-card>
     
     <div *ngIf="filteredProducts.length === 0" class="empty-state">

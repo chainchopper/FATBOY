@@ -24,7 +24,8 @@
         <app-diary-item 
           *ngFor="let entry of entries"
           [product]="entry.product"
-          (remove)="onRemoveEntry(entry.id)">
+          (remove)="onRemoveEntry(entry.id)"
+          (viewDetails)="onViewDetails($event)"> <!-- Bind new event here -->
         </app-diary-item>
         <p *ngIf="entries.length === 0" class="empty-meal">No breakfast items logged.</p>
       </div>
@@ -39,7 +40,8 @@
         <app-diary-item 
           *ngFor="let entry of entries"
           [product]="entry.product"
-          (remove)="onRemoveEntry(entry.id)">
+          (remove)="onRemoveEntry(entry.id)"
+          (viewDetails)="onViewDetails($event)"> <!-- Bind new event here -->
         </app-diary-item>
         <p *ngIf="entries.length === 0" class="empty-meal">No lunch items logged.</p>
       </div>
@@ -54,7 +56,8 @@
         <app-diary-item 
           *ngFor="let entry of entries"
           [product]="entry.product"
-          (remove)="onRemoveEntry(entry.id)">
+          (remove)="onRemoveEntry(entry.id)"
+          (viewDetails)="onViewDetails($event)"> <!-- Bind new event here -->
         </app-diary-item>
         <p *ngIf="entries.length === 0" class="empty-meal">No dinner items logged.</p>
       </div>
@@ -69,7 +72,8 @@
         <app-diary-item 
           *ngFor="let entry of entries"
           [product]="entry.product"
-          (remove)="onRemoveEntry(entry.id)">
+          (remove)="onRemoveEntry(entry.id)"
+          (viewDetails)="onViewDetails($event)"> <!-- Bind new event here -->
         </app-diary-item>
         <p *ngIf="entries.length === 0" class="empty-meal">No snack items logged.</p>
       </div>
@@ -84,7 +88,8 @@
         <app-diary-item 
           *ngFor="let entry of entries"
           [product]="entry.product"
-          (remove)="onRemoveEntry(entry.id)">
+          (remove)="onRemoveEntry(entry.id)"
+          (viewDetails)="onViewDetails($event)"> <!-- Bind new event here -->
         </app-diary-item>
         <p *ngIf="entries.length === 0" class="empty-meal">No drinks logged.</p>
       </div>

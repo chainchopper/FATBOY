@@ -27,11 +27,15 @@ export class ProductCardComponent {
   @Output() addToShoppingList = new EventEmitter<Product>();
   @Output() addToFoodDiary = new EventEmitter<Product>();
   @Output() toggleFavorite = new EventEmitter<string>();
+  @Output() viewDetails = new EventEmitter<Product>(); // New output event
 
   isExpanded: boolean = false;
 
   toggleExpand() {
     this.isExpanded = !this.isExpanded;
+    if (this.isExpanded) {
+      this.viewDetails.emit(this.product); // Emit when expanded
+    }
   }
 
   onTogglePurchased() {

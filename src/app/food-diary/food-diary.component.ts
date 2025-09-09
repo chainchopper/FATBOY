@@ -11,6 +11,7 @@ import { ShareService } from '../services/share.service';
 import { ShoppingListService } from '../services/shopping-list.service';
 import { DailySummaryCardComponent } from '../daily-summary-card/daily-summary-card.component';
 import { DiaryItemComponent } from '../diary-item/diary-item.component';
+import { AiIntegrationService } from '../services/ai-integration.service'; // Import AiIntegrationService
 
 @Component({
   selector: 'app-food-diary',
@@ -43,7 +44,8 @@ export class FoodDiaryComponent implements OnInit {
     private router: Router,
     private preferencesService: PreferencesService,
     private shareService: ShareService,
-    private shoppingListService: ShoppingListService
+    private shoppingListService: ShoppingListService,
+    private aiService: AiIntegrationService // Inject AiIntegrationService
   ) {}
 
   ngOnInit() {
@@ -107,5 +109,9 @@ export class FoodDiaryComponent implements OnInit {
 
   onAddToShoppingList(product: Product) {
     this.shoppingListService.addItem(product);
+  }
+
+  onViewDetails(product: Product) { // New method to handle viewDetails event
+    this.aiService.setLastDiscussedProduct(product);
   }
 }

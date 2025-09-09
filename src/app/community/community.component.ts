@@ -9,6 +9,7 @@ import { Observable } from 'rxjs';
 import { PreferencesService } from '../services/preferences.service';
 import { AuthService } from '../services/auth.service';
 import { NotificationService } from '../services/notification.service';
+import { AiIntegrationService } from '../services/ai-integration.service'; // Import AiIntegrationService
 
 // Define interfaces for our data structures
 interface CommunityContribution {
@@ -59,7 +60,8 @@ export class CommunityComponent implements OnInit {
     private communityService: CommunityService,
     private preferencesService: PreferencesService,
     private authService: AuthService,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private aiService: AiIntegrationService // Inject AiIntegrationService
   ) {}
 
   ngOnInit() {
@@ -90,6 +92,7 @@ export class CommunityComponent implements OnInit {
       notes: ''
     };
     this.mode = 'manual';
+    this.aiService.setLastDiscussedProduct(product); // Set last discussed product
   }
 
   async submitContribution() {
@@ -152,6 +155,18 @@ export class CommunityComponent implements OnInit {
 
     // Call the service
     await this.communityService.toggleLike(contribution.id, contribution.likes);
+
+    // Set last discussed product
+    this.aiService.setLastDiscussedProduct({
+      id: contribution.id,
+      name: contribution.product_name,
+      brand: contribution.brand,
+      ingredients: contribution.ingredients.split(',').map(i => i.trim()),
+      verdict: contribution.status === 'approved' ? 'good' : 'bad', // Assuming approved is good
+      flaggedIngredients: [], // Not directly available here
+      scanDate: contribution.created_at,
+      categories: ['community']
+    });
   }
 
   async addComment(contributionId: string) {
@@ -163,9 +178,33 @@ export class CommunityComponent implements OnInit {
       const contribution = this.communityContributions.find(c => c.id === contributionId);
       if (contribution) {
         contribution.comments.push(newComment);
+        // Set last discussed product
+        this.aiService.setLastDiscussedProduct({
+          id: contribution.id,
+          name: contribution.product_name,
+          brand: contribution.brand,
+          ingredients: contribution.ingredients.split(',').map(i => i.trim()),
+          verdict: contribution.status === 'approved' ? 'good' : 'bad', // Assuming approved is good
+          flaggedIngredients: [], // Not directly available here
+          scanDate: contribution.created_at,
+          categories: ['community']
+        });
       }
       this.newCommentText[contributionId] = '';
     }
+  }
+
+  onContributionClick(contribution: CommunityContribution) {
+    this.aiService.setLastDiscussedProduct({
+      id: contribution.id,
+      name: contribution.product_name,
+      brand: contribution.brand,
+      ingredients: contribution.ingredients.split(',').map(i => i.trim()),
+      verdict: contribution.status === 'approved' ? 'good' : 'bad', // Assuming approved is good
+      flaggedIngredients: [], // Not directly available here
+      scanDate: contribution.created_at,
+      categories: ['community']
+    });
   }
 
   private resetForm() {

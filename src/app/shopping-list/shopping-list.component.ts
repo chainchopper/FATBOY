@@ -5,6 +5,7 @@ import { AppModalService } from '../services/app-modal.service';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ShoppingListItemComponent } from '../shopping-list-item/shopping-list-item.component';
+import { AiIntegrationService } from '../services/ai-integration.service'; // Import AiIntegrationService
 
 @Component({
   selector: 'app-shopping-list',
@@ -19,7 +20,8 @@ export class ShoppingListComponent implements OnInit {
 
   constructor(
     private shoppingListService: ShoppingListService,
-    private appModalService: AppModalService
+    private appModalService: AppModalService,
+    private aiService: AiIntegrationService // Inject AiIntegrationService
   ) {}
 
   ngOnInit() {
@@ -40,6 +42,12 @@ export class ShoppingListComponent implements OnInit {
 
   onRemoveItem(itemId: string) {
     this.shoppingListService.removeItem(itemId);
+  }
+
+  onViewDetails(item: ShoppingListItem) { // New method to handle viewDetails event
+    if (item.product) {
+      this.aiService.setLastDiscussedProduct(item.product);
+    }
   }
 
   clearList() {

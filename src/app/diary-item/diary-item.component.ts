@@ -13,8 +13,13 @@ import { LucideAngularModule } from 'lucide-angular';
 export class DiaryItemComponent {
   @Input() product!: Product;
   @Output() remove = new EventEmitter<string>();
+  @Output() viewDetails = new EventEmitter<Product>(); // New output event
 
   onRemove() {
     this.remove.emit(this.product.id);
+  }
+
+  onViewDetails() { // New method to emit viewDetails
+    this.viewDetails.emit(this.product);
   }
 }

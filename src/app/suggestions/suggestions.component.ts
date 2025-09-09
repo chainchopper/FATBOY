@@ -191,8 +191,9 @@ export class SuggestionsComponent implements OnInit {
     });
   }
 
-  saveSuggestion(product: Product) {
-    this.shoppingListService.addItem(product);
+  saveSuggestion(suggestionProduct: Product) {
+    this.shoppingListService.addItem(suggestionProduct);
+    this.aiService.setLastDiscussedProduct(suggestionProduct); // Set last discussed product
   }
 
   resolveConflict(conflict: Conflict) {

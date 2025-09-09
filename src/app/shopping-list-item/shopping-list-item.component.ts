@@ -14,6 +14,7 @@ export class ShoppingListItemComponent {
   @Input() item!: ShoppingListItem;
   @Output() togglePurchased = new EventEmitter<string>();
   @Output() remove = new EventEmitter<string>();
+  @Output() viewDetails = new EventEmitter<ShoppingListItem>(); // New output event
 
   onToggle() {
     this.togglePurchased.emit(this.item.id);
@@ -21,5 +22,9 @@ export class ShoppingListItemComponent {
 
   onRemove() {
     this.remove.emit(this.item.id);
+  }
+
+  onViewDetails() { // New method to emit viewDetails
+    this.viewDetails.emit(this.item);
   }
 }

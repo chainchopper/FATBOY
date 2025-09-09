@@ -6,6 +6,7 @@ import { ShoppingListService } from '../services/shopping-list.service';
 import { AppModalService } from '../services/app-modal.service';
 import { ProductCardComponent } from '../product-card/product-card.component';
 import { ShareService } from '../services/share.service';
+import { AiIntegrationService } from '../services/ai-integration.service'; // Import AiIntegrationService
 
 @Component({
   selector: 'app-history',
@@ -23,7 +24,8 @@ export class HistoryComponent implements OnInit {
     private productDb: ProductDbService,
     private shoppingListService: ShoppingListService,
     private appModalService: AppModalService,
-    private shareService: ShareService
+    private shareService: ShareService,
+    private aiService: AiIntegrationService // Inject AiIntegrationService
   ) {}
 
   ngOnInit() {
@@ -80,6 +82,10 @@ export class HistoryComponent implements OnInit {
 
   toggleFavorite(productId: string) {
     this.productDb.toggleFavorite(productId);
+  }
+
+  onViewDetails(product: Product) { // New method to handle viewDetails event
+    this.aiService.setLastDiscussedProduct(product);
   }
 
   getCategoryIcon(category: string): string {
