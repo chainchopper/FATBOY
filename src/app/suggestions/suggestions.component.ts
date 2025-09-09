@@ -5,10 +5,12 @@ import { ProductDbService, Product } from '../services/product-db.service';
 import { ShoppingListService, ShoppingListItem } from '../services/shopping-list.service';
 import { PreferencesService } from '../services/preferences.service';
 import { combineLatest, take } from 'rxjs';
+import { supabase } from '../../integrations/supabase/client';
+import { NotificationService } from '../services/notification.service';
 
 interface Suggestion {
   product: Product;
-  similarity: number;
+  similarity: number; // This will be a mock value for now
   reason: string;
 }
 
@@ -34,7 +36,8 @@ export class SuggestionsComponent implements OnInit {
     private aiService: AiIntegrationService,
     private productDb: ProductDbService,
     private shoppingListService: ShoppingListService,
-    private preferencesService: PreferencesService
+    private preferencesService: PreferencesService,
+    private notificationService: NotificationService
   ) {}
 
   ngOnInit() {
@@ -80,47 +83,50 @@ export class SuggestionsComponent implements OnInit {
     });
   }
 
-  fetchSuggestions() {
-    this.productDb.products$.pipe(take(1)).subscribe(async (history) => {
-      if (history.length === 0) {
-        this.suggestions = [];
-        this.isLoading = false;
-        return;
+  async fetchSuggestions() {
+    this.isLoading = true;
+    try {
+      const prompt = `Based on my user context, suggest 3 products I might like. Respond with ONLY a valid JSON array of objects. Each object must have three keys: 'name' (string), 'brand' (string), and 'reason' (string).`;
+      const aiResponse = await this.aiService.getChatCompletion(prompt);
+      
+      const parsedSuggestions = JSON.parse(aiResponse.text);
+      if (!Array.isArray(parsedSuggestions)) {
+        throw new Error("AI response is not an array.");
       }
-      this.suggestions = this.mockAiSuggestions(history);
-      this.isLoading = false;
-    });
-  }
 
-  private mockAiSuggestions(history: Product[]): Suggestion[] {
-    const goodProducts = history.filter(p => p.verdict === 'good').slice(0, 1);
-    const baseSuggestions: Suggestion[] = [
-      {
-        product: {
-          id: 'ai-prod-2', name: 'Organic Berry Granola', brand: 'Nature\'s Best',
-          ingredients: ['Organic Oats', 'Dried Berries', 'Maple Syrup'], verdict: 'good',
-          flaggedIngredients: [], scanDate: new Date(), categories: ['natural'],
-          image: 'https://images.unsplash.com/photo-1504754524776-8f4f3779077d?q=80&w=2070&auto=format&fit=crop'
-        },
-        similarity: 92, reason: "A great alternative to products you've scanned."
-      },
-      {
-        product: {
-          id: 'ai-prod-3', name: 'Lime Sparkling Water', brand: 'Aqua Fizz',
-          ingredients: ['Carbonated Water', 'Natural Lime Flavor'], verdict: 'good',
-          flaggedIngredients: [], scanDate: new Date(), categories: ['natural'],
-          image: 'https://images.unsplash.com/photo-1610313393293-e08e481348e9?q=80&w=1931&auto=format&fit=crop'
-        },
-        similarity: 88, reason: "Matches your goal of avoiding artificial sweeteners."
-      }
-    ];
-    if (goodProducts.length > 0) {
-      baseSuggestions.unshift({
-        product: { ...goodProducts[0], name: "Alternative to " + goodProducts[0].name },
-        similarity: 95, reason: "Based on your preference for natural ingredients."
+      const foodNames = parsedSuggestions.map(s => `${s.name} ${s.brand}`);
+      const { data: productsData, error: functionError } = await supabase.functions.invoke('fetch-food-metadata', {
+        body: { food_names: foodNames }
       });
+
+      if (functionError) throw functionError;
+
+      this.suggestions = parsedSuggestions.map((suggestion: any, index: number) => {
+        const productInfo = productsData[index]?.product;
+        return {
+          product: productInfo || {
+            id: `ai-gen-${index}`,
+            name: suggestion.name,
+            brand: suggestion.brand,
+            ingredients: [],
+            verdict: 'good',
+            flaggedIngredients: [],
+            scanDate: new Date(),
+            categories: ['suggestion'],
+            image: 'https://via.placeholder.com/150?text=Suggestion'
+          },
+          similarity: Math.floor(Math.random() * (95 - 85 + 1) + 85), // Mock similarity
+          reason: suggestion.reason
+        };
+      });
+
+    } catch (error) {
+      console.error('Error fetching AI suggestions:', error);
+      this.notificationService.showError('Could not fetch AI suggestions at this time.');
+      this.suggestions = [];
+    } finally {
+      this.isLoading = false;
     }
-    return baseSuggestions;
   }
 
   saveSuggestion(product: Product) {
@@ -136,13 +142,15 @@ export class SuggestionsComponent implements OnInit {
         this.shoppingListService.removeItem(shoppingListItem.id);
       }
     }
-    // Remove the resolved conflict from the local array to update the UI
     this.conflicts = this.conflicts.filter(c => c !== conflict);
+    this.notificationService.showSuccess(`${conflict.product.name} removed from your ${conflict.listType}.`);
   }
 
   getCategoryIcon(category: string): string {
     const icons: {[key: string]: string} = {
       natural: '🌿',
+      pre_populated: '📚',
+      suggestion: '💡'
     };
     return icons[category] || '📋';
   }
