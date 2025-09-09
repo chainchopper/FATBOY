@@ -18,11 +18,11 @@
     "target": "ES2022",
     "module": "ES2022",
     "useDefineForClassFields": false,
+    "allowSyntheticDefaultImports": true,
     "lib": [
       "ES2022",
       "dom"
-    ],
-    "allowSyntheticDefaultImports": true
+    ]
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,
@@ -31,6 +31,6 @@
     "strictTemplates": true
   },
   "exclude": [
-    "supabase"
+    "supabase/functions/**/*"
   ]
 }

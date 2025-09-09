@@ -127,7 +127,7 @@ serve(async (req: Request) => {
         const { error: insertError } = await supabaseClient
           .from('user_products')
           .insert({
-            user_id: '00000000-0000-0000-0000-000000000000', // Dummy user_id for pre_populated data (or a specific admin user ID)
+            user_id: '00000000-0000-0000-0000-000000000001', // Special system user ID
             product_data: productData,
             type: 'pre_populated',
           });
