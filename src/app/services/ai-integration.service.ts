@@ -425,6 +425,11 @@ export class AiIntegrationService {
           });
         }
 
+        // Play success sound after executing tools
+        if (!toolOutputs.some(o => o.output.startsWith('FAILED'))) {
+          this.audioService.playSuccessSound();
+        }
+
         const toolResponseMessages = [
           ...messagesForApi,
           choice.message,
