@@ -3,13 +3,14 @@ import { CommonModule } from '@angular/common';
 import { ShoppingListService, ShoppingListItem } from '../services/shopping-list.service';
 import { AppModalService } from '../services/app-modal.service';
 import { Observable } from 'rxjs';
-import { ProductCardComponent } from '../product-card/product-card.component'; // Import ProductCardComponent
-import { Product } from '../services/product-db.service'; // Import Product for event emitters
+import { ProductCardComponent } from '../product-card/product-card.component';
+import { Product, ProductDbService } from '../services/product-db.service';
+import { ShareService } from '../services/share.service';
 
 @Component({
   selector: 'app-shopping-list',
   standalone: true,
-  imports: [CommonModule, ProductCardComponent], // Add ProductCardComponent to imports
+  imports: [CommonModule, ProductCardComponent],
   templateUrl: './shopping-list.component.html',
   styleUrls: ['./shopping-list.component.css']
 })
@@ -18,18 +19,20 @@ export class ShoppingListComponent implements OnInit {
 
   constructor(
     private shoppingListService: ShoppingListService,
-    private appModalService: AppModalService
+    private appModalService: AppModalService,
+    private productDb: ProductDbService,
+    private shareService: ShareService
   ) {}
 
   ngOnInit() {
     this.shoppingList$ = this.shoppingListService.list$;
   }
 
-  toggleItem(itemId: string) {
+  onTogglePurchased(itemId: string) {
     this.shoppingListService.toggleItemPurchased(itemId);
   }
 
-  removeItem(itemId: string) {
+  onRemoveItem(itemId: string) {
     this.shoppingListService.removeItem(itemId);
   }
 
@@ -45,22 +48,19 @@ export class ShoppingListComponent implements OnInit {
     });
   }
 
-  // Event handlers for ProductCardComponent
-  onTogglePurchased(itemId: string) {
-    this.toggleItem(itemId);
-  }
-
-  onRemoveItem(itemId: string) {
-    this.removeItem(itemId);
-  }
-
   onShareProduct(product: Product) {
-    // Implement share logic here, or pass to a ShareService
-    console.log('Share product:', product);
+    this.shareService.shareProduct(product);
   }
 
   onAddToFoodDiary(product: Product) {
-    // Implement add to food diary logic here
-    console.log('Add to food diary:', product);
+    this.appModalService.open(product);
+  }
+
+  isFavorite(productId: string): boolean {
+    return this.productDb.isFavorite(productId);
+  }
+
+  toggleFavorite(productId: string) {
+    this.productDb.toggleFavorite(productId);
   }
 }

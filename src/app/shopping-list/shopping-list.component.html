@@ -13,6 +13,7 @@
       <app-product-card 
         *ngFor="let item of list" 
         [product]="item.product!" 
+        [isFavorite]="isFavorite(item.product!.id)"
         [showCheckbox]="true"
         [isPurchased]="item.purchased"
         [showRemoveButton]="true"
@@ -22,6 +23,7 @@
         (remove)="onRemoveItem(item.id)"
         (share)="onShareProduct($event)"
         (addToFoodDiary)="onAddToFoodDiary($event)"
+        (toggleFavorite)="toggleFavorite($event)"
       ></app-product-card>
     </div>
   </div>
