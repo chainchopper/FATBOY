@@ -139,14 +139,15 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
   }
 
   async stopBarcodeScanning() {
-    this.stopStabilityDetector(); // Stop auto-capture detector
-    if (!this.isScanningBarcode || !this.html5QrcodeScanner.isScanning) return;
-    try {
-      await this.html5QrcodeScanner.stop();
-      this.isScanningBarcode = false;
-    } catch (error) {
-      console.error('Error stopping barcode scanner:', error);
+    this.stopStabilityDetector();
+    if (this.html5QrcodeScanner && this.html5QrcodeScanner.isScanning) {
+      try {
+        await this.html5QrcodeScanner.stop();
+      } catch (error) {
+        console.error('Error stopping barcode scanner:', error);
+      }
     }
+    this.isScanningBarcode = false;
   }
 
   async onBarcodeScanSuccess(decodedText: string): Promise<void> {
