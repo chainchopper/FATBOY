@@ -21,6 +21,7 @@ export class AppComponent implements OnInit {
   isMenuOpen = false;
   currentUser$!: Observable<User | null>;
   displayName$!: Observable<string | null>;
+  isAdmin$!: Observable<boolean>;
 
   constructor(
     private authService: AuthService, 
@@ -30,13 +31,20 @@ export class AppComponent implements OnInit {
 
   ngOnInit(): void {
     this.currentUser$ = this.authService.currentUser$;
-    this.displayName$ = this.profileService.getProfile().pipe(
+    
+    const profile$ = this.profileService.getProfile();
+
+    this.displayName$ = profile$.pipe(
       map(profile => {
         if (profile?.first_name) {
           return profile.first_name;
         }
         return null;
       })
+    );
+
+    this.isAdmin$ = profile$.pipe(
+      map(profile => profile ? profile.role === 'admin' : false)
     );
   }
 

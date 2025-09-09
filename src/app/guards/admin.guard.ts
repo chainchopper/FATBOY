@@ -1,7 +1,9 @@
 import { Injectable } from '@angular/core';
 import { CanActivate, Router } from '@angular/router';
-import { AuthService } from '../services/auth.service';
 import { NotificationService } from '../services/notification.service';
+import { ProfileService } from '../services/profile.service';
+import { map, take } from 'rxjs/operators';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -9,23 +11,23 @@ import { NotificationService } from '../services/notification.service';
 export class AdminGuard implements CanActivate {
 
   constructor(
-    private authService: AuthService,
+    private profileService: ProfileService,
     private router: Router,
     private notificationService: NotificationService
   ) {}
 
-  canActivate(): boolean {
-    // In a real app, you would check for a specific admin role from the user's profile.
-    // For now, we'll just check if the user is authenticated.
-    const isAuthenticated = this.authService.isAuthenticated();
-    
-    if (isAuthenticated) {
-      // Placeholder for future role check, e.g., if (user.role === 'admin')
-      return true;
-    } else {
-      this.notificationService.showError('You do not have permission to access this page.', 'Access Denied');
-      this.router.navigate(['/login']);
-      return false;
-    }
+  canActivate(): Observable<boolean> {
+    return this.profileService.getProfile().pipe(
+      take(1),
+      map(profile => {
+        if (profile && profile.role === 'admin') {
+          return true;
+        } else {
+          this.notificationService.showError('You do not have permission to access this page.', 'Access Denied');
+          this.router.navigate(['/scanner']);
+          return false;
+        }
+      })
+    );
   }
 }

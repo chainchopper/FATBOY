@@ -1,0 +1,40 @@
+<div class="admin-container">
+  <h2>Admin Dashboard</h2>
+  <p>Review and moderate new community contributions.</p>
+
+  <div class="dashboard-section">
+    <h3>Pending Contributions ({{ pendingContributions.length }})</h3>
+    
+    <div *ngIf="isLoading" class="loading-state">
+      <p>Loading submissions...</p>
+    </div>
+
+    <div *ngIf="!isLoading && pendingContributions.length === 0" class="empty-state">
+      <p>No pending contributions to review.</p>
+    </div>
+
+    <div *ngIf="!isLoading && pendingContributions.length > 0" class="contributions-table">
+      <table>
+        <thead>
+          <tr>
+            <th>Product Name</th>
+            <th>Brand</th>
+            <th>Submitted By</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of pendingContributions">
+            <td>{{ item.product_name }}</td>
+            <td>{{ item.brand }}</td>
+            <td>{{ item.profile.first_name || 'Anonymous' }}</td>
+            <td class="actions-cell">
+              <button (click)="approve(item.id)" class="action-btn approve">Approve</button>
+              <button (click)="reject(item.id)" class="action-btn reject">Reject</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
