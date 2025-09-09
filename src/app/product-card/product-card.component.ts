@@ -1,5 +1,5 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { CommonModule, TitleCasePipe } from '@angular/common';
+import { CommonModule, TitleCasePipe } from '@angular/common'; // Re-added CommonModule and TitleCasePipe
 import { Product } from '../services/product-db.service';
 import { LucideAngularModule } from 'lucide-angular';
 import { FoodIconComponent } from '../food-icon/food-icon.component';
@@ -7,7 +7,7 @@ import { FoodIconComponent } from '../food-icon/food-icon.component';
 @Component({
   selector: 'app-product-card',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, FoodIconComponent, TitleCasePipe], // Explicitly added TitleCasePipe
+  imports: [CommonModule, LucideAngularModule, FoodIconComponent, TitleCasePipe], // Explicitly import both
   templateUrl: './product-card.component.html',
   styleUrls: ['./product-card.component.css']
 })
