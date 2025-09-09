@@ -1,7 +1,10 @@
 <div class="profile-container">
   <div *ngIf="(currentUser$ | async) as user; else notLoggedIn">
     <div *ngIf="(userProfile$ | async) as profile" class="profile-card">
-      <img [src]="profile.avatar_url" alt="User Avatar" class="avatar">
+      <div class="profile-header">
+        <img [src]="profile.avatar_url" alt="User Avatar" class="avatar">
+        <button class="edit-profile-btn" routerLink="/profile/edit">Edit Profile</button>
+      </div>
       <h2>{{ profile.first_name }} {{ profile.last_name }}</h2>
       <p class="email">{{ user.email }}</p>
       

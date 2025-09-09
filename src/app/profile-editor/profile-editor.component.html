@@ -1,0 +1,26 @@
+<div class="profile-editor-container">
+  <a routerLink="/profile" class="back-link">← Back to Profile</a>
+  <h2>Edit Your Profile</h2>
+
+  <div *ngIf="profile" class="editor-form">
+    <div class="avatar-section">
+      <img [src]="avatarUrl || 'https://api.dicebear.com/8.x/initials/svg?seed=?'" alt="Avatar Preview" class="avatar-preview">
+      <label for="avatarUpload" class="upload-btn">Change Avatar</label>
+      <input type="file" id="avatarUpload" (change)="onFileSelected($event)" accept="image/png, image/jpeg">
+    </div>
+
+    <div class="form-group">
+      <label for="firstName">First Name</label>
+      <input type="text" id="firstName" [(ngModel)]="firstName" placeholder="Your first name">
+    </div>
+
+    <div class="form-group">
+      <label for="lastName">Last Name</label>
+      <input type="text" id="lastName" [(ngModel)]="lastName" placeholder="Your last name">
+    </div>
+
+    <button (click)="saveProfile()" class="save-btn" [disabled]="isLoading">
+      {{ isLoading ? 'Saving...' : 'Save Changes' }}
+    </button>
+  </div>
+</div>

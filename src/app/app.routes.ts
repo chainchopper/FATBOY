@@ -21,6 +21,7 @@ import { AgentConsoleComponent } from './agent-console/agent-console.component';
 import { AdminDashboardComponent } from './admin-dashboard/admin-dashboard.component';
 import { DevConsoleComponent } from './dev-console/dev-console.component';
 import { AdminUsersComponent } from './admin-users/admin-users.component';
+import { ProfileEditorComponent } from './profile-editor/profile-editor.component';
 
 export const routes: Routes = [
   // Public and User Routes
@@ -40,6 +41,7 @@ export const routes: Routes = [
   { path: 'achievements', component: AchievementsComponent, canActivate: [AuthGuard] },
   { path: 'food-diary', component: FoodDiaryComponent, canActivate: [AuthGuard] },
   { path: 'profile', component: ProfileComponent, canActivate: [AuthGuard] },
+  { path: 'profile/edit', component: ProfileEditorComponent, canActivate: [AuthGuard] },
   { path: 'manual-entry', component: ManualEntryComponent, canActivate: [AuthGuard] },
   { path: 'leaderboard', component: LeaderboardComponent, canActivate: [AuthGuard] },
   { path: 'friends', component: FriendsComponent, canActivate: [AuthGuard] },

@@ -38,4 +38,50 @@ export class ProfileService {
       })
     );
   }
+
+  async updateProfile(profileData: { first_name: string, last_name: string, avatar_url?: string }): Promise<Profile | null> {
+    const userId = this.authService.getCurrentUserId();
+    if (!userId) return null;
+
+    const updates = {
+      ...profileData,
+      id: userId,
+      updated_at: new Date().toISOString(),
+    };
+
+    const { data, error } = await supabase
+      .from('profiles')
+      .upsert(updates)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error updating profile:', error);
+      return null;
+    }
+    return data as Profile;
+  }
+
+  async uploadAvatar(file: File): Promise<string | null> {
+    const userId = this.authService.getCurrentUserId();
+    if (!userId) return null;
+
+    const fileExt = file.name.split('.').pop();
+    const filePath = `${userId}-${Date.now()}.${fileExt}`;
+
+    const { error } = await supabase.storage
+      .from('avatars')
+      .upload(filePath, file);
+
+    if (error) {
+      console.error('Error uploading avatar:', error);
+      return null;
+    }
+
+    const { data } = supabase.storage
+      .from('avatars')
+      .getPublicUrl(filePath);
+
+    return data.publicUrl;
+  }
 }

@@ -1,0 +1,83 @@
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { Router, RouterLink } from '@angular/router';
+import { ProfileService, Profile } from '../services/profile.service';
+import { NotificationService } from '../services/notification.service';
+import { AuthService } from '../services/auth.service';
+import { firstValueFrom } from 'rxjs';
+
+@Component({
+  selector: 'app-profile-editor',
+  standalone: true,
+  imports: [CommonModule, FormsModule, RouterLink],
+  templateUrl: './profile-editor.component.html',
+  styleUrls: ['./profile-editor.component.css']
+})
+export class ProfileEditorComponent implements OnInit {
+  profile: Profile | null = null;
+  firstName: string = '';
+  lastName: string = '';
+  avatarFile: File | null = null;
+  avatarUrl: string | null = null;
+  isLoading = false;
+
+  constructor(
+    private profileService: ProfileService,
+    private notificationService: NotificationService,
+    private router: Router
+  ) {}
+
+  async ngOnInit() {
+    this.profile = await firstValueFrom(this.profileService.getProfile());
+    if (this.profile) {
+      this.firstName = this.profile.first_name || '';
+      this.lastName = this.profile.last_name || '';
+      this.avatarUrl = this.profile.avatar_url;
+    }
+  }
+
+  onFileSelected(event: Event): void {
+    const element = event.currentTarget as HTMLInputElement;
+    let fileList: FileList | null = element.files;
+    if (fileList) {
+      this.avatarFile = fileList[0];
+      // Create a preview URL
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        this.avatarUrl = e.target.result;
+      };
+      reader.readAsDataURL(this.avatarFile);
+    }
+  }
+
+  async saveProfile() {
+    this.isLoading = true;
+    let newAvatarUrl = this.profile?.avatar_url;
+
+    if (this.avatarFile) {
+      const uploadedUrl = await this.profileService.uploadAvatar(this.avatarFile);
+      if (uploadedUrl) {
+        newAvatarUrl = uploadedUrl;
+      } else {
+        this.notificationService.showError('Failed to upload new avatar.');
+        this.isLoading = false;
+        return;
+      }
+    }
+
+    const updatedProfile = await this.profileService.updateProfile({
+      first_name: this.firstName,
+      last_name: this.lastName,
+      avatar_url: newAvatarUrl || undefined
+    });
+
+    this.isLoading = false;
+    if (updatedProfile) {
+      this.notificationService.showSuccess('Profile updated successfully!');
+      this.router.navigate(['/profile']);
+    } else {
+      this.notificationService.showError('Failed to update profile.');
+    }
+  }
+}
