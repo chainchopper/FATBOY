@@ -8,7 +8,7 @@ import { ProfileService, Profile } from './services/profile.service';
 import { map, filter } from 'rxjs/operators';
 import { AppModalComponent } from './app-modal.component';
 import { LogoComponent } from './logo.component';
-import { LucideAngularModule, LucideIconProvider, icons } from 'lucide-angular';
+import { LucideAngularModule } from 'lucide-angular';
 
 @Component({
   selector: 'app-root',
@@ -21,10 +21,6 @@ import { LucideAngularModule, LucideIconProvider, icons } from 'lucide-angular';
     AppModalComponent, 
     LogoComponent, 
     LucideAngularModule
-  ],
-  providers: [
-    // Provide all lucide icons to fix any potential missing icon errors
-    { provide: LucideIconProvider, useValue: new LucideIconProvider(icons) }
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'

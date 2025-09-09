@@ -1,9 +1,10 @@
-import { ApplicationConfig } from '@angular/core';
+import { ApplicationConfig, importProvidersFrom } from '@angular/core';
 import { provideRouter, withHashLocation } from '@angular/router';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideToastr } from 'ngx-toastr';
 import { routes } from './app.routes';
 import { provideHttpClient } from '@angular/common/http';
+import { LucideAngularModule, icons } from 'lucide-angular';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -15,5 +16,7 @@ export const appConfig: ApplicationConfig = {
       positionClass: 'toast-bottom-right',
       preventDuplicates: true,
     }),
+    // Provide all lucide icons globally using the correct method
+    importProvidersFrom(LucideAngularModule.pick(icons))
   ]
 };
