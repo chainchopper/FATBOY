@@ -109,7 +109,7 @@ export class GamificationService {
     if (this.unlockedBadges.has(id) || !this.currentUserId) return false;
     
     const { error } = await supabase
-      .from('user_badges')
+      .from('fatboy_user_badges')
       .insert({ user_id: this.currentUserId, badge_id: id });
 
     if (error) {
@@ -144,7 +144,7 @@ export class GamificationService {
     }
 
     const { data, error } = await supabase
-      .from('user_badges')
+      .from('fatboy_user_badges')
       .select('badge_id')
       .eq('user_id', this.currentUserId);
 
