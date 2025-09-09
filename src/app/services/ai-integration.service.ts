@@ -147,6 +147,23 @@ export class AiIntegrationService {
     {
       type: "function",
       function: {
+        name: "remove_from_shopping_list",
+        description: "Removes a food product from the user's shopping list. Requires the product name.",
+        parameters: {
+          type: "object",
+          properties: {
+            product_name: {
+              type: "string",
+              description: "The name of the food product to remove."
+            }
+          },
+          required: ["product_name"]
+        }
+      }
+    },
+    {
+      type: "function",
+      function: {
         name: "update_avoided_ingredients",
         description: "Adds or removes ingredients from the user's avoided ingredients list.",
         parameters: {
@@ -394,6 +411,15 @@ export class AiIntegrationService {
                 humanReadableSummary = `Adding "${productToAdd.name}" to shopping list.`;
               } else {
                 toolOutput = `FAILED: Missing product name or brand.`;
+              }
+              break;
+            case 'remove_from_shopping_list':
+              if (functionArgs.product_name) {
+                await this.shoppingListService.removeItemByName(functionArgs.product_name);
+                toolOutput = `PRODUCT_REMOVED: Successfully removed "${functionArgs.product_name}" from the shopping list.`;
+                humanReadableSummary = `Removing "${functionArgs.product_name}" from your shopping list.`;
+              } else {
+                toolOutput = `FAILED: Missing product name.`;
               }
               break;
             case 'update_avoided_ingredients':

@@ -131,6 +131,24 @@ export class ShoppingListService {
     this.speechService.speak('Item removed from shopping list.');
   }
 
+  async removeItemByName(productName: string): Promise<void> {
+    if (!this.currentUserId) {
+      this.notificationService.showError('Please log in to modify your shopping list.');
+      return;
+    }
+
+    const itemToRemove = this.shoppingList.find(item => 
+      item.product_name.toLowerCase() === productName.toLowerCase()
+    );
+
+    if (itemToRemove) {
+      await this.removeItem(itemToRemove.id);
+    } else {
+      this.notificationService.showWarning(`Could not find "${productName}" on your shopping list.`);
+      this.speechService.speak(`I couldn't find "${productName}" on your shopping list.`);
+    }
+  }
+
   async toggleItemPurchased(itemId: string): Promise<void> {
     if (!this.currentUserId) {
       this.notificationService.showError('Please log in to update items in your shopping list.');
