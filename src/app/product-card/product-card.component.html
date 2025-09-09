@@ -34,21 +34,21 @@
   </div>
 
   <div class="card-actions">
-    <button (click)="onToggleFavorite()" class="action-btn favorite-btn" [class.active]="isFavorite" title="Toggle Favorite">
+    <app-button variant="ghost" size="icon" (onClick)="onToggleFavorite()" [ngClass]="{'active': isFavorite}" title="Toggle Favorite">
       <lucide-icon name="heart" [size]="18"></lucide-icon>
-    </button>
-    <button *ngIf="showAddToShoppingListButton" (click)="onAddToShoppingList()" class="action-btn" title="Add to Shopping List">
+    </app-button>
+    <app-button *ngIf="showAddToShoppingListButton" variant="ghost" size="icon" (onClick)="onAddToShoppingList()" title="Add to Shopping List">
       <lucide-icon name="shopping-cart" [size]="18"></lucide-icon>
-    </button>
-    <button *ngIf="showAddToFoodDiaryButton" (click)="onAddToFoodDiary()" class="action-btn" title="Add to Food Diary">
+    </app-button>
+    <app-button *ngIf="showAddToFoodDiaryButton" variant="ghost" size="icon" (onClick)="onAddToFoodDiary()" title="Add to Food Diary">
       <lucide-icon name="book-plus" [size]="18"></lucide-icon>
-    </button>
-    <button *ngIf="showShareButton" (click)="onShare()" class="action-btn" title="Share">
+    </app-button>
+    <app-button *ngIf="showShareButton" variant="ghost" size="icon" (onClick)="onShare()" title="Share">
       <lucide-icon name="share-2" [size]="18"></lucide-icon>
-    </button>
-    <button *ngIf="showRemoveButton" (click)="onRemove()" class="action-btn remove-btn" title="Remove">
+    </app-button>
+    <app-button *ngIf="showRemoveButton" variant="destructive" size="icon" (onClick)="onRemove()" title="Remove">
       <lucide-icon name="trash-2" [size]="18"></lucide-icon>
-    </button>
+    </app-button>
     <div *ngIf="showCheckbox" class="checkbox-container">
       <input type="checkbox" [checked]="isPurchased" (change)="onTogglePurchased()">
       <label>Purchased</label>

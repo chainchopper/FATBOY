@@ -109,30 +109,7 @@
   gap: 10px;
 }
 
-.action-btn {
-  background: #2a2a4e;
-  border: 1px solid #4a4a6e;
-  color: #a0a0c0;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
-.action-btn:hover {
-  background-color: #f038ff;
-  color: #fff;
-  border-color: #f038ff;
-}
-
-.action-btn.remove-btn:hover {
-  background-color: #F44336;
-  border-color: #F44336;
-}
+/* Removed .action-btn, .favorite-btn, .remove-btn styles as they are now handled by ButtonComponent */
 
 .favorite-btn.active {
   background-color: #f038ff;
