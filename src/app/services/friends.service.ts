@@ -21,6 +21,17 @@ export interface Profile {
   avatar_url: string | null;
 }
 
+export interface ActivityFeedItem {
+  activity_id: string;
+  user_id: string;
+  activity_type: string;
+  activity_description: string;
+  created_at: string;
+  first_name: string;
+  last_name: string;
+  avatar_url: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -149,5 +160,15 @@ export class FriendsService {
 
     if (error) console.error('Error removing friendship:', error);
     return data;
+  }
+
+  // Fetches the activity feed for the current user's friends
+  async getFriendActivity(): Promise<ActivityFeedItem[]> {
+    const { data, error } = await supabase.rpc('get_friends_activity_feed');
+    if (error) {
+      console.error('Error fetching friend activity feed:', error);
+      return [];
+    }
+    return data as ActivityFeedItem[];
   }
 }

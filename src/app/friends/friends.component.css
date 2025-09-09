@@ -1,5 +1,5 @@
 .friends-container {
-  max-width: 800px;
+  max-width: 1200px;
   margin: 2rem auto;
   padding: 20px;
   color: #e0e0e0;
@@ -17,6 +17,16 @@ p {
   text-align: center;
   margin-bottom: 2rem;
   color: #a0a0c0;
+}
+
+.friends-layout {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 30px;
+}
+
+.main-content {
+  /* Styles for the left column (search, requests, friends list) */
 }
 
 .search-section {
@@ -137,20 +147,56 @@ p {
   background-color: #F44336;
 }
 
-.status-indicator {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background-color: #4a4a6e; /* Offline */
-}
-
-.status-indicator.online {
-  background-color: #0abdc6; /* Online */
-  box-shadow: 0 0 8px #0abdc6;
-}
-
 .empty-state, .loading-state {
   text-align: center;
   padding: 40px;
   color: #a0a0c0;
+}
+
+/* Activity Feed Styles */
+.activity-feed {
+  background: rgba(15, 15, 30, 0.8);
+  border: 1px solid #4a4a6e;
+  border-radius: 12px;
+  padding: 20px;
+  height: fit-content; /* Make it stick to the top */
+}
+
+.activity-feed h3 {
+  color: #0abdc6;
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.activity-item {
+  display: flex;
+  gap: 15px;
+  border-bottom: 1px solid #2a2a4e;
+  padding: 15px 0;
+}
+.activity-item:last-child {
+  border-bottom: none;
+}
+
+.activity-item .avatar {
+  width: 40px;
+  height: 40px;
+}
+
+.activity-content p {
+  margin: 0;
+  text-align: left;
+  font-size: 0.9rem;
+}
+
+.activity-content strong {
+  color: #f038ff;
+}
+
+.timestamp {
+  font-size: 0.8rem;
+  color: #a0a0c0;
+  margin-top: 4px;
+  display: block;
 }

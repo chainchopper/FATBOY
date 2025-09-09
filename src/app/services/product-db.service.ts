@@ -122,6 +122,12 @@ export class ProductDbService {
       return null;
     }
     
+    // Log this activity
+    supabase.rpc('log_user_activity', { 
+      activity_type: 'scan', 
+      activity_description: `Scanned: ${newProduct.name}` 
+    }).then();
+
     await this.loadData();
     this.leaderboardService.incrementScore(10).subscribe();
     return newProduct;

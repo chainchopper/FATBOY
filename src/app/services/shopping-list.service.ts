@@ -93,6 +93,12 @@ export class ShoppingListService {
       return;
     }
     
+    // Log this activity
+    supabase.rpc('log_user_activity', { 
+      activity_type: 'shopping_list', 
+      activity_description: `Added ${product.name} to their shopping list.` 
+    }).then();
+
     await this.loadData();
     
     if (product.verdict === 'good') {

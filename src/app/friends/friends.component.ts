@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { FriendsService, Friend, FriendRequest, Profile } from '../services/friends.service';
+import { FriendsService, Friend, FriendRequest, Profile, ActivityFeedItem } from '../services/friends.service';
 import { NotificationService } from '../services/notification.service';
 import { AppModalService } from '../services/app-modal.service';
 import { GamificationService } from '../services/gamification.service';
@@ -17,6 +17,7 @@ export class FriendsComponent implements OnInit {
   friends: Friend[] = [];
   friendRequests: FriendRequest[] = [];
   searchResults: Profile[] = [];
+  activityFeed: ActivityFeedItem[] = [];
   searchQuery: string = '';
   isLoading = true;
   isSearching = false;
@@ -36,6 +37,7 @@ export class FriendsComponent implements OnInit {
     this.isLoading = true;
     this.friendRequests = await this.friendsService.getFriendRequests();
     this.friends = await this.friendsService.getFriends();
+    this.activityFeed = await this.friendsService.getFriendActivity();
     this.isLoading = false;
   }
 

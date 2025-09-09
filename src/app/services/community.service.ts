@@ -56,6 +56,13 @@ export class CommunityService {
       console.error('Error adding contribution:', error);
       return null;
     }
+    
+    // Log this activity
+    supabase.rpc('log_user_activity', { 
+      activity_type: 'community', 
+      activity_description: `Contributed a new product: ${contribution.product_name}` 
+    }).then();
+
     return data[0];
   }
 

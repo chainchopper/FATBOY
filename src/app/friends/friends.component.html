@@ -2,70 +2,90 @@
   <h2>Your Friends</h2>
   <p>Connect with friends, share your healthy finds, and challenge each other!</p>
 
-  <div class="search-section">
-    <input type="text" [(ngModel)]="searchQuery" placeholder="Search for friends by username..." class="search-input" (keyup.enter)="searchFriends()">
-    <button (click)="searchFriends()" class="search-btn">Search</button>
-  </div>
+  <div class="friends-layout">
+    <div class="main-content">
+      <div class="search-section">
+        <input type="text" [(ngModel)]="searchQuery" placeholder="Search for friends by username..." class="search-input" (keyup.enter)="searchFriends()">
+        <button (click)="searchFriends()" class="search-btn">Search</button>
+      </div>
 
-  <!-- Search Results Section -->
-  <div *ngIf="searchQuery && !isSearching" class="section">
-    <h3>Search Results</h3>
-    <div *ngIf="searchResults.length === 0" class="empty-state">
-      <p>No users found matching your search.</p>
-    </div>
-    <div *ngFor="let user of searchResults" class="friend-card">
-      <div class="friend-info">
-        <img [src]="user.avatar_url || 'https://api.dicebear.com/8.x/bottts/svg'" alt="Avatar" class="avatar">
-        <div>
-          <span class="name">{{ user.first_name || 'User' }} {{ user.last_name || '' }}</span>
+      <!-- Search Results Section -->
+      <div *ngIf="searchQuery && !isSearching" class="section">
+        <h3>Search Results</h3>
+        <div *ngIf="searchResults.length === 0" class="empty-state">
+          <p>No users found matching your search.</p>
         </div>
-      </div>
-      <div class="friend-actions">
-        <button (click)="sendRequest(user.id)" class="action-btn add" title="Add Friend">＋</button>
-      </div>
-    </div>
-  </div>
-  <div *ngIf="isSearching" class="loading-state">
-    <p>Searching...</p>
-  </div>
-
-  <div *ngIf="isLoading" class="loading-state">
-    <p>Loading your social circle...</p>
-  </div>
-
-  <div *ngIf="!isLoading">
-    <div class="section" *ngIf="friendRequests.length > 0">
-      <h3>Friend Requests</h3>
-      <div *ngFor="let request of friendRequests" class="friend-card request">
-        <div class="friend-info">
-          <img [src]="request.requester.avatar_url || 'https://api.dicebear.com/8.x/bottts/svg'" alt="Avatar" class="avatar">
-          <div>
-            <span class="name">{{ request.requester.first_name || 'New' }} {{ request.requester.last_name || 'Friend' }}</span>
-            <span class="details">Wants to connect!</span>
+        <div *ngFor="let user of searchResults" class="friend-card">
+          <div class="friend-info">
+            <img [src]="user.avatar_url || 'https://api.dicebear.com/8.x/bottts/svg'" alt="Avatar" class="avatar">
+            <div>
+              <span class="name">{{ user.first_name || 'User' }} {{ user.last_name || '' }}</span>
+            </div>
+          </div>
+          <div class="friend-actions">
+            <button (click)="sendRequest(user.id)" class="action-btn add" title="Add Friend">＋</button>
           </div>
         </div>
-        <div class="friend-actions">
-          <button (click)="acceptRequest(request.id)" class="action-btn accept">✓</button>
-          <button (click)="declineRequest(request.id)" class="action-btn decline">×</button>
+      </div>
+      <div *ngIf="isSearching" class="loading-state">
+        <p>Searching...</p>
+      </div>
+
+      <div *ngIf="isLoading" class="loading-state">
+        <p>Loading your social circle...</p>
+      </div>
+
+      <div *ngIf="!isLoading">
+        <div class="section" *ngIf="friendRequests.length > 0">
+          <h3>Friend Requests</h3>
+          <div *ngFor="let request of friendRequests" class="friend-card request">
+            <div class="friend-info">
+              <img [src]="request.requester.avatar_url || 'https://api.dicebear.com/8.x/bottts/svg'" alt="Avatar" class="avatar">
+              <div>
+                <span class="name">{{ request.requester.first_name || 'New' }} {{ request.requester.last_name || 'Friend' }}</span>
+                <span class="details">Wants to connect!</span>
+              </div>
+            </div>
+            <div class="friend-actions">
+              <button (click)="acceptRequest(request.id)" class="action-btn accept">✓</button>
+              <button (click)="declineRequest(request.id)" class="action-btn decline">×</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <h3>Your Friends ({{ friends.length }})</h3>
+          <div *ngIf="friends.length === 0" class="empty-state">
+            <p>You haven't added any friends yet. Use the search above to find people!</p>
+          </div>
+          <div *ngFor="let friend of friends" class="friend-card">
+            <div class="friend-info">
+              <img [src]="friend.profile.avatar_url || 'https://api.dicebear.com/8.x/bottts/svg'" alt="Avatar" class="avatar">
+              <div>
+                <span class="name">{{ friend.profile.first_name || 'User' }} {{ friend.profile.last_name || '' }}</span>
+              </div>
+            </div>
+            <div class="friend-actions">
+              <button (click)="removeFriend(friend.id)" class="action-btn remove">×</button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
-    <div class="section">
-      <h3>Your Friends ({{ friends.length }})</h3>
-      <div *ngIf="friends.length === 0" class="empty-state">
-        <p>You haven't added any friends yet. Use the search above to find people!</p>
+    <div class="activity-feed">
+      <h3>Activity Feed</h3>
+      <div *ngIf="isLoading" class="loading-state">
+        <p>Loading feed...</p>
       </div>
-      <div *ngFor="let friend of friends" class="friend-card">
-        <div class="friend-info">
-          <img [src]="friend.profile.avatar_url || 'https://api.dicebear.com/8.x/bottts/svg'" alt="Avatar" class="avatar">
-          <div>
-            <span class="name">{{ friend.profile.first_name || 'User' }} {{ friend.profile.last_name || '' }}</span>
-            <!-- <span class="details">Rank: {{ friend.rank }}</span> -->
-          </div>
-        </div>
-        <div class="friend-actions">
-          <button (click)="removeFriend(friend.id)" class="action-btn remove">×</button>
+      <div *ngIf="!isLoading && activityFeed.length === 0" class="empty-state">
+        <p>Your friends haven't been active recently. Encourage them to scan something!</p>
+      </div>
+      <div *ngFor="let item of activityFeed" class="activity-item">
+        <img [src]="item.avatar_url || 'https://api.dicebear.com/8.x/bottts/svg'" alt="Avatar" class="avatar">
+        <div class="activity-content">
+          <p><strong>{{ item.first_name || 'A friend' }}</strong> {{ item.activity_description }}</p>
+          <span class="timestamp">{{ item.created_at | date:'short' }}</span>
         </div>
       </div>
     </div>
