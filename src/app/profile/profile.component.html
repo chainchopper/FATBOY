@@ -1,12 +1,12 @@
 <div class="profile-container">
-  <div *ngIf="(currentUser$ | async) as user; else notLoggedIn">
-    <div *ngIf="(userProfile$ | async) as profile" class="profile-card">
+  <div *ngIf="profile$ | async as profile; else notFound">
+    <div class="profile-card">
       <div class="profile-header">
-        <img [src]="profile.avatar_url" alt="User Avatar" class="avatar">
-        <button class="edit-profile-btn" routerLink="/profile/edit">Edit Profile</button>
+        <img [src]="profile.avatar_url || 'https://api.dicebear.com/8.x/initials/svg?seed=' + (profile.first_name || 'A')" alt="User Avatar" class="avatar">
+        <button *ngIf="isCurrentUserProfile" class="edit-profile-btn" routerLink="/profile/edit">Edit Profile</button>
       </div>
       <h2>{{ profile.first_name }} {{ profile.last_name }}</h2>
-      <p class="email">{{ user.email }}</p>
+      <p *ngIf="isCurrentUserProfile" class="email">{{ profile.id }}</p> <!-- Assuming email is not on profile table -->
       
       <div class="profile-section stats-section" *ngIf="(leaderboardStats$ | async) as stats">
         <div class="stat-item">
@@ -21,7 +21,7 @@
       </div>
 
       <div class="profile-section">
-        <h3>Your Badges</h3>
+        <h3>{{ isCurrentUserProfile ? 'Your' : profile.first_name + "'s" }} Badges</h3>
         <div class="badges-grid">
           <div *ngFor="let badge of (badges$ | async)" class="badge-item" [class.unlocked]="badge.unlocked">
             <span class="badge-icon">{{ badge.icon }}</span>
@@ -33,9 +33,9 @@
     </div>
   </div>
   
-  <ng-template #notLoggedIn>
+  <ng-template #notFound>
     <div class="empty-state">
-      <p>Please log in to view your profile.</p>
+      <p>User profile not found or you are not logged in.</p>
     </div>
   </ng-template>
 </div>

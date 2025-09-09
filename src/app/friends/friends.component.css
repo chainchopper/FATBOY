@@ -70,6 +70,13 @@ p {
   padding-bottom: 10px;
 }
 
+.friend-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  margin-bottom: 10px;
+}
+
 .friend-card {
   display: flex;
   justify-content: space-between;
@@ -78,7 +85,6 @@ p {
   border: 1px solid #4a4a6e;
   border-radius: 8px;
   padding: 15px;
-  margin-bottom: 10px;
   transition: all 0.3s;
 }
 
@@ -86,7 +92,7 @@ p {
   border-left: 4px solid #ffeb3b;
 }
 
-.friend-card:hover {
+.friend-link:hover .friend-card {
   border-color: #0abdc6;
   transform: translateY(-3px);
 }

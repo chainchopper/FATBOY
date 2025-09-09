@@ -12,6 +12,11 @@ export interface LeaderboardEntry {
   user_id: string;
 }
 
+export interface LeaderboardStats {
+  rank: number | null;
+  score: number | null;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -49,6 +54,15 @@ export class LeaderboardService {
       avatar_url: entry.profiles.avatar_url || `https://api.dicebear.com/8.x/initials/svg?seed=${entry.profiles.first_name || 'A'}`,
       user_id: entry.profiles.id
     }));
+  }
+
+  async getUserStats(userId: string): Promise<LeaderboardStats> {
+    const leaderboard = await this.getGlobalLeaderboard();
+    const userEntry = leaderboard.find(entry => entry.user_id === userId);
+    return {
+      rank: userEntry ? userEntry.rank : null,
+      score: userEntry ? userEntry.score : null
+    };
   }
 
   async getFriendsLeaderboard(): Promise<LeaderboardEntry[]> {

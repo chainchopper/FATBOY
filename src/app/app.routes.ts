@@ -41,6 +41,7 @@ export const routes: Routes = [
   { path: 'achievements', component: AchievementsComponent, canActivate: [AuthGuard] },
   { path: 'food-diary', component: FoodDiaryComponent, canActivate: [AuthGuard] },
   { path: 'profile', component: ProfileComponent, canActivate: [AuthGuard] },
+  { path: 'users/:id', component: ProfileComponent, canActivate: [AuthGuard] },
   { path: 'profile/edit', component: ProfileEditorComponent, canActivate: [AuthGuard] },
   { path: 'manual-entry', component: ManualEntryComponent, canActivate: [AuthGuard] },
   { path: 'leaderboard', component: LeaderboardComponent, canActivate: [AuthGuard] },

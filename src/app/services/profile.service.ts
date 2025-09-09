@@ -39,6 +39,18 @@ export class ProfileService {
     );
   }
 
+  getProfileById(id: string): Observable<Profile | null> {
+    return from(
+      supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', id)
+        .single()
+    ).pipe(
+      map(response => response.data as Profile | null)
+    );
+  }
+
   async updateProfile(profileData: { first_name: string, last_name: string, avatar_url?: string }): Promise<Profile | null> {
     const userId = this.authService.getCurrentUserId();
     if (!userId) return null;

@@ -157,4 +157,22 @@ export class GamificationService {
     this.updateBadgesState();
     this.checkAndUnlockAchievements(); // Initial check after loading
   }
+
+  async getBadgesForUser(userId: string): Promise<Badge[]> {
+    const { data, error } = await supabase
+      .from('fatboy_user_badges')
+      .select('badge_id')
+      .eq('user_id', userId);
+
+    if (error) {
+      console.error(`Error loading badges for user ${userId}:`, error);
+      return this.allBadges.map(b => ({ ...b, unlocked: false }));
+    }
+
+    const unlockedIds = new Set(data.map(b => b.badge_id));
+    return this.allBadges.map(badge => ({
+      ...badge,
+      unlocked: unlockedIds.has(badge.id)
+    }));
+  }
 }

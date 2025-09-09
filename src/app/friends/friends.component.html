@@ -58,17 +58,19 @@
           <div *ngIf="friends.length === 0" class="empty-state">
             <p>You haven't added any friends yet. Use the search above to find people!</p>
           </div>
-          <div *ngFor="let friend of friends" class="friend-card">
-            <div class="friend-info">
-              <img [src]="friend.profile.avatar_url || 'https://api.dicebear.com/8.x/bottts/svg'" alt="Avatar" class="avatar">
-              <div>
-                <span class="name">{{ friend.profile.first_name || 'User' }} {{ friend.profile.last_name || '' }}</span>
+          <a *ngFor="let friend of friends" [routerLink]="['/users', friend.profile.id]" class="friend-link">
+            <div class="friend-card">
+              <div class="friend-info">
+                <img [src]="friend.profile.avatar_url || 'https://api.dicebear.com/8.x/bottts/svg'" alt="Avatar" class="avatar">
+                <div>
+                  <span class="name">{{ friend.profile.first_name || 'User' }} {{ friend.profile.last_name || '' }}</span>
+                </div>
+              </div>
+              <div class="friend-actions">
+                <button (click)="removeFriend(friend.id); $event.preventDefault()" class="action-btn remove">×</button>
               </div>
             </div>
-            <div class="friend-actions">
-              <button (click)="removeFriend(friend.id)" class="action-btn remove">×</button>
-            </div>
-          </div>
+          </a>
         </div>
       </div>
     </div>
