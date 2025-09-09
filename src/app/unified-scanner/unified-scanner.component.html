@@ -3,27 +3,47 @@
     <!-- Html5Qrcode will render its video stream inside this div -->
     <div id="reader" #reader class="barcode-reader-container"></div> 
     <canvas #canvasElement class="capture-canvas" style="display: none;"></canvas>
-    
-    <button *ngIf="cameras.length > 1" (click)="switchCamera()" class="switch-camera-btn" title="Switch Camera">
-      <lucide-icon name="refresh-cw" [size]="24"></lucide-icon>
-    </button>
+  </div>
 
-    <div class="viewfinder">
-      <div class="tagline">
-        <span class="tagline-word">Scan.</span>
-        <span class="tagline-word">Know.</span>
-        <span class="tagline-word">Choose.</span>
-      </div>
-      <div class="scan-area">
-        <div *ngIf="isScanningBarcode || isProcessingOcr" class="scan-line"></div>
-      </div>
-      <p>Position barcode, label, or receipt in the area</p>
+  <!-- New Immersive Header -->
+  <div class="scanner-header">
+    <div class="header-left">
+      <button class="header-btn" routerLink="/console">
+        <lucide-icon name="message-circle" [size]="24"></lucide-icon>
+      </button>
+    </div>
+    <div class="header-title">SCANNER</div>
+    <div class="header-right">
+      <button *ngIf="cameras.length > 1" (click)="switchCamera()" class="header-btn" title="Switch Camera">
+        <lucide-icon name="refresh-cw" [size]="24"></lucide-icon>
+      </button>
     </div>
   </div>
   
-  <div class="controls">
-    <div *ngIf="isVoiceListening" class="voice-listening-indicator">
-      🎤 Listening...
+  <div class="viewfinder">
+    <div class="tagline">
+      <span class="tagline-word">Scan.</span>
+      <span class="tagline-word">Know.</span>
+      <span class="tagline-word">Choose.</span>
     </div>
+    <div class="scan-area">
+      <div *ngIf="isScanningBarcode || isProcessingOcr" class="scan-line"></div>
+    </div>
+    <p>Position barcode, label, or receipt in the area</p>
+  </div>
+
+  <!-- New Immersive Footer -->
+  <div class="scanner-footer">
+    <button class="footer-btn" routerLink="/manual-entry">
+      <lucide-icon name="edit-3" [size]="24"></lucide-icon>
+      <span>Manual</span>
+    </button>
+    <button class="capture-btn" (click)="captureLabelForOcr()">
+      <div class="capture-inner-ring"></div>
+    </button>
+    <button class="footer-btn" (click)="toggleVoiceListening()" [class.active]="isVoiceListening">
+      <lucide-icon name="mic" [size]="24"></lucide-icon>
+      <span>Voice</span>
+    </button>
   </div>
 </div>

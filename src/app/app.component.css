@@ -188,6 +188,11 @@ main {
   padding-bottom: 90px; /* Space for fixed FAB footer area */
 }
 
+main.full-screen {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
 /* Floating Action Button (FAB) */
 .fab-button {
   position: fixed;

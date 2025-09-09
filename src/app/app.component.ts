@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { RouterLink, RouterLinkActive, RouterOutlet, Router } from '@angular/router';
+import { RouterLink, RouterLinkActive, RouterOutlet, Router, NavigationEnd } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from './services/auth.service';
 import { Observable } from 'rxjs';
 import { User } from '@supabase/supabase-js';
 import { ProfileService, Profile } from './services/profile.service';
-import { map } from 'rxjs/operators';
+import { map, filter } from 'rxjs/operators';
 import { AppModalComponent } from './app-modal/app-modal.component';
 import { LogoComponent } from './logo/logo.component';
 import { LucideAngularModule } from 'lucide-angular';
@@ -22,6 +22,7 @@ export class AppComponent implements OnInit {
   currentUser$!: Observable<User | null>;
   displayName$!: Observable<string | null>;
   isAdmin$!: Observable<boolean>;
+  isScannerPage = false;
 
   constructor(
     private authService: AuthService, 
@@ -46,6 +47,12 @@ export class AppComponent implements OnInit {
     this.isAdmin$ = profile$.pipe(
       map(profile => profile ? profile.role === 'admin' : false)
     );
+
+    this.router.events.pipe(
+      filter((event): event is NavigationEnd => event instanceof NavigationEnd)
+    ).subscribe((event: NavigationEnd) => {
+      this.isScannerPage = event.urlAfterRedirects === '/scanner';
+    });
   }
 
   toggleMenu(): void {

@@ -1,4 +1,4 @@
-<nav class="main-nav">
+<nav class="main-nav" *ngIf="!isScannerPage">
   <div class="logo-container" (click)="goToHome()">
     <app-logo></app-logo>
   </div>
@@ -41,11 +41,11 @@
 </div>
 
 <!-- Floating Action Button (FAB) -->
-<button class="fab-button" (click)="goToAgentConsole()" title="Open Fat Boy Assistant">
+<button *ngIf="!isScannerPage" class="fab-button" (click)="goToAgentConsole()" title="Open Fat Boy Assistant">
   <lucide-icon name="message-circle" [size]="32"></lucide-icon>
 </button>
 
-<main>
+<main [class.full-screen]="isScannerPage">
   <router-outlet></router-outlet>
 </main>
 
