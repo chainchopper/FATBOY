@@ -7,7 +7,7 @@ import { FoodIconComponent } from '../food-icon/food-icon.component';
 @Component({
   selector: 'app-product-card',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, FoodIconComponent], // Removed TitleCasePipe from direct imports
+  imports: [CommonModule, LucideAngularModule, FoodIconComponent, TitleCasePipe], // Explicitly added TitleCasePipe
   templateUrl: './product-card.component.html',
   styleUrls: ['./product-card.component.css']
 })
