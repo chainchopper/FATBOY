@@ -5,11 +5,12 @@ import { FriendsService, Friend, FriendRequest, Profile, ActivityFeedItem } from
 import { NotificationService } from '../services/notification.service';
 import { AppModalService } from '../services/app-modal.service';
 import { GamificationService } from '../services/gamification.service';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-friends',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './friends.component.html',
   styleUrls: ['./friends.component.css']
 })
