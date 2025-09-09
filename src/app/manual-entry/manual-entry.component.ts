@@ -8,6 +8,7 @@ import { NotificationService } from '../services/notification.service';
 import { ModalService } from '../services/modal.service';
 import { PreferencesService } from '../services/preferences.service';
 import { AiIntegrationService } from '../services/ai-integration.service';
+import { supabase } from '../../integrations/supabase/client';
 
 @Component({
   selector: 'app-manual-entry',
@@ -56,6 +57,19 @@ export class ManualEntryComponent {
       categories: categories,
       image: 'https://via.placeholder.com/150?text=Manually+Added'
     };
+
+    // Try to find a better image using our Edge Function
+    this.notificationService.showInfo('Searching for a product image...', 'AI Assistant');
+    const { data: productsData, error: functionError } = await supabase.functions.invoke('fetch-food-metadata', {
+        body: { food_names: [`${newProduct.name} ${newProduct.brand}`] }
+    });
+
+    if (functionError) {
+        console.warn('Could not fetch metadata for manually added product:', functionError);
+    } else if (productsData && productsData[0]?.product?.image) {
+        newProduct.image = productsData[0].product.image;
+        this.notificationService.showSuccess('Found a matching product image!', 'AI Assistant');
+    }
 
     const savedProduct = await this.productDb.addProduct(newProduct);
     if (!savedProduct) return; // Stop if product wasn't saved (e.g., user not logged in)
