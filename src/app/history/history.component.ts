@@ -8,7 +8,7 @@ import { ShoppingListService, ShoppingListItem } from '../services/shopping-list
 import { AppModalService } from '../services/app-modal.service';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { ProductCardComponent } from '../components/product-card/product-card.component';
+import { ProductCardComponent } from '../product-card.component';
 import { ShareService } from '../services/share.service';
 
 @Component({

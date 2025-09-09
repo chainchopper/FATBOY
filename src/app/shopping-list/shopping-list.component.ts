@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ShoppingListService, ShoppingListItem } from '../services/shopping-list.service';
 import { AppModalService } from '../services/app-modal.service';
 import { Observable } from 'rxjs';
-import { ProductCardComponent } from '../components/product-card/product-card.component'; // Import ProductCardComponent
+import { ProductCardComponent } from '../product-card.component'; // Import ProductCardComponent
 import { Product } from '../services/product-db.service'; // Import Product for event emitters
 
 @Component({

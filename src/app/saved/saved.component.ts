@@ -4,7 +4,7 @@ import { ProductDbService, Product } from '../services/product-db.service';
 import { map } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 import { ShareService } from '../services/share.service';
-import { ProductCardComponent } from '../components/product-card/product-card.component'; // Import ProductCardComponent
+import { ProductCardComponent } from '../product-card.component'; // Import ProductCardComponent
 
 @Component({
   selector: 'app-saved',

@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AppModalService, ConfirmationData } from '../../services/app-modal.service';
-import { Product } from '../../services/product-db.service';
-import { ShoppingListService } from '../../services/shopping-list.service';
-import { FoodDiaryService, MealType } from '../../services/food-diary.service';
-import { ProductDbService } from '../../services/product-db.service';
-import { NotificationService } from '../../services/notification.service';
+import { AppModalService, ConfirmationData } from './services/app-modal.service';
+import { Product } from './services/product-db.service';
+import { ShoppingListService } from './services/shopping-list.service';
+import { FoodDiaryService, MealType } from './services/food-diary.service';
+import { ProductDbService } from './services/product-db.service';
+import { NotificationService } from './services/notification.service';
 import { Observable } from 'rxjs';
 
 @Component({

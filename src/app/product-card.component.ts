@@ -1,8 +1,8 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Product } from '../../services/product-db.service';
+import { Product } from './services/product-db.service';
 import { LucideAngularModule } from 'lucide-angular';
-import { FoodIconComponent } from '../food-icon/food-icon.component'; // Import FoodIconComponent
+import { FoodIconComponent } from './food-icon.component'; // Import FoodIconComponent
 
 @Component({
   selector: 'app-product-card',

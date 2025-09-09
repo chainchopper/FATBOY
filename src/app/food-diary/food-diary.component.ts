@@ -6,11 +6,11 @@ import { map } from 'rxjs/operators';
 import { ScanContextService } from '../services/scan-context.service';
 import { Router } from '@angular/router';
 import { PreferencesService, UserPreferences } from '../services/preferences.service';
-import { ProductCardComponent } from '../components/product-card/product-card.component';
+import { ProductCardComponent } from '../product-card.component';
 import { Product } from '../services/product-db.service';
 import { ShareService } from '../services/share.service';
 import { ShoppingListService } from '../services/shopping-list.service';
-import { DailySummaryCardComponent } from '../components/daily-summary-card/daily-summary-card.component';
+import { DailySummaryCardComponent } from '../daily-summary-card.component';
 
 @Component({
   selector: 'app-food-diary',
