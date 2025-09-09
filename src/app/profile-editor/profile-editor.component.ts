@@ -18,6 +18,7 @@ export class ProfileEditorComponent implements OnInit {
   profile: Profile | null = null;
   firstName: string = '';
   lastName: string = '';
+  bio: string = '';
   avatarFile: File | null = null;
   avatarUrl: string | null = null;
   isLoading = false;
@@ -33,6 +34,7 @@ export class ProfileEditorComponent implements OnInit {
     if (this.profile) {
       this.firstName = this.profile.first_name || '';
       this.lastName = this.profile.last_name || '';
+      this.bio = this.profile.bio || '';
       this.avatarUrl = this.profile.avatar_url;
     }
   }
@@ -69,6 +71,7 @@ export class ProfileEditorComponent implements OnInit {
     const updatedProfile = await this.profileService.updateProfile({
       first_name: this.firstName,
       last_name: this.lastName,
+      bio: this.bio,
       avatar_url: newAvatarUrl || undefined
     });
 

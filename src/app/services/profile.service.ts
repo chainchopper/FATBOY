@@ -11,6 +11,7 @@ export interface Profile {
   avatar_url: string | null;
   updated_at: string | null;
   role: string;
+  bio: string | null; // Add bio field
 }
 
 @Injectable({
@@ -51,7 +52,7 @@ export class ProfileService {
     );
   }
 
-  async updateProfile(profileData: { first_name: string, last_name: string, avatar_url?: string }): Promise<Profile | null> {
+  async updateProfile(profileData: { first_name: string, last_name: string, bio?: string, avatar_url?: string }): Promise<Profile | null> {
     const userId = this.authService.getCurrentUserId();
     if (!userId) return null;
 

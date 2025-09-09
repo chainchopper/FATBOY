@@ -57,6 +57,13 @@ h2 {
   text-shadow: 0 0 8px #f038ff;
 }
 
+.bio {
+  color: #e0e0e0;
+  font-style: italic;
+  max-width: 80%;
+  margin: 10px auto 20px;
+}
+
 .email {
   color: #a0a0c0;
   font-size: 1rem;

@@ -19,6 +19,11 @@
       <input type="text" id="lastName" [(ngModel)]="lastName" placeholder="Your last name">
     </div>
 
+    <div class="form-group">
+      <label for="bio">Your Bio</label>
+      <textarea id="bio" [(ngModel)]="bio" rows="4" placeholder="Tell the community a little about yourself..."></textarea>
+    </div>
+
     <button (click)="saveProfile()" class="save-btn" [disabled]="isLoading">
       {{ isLoading ? 'Saving...' : 'Save Changes' }}
     </button>
