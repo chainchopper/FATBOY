@@ -347,3 +347,23 @@
   box-shadow: 0 0 15px rgba(240, 56, 255, 0.7);
   transform: translateY(-2px);
 }
+
+/* Camera Integration Area */
+.camera-integration-area {
+  margin-top: 20px;
+  padding: 15px;
+  background: rgba(15, 15, 30, 0.8);
+  border: 1px solid #0abdc6;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.camera-feedback p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #a0a0c0;
+  text-align: center;
+}

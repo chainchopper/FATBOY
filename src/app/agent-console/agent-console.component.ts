@@ -10,6 +10,12 @@ import { AppModalService } from '../services/app-modal.service';
 import { Subscription, interval } from 'rxjs';
 import { supabase } from '../../integrations/supabase/client';
 import { Router } from '@angular/router'; // Import Router
+import { CameraFeedComponent } from '../components/camera-feed/camera-feed.component'; // Import CameraFeedComponent
+import { BarcodeProcessorService } from '../services/barcode-processor.service'; // Import BarcodeProcessorService
+import { OcrProcessorService } from '../services/ocr-processor.service'; // Import OcrProcessorService
+import { ProductDbService, Product } from '../services/product-db.service'; // Import ProductDbService
+import { NotificationService } from '../services/notification.service'; // Import NotificationService
+import { AudioService } from '../services/audio.service'; // Import AudioService
 
 interface Message {
   sender: 'user' | 'agent' | 'tool';
@@ -31,7 +37,7 @@ interface SlashCommand {
 @Component({
   selector: 'app-agent-console',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, CameraFeedComponent], // Add CameraFeedComponent
   templateUrl: './agent-console.component.html',
   styleUrls: ['./agent-console.component.css']
 })
@@ -44,6 +50,9 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
   isAgentTyping = false;
   isListening = false;
   agentStatus: 'online' | 'offline' = 'offline';
+  showCameraFeed = false; // New: control camera visibility
+  isProcessingCameraInput = false; // New: indicate camera input processing
+
   private speechSubscription!: Subscription;
   private statusSubscription!: Subscription;
   private authSubscription!: Subscription;
@@ -61,6 +70,9 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
   ];
   filteredCommands: SlashCommand[] = [];
 
+  // Track ongoing processing to allow cancellation
+  private processingAbortController: AbortController | null = null;
+
   constructor(
     private aiService: AiIntegrationService,
     private speechService: SpeechService,
@@ -69,7 +81,12 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
     private profileService: ProfileService,
     private appModalService: AppModalService,
     private cdr: ChangeDetectorRef,
-    private router: Router // Inject Router
+    private router: Router,
+    private barcodeProcessorService: BarcodeProcessorService, // Inject
+    private ocrProcessorService: OcrProcessorService, // Inject
+    private productDb: ProductDbService, // Inject
+    private notificationService: NotificationService, // Inject
+    private audioService: AudioService // Inject
   ) {}
 
   ngOnInit() {
@@ -122,6 +139,7 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
     if (this.authSubscription) this.authSubscription.unsubscribe();
     if (this.preferencesSubscription) this.preferencesSubscription.unsubscribe();
     this.speechService.stopListening();
+    this.abortProcessing(); // Ensure any ongoing processing is aborted
   }
 
   ngAfterViewChecked() {
@@ -222,9 +240,9 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
         simulatedInput = `No, do not add "${payload.product_name}" to my food diary.`;
         break;
       case 'open_scanner':
-        this.router.navigate(['/scanner']);
-        this.speechService.speak('Opening the scanner now.');
-        return; // Do not send to AI, navigate directly
+        this.showCameraFeed = true; // Open the camera feed directly in the chat
+        this.speechService.speak('Opening the camera now. You can scan a barcode or capture a label.');
+        return; // Do not send to AI, handle directly
       // Add more cases for other dynamic actions
       default:
         simulatedInput = `User clicked: ${action} with payload: ${JSON.stringify(payload)}`;
@@ -232,6 +250,112 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
     }
     this.userInput = simulatedInput;
     await this.sendMessage();
+  }
+
+  // New: Handlers for CameraFeedComponent events
+  async handleBarcodeScannedFromChat(decodedText: string): Promise<void> {
+    if (this.isProcessingCameraInput) return;
+    this.isProcessingCameraInput = true;
+    this.notificationService.showInfo('Barcode detected from chat camera! Processing...', 'Chat Scan');
+    this.processingAbortController = new AbortController();
+
+    try {
+      const productInfo = await this.barcodeProcessorService.processBarcode(decodedText, this.processingAbortController.signal);
+      if (this.processingAbortController.signal.aborted) throw new Error('Operation aborted');
+
+      if (!productInfo) {
+        this.notificationService.showWarning('Product not found or could not be processed.', 'Chat Scan Failed');
+        this.audioService.playErrorSound();
+        return;
+      }
+
+      const savedProduct = await this.productDb.addProduct(productInfo);
+      if (!savedProduct) {
+        return;
+      }
+
+      this.notificationService.showSuccess(`Scanned "${savedProduct.name}"!`, 'Chat Scan Success');
+      this.speechService.speak(`I found ${savedProduct.name} by ${savedProduct.brand}. It's a ${savedProduct.verdict} choice.`);
+      this.aiService.setLastDiscussedProduct(savedProduct);
+      
+      // Simulate user input to send product info back to AI
+      this.userInput = `I just scanned "${savedProduct.name}" by "${savedProduct.brand}". Its verdict is "${savedProduct.verdict}". Ingredients: ${savedProduct.ingredients.join(', ')}.`;
+      await this.sendMessage();
+
+    } catch (error: any) {
+      if (error.message === 'Operation aborted') {
+        this.notificationService.showInfo('Camera input processing cancelled.', 'Cancelled');
+      } else {
+        console.error('Barcode processing error from chat camera:', error);
+        this.notificationService.showError('Failed to process barcode from chat camera.', 'Error');
+        this.audioService.playErrorSound();
+      }
+    } finally {
+      this.isProcessingCameraInput = false;
+      this.processingAbortController = null;
+      // After processing, resume barcode scanning in the CameraFeedComponent
+      // (assuming CameraFeedComponent has a method to resume its internal barcode scanner)
+      // Or, if we want to close the camera after one scan, we can call handleCameraClosedFromChat() here.
+      // For now, let's keep it open and let the user close it.
+    }
+  }
+
+  async handleImageCapturedFromChat(imageDataUrl: string): Promise<void> {
+    if (this.isProcessingCameraInput) return;
+    this.isProcessingCameraInput = true;
+    this.notificationService.showInfo('Image captured from chat camera! Processing for OCR...', 'Chat OCR');
+    this.processingAbortController = new AbortController();
+
+    try {
+      const productInfo = await this.ocrProcessorService.processImageForOcr(imageDataUrl, this.processingAbortController.signal);
+      if (this.processingAbortController.signal.aborted) throw new Error('Operation aborted');
+
+      if (!productInfo) {
+        this.notificationService.showWarning('No product data extracted from image.', 'Chat OCR Failed');
+        this.audioService.playErrorSound();
+        return;
+      }
+
+      const savedProduct = await this.productDb.addProduct(productInfo);
+      if (!savedProduct) {
+        return;
+      }
+
+      this.notificationService.showSuccess(`Processed "${savedProduct.name}"!`, 'Chat OCR Success');
+      this.speechService.speak(`I processed the label for ${savedProduct.name} by ${savedProduct.brand}. It's a ${savedProduct.verdict} choice.`);
+      this.aiService.setLastDiscussedProduct(savedProduct);
+
+      // Simulate user input to send product info back to AI
+      this.userInput = `I just captured and processed a label for "${savedProduct.name}" by "${savedProduct.brand}". Its verdict is "${savedProduct.verdict}". Ingredients: ${savedProduct.ingredients.join(', ')}.`;
+      await this.sendMessage();
+
+    } catch (error: any) {
+      if (error.message === 'Operation aborted') {
+        this.notificationService.showInfo('Camera input processing cancelled.', 'Cancelled');
+      } else {
+        console.error('OCR processing error from chat camera:', error);
+        this.notificationService.showError('Failed to process image from chat camera.', 'Error');
+        this.audioService.playErrorSound();
+      }
+    } finally {
+      this.isProcessingCameraInput = false;
+      this.processingAbortController = null;
+    }
+  }
+
+  handleCameraClosedFromChat(): void {
+    this.showCameraFeed = false;
+    this.notificationService.showInfo('Camera closed.', 'Chat Camera');
+    this.speechService.speak('Camera closed.');
+    this.abortProcessing(); // Abort any pending processing if camera is closed manually
+  }
+
+  private abortProcessing(): void {
+    if (this.processingAbortController) {
+      this.processingAbortController.abort();
+      this.processingAbortController = null;
+    }
+    this.isProcessingCameraInput = false; // Reset camera input processing state
   }
 
   private scrollToBottom(): void {

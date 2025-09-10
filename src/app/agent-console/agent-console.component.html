@@ -55,6 +55,20 @@
         </div>
       </div>
     </div>
+
+    <!-- Integrated Camera Feed -->
+    <div *ngIf="showCameraFeed" class="camera-integration-area">
+      <app-camera-feed
+        instanceId="chat-camera"
+        (barcodeScanned)="handleBarcodeScannedFromChat($event)"
+        (imageCaptured)="handleImageCapturedFromChat($event)"
+        (cameraClosed)="handleCameraClosedFromChat()">
+      </app-camera-feed>
+      <div class="camera-feedback">
+        <p *ngIf="isProcessingCameraInput">Processing camera input...</p>
+        <p *ngIf="!isProcessingCameraInput">Camera active. Scan a barcode or capture a label.</p>
+      </div>
+    </div>
   </div>
 
   <div class="input-area">

@@ -6,7 +6,7 @@ export const environment = {
   production: false,
   
   // Specialized services (replace with your actual values)
-  ttsApiEndpoint: "http://api.blacknation.io:4123/v1/audio/speech", // Updated TTS API Endpoint
+  ttsApiEndpoint: "http://api.blacknation.io:4123", // Updated TTS API Endpoint to base URL
   ttsApiKey: "your_tts_api_key_here",
   suggestionsApiEndpoint: "https://your-suggestions-agent.com/generate",
   suggestionsApiKey: "your_suggestions_api_key_here",
