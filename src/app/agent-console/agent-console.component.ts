@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewChecked, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { AiIntegrationService, AiResponse, DynamicButton } from '../services/ai-integration.service';
+import { AiIntegrationService, AiResponse, DynamicButton, UiElement } from '../services/ai-integration.service'; // Import UiElement
 import { SpeechService } from '../services/speech.service';
 import { AuthService } from '../services/auth.service';
 import { PreferencesService } from '../services/preferences.service';
@@ -21,12 +21,6 @@ import { ShareService } from '../services/share.service'; // Import ShareService
 import { ShoppingListService } from '../services/shopping-list.service'; // Import ShoppingListService
 import { FoodDiaryService } from '../services/food-diary.service'; // Import FoodDiaryService
 import { firstValueFrom } from 'rxjs'; // Import firstValueFrom
-
-// Define UI Element interfaces
-interface UiElement {
-  type: string; // e.g., 'product_card'
-  data: any; // The data for the specific UI element
-}
 
 interface Message {
   sender: 'user' | 'agent' | 'tool';
@@ -252,6 +246,10 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
         break;
       case 'cancel_add_to_food_diary':
         simulatedInput = `No, do not add "${payload.product_name}" to my food diary.`;
+        break;
+      case 'add_to_food_diary_meal_select':
+        // This action is triggered by the dynamic meal selection buttons
+        simulatedInput = `Add "${payload.product_name}" by "${payload.brand}" to my food diary for ${payload.meal_type}.`;
         break;
       case 'open_scanner':
         this.showCameraFeed = true;

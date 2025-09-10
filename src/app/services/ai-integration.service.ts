@@ -3,7 +3,7 @@ import { environment } from '../../environments/environment';
 import { Product } from './product-db.service';
 import { AudioService } from './audio.service';
 import { AiContextService } from './ai-context.service';
-import { ToolExecutorService } from './tool-executor.service';
+import { ToolExecutorService, ToolExecutionResult } from './tool-executor.service'; // Import ToolExecutionResult
 
 export interface DynamicButton {
   text: string;
@@ -12,7 +12,7 @@ export interface DynamicButton {
 }
 
 // Define UI Element interfaces
-interface UiElement {
+export interface UiElement { // Exported for use in ToolExecutorService
   type: string; // e.g., 'product_card'
   data: any; // The data for the specific UI element
 }
@@ -101,7 +101,7 @@ export class AiIntegrationService {
       type: "function",
       function: {
         name: "add_to_food_diary",
-        description: "Adds a food product to the user's food diary for a specific meal type. Requires product name, brand, and meal type.",
+        description: "Adds a food product to the user's food diary for a specific meal type. If meal_type is not provided, the AI should ask the user to select one using dynamic buttons.",
         parameters: {
           type: "object",
           properties: {
@@ -116,10 +116,10 @@ export class AiIntegrationService {
             meal_type: {
               type: "string",
               enum: ["Breakfast", "Lunch", "Dinner", "Snack", "Drinks"],
-              description: "The meal type (e.g., Breakfast, Lunch, Dinner, Snack, Drinks)."
+              description: "The meal type (e.g., Breakfast, Lunch, Dinner, Snack, Drinks). This parameter is optional. If not provided, the AI should prompt the user for it."
             }
           },
-          required: ["product_name", "brand", "meal_type"]
+          required: ["product_name", "brand"] // meal_type is now optional
         }
       }
     },
@@ -268,6 +268,7 @@ export class AiIntegrationService {
     - Use the tool's output to formulate your final "response" message.
     - Always provide 3 helpful "suggestions".
     - If a tool call requires further clarification or a "yes/no" confirmation from the user, generate "dynamicButtons" to guide the interaction. For example, after suggesting to add an item to a list, provide "Yes, add it!" and "No, cancel." buttons.
+    - If the 'add_to_food_diary' tool is called without a 'meal_type', you MUST respond with dynamic buttons for meal selection (Breakfast, Lunch, Dinner, Snack, Drinks) and include the product_card UI element for context. The action for these buttons should be 'add_to_food_diary_meal_select' with the product details and selected meal_type in the payload.
     - If the user asks to scan something or open the camera, use the 'open_scanner' tool.
     - **IMPORTANT**: CONSIDER including a 'product_card' UI element in the 'uiElements' array if a specific product is the primary subject of the conversation or is being suggested. The 'data' for this 'product_card' should be the full 'Product' object.
     Example of a 'product_card' UI element:
@@ -315,7 +316,7 @@ export class AiIntegrationService {
       const choice = data.choices[0];
 
       if (choice.message.tool_calls && choice.message.tool_calls.length > 0) {
-        const toolExecutionResults = await Promise.all(
+        const toolExecutionResults: ToolExecutionResult[] = await Promise.all( // Specify type
           choice.message.tool_calls.map((tc: any) => this.toolExecutorService.executeTool(tc, this.lastDiscussedProduct))
         );
 
@@ -339,10 +340,16 @@ export class AiIntegrationService {
         const toolResponseMessage = toolData.choices[0].message.content;
         const parsedToolResponse = this._parseAiResponse(toolResponseMessage);
         
+        // Combine dynamic buttons and UI elements from tool execution results with AI's parsed response
+        const combinedDynamicButtons = toolExecutionResults.flatMap(res => res.dynamicButtons || []);
+        const combinedUiElements = toolExecutionResults.flatMap(res => res.uiElements || []);
+
         return { 
           ...parsedToolResponse, 
           toolCalls: choice.message.tool_calls, 
-          humanReadableToolCall: toolExecutionResults[0]?.humanReadableSummary || 'Performing an action...'
+          humanReadableToolCall: toolExecutionResults[0]?.humanReadableSummary || 'Performing an action...',
+          dynamicButtons: combinedDynamicButtons.length > 0 ? combinedDynamicButtons : parsedToolResponse.dynamicButtons,
+          uiElements: combinedUiElements.length > 0 ? combinedUiElements : parsedToolResponse.uiElements
         };
       }
 

@@ -4,6 +4,15 @@ import { FoodDiaryService, MealType } from './food-diary.service';
 import { PreferencesService } from './preferences.service';
 import { Product } from './product-db.service';
 import { Router } from '@angular/router'; // Import Router
+import { DynamicButton, UiElement } from './ai-integration.service'; // Import DynamicButton and UiElement
+
+export interface ToolExecutionResult {
+  tool_call_id: string;
+  output: string;
+  humanReadableSummary: string;
+  dynamicButtons?: DynamicButton[];
+  uiElements?: UiElement[];
+}
 
 @Injectable({
   providedIn: 'root'
@@ -17,11 +26,13 @@ export class ToolExecutorService {
     private router: Router // Inject Router
   ) { }
 
-  async executeTool(toolCall: any, lastDiscussedProduct: Product | null): Promise<{ tool_call_id: string; output: string; humanReadableSummary: string; }> {
+  async executeTool(toolCall: any, lastDiscussedProduct: Product | null): Promise<ToolExecutionResult> {
     const functionName = toolCall.function.name;
     const functionArgs = JSON.parse(toolCall.function.arguments);
     let toolOutput = '';
     let humanReadableSummary = '';
+    let dynamicButtons: DynamicButton[] | undefined;
+    let uiElements: UiElement[] | undefined;
 
     let productName = functionArgs.product_name;
     let brand = functionArgs.brand;
@@ -47,12 +58,28 @@ export class ToolExecutorService {
 
     switch (functionName) {
       case 'add_to_food_diary':
-        if (productToAdd.name && productToAdd.brand && functionArgs.meal_type) {
-          await this.foodDiaryService.addEntry(productToAdd, functionArgs.meal_type as MealType);
-          toolOutput = `PRODUCT_ADDED: Successfully added "${productToAdd.name}" to food diary for ${functionArgs.meal_type}.`;
-          humanReadableSummary = `Adding "${productToAdd.name}" to ${functionArgs.meal_type}.`;
+        if (productToAdd.name && productToAdd.brand) {
+          if (functionArgs.meal_type) {
+            await this.foodDiaryService.addEntry(productToAdd, functionArgs.meal_type as MealType);
+            toolOutput = `PRODUCT_ADDED: Successfully added "${productToAdd.name}" to food diary for ${functionArgs.meal_type}.`;
+            humanReadableSummary = `Adding "${productToAdd.name}" to ${functionArgs.meal_type}.`;
+          } else {
+            // If meal_type is missing, prompt the user with dynamic buttons
+            toolOutput = `AWAITING_MEAL_TYPE: Please select a meal type for "${productToAdd.name}".`;
+            humanReadableSummary = `What meal type is "${productToAdd.name}" for?`;
+            dynamicButtons = [
+              { text: '🍳 Breakfast', action: 'add_to_food_diary_meal_select', payload: { product_name: productToAdd.name, brand: productToAdd.brand, meal_type: 'Breakfast' } },
+              { text: '🥗 Lunch', action: 'add_to_food_diary_meal_select', payload: { product_name: productToAdd.name, brand: productToAdd.brand, meal_type: 'Lunch' } },
+              { text: '🍲 Dinner', action: 'add_to_food_diary_meal_select', payload: { product_name: productToAdd.name, brand: productToAdd.brand, meal_type: 'Dinner' } },
+              { text: '🍎 Snack', action: 'add_to_food_diary_meal_select', payload: { product_name: productToAdd.name, brand: productToAdd.brand, meal_type: 'Snack' } },
+              { text: '🥤 Drinks', action: 'add_to_food_diary_meal_select', payload: { product_name: productToAdd.name, brand: productToAdd.brand, meal_type: 'Drinks' } },
+            ];
+            // Also include the product card for context
+            uiElements = [{ type: 'product_card', data: productToAdd }];
+          }
         } else {
-          toolOutput = `FAILED: Missing product name, brand, or meal type.`;
+          toolOutput = `FAILED: Missing product name or brand.`;
+          humanReadableSummary = `Failed to add to food diary.`;
         }
         break;
       case 'add_to_shopping_list':
@@ -60,13 +87,16 @@ export class ToolExecutorService {
           const isOnList = this.shoppingListService.isItemOnList(productToAdd.id);
           if (isOnList) {
             toolOutput = `PRODUCT_EXISTS: The product '${productToAdd.name}' is already on the shopping list. Inform the user of this.`;
+            humanReadableSummary = `"${productToAdd.name}" is already on your shopping list.`;
           } else {
             await this.shoppingListService.addItem(productToAdd);
             toolOutput = `PRODUCT_ADDED: The product '${productToAdd.name}' was successfully added to the shopping list. Confirm this with the user.`;
+            humanReadableSummary = `Adding "${productToAdd.name}" to shopping list.`;
           }
-          humanReadableSummary = `Adding "${productToAdd.name}" to shopping list.`;
+          uiElements = [{ type: 'product_card', data: productToAdd }];
         } else {
           toolOutput = `FAILED: Missing product name or brand.`;
+          humanReadableSummary = `Failed to add to shopping list.`;
         }
         break;
       case 'remove_from_shopping_list':
@@ -76,6 +106,7 @@ export class ToolExecutorService {
           humanReadableSummary = `Removing "${functionArgs.product_name}" from your shopping list.`;
         } else {
           toolOutput = `FAILED: Missing product name.`;
+          humanReadableSummary = `Failed to remove from shopping list.`;
         }
         break;
       case 'update_avoided_ingredients':
@@ -105,12 +136,15 @@ export class ToolExecutorService {
       default:
         toolOutput = `Unknown tool: ${functionName}`;
         console.warn(toolOutput);
+        humanReadableSummary = `Unknown action.`;
     }
 
     return {
       tool_call_id: toolCall.id,
       output: toolOutput,
-      humanReadableSummary
+      humanReadableSummary,
+      dynamicButtons,
+      uiElements
     };
   }
 }
