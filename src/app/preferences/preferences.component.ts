@@ -4,9 +4,10 @@ import { FormsModule } from '@angular/forms';
 import { NotificationService } from '../services/notification.service';
 import { AuthService } from '../services/auth.service';
 import { IngredientParserService } from '../services/ingredient-parser.service';
-import { PreferencesService } from '../services/preferences.service';
+import { PreferencesService, UserPreferences } from '../services/preferences.service';
 import { GamificationService } from '../services/gamification.service';
-import { ButtonComponent } from '../button.component'; // Updated import path
+import { ButtonComponent } from '../button.component';
+import { ChatterboxTtsService, ChatterboxVoice } from '../services/chatterbox-tts.service'; // Import TTS service
 
 @Component({
   selector: 'app-preferences',
@@ -16,10 +17,10 @@ import { ButtonComponent } from '../button.component'; // Updated import path
   styleUrls: ['./preferences.component.css']
 })
 export class PreferencesComponent implements OnInit {
-  preferences: any;
-
+  preferences!: UserPreferences; // Use definite assignment assertion
   ingredientCategories: { [key: string]: { name: string, items: string[] } };
   newCustomIngredient: string = '';
+  availableTtsVoices: ChatterboxVoice[] = [];
   private currentUserId: string | null = null;
 
   constructor(
@@ -27,17 +28,28 @@ export class PreferencesComponent implements OnInit {
     private authService: AuthService,
     private ingredientParser: IngredientParserService,
     private preferencesService: PreferencesService,
-    private gamificationService: GamificationService
+    private gamificationService: GamificationService,
+    private chatterboxTtsService: ChatterboxTtsService // Inject ChatterboxTtsService
   ) {
     this.ingredientCategories = this.ingredientParser.INGREDIENT_DATABASE;
-    this.preferences = this.preferencesService.getPreferences();
   }
 
   ngOnInit() {
     this.authService.currentUser$.subscribe(user => {
       this.currentUserId = user?.id || null;
-      this.preferences = this.preferencesService.getPreferences();
+      this.preferencesService.preferences$.subscribe(prefs => {
+        this.preferences = { ...prefs }; // Create a copy to avoid direct mutation
+      });
+      this.loadTtsVoices();
     });
+  }
+
+  async loadTtsVoices(): Promise<void> {
+    this.availableTtsVoices = this.chatterboxTtsService.getAvailableVoices();
+    // Ensure the selected voice is still valid, or set a default
+    if (!this.availableTtsVoices.some(v => v.id === this.preferences.chatterboxVoiceId)) {
+      this.preferences.chatterboxVoiceId = 'KEVIN'; // Fallback to KEVIN if selected voice is not found
+    }
   }
 
   onIngredientSelected(event: Event): void {

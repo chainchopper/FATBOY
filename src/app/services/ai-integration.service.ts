@@ -34,7 +34,11 @@ export class AiIntegrationService {
     const endpoint = `${this.apiBaseUrl}/models`;
     try {
       const response = await fetch(endpoint);
-      return response.ok;
+      if (!response.ok) return false;
+      const data = await response.json();
+      const models = data.data.map((m: any) => m.id);
+      // Check if both chat model and Moonbeam2 are available
+      return models.includes(this.chatModelName) && models.includes('Moonbeam2');
     } catch (error) {
       console.error(`[AI STATUS CHECK FAILED]: Could not connect to ${endpoint}. Is the server running?`, error);
       return false;

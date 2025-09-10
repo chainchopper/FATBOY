@@ -14,7 +14,11 @@
     <div class="scan-area" [class.stable]="isStable">
       <div *ngIf="isScanningBarcode || isProcessingOcr" class="scan-line"></div>
     </div>
-    <p>{{ isStable ? 'Analyzing...' : 'Hold steady to scan a label' }}</p>
+    <p *ngIf="!isProcessingOcr && !isScanningBarcode">Scanner paused.</p>
+    <p *ngIf="isScanningBarcode && !isProcessingOcr && !isStable">Hold steady to scan a label or barcode.</p>
+    <p *ngIf="isScanningBarcode && !isProcessingOcr && isStable">Analyzing...</p>
+    <p *ngIf="isProcessingOcr">Processing...</p>
+    <p *ngIf="!isProcessingOcr && !isScanningBarcode && !isStable && !showExpandedOptions">Nothing recognized. Hold steady to scan.</p>
   </div>
 
   <!-- New Immersive Footer -->

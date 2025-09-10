@@ -85,6 +85,23 @@
   </div>
 
   <div class="preference-section">
+    <h3>Text-to-Speech (TTS) Preferences</h3>
+    <p class="section-description">Configure how the AI assistant speaks to you.</p>
+    <div class="preference-item">
+      <input type="checkbox" id="useOnDeviceTts" [(ngModel)]="preferences.useOnDeviceTts">
+      <label for="useOnDeviceTts">Prefer On-Device TTS (Fallback to Nirvana TTS)</label>
+    </div>
+    <div class="preference-item">
+      <label for="chatterboxVoice">Nirvana TTS Voice:</label>
+      <select id="chatterboxVoice" [(ngModel)]="preferences.chatterboxVoiceId" class="voice-select">
+        <option *ngFor="let voice of availableTtsVoices" [value]="voice.id">
+          {{ voice.name }} ({{ voice.language }})
+        </option>
+      </select>
+    </div>
+  </div>
+
+  <div class="preference-section">
     <h3>Privacy & Sharing</h3>
     <div class="preference-item">
       <input type="checkbox" id="shareUsername" [(ngModel)]="preferences.shareUsername">

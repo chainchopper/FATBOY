@@ -1,5 +1,6 @@
 import { EventEmitter, Injectable } from '@angular/core';
 import { NotificationService } from './notification.service';
+import { ChatterboxTtsService } from './chatterbox-tts.service'; // Import ChatterboxTtsService
 
 declare global {
   interface Window {
@@ -12,21 +13,14 @@ declare global {
   providedIn: 'root'
 })
 export class SpeechService {
-  private synth: SpeechSynthesisUtterance | null = null;
   private recognition: any;
   private isListening = false;
   public commandRecognized = new EventEmitter<string>(); // New EventEmitter
 
-  constructor(private notificationService: NotificationService) {
-    if ('SpeechSynthesisUtterance' in window) {
-      this.synth = new SpeechSynthesisUtterance();
-      this.synth.lang = 'en-US';
-      this.synth.rate = 1.0;
-      this.synth.pitch = 1.0;
-    } else {
-      console.warn('Web Speech API (SpeechSynthesis) is not supported in this browser.');
-    }
-
+  constructor(
+    private notificationService: NotificationService,
+    private chatterboxTtsService: ChatterboxTtsService // Inject ChatterboxTtsService
+  ) {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (SpeechRecognition) {
       this.recognition = new SpeechRecognition();
@@ -59,12 +53,7 @@ export class SpeechService {
   }
 
   speak(text: string): void {
-    if (this.synth && 'speechSynthesis' in window) {
-      this.synth.text = text;
-      window.speechSynthesis.speak(this.synth);
-    } else {
-      console.warn('TTS not available or not supported.');
-    }
+    this.chatterboxTtsService.speak(text); // Use ChatterboxTtsService for speaking
   }
 
   startListening(): void {

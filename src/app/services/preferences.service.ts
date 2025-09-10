@@ -14,6 +14,8 @@ export interface UserPreferences {
   shareUsername: boolean;
   shareGoal: boolean;
   shareLeaderboardStatus: boolean;
+  useOnDeviceTts: boolean; // New: Prefer on-device TTS
+  chatterboxVoiceId: string; // New: Selected Chatterbox voice ID
 }
 
 @Injectable({
@@ -30,7 +32,9 @@ export class PreferencesService {
     enableVoiceCommands: false,
     shareUsername: true,
     shareGoal: true,
-    shareLeaderboardStatus: true
+    shareLeaderboardStatus: true,
+    useOnDeviceTts: false, // Default to Chatterbox TTS
+    chatterboxVoiceId: 'KEVIN' // Default voice
   };
 
   private preferencesSubject = new BehaviorSubject<UserPreferences>(this.defaultPreferences);

@@ -62,6 +62,11 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
   private currentProcessingPromise: Promise<any> | null = null;
   private processingAbortController: AbortController | null = null;
 
+  // Human detection
+  private humanDetectionInterval: any;
+  private lastHumanDetectionTime = 0;
+  private humanDetectionCooldown = 5000; // 5 seconds cooldown
+
   constructor(
     private router: Router,
     private offService: OpenFoodFactsService,
@@ -107,6 +112,7 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
       this.voiceCommandSubscription = this.speechService.commandRecognized.subscribe(command => {
         this.handleVoiceCommand(command);
       });
+      this.startHumanDetection(); // Start human detection
     } catch (error) {
       console.error('Error initializing scanner:', error);
       this.notificationService.showError('Error initializing scanner.');
@@ -184,8 +190,6 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
     this.pauseScanningDetection(); // Pause detection to avoid multiple triggers
     this.isProcessingOcr = true; // Use this flag to indicate a processing task is active
 
-    this.screenFlash = true; // Flash the screen
-    this.audioService.playSuccessSound(); // Play success sound
     this.notificationService.showInfo('Barcode detected! Fetching product data...', 'Scanning');
 
     this.processingAbortController = new AbortController();
@@ -204,8 +208,8 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
       if (signal.aborted) throw new Error('Operation aborted');
 
       if (!productData) {
-        this.notificationService.showError('Product not found in any database.', 'Not Found');
-        this.audioService.playErrorSound();
+        this.notificationService.showWarning('Product not found in any database.', 'Not Found');
+        this.audioService.playErrorSound(); // Play error sound for failed recognition
         return; // Stop processing here, no flash/sound for failed recognition
       }
 
@@ -235,6 +239,10 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
         // No need for flash/sound here as it's a user-related failure, not recognition failure
         return; // Stop processing
       }
+
+      // Only flash and play sound on successful product recognition and saving
+      this.screenFlash = true;
+      this.audioService.playSuccessSound();
 
       sessionStorage.setItem('scannedProduct', JSON.stringify(savedProduct));
       this.aiService.setLastDiscussedProduct(savedProduct);
@@ -267,8 +275,6 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
     this.pauseScanningDetection(); // Pause detection to avoid conflicts
     this.isProcessingOcr = true;
 
-    this.screenFlash = true; // Flash the screen
-    this.audioService.playSuccessSound(); // Play success sound
     this.notificationService.showInfo('Capturing label for OCR...', 'Scanning');
 
     this.processingAbortController = new AbortController();
@@ -331,8 +337,6 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
         this.pauseScanningDetection(); // Pause detection
         this.isProcessingOcr = true;
 
-        this.screenFlash = true; // Flash the screen
-        this.audioService.playSuccessSound(); // Play success sound
         this.notificationService.showInfo('Image uploaded, processing for OCR...', 'Upload');
 
         this.processingAbortController = new AbortController();
@@ -369,7 +373,7 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
 
       if (!text || text.trim().length === 0) {
         this.notificationService.showWarning('No text detected. Please try a different image.', 'OCR Failed');
-        this.audioService.playErrorSound();
+        this.audioService.playErrorSound(); // Play error sound for failed recognition
         return; // Stop processing here, no flash/sound for failed recognition
       }
 
@@ -397,6 +401,10 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
         // No need for flash/sound here as it's a user-related failure, not recognition failure
         return; // Stop processing
       }
+
+      // Only flash and play sound on successful product recognition and saving
+      this.screenFlash = true;
+      this.audioService.playSuccessSound();
 
       sessionStorage.setItem('viewingProduct', JSON.stringify(product));
       this.aiService.setLastDiscussedProduct(product);
@@ -437,6 +445,7 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
       this.html5QrcodeScanner.stop().catch(err => console.error('Error stopping scanner on destroy:', err));
     }
     this.stopStabilityDetector();
+    this.stopHumanDetection(); // Stop human detection
     this.speechService.stopListening();
     if (this.voiceCommandSubscription) {
       this.voiceCommandSubscription.unsubscribe();
@@ -543,5 +552,81 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
       }
     }
     this.showExpandedOptions = !this.showExpandedOptions;
+  }
+
+  // Human Detection Logic
+  private startHumanDetection(): void {
+    this.stopHumanDetection();
+    this.humanDetectionInterval = setInterval(() => {
+      this.detectHuman();
+    }, 2000); // Check every 2 seconds
+  }
+
+  private stopHumanDetection(): void {
+    if (this.humanDetectionInterval) {
+      clearInterval(this.humanDetectionInterval);
+      this.humanDetectionInterval = null;
+    }
+  }
+
+  private async detectHuman(): Promise<void> {
+    if (this.isProcessingOcr || !this.html5QrcodeScanner || !this.html5QrcodeScanner.isScanning) return;
+    if (Date.now() - this.lastHumanDetectionTime < this.humanDetectionCooldown) return; // Cooldown
+
+    const video = this.reader.nativeElement.querySelector('video');
+    if (!video || video.readyState < video.HAVE_METADATA) return;
+
+    const canvas = document.createElement('canvas');
+    const scale = 0.5; // Scale down for faster processing
+    canvas.width = video.videoWidth * scale;
+    canvas.height = video.videoHeight * scale;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    const imageDataUrl = canvas.toDataURL('image/jpeg', 0.7); // Use JPEG for smaller size
+
+    try {
+      const response = await fetch('http://api.blacknation.io:8981/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          // 'Authorization': `Bearer ${environment.openaiApiKey}` // If API key is needed
+        },
+        body: JSON.stringify({
+          model: 'Moonbeam2', // The vision model
+          messages: [
+            {
+              role: 'user',
+              content: [
+                { type: 'text', text: 'Is there a human in this image? If so, describe them briefly (e.g., "a person wearing a red shirt"). Then, generate a fun, quirky, and unique automated response based on their appearance, focusing on colors or other features. Keep it under 20 words. If no human, just say "no human".' },
+                { type: 'image_url', image_url: { url: imageDataUrl } }
+              ]
+            }
+          ],
+          max_tokens: 60,
+          temperature: 0.9
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`Moonbeam2 API Error: ${response.status} ${await response.text()}`);
+      }
+
+      const data = await response.json();
+      const aiResponse = data.choices[0]?.message?.content;
+
+      if (aiResponse && aiResponse.toLowerCase().includes('no human')) {
+        // console.log('No human detected.');
+      } else if (aiResponse) {
+        this.notificationService.showInfo(aiResponse, 'Human Detected!');
+        this.speechService.speak(aiResponse);
+        this.lastHumanDetectionTime = Date.now(); // Reset cooldown
+      }
+
+    } catch (error) {
+      console.error('Error detecting human with Moonbeam2:', error);
+      // this.notificationService.showError('Failed to detect human.', 'Vision Error'); // Avoid spamming notifications
+    }
   }
 }
