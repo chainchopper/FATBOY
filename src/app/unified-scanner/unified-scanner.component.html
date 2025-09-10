@@ -17,9 +17,20 @@
     </div>
     <div class="header-title">
       <app-logo></app-logo>
-      <span>SCANNER</span>
+      <!-- Changed title to be more consistent with main app branding -->
+      <div class="title-text">
+        <span>Fat Boy Time</span>
+        <span class="scanner-subtitle">Scanner</span>
+      </div>
     </div>
     <div class="header-right">
+      <!-- Add notification button to scanner header -->
+      <button class="notification-btn" (click)="toggleNotifications()">
+        <lucide-icon name="bell" [size]="24"></lucide-icon>
+        <span *ngIf="(unreadNotifications$ | async) as count" class="notification-badge" [class.visible]="count > 0">
+          {{ count }}
+        </span>
+      </button>
       <button *ngIf="cameras.length > 1" (click)="switchCamera()" class="header-btn" title="Switch Camera">
         <lucide-icon name="refresh-cw" [size]="24"></lucide-icon>
       </button>
@@ -53,3 +64,6 @@
     </button>
   </div>
 </div>
+
+<!-- Notifications panel, similar to app.component.html -->
+<app-notifications *ngIf="showNotifications" (close)="showNotifications = false"></app-notifications>

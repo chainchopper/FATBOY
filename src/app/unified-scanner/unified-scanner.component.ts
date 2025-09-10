@@ -13,17 +13,19 @@ import { AuthService } from '../services/auth.service';
 import { PermissionsService } from '../services/permissions.service';
 import { PreferencesService } from '../services/preferences.service';
 import { AiIntegrationService } from '../services/ai-integration.service';
-import { BarcodeLookupService } from '../services/barcode-lookup.service'; // Import the new service
+import { BarcodeLookupService } from '../services/barcode-lookup.service';
 import { take } from 'rxjs/operators';
-import { Subscription } from 'rxjs';
+import { Subscription, Observable } from 'rxjs';
 import { LucideAngularModule } from 'lucide-angular';
-import { UiService } from '../services/ui.service'; // Import UiService
-import { LogoComponent } from '../logo/logo.component'; // Import LogoComponent
+import { UiService } from '../services/ui.service';
+import { LogoComponent } from '../logo/logo.component';
+import { UserNotificationService } from '../services/user-notification.service'; // Import UserNotificationService
+import { NotificationsComponent } from '../notifications/notifications.component'; // Import NotificationsComponent
 
 @Component({
   selector: 'app-unified-scanner',
   standalone: true,
-  imports: [CommonModule, RouterLink, LucideAngularModule, LogoComponent], // Add LogoComponent here
+  imports: [CommonModule, RouterLink, LucideAngularModule, LogoComponent, NotificationsComponent], // Add NotificationsComponent here
   templateUrl: './unified-scanner.component.html',
   styleUrls: ['./unified-scanner.component.css']
 })
@@ -35,7 +37,7 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
   isScanningBarcode = false;
   isProcessingOcr = false;
   isVoiceListening = false;
-  isStable = false; // New state for camera stability
+  isStable = false;
 
   public cameras: MediaDeviceInfo[] = [];
   private selectedCameraId: string | null = null;
@@ -43,13 +45,14 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
   private voiceCommandSubscription!: Subscription;
   private preferencesSubscription!: Subscription;
 
-  // --- Stability Detection Properties ---
+  public showNotifications = false; // Add property for notifications panel visibility
+  public unreadNotifications$!: Observable<number>; // Add observable for unread count
+
   private stabilityCheckInterval: any;
   private lastFrame: ImageData | null = null;
-  private stabilityThreshold = 500000; // Adjust this value based on testing
+  private stabilityThreshold = 500000;
   private stableCounter = 0;
-  private requiredStableFrames = 3; // Requires 1.5 seconds of stability (3 * 500ms)
-  // --- End Stability Detection Properties ---
+  private requiredStableFrames = 3;
 
   constructor(
     private router: Router,
@@ -64,8 +67,11 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
     private preferencesService: PreferencesService,
     private aiService: AiIntegrationService,
     private barcodeLookupService: BarcodeLookupService,
-    public uiService: UiService // Inject UiService and make it public for template
-  ) {}
+    public uiService: UiService,
+    private userNotificationService: UserNotificationService // Inject UserNotificationService
+  ) {
+    this.unreadNotifications$ = this.userNotificationService.unreadCount$; // Initialize
+  }
 
   async ngAfterViewInit() {
     const hasCameraPermission = await this.permissionsService.checkAndRequestCameraPermission();
@@ -101,6 +107,11 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
   toggleVoiceListening() {
     const currentPrefs = this.preferencesService.getPreferences();
     this.preferencesService.savePreferences({ ...currentPrefs, enableVoiceCommands: !currentPrefs.enableVoiceCommands });
+  }
+
+  toggleNotifications(): void {
+    this.showNotifications = !this.showNotifications;
+    this.uiService.closeMenu(); // Close main menu when opening notifications
   }
 
   private handleVoiceCommand(command: string): void {
@@ -322,9 +333,8 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
     }
   }
 
-  // --- Stability Detection Methods ---
   private startStabilityDetector() {
-    this.stopStabilityDetector(); // Ensure no multiple intervals are running
+    this.stopStabilityDetector();
     this.stabilityCheckInterval = setInterval(() => {
       this.checkForStability();
     }, 500);
@@ -377,5 +387,4 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
       this.captureLabelForOcr();
     }
   }
-  // --- End Stability Detection Methods ---
 }

@@ -163,9 +163,28 @@
   font-size: 1.5rem;
   color: #f038ff;
   text-shadow: 0 0 8px #f038ff;
-  display: flex; /* Added to align logo and text */
-  align-items: center; /* Added to align logo and text */
-  gap: 10px; /* Space between logo and text */
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.header-title .title-text {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Center the two lines of text */
+}
+
+.header-title .title-text span:first-child {
+  font-size: 1.5rem; /* Main title size */
+  color: #f038ff;
+  text-shadow: 0 0 8px #f038ff;
+}
+
+.header-title .scanner-subtitle {
+  font-family: 'Inter', sans-serif; /* Use a more subtle font */
+  font-size: 0.8rem; /* Smaller text */
+  color: #a0a0c0; /* Muted color */
+  text-shadow: none; /* No neon flicker for this part */
 }
 
 .header-btn {
@@ -191,7 +210,7 @@
   gap: 4px;
   font-size: 0.8rem;
   transition: color 0.3s;
-  width: 60px; /* Give a fixed width for alignment */
+  width: 60px;
 }
 .footer-btn:hover, .footer-btn.active {
   color: #0abdc6;
@@ -208,7 +227,7 @@
   align-items: center;
   justify-content: center;
   transition: all 0.3s;
-  padding: 0; /* Reset padding */
+  padding: 0;
 }
 .capture-btn:hover {
   border-color: #0abdc6;
@@ -227,7 +246,7 @@
 
 .voice-listening-indicator {
   position: absolute;
-  bottom: 120px; /* Position above the footer */
+  bottom: 120px;
   left: 50%;
   transform: translateX(-50%);
   color: #0abdc6;
@@ -251,5 +270,37 @@
 
 .header-left {
   display: flex;
-  gap: 10px; /* Space between buttons */
+  gap: 10px;
+}
+
+/* Notification Button styles (copied from app.component.css for consistency) */
+.notification-btn {
+  position: relative;
+  background: transparent;
+  border: none;
+  color: #e0e0e0;
+  cursor: pointer;
+  padding: 8px;
+}
+
+.notification-badge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background-color: #f038ff;
+  color: #1a1a2e;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  font-size: 12px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: scale(0);
+  transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+}
+
+.notification-badge.visible {
+  transform: scale(1);
 }
