@@ -7,8 +7,8 @@
       <h3>{{ modalTitle }}</h3>
       <p>{{ modalMessage }}</p>
       <div class="modal-actions confirmation-actions">
-        <button (click)="handleCancel()" class="action-btn cancel-btn">{{ cancelButtonText }}</button>
-        <button (click)="handleConfirm()" class="action-btn confirm-btn">{{ confirmButtonText }}</button>
+        <app-button variant="secondary" (onClick)="handleCancel()">{{ cancelButtonText }}</app-button>
+        <app-button variant="default" (onClick)="handleConfirm()">{{ confirmButtonText }}</app-button>
       </div>
     </div>
 
@@ -17,17 +17,17 @@
       <h3>Add '{{ currentProduct.name }}' to...</h3>
       
       <div class="modal-actions product-actions">
-        <button (click)="addToShoppingList()" class="action-btn">🛒 Shopping List</button>
-        <button (click)="addToAvoidList()" class="action-btn">🚫 Avoid List</button>
-        <button (click)="toggleMealOptions()" class="action-btn">🥗 Food Diary</button>
+        <app-button variant="outline" (onClick)="addToShoppingList()">🛒 Shopping List</app-button>
+        <app-button variant="outline" (onClick)="addToAvoidList()">🚫 Avoid List</app-button>
+        <app-button variant="outline" (onClick)="toggleMealOptions()">🥗 Food Diary</app-button>
       </div>
 
       <div *ngIf="showMealOptions" class="meal-options">
-        <button (click)="addToDiary('Breakfast')" class="meal-btn">🍳 Breakfast</button>
-        <button (click)="addToDiary('Lunch')" class="meal-btn">🥗 Lunch</button>
-        <button (click)="addToDiary('Dinner')" class="meal-btn">🍲 Dinner</button>
-        <button (click)="addToDiary('Snack')" class="meal-btn">🍎 Snack</button>
-        <button (click)="addToDiary('Drinks')" class="meal-btn">🥤 Drinks</button>
+        <app-button variant="ghost" (onClick)="addToDiary('Breakfast')">🍳 Breakfast</app-button>
+        <app-button variant="ghost" (onClick)="addToDiary('Lunch')">🥗 Lunch</app-button>
+        <app-button variant="ghost" (onClick)="addToDiary('Dinner')">🍲 Dinner</app-button>
+        <app-button variant="ghost" (onClick)="addToDiary('Snack')">🍎 Snack</app-button>
+        <app-button variant="ghost" (onClick)="addToDiary('Drinks')">🥤 Drinks</app-button>
       </div>
     </div>
   </div>

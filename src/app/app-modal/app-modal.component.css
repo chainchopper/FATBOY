@@ -66,37 +66,13 @@
   gap: 15px;
 }
 
-.action-btn {
-  padding: 12px 20px;
-  border-radius: 8px;
-  border: 1px solid #4a4a6e;
-  background-color: #2a2a4e;
-  color: #e0e0e0;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: all 0.3s;
-  width: 100%;
-}
-
-.action-btn:hover {
-  border-color: #0abdc6;
-  box-shadow: 0 0 10px #0abdc6;
-  color: #0abdc6;
-}
+/* Removed .action-btn styles as they are now handled by ButtonComponent */
 
 .confirmation-actions {
   flex-direction: row;
 }
 
-.confirm-btn {
-  background-color: #0abdc6;
-  color: #1a1a2e;
-  border-color: #0abdc6;
-}
-
-.cancel-btn {
-  background-color: #4a4a6e;
-}
+/* Removed .confirm-btn and .cancel-btn styles as they are now handled by ButtonComponent */
 
 .meal-options {
   margin-top: 20px;
@@ -107,17 +83,4 @@
   gap: 10px;
 }
 
-.meal-btn {
-  padding: 10px;
-  border-radius: 4px;
-  border: 1px solid #4a4a6e;
-  background-color: #1a1a2e;
-  color: #e0e0e0;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
-.meal-btn:hover {
-  border-color: #f038ff;
-  color: #f038ff;
-}
+/* Removed .meal-btn styles as they are now handled by ButtonComponent */
