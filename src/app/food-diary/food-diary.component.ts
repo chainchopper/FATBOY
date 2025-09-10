@@ -18,7 +18,7 @@ import { DiaryItemComponent } from '../diary-item/diary-item.component';
   standalone: true,
   imports: [CommonModule, KeyValuePipe, TitleCasePipe, DatePipe, DailySummaryCardComponent, DiaryItemComponent],
   templateUrl: './food-diary.component.html',
-  styleUrls: ['./food-diary.component.css']
+  styleUrls: [] // Removed reference to .css file
 })
 export class FoodDiaryComponent implements OnInit {
   todayEntries$!: Observable<DiaryEntry[]>;

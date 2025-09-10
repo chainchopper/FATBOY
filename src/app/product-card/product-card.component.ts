@@ -13,7 +13,7 @@ import { Router } from '@angular/router'; // Import Router
   standalone: true,
   imports: [CommonModule, LucideAngularModule, FoodIconComponent, CustomTitleCasePipe, ButtonComponent],
   templateUrl: './product-card.component.html',
-  styleUrls: ['./product-card.component.css']
+  styleUrls: [] // Removed reference to .css file
 })
 export class ProductCardComponent {
   @Input() product!: Product;

@@ -8,7 +8,7 @@ import { UserPreferences } from '../services/preferences.service';
   standalone: true,
   imports: [CommonModule, TitleCasePipe, KeyValuePipe],
   templateUrl: './daily-summary-card.component.html',
-  styleUrls: ['./daily-summary-card.component.css']
+  styleUrls: [] // Removed reference to .css file
 })
 export class DailySummaryCardComponent implements OnChanges {
   @Input() summary!: { totalCalories: number; totalFlaggedItems: number; flaggedIngredients: { [key: string]: number } };
