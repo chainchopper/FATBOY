@@ -7,13 +7,14 @@ import { AppModalService } from '../services/app-modal.service';
 import { GamificationService } from '../services/gamification.service';
 import { RouterLink } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
+import { ButtonComponent } from '../button.component'; // Import ButtonComponent
 
 @Component({
   selector: 'app-friends',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, LucideAngularModule, DatePipe],
+  imports: [CommonModule, FormsModule, RouterLink, LucideAngularModule, DatePipe, ButtonComponent], // Add ButtonComponent
   templateUrl: './friends.component.html',
-  styleUrls: ['./friends.component.css']
+  styleUrls: []
 })
 export class FriendsComponent implements OnInit {
   friends: Friend[] = [];

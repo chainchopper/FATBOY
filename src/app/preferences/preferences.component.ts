@@ -9,13 +9,14 @@ import { GamificationService } from '../services/gamification.service';
 import { ButtonComponent } from '../button.component';
 import { ChatterboxTtsService, ChatterboxVoice } from '../services/chatterbox-tts.service'; // Import TTS service
 import { SpeechService } from '../services/speech.service'; // Import SpeechService
+import { InputComponent } from '../input.component'; // Import InputComponent
 
 @Component({
   selector: 'app-preferences',
   standalone: true,
-  imports: [CommonModule, FormsModule, KeyValuePipe, TitleCasePipe, ButtonComponent],
+  imports: [CommonModule, FormsModule, KeyValuePipe, TitleCasePipe, ButtonComponent, InputComponent], // Add InputComponent
   templateUrl: './preferences.component.html',
-  styleUrls: ['./preferences.component.css']
+  styleUrls: []
 })
 export class PreferencesComponent implements OnInit {
   preferences!: UserPreferences; // Use definite assignment assertion

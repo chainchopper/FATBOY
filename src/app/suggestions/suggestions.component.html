@@ -1,54 +1,54 @@
-<div class="suggestions-container">
+<div class="suggestions-container max-w-5xl mx-auto p-5 text-gray-100">
   
-  <div *ngIf="conflicts.length > 0" class="conflicts-section">
-    <h3>⚠️ Preference Conflicts Found</h3>
-    <p>Some items on your lists now conflict with your updated preferences.</p>
-    <div class="conflicts-grid">
-      <div *ngFor="let conflict of conflicts" class="conflict-card">
-        <h4>{{ conflict.product.name }}</h4>
-        <p class="conflict-details">
+  <div *ngIf="conflicts.length > 0" class="conflicts-section bg-purple-900/20 border border-purple-500 rounded-xl p-5 mb-10 shadow-lg shadow-purple-500/30">
+    <h3 class="text-xl font-semibold text-purple-400 text-center mb-2.5">⚠️ Preference Conflicts Found</h3>
+    <p class="text-sm text-center mb-5 text-gray-400">Some items on your lists now conflict with your updated preferences.</p>
+    <div class="conflicts-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div *ngFor="let conflict of conflicts" class="conflict-card bg-gray-900 border border-gray-700 rounded-lg p-4 text-center">
+        <h4 class="m-0 mb-2.5 text-gray-100 font-medium">{{ conflict.product.name }}</h4>
+        <p class="conflict-details text-sm text-gray-400 mb-4">
           On your <strong>{{ conflict.listType }}</strong>, contains <strong>{{ conflict.conflictingIngredient }}</strong>.
         </p>
-        <button (click)="resolveConflict(conflict)" class="resolve-btn">Remove from List</button>
+        <app-button (click)="resolveConflict(conflict)" variant="destructive" size="sm">Remove from List</app-button>
       </div>
     </div>
   </div>
 
-  <h2>Product Suggestions</h2>
-  <p>Based on your preferences and scanning history, here are some products you might like:</p>
+  <h2 class="text-center mb-4 text-3xl font-bold text-teal-400 drop-shadow-lg shadow-teal-400">Product Suggestions</h2>
+  <p class="text-center mb-8 text-gray-400">Based on your preferences and scanning history, here are some products you might like:</p>
   
-  <div *ngIf="isLoading && suggestions.length === 0" class="loading">
+  <div *ngIf="isLoading && suggestions.length === 0" class="loading text-center p-10 text-gray-400 bg-gray-900/80 rounded-xl border border-gray-700">
     <p>🤖 Analyzing your preferences...</p>
   </div>
   
-  <div *ngIf="!isLoading && suggestions.length === 0 && conflicts.length === 0" class="empty-state">
+  <div *ngIf="!isLoading && suggestions.length === 0 && conflicts.length === 0" class="empty-state text-center p-10 text-gray-400 bg-gray-900/80 rounded-xl border border-gray-700">
     <p>Scan more products to get personalized suggestions!</p>
   </div>
   
-  <div *ngIf="!isLoading && suggestions.length > 0" class="suggestions-grid">
-    <div *ngFor="let suggestion of suggestions" class="suggestion-card">
+  <div *ngIf="!isLoading && suggestions.length > 0" class="suggestions-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mt-5">
+    <div *ngFor="let suggestion of suggestions" class="suggestion-card bg-gray-900/80 border border-gray-700 rounded-xl p-5 flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-purple-500/50 hover:border-purple-500">
       
-      <div class="suggestion-info">
-        <h3>{{suggestion.product.name}}</h3>
-        <p class="brand">{{suggestion.product.brand}}</p>
+      <div class="suggestion-info flex-1 mb-4">
+        <h3 class="text-gray-100 mb-1.5 font-semibold text-lg">{{suggestion.product.name}}</h3>
+        <p class="brand text-gray-400 text-sm mb-4">{{suggestion.product.brand}}</p>
         
-        <div class="reason">
-          <span class="reason-icon">💡</span>
-          <p>{{suggestion.reason}}</p>
+        <div class="reason bg-teal-900/20 border-l-4 border-teal-500 p-2.5 mb-4 rounded-r-lg flex items-center gap-2.5">
+          <span class="reason-icon text-lg">💡</span>
+          <p class="m-0 text-left text-sm text-teal-400">{{suggestion.reason}}</p>
         </div>
 
-        <div class="product-categories">
-          <span *ngFor="let category of suggestion.product.categories.slice(0, 3)" class="category-tag">
+        <div class="product-categories flex flex-wrap gap-2 mb-4">
+          <span *ngFor="let category of suggestion.product.categories.slice(0, 3)" class="category-tag bg-gray-800 px-2.5 py-1 rounded-full text-xs border border-gray-700">
             {{getCategoryIcon(category)}} {{category}}
           </span>
         </div>
         
-        <div class="ingredient-preview">
+        <div class="ingredient-preview mt-2.5 text-sm text-gray-400">
           <p><strong>Ingredients:</strong> {{suggestion.product.ingredients.slice(0, 3).join(', ')}}...</p>
         </div>
       </div>
       
-      <button (click)="saveSuggestion(suggestion.product)" class="save-btn">Add to Shopping List</button>
+      <app-button (onClick)="saveSuggestion(suggestion.product)" variant="outline" class="self-start">Add to Shopping List</app-button>
     </div>
   </div>
 </div>

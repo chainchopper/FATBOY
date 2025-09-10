@@ -9,6 +9,7 @@ import { supabase } from '../../integrations/supabase/client';
 import { NotificationService } from '../services/notification.service';
 import { SpeechService } from '../services/speech.service';
 import { AuthService } from '../services/auth.service';
+import { ButtonComponent } from '../button.component'; // Import ButtonComponent
 
 interface Suggestion {
   product: Product;
@@ -31,9 +32,9 @@ interface SuggestionsCache {
 @Component({
   selector: 'app-suggestions',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ButtonComponent], // Add ButtonComponent
   templateUrl: './suggestions.component.html',
-  styleUrls: ['./suggestions.component.css']
+  styleUrls: []
 })
 export class SuggestionsComponent implements OnInit {
   suggestions: Suggestion[] = [];

@@ -1,126 +1,130 @@
-<div class="preferences-container">
-  <h2>Your Food Preferences</h2>
+<div class="preferences-container max-w-3xl mx-auto p-5 text-gray-100">
+  <h2 class="text-center mb-8 text-3xl font-bold text-purple-400 drop-shadow-lg shadow-purple-400">Your Food Preferences</h2>
   
-  <div class="preference-section">
-    <h3>Ingredients to Avoid</h3>
-    <p class="section-description">Select ingredients from the dropdowns below. Your choices will appear in a list for easy review.</p>
+  <div class="preference-section mb-8 p-6 bg-gray-900/80 border border-gray-700 rounded-xl shadow-lg">
+    <h3 class="mb-2.5 text-xl font-semibold text-teal-400 border-b border-gray-700 pb-2.5">Ingredients to Avoid</h3>
+    <p class="section-description text-sm text-gray-400 mb-5">Select ingredients from the dropdowns below. Your choices will appear in a list for easy review.</p>
     
     <div *ngFor="let category of ingredientCategories | keyvalue" class="ingredient-category">
-      <h4>{{ category.value.name }}</h4>
+      <h4 class="text-purple-400 mt-5 mb-4 text-lg">{{ category.value.name }}</h4>
       
-      <!-- Dropdown for selecting ingredients -->
-      <select (change)="onIngredientSelected($event)" class="ingredient-select">
+      <select (change)="onIngredientSelected($event)" class="ingredient-select w-full p-3 border border-gray-700 rounded-lg bg-gray-900 text-gray-100 text-base mb-4 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500">
         <option value="" disabled selected>-- Add an ingredient to avoid --</option>
         <option *ngFor="let item of category.value.items" [value]="item">
           {{ item | titlecase }}
         </option>
       </select>
 
-      <!-- Display selected ingredients for this category -->
-      <div class="selected-ingredients-list" *ngIf="getAvoidedIngredientsForCategory(category.key).length > 0">
-        <div *ngFor="let item of getAvoidedIngredientsForCategory(category.key)" class="selected-ingredient-item">
+      <div class="selected-ingredients-list flex flex-wrap gap-2.5 pt-2.5 border-t border-dashed border-gray-800" *ngIf="getAvoidedIngredientsForCategory(category.key).length > 0">
+        <div *ngFor="let item of getAvoidedIngredientsForCategory(category.key)" class="selected-ingredient-item flex items-center gap-2 bg-gray-800 px-3 py-1.5 rounded-full text-sm border border-gray-700">
           <span>{{ item | titlecase }}</span>
-          <button (click)="removeAvoidedIngredient(item)" class="remove-btn">×</button>
+          <button (click)="removeAvoidedIngredient(item)" class="remove-btn bg-none border-none text-gray-500 text-lg cursor-pointer p-0 leading-none hover:text-red-500">×</button>
         </div>
       </div>
     </div>
   </div>
 
-  <div class="preference-section">
-    <h3>Custom Ingredients to Avoid</h3>
-    <p class="section-description">Manually add any other ingredients. We'll try to categorize them for you automatically.</p>
-    <div class="custom-ingredient-form">
-      <input 
+  <div class="preference-section mb-8 p-6 bg-gray-900/80 border border-gray-700 rounded-xl shadow-lg">
+    <h3 class="mb-2.5 text-xl font-semibold text-teal-400 border-b border-gray-700 pb-2.5">Custom Ingredients to Avoid</h3>
+    <p class="section-description text-sm text-gray-400 mb-5">Manually add any other ingredients. We'll try to categorize them for you automatically.</p>
+    <div class="custom-ingredient-form flex gap-2.5 mb-4">
+      <app-input 
         type="text" 
         [(ngModel)]="newCustomIngredient" 
         placeholder="e.g., carrageenan"
-        (keyup.enter)="addCustomIngredient()">
-      <app-button variant="outline" (onClick)="addCustomIngredient()" class="add-btn">Add</app-button>
+        (keyup.enter)="addCustomIngredient()"
+        class="flex-grow">
+      </app-input>
+      <app-button variant="outline" (onClick)="addCustomIngredient()">Add</app-button>
     </div>
-    <div class="custom-ingredient-list">
-      <div *ngFor="let item of preferences.customAvoidedIngredients; let i = index" class="custom-ingredient-item">
+    <div class="custom-ingredient-list flex flex-wrap gap-2.5">
+      <div *ngFor="let item of preferences.customAvoidedIngredients; let i = index" class="custom-ingredient-item flex items-center gap-2 bg-gray-800 px-3 py-1.5 rounded-full text-sm border border-gray-700">
         <span>{{ item }}</span>
-        <app-button variant="ghost" size="icon" (onClick)="removeCustomIngredient(i)" class="remove-btn">×</app-button>
+        <app-button variant="ghost" size="icon" (onClick)="removeCustomIngredient(i)" class="remove-btn w-6 h-6 text-gray-500 hover:text-red-500">×</app-button>
       </div>
     </div>
   </div>
   
-  <div class="preference-section">
-    <h3>Set your limits:</h3>
-    <div class="calorie-slider">
-      <label for="maxCalories">Max Calories per Serving: {{preferences.maxCalories}}</label>
-      <input type="range" id="maxCalories" min="0" max="500" step="10" [(ngModel)]="preferences.maxCalories">
+  <div class="preference-section mb-8 p-6 bg-gray-900/80 border border-gray-700 rounded-xl shadow-lg">
+    <h3 class="mb-5 text-xl font-semibold text-teal-400 border-b border-gray-700 pb-2.5">Set your limits:</h3>
+    <div class="calorie-slider mb-4">
+      <label for="maxCalories" class="block mb-4">Max Calories per Serving: {{preferences.maxCalories}}</label>
+      <input type="range" id="maxCalories" min="0" max="500" step="10" [(ngModel)]="preferences.maxCalories" class="w-full">
     </div>
     <div class="calorie-slider">
-      <label for="dailyCalorieTarget">Daily Calorie Target: {{preferences.dailyCalorieTarget}}</label>
-      <input type="range" id="dailyCalorieTarget" min="1000" max="3000" step="100" [(ngModel)]="preferences.dailyCalorieTarget">
+      <label for="dailyCalorieTarget" class="block mb-4">Daily Calorie Target: {{preferences.dailyCalorieTarget}}</label>
+      <input type="range" id="dailyCalorieTarget" min="1000" max="3000" step="100" [(ngModel)]="preferences.dailyCalorieTarget" class="w-full">
     </div>
   </div>
   
-  <div class="preference-section">
-    <h3>Your Goal:</h3>
-    <div class="goal-selector">
-      <input type="radio" id="strictlyNatural" name="goal" value="strictlyNatural" [(ngModel)]="preferences.goal">
-      <label for="strictlyNatural">Strictly Natural</label>
-      
-      <input type="radio" id="avoidChemicals" name="goal" value="avoidChemicals" [(ngModel)]="preferences.goal">
-      <label for="avoidChemicals">Avoid Chemicals</label>
-      
-      <input type="radio" id="calorieCount" name="goal" value="calorieCount" [(ngModel)]="preferences.goal">
-      <label for="calorieCount">Calorie Count</label>
+  <div class="preference-section mb-8 p-6 bg-gray-900/80 border border-gray-700 rounded-xl shadow-lg">
+    <h3 class="mb-5 text-xl font-semibold text-teal-400 border-b border-gray-700 pb-2.5">Your Goal:</h3>
+    <div class="goal-selector flex flex-col gap-4">
+      <label class="flex items-center cursor-pointer">
+        <input type="radio" name="goal" value="strictlyNatural" [(ngModel)]="preferences.goal" class="form-radio h-5 w-5 text-purple-500 bg-gray-800 border-gray-600 focus:ring-purple-500">
+        <span class="ml-3">Strictly Natural</span>
+      </label>
+      <label class="flex items-center cursor-pointer">
+        <input type="radio" name="goal" value="avoidChemicals" [(ngModel)]="preferences.goal" class="form-radio h-5 w-5 text-purple-500 bg-gray-800 border-gray-600 focus:ring-purple-500">
+        <span class="ml-3">Avoid Chemicals</span>
+      </label>
+      <label class="flex items-center cursor-pointer">
+        <input type="radio" name="goal" value="calorieCount" [(ngModel)]="preferences.goal" class="form-radio h-5 w-5 text-purple-500 bg-gray-800 border-gray-600 focus:ring-purple-500">
+        <span class="ml-3">Calorie Count</span>
+      </label>
     </div>
   </div>
 
-  <div class="preference-section">
-    <h3>Inference Preference</h3>
-    <div class="preference-item">
-      <input type="checkbox" id="onDeviceInference" [(ngModel)]="preferences.onDeviceInference">
-      <label for="onDeviceInference">Use On-Device AI (Experimental)</label>
+  <div class="preference-section mb-8 p-6 bg-gray-900/80 border border-gray-700 rounded-xl shadow-lg">
+    <h3 class="mb-5 text-xl font-semibold text-teal-400 border-b border-gray-700 pb-2.5">Inference Preference</h3>
+    <div class="preference-item flex items-center mb-4">
+      <input type="checkbox" id="onDeviceInference" [(ngModel)]="preferences.onDeviceInference" class="form-checkbox h-5 w-5 text-purple-500 bg-gray-800 border-gray-600 rounded focus:ring-purple-500">
+      <label for="onDeviceInference" class="ml-3">Use On-Device AI (Experimental)</label>
     </div>
-    <div class="preference-item">
-      <input type="checkbox" id="enableVoiceCommands" [(ngModel)]="preferences.enableVoiceCommands" [disabled]="!isSpeechApiSupported">
-      <label for="enableVoiceCommands">Enable Voice Commands (Agent Console & Scanner)</label>
+    <div class="preference-item flex items-center">
+      <input type="checkbox" id="enableVoiceCommands" [(ngModel)]="preferences.enableVoiceCommands" [disabled]="!isSpeechApiSupported" class="form-checkbox h-5 w-5 text-purple-500 bg-gray-800 border-gray-600 rounded focus:ring-purple-500">
+      <label for="enableVoiceCommands" class="ml-3">Enable Voice Commands (Agent Console & Scanner)</label>
     </div>
-    <p *ngIf="!isSpeechApiSupported" class="warning-message">
+    <p *ngIf="!isSpeechApiSupported" class="warning-message mt-2 text-sm text-yellow-400">
       ⚠️ Your browser does not support the Web Speech API for voice commands.
     </p>
   </div>
 
-  <div class="preference-section">
-    <h3>Text-to-Speech (TTS) Preferences</h3>
-    <p class="section-description">Configure how the AI assistant speaks to you.</p>
-    <div class="preference-item">
-      <input type="checkbox" id="useOnDeviceTts" [(ngModel)]="preferences.useOnDeviceTts">
-      <label for="useOnDeviceTts">Prefer On-Device TTS (Fallback to Nirvana TTS)</label>
+  <div class="preference-section mb-8 p-6 bg-gray-900/80 border border-gray-700 rounded-xl shadow-lg">
+    <h3 class="mb-5 text-xl font-semibold text-teal-400 border-b border-gray-700 pb-2.5">Text-to-Speech (TTS) Preferences</h3>
+    <p class="section-description text-sm text-gray-400 mb-5">Configure how the AI assistant speaks to you.</p>
+    <div class="preference-item flex items-center mb-4">
+      <input type="checkbox" id="useOnDeviceTts" [(ngModel)]="preferences.useOnDeviceTts" class="form-checkbox h-5 w-5 text-purple-500 bg-gray-800 border-gray-600 rounded focus:ring-purple-500">
+      <label for="useOnDeviceTts" class="ml-3">Prefer On-Device TTS (Fallback to Nirvana TTS)</label>
     </div>
-    <div class="preference-item">
-      <label for="chatterboxVoice">Nirvana TTS Voice:</label>
-      <select id="chatterboxVoice" [(ngModel)]="preferences.chatterboxVoiceId" class="voice-select" [disabled]="ttsVoicesLoadingError || availableTtsVoices.length === 0">
+    <div class="preference-item flex items-center">
+      <label for="chatterboxVoice" class="mr-3">Nirvana TTS Voice:</label>
+      <select id="chatterboxVoice" [(ngModel)]="preferences.chatterboxVoiceId" class="voice-select bg-gray-800 border border-gray-700 rounded-md p-2 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500" [disabled]="ttsVoicesLoadingError || availableTtsVoices.length === 0">
         <option *ngFor="let voice of availableTtsVoices" [value]="voice.id">
           {{ voice.name }} ({{ voice.language }})
         </option>
       </select>
     </div>
-    <p *ngIf="ttsVoicesLoadingError" class="warning-message">
+    <p *ngIf="ttsVoicesLoadingError" class="warning-message mt-2 text-sm text-yellow-400">
       ⚠️ Could not load TTS voices. Please check the Chatterbox TTS API server.
     </p>
   </div>
 
-  <div class="preference-section">
-    <h3>Privacy & Sharing</h3>
-    <div class="preference-item">
-      <input type="checkbox" id="shareUsername" [(ngModel)]="preferences.shareUsername">
-      <label for="shareUsername">Show my name on community contributions</label>
+  <div class="preference-section mb-8 p-6 bg-gray-900/80 border border-gray-700 rounded-xl shadow-lg">
+    <h3 class="mb-5 text-xl font-semibold text-teal-400 border-b border-gray-700 pb-2.5">Privacy & Sharing</h3>
+    <div class="preference-item flex items-center mb-4">
+      <input type="checkbox" id="shareUsername" [(ngModel)]="preferences.shareUsername" class="form-checkbox h-5 w-5 text-purple-500 bg-gray-800 border-gray-600 rounded focus:ring-purple-500">
+      <label for="shareUsername" class="ml-3">Show my name on community contributions</label>
     </div>
-    <div class="preference-item">
-      <input type="checkbox" id="shareGoal" [(ngModel)]="preferences.shareGoal">
-      <label for="shareGoal">Show my health goal on contributions</label>
+    <div class="preference-item flex items-center mb-4">
+      <input type="checkbox" id="shareGoal" [(ngModel)]="preferences.shareGoal" class="form-checkbox h-5 w-5 text-purple-500 bg-gray-800 border-gray-600 rounded focus:ring-purple-500">
+      <label for="shareGoal" class="ml-3">Show my health goal on contributions</label>
     </div>
-    <div class="preference-item">
-      <input type="checkbox" id="shareLeaderboardStatus" [(ngModel)]="preferences.shareLeaderboardStatus">
-      <label for="shareLeaderboardStatus">Show my rank & score on contributions</label>
+    <div class="preference-item flex items-center">
+      <input type="checkbox" id="shareLeaderboardStatus" [(ngModel)]="preferences.shareLeaderboardStatus" class="form-checkbox h-5 w-5 text-purple-500 bg-gray-800 border-gray-600 rounded focus:ring-purple-500">
+      <label for="shareLeaderboardStatus" class="ml-3">Show my rank & score on contributions</label>
     </div>
   </div>
   
-  <app-button variant="default" (onClick)="savePreferences()" class="save-btn">Save Preferences</app-button>
+  <app-button variant="default" (onClick)="savePreferences()" class="save-btn block mx-auto w-52 py-3 rounded-full text-lg">Save Preferences</app-button>
 </div>
