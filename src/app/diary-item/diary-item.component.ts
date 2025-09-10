@@ -10,7 +10,7 @@ import { ProductDbService } from '../services/product-db.service'; // Import Pro
   standalone: true,
   imports: [CommonModule, LucideAngularModule],
   templateUrl: './diary-item.component.html',
-  styleUrls: ['./diary-item.component.css']
+  styleUrls: [] // Removed reference to .css file
 })
 export class DiaryItemComponent {
   @Input() product!: Product;

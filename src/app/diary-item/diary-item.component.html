@@ -1,13 +1,18 @@
-<div class="diary-item" [class.good]="product.verdict === 'good'" [class.bad]="product.verdict === 'bad'" (click)="onViewDetails()"> <!-- Bind click event here -->
-  <img [src]="product.image" alt="{{product.name}}" class="product-image">
-  <div class="item-info">
-    <span class="product-name">{{ product.name }}</span>
-    <span class="product-brand">{{ product.brand }}</span>
+<div class="flex items-center gap-4 bg-gray-900/80 p-3 rounded-lg border-l-4 transition-all duration-300 ease-in-out cursor-pointer"
+  [ngClass]="{
+    'border-teal-500': product.verdict === 'good',
+    'border-purple-500': product.verdict === 'bad'
+  }"
+  (click)="onViewDetails()">
+  <img [src]="product.image" alt="{{product.name}}" class="w-12 h-12 object-cover rounded-md border border-gray-700">
+  <div class="flex-grow flex flex-col">
+    <span class="text-gray-100 font-medium">{{ product.name }}</span>
+    <span class="text-gray-400 text-sm">{{ product.brand }}</span>
   </div>
-  <div class="item-calories">
+  <div class="text-purple-400 font-bold text-sm">
     {{ product.calories || 'N/A' }} kcal
   </div>
-  <button (click)="onRemove(); $event.stopPropagation()" class="remove-btn" title="Remove from Diary"> <!-- Stop propagation -->
+  <button (click)="onRemove(); $event.stopPropagation()" class="bg-gray-800 text-gray-400 w-8 h-8 rounded-full flex items-center justify-center hover:bg-red-600 hover:text-white transition-all duration-300" title="Remove from Diary">
     <lucide-icon name="x" [size]="18"></lucide-icon>
   </button>
 </div>
