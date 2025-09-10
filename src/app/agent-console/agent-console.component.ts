@@ -8,37 +8,18 @@ import { PreferencesService } from '../services/preferences.service';
 import { ProfileService } from '../services/profile.service';
 import { AppModalService } from '../services/app-modal.service';
 import { Subscription, interval } from 'rxjs';
-import { supabase } from '../../integrations/supabase/client';
 import { Router } from '@angular/router';
 import { CameraFeedComponent } from '../camera-feed/camera-feed.component';
-import { BarcodeProcessorService } from '../services/barcode-processor.service';
-import { OcrProcessorService } from '../services/ocr-processor.service';
-import { ProductDbService, Product } from '../services/product-db.service';
+import { Product } from '../services/product-db.service';
 import { NotificationService } from '../services/notification.service';
-import { AudioService } from '../services/audio.service';
 import { ProductCardComponent } from '../product-card/product-card.component';
-import { ShareService } from '../services/share.service'; // Import ShareService
-import { ShoppingListService } from '../services/shopping-list.service'; // Import ShoppingListService
-import { FoodDiaryService } from '../services/food-diary.service'; // Import FoodDiaryService
-import { firstValueFrom } from 'rxjs'; // Import firstValueFrom
+import { ShareService } from '../services/share.service';
+import { ShoppingListService } from '../services/shopping-list.service';
+import { FoodDiaryService } from '../services/food-diary.service';
 
-// Define UI Element interfaces
-interface UiElement {
-  type: string; // e.g., 'product_card'
-  data: any; // The data for the specific UI element
-}
-
-interface Message {
-  sender: 'user' | 'agent' | 'tool';
-  text: string;
-  timestamp: Date;
-  avatar: string;
-  suggestedPrompts?: string[];
-  toolCalls?: any[];
-  humanReadableToolCall?: string;
-  dynamicButtons?: DynamicButton[];
-  uiElements?: UiElement[]; // New: for rich UI elements
-}
+// Import new services
+import { ChatHistoryService, ChatMessage } from '../services/chat-history.service';
+import { ConsoleCameraService } from '../services/console-camera.service';
 
 interface SlashCommand {
   command: string;
@@ -57,19 +38,21 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
   @ViewChild('messageWindow') private messageWindow!: ElementRef;
   @ViewChild('chatCameraFeed') private chatCameraFeed!: CameraFeedComponent;
 
-  messages: Message[] = [];
+  messages: ChatMessage[] = []; // Use ChatMessage from ChatHistoryService
   userInput: string = '';
   showSlashCommands = false;
   isAgentTyping = false;
   isListening = false;
   agentStatus: 'online' | 'offline' = 'offline';
-  showCameraFeed = false;
-  isProcessingCameraInput = false;
 
   private speechSubscription!: Subscription;
   private statusSubscription!: Subscription;
   private authSubscription!: Subscription;
   private preferencesSubscription!: Subscription;
+  private chatMessagesSubscription!: Subscription;
+  private cameraInputProcessedSubscription!: Subscription;
+  private cameraClosedSubscription!: Subscription;
+
   public agentAvatar = 'assets/logo64.png';
   public userAvatar: string = 'https://api.dicebear.com/8.x/initials/svg?seed=Anonymous';
   public userName: string = 'You';
@@ -83,8 +66,6 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
   ];
   filteredCommands: SlashCommand[] = [];
 
-  private processingAbortController: AbortController | null = null;
-
   constructor(
     private aiService: AiIntegrationService,
     private speechService: SpeechService,
@@ -94,14 +75,13 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
     private appModalService: AppModalService,
     private cdr: ChangeDetectorRef,
     private router: Router,
-    private barcodeProcessorService: BarcodeProcessorService,
-    private ocrProcessorService: OcrProcessorService,
-    private productDb: ProductDbService,
     private notificationService: NotificationService,
-    private audioService: AudioService,
-    private shareService: ShareService, // Inject ShareService
-    private shoppingListService: ShoppingListService, // Inject ShoppingListService
-    private foodDiaryService: FoodDiaryService // Inject FoodDiaryService
+    private shareService: ShareService,
+    private shoppingListService: ShoppingListService,
+    private foodDiaryService: FoodDiaryService,
+    // Inject new services
+    private chatHistoryService: ChatHistoryService,
+    public consoleCameraService: ConsoleCameraService // Public to access showCameraFeed
   ) {}
 
   ngOnInit() {
@@ -111,9 +91,6 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
     this.authSubscription = this.authService.currentUser$.subscribe(user => {
       const previousUserId = this.currentUserId;
       this.currentUserId = user?.id || null;
-      if (this.currentUserId && this.currentUserId !== previousUserId) {
-        this.loadChatHistory();
-      }
       if (user) {
         this.profileService.getProfile().subscribe(profile => {
           if (profile) {
@@ -127,8 +104,16 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
       } else {
         this.userName = 'You';
         this.userAvatar = 'https://api.dicebear.com/8.x/initials/svg?seed=Anonymous';
-        this.messages = []; // Clear messages if logged out
       }
+      // Reload chat history if user changes or logs in/out
+      if (this.currentUserId !== previousUserId) {
+        this.chatHistoryService.loadChatHistory();
+      }
+    });
+
+    this.chatMessagesSubscription = this.chatHistoryService.messages$.subscribe(messages => {
+      this.messages = messages;
+      this.cdr.detectChanges(); // Ensure view updates after messages load
     });
 
     this.preferencesSubscription = this.preferencesService.preferences$.subscribe(prefs => {
@@ -146,6 +131,14 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
       this.sendMessage();
       this.isListening = false;
     });
+
+    this.cameraInputProcessedSubscription = this.consoleCameraService.cameraInputProcessed.subscribe(product => {
+      this.handleCameraInputProcessed(product);
+    });
+
+    this.cameraClosedSubscription = this.consoleCameraService.cameraClosed.subscribe(() => {
+      this.handleCameraClosedFromChat();
+    });
   }
 
   ngOnDestroy() {
@@ -153,12 +146,22 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
     if (this.statusSubscription) this.statusSubscription.unsubscribe();
     if (this.authSubscription) this.authSubscription.unsubscribe();
     if (this.preferencesSubscription) this.preferencesSubscription.unsubscribe();
+    if (this.chatMessagesSubscription) this.chatMessagesSubscription.unsubscribe();
+    if (this.cameraInputProcessedSubscription) this.cameraInputProcessedSubscription.unsubscribe();
+    if (this.cameraClosedSubscription) this.cameraClosedSubscription.unsubscribe();
     this.speechService.stopListening();
-    this.abortProcessing();
+    this.consoleCameraService.closeCamera(); // Ensure camera is stopped on destroy
   }
 
   ngAfterViewChecked() {
     this.scrollToBottom();
+  }
+
+  ngAfterViewInit() {
+    // Pass the CameraFeedComponent instance to the service once it's available
+    if (this.chatCameraFeed) {
+      this.consoleCameraService.setCameraFeedComponent(this.chatCameraFeed);
+    }
   }
 
   async checkStatus() {
@@ -191,15 +194,13 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
     const text = this.userInput.trim();
     if (!text) return;
 
-    const userMessage: Message = { sender: 'user', text, timestamp: new Date(), avatar: this.userAvatar };
-    this.messages.push(userMessage);
-    this.saveMessage(userMessage);
+    this.chatHistoryService.addUserMessage(text); // Add user message via service
 
     this.userInput = '';
     this.showSlashCommands = false;
     this.isAgentTyping = true;
 
-    const messagesHistoryForAi = this.messages.slice(0, -1).map(msg => ({
+    const messagesHistoryForAi = this.chatHistoryService.getMessages().map(msg => ({
       role: msg.sender === 'agent' ? 'assistant' : msg.sender,
       content: msg.text,
       ...(msg.toolCalls && { tool_calls: msg.toolCalls })
@@ -207,27 +208,12 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
 
     try {
       const aiResponse: AiResponse = await this.aiService.getChatCompletion(text, messagesHistoryForAi);
-      
-      const agentMessage: Message = {
-        sender: 'agent',
-        text: aiResponse.text,
-        timestamp: new Date(),
-        avatar: this.agentAvatar,
-        suggestedPrompts: aiResponse.suggestedPrompts,
-        toolCalls: aiResponse.toolCalls,
-        humanReadableToolCall: aiResponse.humanReadableToolCall,
-        dynamicButtons: aiResponse.dynamicButtons,
-        uiElements: aiResponse.uiElements // Store UI elements
-      };
-      
-      this.messages.push(agentMessage);
-      this.saveMessage(agentMessage);
-      this.speechService.speak(agentMessage.text);
+      this.chatHistoryService.addAgentMessage(aiResponse); // Add agent message via service
+      this.speechService.speak(aiResponse.text);
 
     } catch (error) {
-      const errorMessage: Message = { sender: 'agent', text: 'Sorry, I encountered an error. Please try again.', timestamp: new Date(), avatar: this.agentAvatar };
-      this.messages.push(errorMessage);
-      this.saveMessage(errorMessage);
+      const errorMessage: ChatMessage = { sender: 'agent', text: 'Sorry, I encountered an error. Please try again.', timestamp: new Date(), avatar: this.agentAvatar };
+      this.chatHistoryService.addAgentMessage(errorMessage);
     } finally {
       this.isAgentTyping = false;
     }
@@ -254,13 +240,10 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
         simulatedInput = `No, do not add "${payload.product_name}" to my food diary.`;
         break;
       case 'add_to_food_diary_meal_select':
-        // This action is triggered by the dynamic meal selection buttons
         simulatedInput = `Add "${payload.product_name}" by "${payload.brand}" to my food diary for ${payload.meal_type}.`;
         break;
       case 'open_scanner':
-        this.showCameraFeed = true;
-        this.isProcessingCameraInput = false; // Reset processing state when camera opens
-        this.speechService.speak('Opening the camera now. You can scan a barcode or capture a label.');
+        this.consoleCameraService.openCamera(); // Delegate to service
         return;
       default:
         simulatedInput = `User clicked: ${action} with payload: ${JSON.stringify(payload)}`;
@@ -274,19 +257,19 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
   shareProductFromConsole(product: Product) {
     this.notificationService.showInfo(`Sharing product: ${product.name}`, 'Console Action');
     this.speechService.speak(`Sharing ${product.name}.`);
-    this.shareService.shareProduct(product); // Actual sharing logic
+    this.shareService.shareProduct(product);
   }
 
   addToShoppingListFromConsole(product: Product) {
     this.notificationService.showInfo(`Adding ${product.name} to shopping list.`, 'Console Action');
     this.speechService.speak(`Adding ${product.name} to shopping list.`);
-    this.shoppingListService.addItem(product); // Actual add to shopping list logic
+    this.shoppingListService.addItem(product);
   }
 
   addToFoodDiaryFromConsole(product: Product) {
     this.notificationService.showInfo(`Adding ${product.name} to food diary.`, 'Console Action');
     this.speechService.speak(`Adding ${product.name} to food diary.`);
-    this.appModalService.open(product); // Open modal for meal type selection
+    this.appModalService.open(product);
   }
 
   onViewDetailsFromConsole(product: Product) {
@@ -294,186 +277,28 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
     this.notificationService.showInfo(`AI context updated for: ${product.name}`, 'Product Details');
   }
 
-  async handleBarcodeScannedFromChat(decodedText: string): Promise<void> {
-    if (this.isProcessingCameraInput) return;
-    this.isProcessingCameraInput = true;
-    this.notificationService.showInfo('Barcode detected from chat camera! Processing...', 'Chat Scan');
-    this.processingAbortController = new AbortController();
-
-    try {
-      const productInfo = await this.barcodeProcessorService.processBarcode(decodedText, this.processingAbortController.signal);
-      if (this.processingAbortController.signal.aborted) throw new Error('Operation aborted');
-
-      if (!productInfo) {
-        this.notificationService.showWarning('Product not found or could not be processed.', 'Chat Scan Failed');
-        this.audioService.playErrorSound();
-        return;
-      }
-
-      const savedProduct = await this.productDb.addProduct(productInfo);
-      if (!savedProduct) {
-        return;
-      }
-
-      this.notificationService.showSuccess(`Scanned "${savedProduct.name}"!`, 'Chat Scan Success');
-      this.speechService.speak(`I found ${savedProduct.name} by ${savedProduct.brand}. It's a ${savedProduct.verdict} choice.`);
-      this.aiService.setLastDiscussedProduct(savedProduct);
-      
-      this.userInput = `I just scanned "${savedProduct.name}" by "${savedProduct.brand}". Its verdict is "${savedProduct.verdict}". Ingredients: ${savedProduct.ingredients.join(', ')}.`;
-      await this.sendMessage();
-
-    } catch (error: any) {
-      if (error.message === 'Operation aborted') {
-        this.notificationService.showInfo('Camera input processing cancelled.', 'Cancelled');
-      } else {
-        console.error('Barcode processing error from chat camera:', error);
-        this.notificationService.showError('Failed to process barcode from chat camera.', 'Error');
-        this.audioService.playErrorSound();
-      }
-    } finally {
-      this.isProcessingCameraInput = false;
-      this.processingAbortController = null;
-      if (this.chatCameraFeed) {
-        this.chatCameraFeed.resumeBarcodeScanning();
-      }
-    }
+  handleBarcodeScannedFromChat(decodedText: string): void {
+    this.consoleCameraService.handleBarcodeScanned(decodedText); // Delegate to service
   }
 
-  async handleImageCapturedFromChat(imageDataUrl: string): Promise<void> {
-    if (this.isProcessingCameraInput) return;
-    this.isProcessingCameraInput = true;
-    this.notificationService.showInfo('Image captured from chat camera! Processing for OCR...', 'Chat OCR');
-    this.processingAbortController = new AbortController();
+  handleImageCapturedFromChat(imageDataUrl: string): void {
+    this.consoleCameraService.handleImageCaptured(imageDataUrl); // Delegate to service
+  }
 
-    try {
-      const productInfo = await this.ocrProcessorService.processImageForOcr(imageDataUrl, this.processingAbortController.signal);
-      if (this.processingAbortController.signal.aborted) throw new Error('Operation aborted');
-
-      if (!productInfo) {
-        this.notificationService.showWarning('No product data extracted from image.', 'Chat OCR Failed');
-        this.audioService.playErrorSound();
-        return;
-      }
-
-      const savedProduct = await this.productDb.addProduct(productInfo);
-      if (!savedProduct) {
-        return;
-      }
-
-      this.notificationService.showSuccess(`Processed "${savedProduct.name}"!`, 'Chat OCR Success');
-      this.speechService.speak(`I processed the label for ${savedProduct.name} by ${savedProduct.brand}. It's a ${savedProduct.verdict} choice.`);
-      this.aiService.setLastDiscussedProduct(savedProduct);
-
-      this.userInput = `I just captured and processed a label for "${savedProduct.name}" by "${savedProduct.brand}". Its verdict is "${savedProduct.verdict}". Ingredients: ${savedProduct.ingredients.join(', ')}.`;
-      await this.sendMessage();
-
-    } catch (error: any) {
-      if (error.message === 'Operation aborted') {
-        this.notificationService.showInfo('Camera input processing cancelled.', 'Cancelled');
-      } else {
-        console.error('OCR processing error from chat camera:', error);
-        this.notificationService.showError('Failed to process image from chat camera.', 'Error');
-        this.audioService.playErrorSound();
-      }
-    } finally {
-      this.isProcessingCameraInput = false;
-      this.processingAbortController = null;
-      if (this.chatCameraFeed) {
-        this.chatCameraFeed.resumeBarcodeScanning();
-      }
-    }
+  handleCameraInputProcessed(product: Product): void {
+    this.speechService.speak(`I found ${product.name} by ${product.brand}. It's a ${product.verdict} choice.`);
+    this.userInput = `I just processed "${product.name}" by "${product.brand}". Its verdict is "${product.verdict}". Ingredients: ${product.ingredients.join(', ')}.`;
+    this.sendMessage();
   }
 
   handleCameraClosedFromChat(): void {
-    this.showCameraFeed = false;
-    this.notificationService.showInfo('Camera closed.', 'Chat Camera');
     this.speechService.speak('Camera closed.');
-    this.abortProcessing();
-  }
-
-  private abortProcessing(): void {
-    if (this.processingAbortController) {
-      this.processingAbortController.abort();
-      this.processingAbortController = null;
-    }
-    this.isProcessingCameraInput = false;
   }
 
   private scrollToBottom(): void {
     try {
       this.messageWindow.nativeElement.scrollTop = this.messageWindow.nativeElement.scrollHeight;
     } catch(err) { }
-  }
-
-  private async loadChatHistory(): Promise<void> {
-    if (!this.currentUserId) return;
-
-    const { data, error } = await supabase
-      .from('chat_messages')
-      .select('sender, content, created_at')
-      .eq('user_id', this.currentUserId)
-      .order('created_at', { ascending: true });
-
-    if (error) {
-      console.error('Error loading chat history:', error);
-      return;
-    }
-
-    if (data && data.length > 0) {
-      this.messages = data.map((item: any) => ({
-        sender: item.sender,
-        text: item.content.text,
-        timestamp: new Date(item.created_at),
-        avatar: item.sender === 'user' ? this.userAvatar : this.agentAvatar,
-        suggestedPrompts: item.content.suggestedPrompts,
-        toolCalls: item.content.toolCalls,
-        humanReadableToolCall: item.content.humanReadableToolCall,
-        dynamicButtons: item.content.dynamicButtons,
-        uiElements: item.content.uiElements
-      }));
-    } else {
-      // Fetch user profile for personalized greeting
-      const userProfile = await firstValueFrom(this.profileService.getProfile());
-      const userName = userProfile?.first_name || 'there'; // Default to 'there' if no first name
-
-      this.messages = [{
-        sender: 'agent',
-        text: `Hello ${userName}! I am Fat Boy, your personal AI co-pilot, powered by NIRVANA from Fanalogy. How can I help you today?`,
-        timestamp: new Date(),
-        avatar: this.agentAvatar,
-        suggestedPrompts: [
-          'Scan a product for me!',
-          'What are my top avoided ingredients?',
-          'Show me my shopping list.',
-          'Suggest a healthy snack.',
-          'Summarize my food diary for today.'
-        ]
-      }];
-    }
-    this.cdr.detectChanges();
-  }
-
-  private async saveMessage(message: Message): Promise<void> {
-    if (!this.currentUserId) return;
-
-    const { error } = await supabase
-      .from('chat_messages')
-      .insert({
-        user_id: this.currentUserId,
-        sender: message.sender,
-        content: {
-          text: message.text,
-          suggestedPrompts: message.suggestedPrompts,
-          toolCalls: message.toolCalls,
-          humanReadableToolCall: message.humanReadableToolCall,
-          dynamicButtons: message.dynamicButtons,
-          uiElements: message.uiElements
-        }
-      });
-
-    if (error) {
-      console.error('Error saving chat message:', error);
-    }
   }
 
   clearChatHistory(): void {
@@ -483,18 +308,8 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
       confirmText: 'Clear',
       cancelText: 'Keep Chat',
       onConfirm: async () => {
-        if (!this.currentUserId) return;
-        const { error } = await supabase
-          .from('chat_messages')
-          .delete()
-          .eq('user_id', this.currentUserId);
-
-        if (error) {
-          console.error('Error clearing chat history:', error);
-        } else {
-          this.loadChatHistory();
-          this.speechService.speak('Chat history cleared.');
-        }
+        await this.chatHistoryService.clearChatHistory(); // Delegate to service
+        this.speechService.speak('Chat history cleared.');
       },
       onCancel: () => {
         this.speechService.speak('Chat clearing cancelled.');
