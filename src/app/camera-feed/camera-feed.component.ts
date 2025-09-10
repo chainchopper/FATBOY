@@ -197,7 +197,7 @@ export class CameraFeedComponent implements AfterViewInit, OnDestroy {
   }
 
   private async stopCamera(): Promise<void> {
-    if (this.html5QrcodeScanner && this.html5QrcodeScanner.isScanning()) { // Corrected to method call
+    if (this.html5QrcodeScanner && (this.html5QrcodeScanner as Html5Qrcode).isScanning()) { // Corrected with explicit cast
       try {
         await this.html5QrcodeScanner.stop();
         this.html5QrcodeScanner.clear();
@@ -243,16 +243,25 @@ export class CameraFeedComponent implements AfterViewInit, OnDestroy {
   public toggleBarcodeScanning(): void {
     this.isBarcodeScanning = !this.isBarcodeScanning;
     if (this.isBarcodeScanning) {
-      this.html5QrcodeScanner?.resume(); // Ensure scanning is active if toggled on
+      // When enabling barcode scanning, if camera is already running, resume it.
+      // If it's not running, the startCamera() call in initializeCamera() will handle it.
+      if (this.html5QrcodeScanner && !(this.html5QrcodeScanner as Html5Qrcode).isScanning()) { // Corrected with explicit cast
+        this.html5QrcodeScanner.resume();
+      }
       this.notificationService.showInfo('Barcode scanning enabled.', 'Scanner Mode');
     } else {
-      this.html5QrcodeScanner?.pause(); // Pause barcode detection
+      // When disabling barcode scanning, pause the scanner if it's running.
+      if (this.html5QrcodeScanner && (this.html5QrcodeScanner as Html5Qrcode).isScanning()) { // Corrected with explicit cast
+        this.html5QrcodeScanner.pause();
+      }
       this.notificationService.showInfo('Barcode scanning disabled.', 'Scanner Mode');
     }
   }
 
   public resumeBarcodeScanning(): void {
-    if (this.html5QrcodeScanner && !this.html5QrcodeScanner.isScanning()) { // Corrected to method call
+    // This method is specifically for resuming barcode scanning if it was paused.
+    // It should only resume if the camera is actually active and barcode scanning is enabled.
+    if (this.html5QrcodeScanner && !(this.html5QrcodeScanner as Html5Qrcode).isScanning() && this.isBarcodeScanning) { // Corrected with explicit cast
       this.html5QrcodeScanner.resume();
     }
   }
