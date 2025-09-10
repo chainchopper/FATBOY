@@ -116,7 +116,14 @@ export class PreferencesService {
   }
 
   private async savePreferencesToSupabase(prefs: UserPreferences): Promise<void> {
-    if (!this.currentUserId) return;
+    if (!this.currentUserId) {
+      console.warn('savePreferencesToSupabase: currentUserId is null. Cannot save preferences.');
+      return;
+    }
+
+    console.log('Attempting to save preferences to Supabase:');
+    console.log('User ID:', this.currentUserId);
+    console.log('Preferences Data:', prefs);
 
     const { error } = await supabase
       .from('user_preferences')
@@ -127,6 +134,8 @@ export class PreferencesService {
 
     if (error) {
       console.error('Error saving preferences to Supabase:', error);
+    } else {
+      console.log('Preferences successfully saved to Supabase.');
     }
   }
 }

@@ -39,7 +39,7 @@ export class ChatterboxTtsService {
     } else {
       // Use the base URL from environment and append specific paths
       this.ttsApiUrl = `${environment.ttsApiEndpoint}/v1/audio/speech`;
-      this.voicesApiUrl = `${environment.ttsApiEndpoint}/v1/audio/voices`;
+      this.voicesApiUrl = `${environment.ttsApiEndpoint}/v1/voices`; // CORRECTED ENDPOINT
       this.healthApiUrl = `${environment.ttsApiEndpoint}/v1/health`;
       this.checkApiHealthAndLoadVoices();
     }
