@@ -58,11 +58,13 @@ export class ChatterboxTtsService {
       if (this.isApiAvailable) {
         await this.fetchAvailableVoices();
       } else {
-        console.warn('Chatterbox TTS API is not healthy or model not loaded.');
+        console.warn('Chatterbox TTS API is not healthy or model not loaded. Not attempting to fetch voices.'); // Added more specific message
+        this.availableVoices = []; // Clear voices if API is not healthy
       }
     } catch (error) {
       console.error('Error checking Chatterbox TTS API health:', error);
       this.isApiAvailable = false;
+      this.availableVoices = []; // Clear voices on error
     }
   }
 
