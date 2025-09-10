@@ -10,7 +10,7 @@ import { LucideAngularModule } from 'lucide-angular';
   standalone: true,
   imports: [CommonModule, LucideAngularModule, DatePipe],
   templateUrl: './notifications.component.html',
-  styleUrls: ['./notifications.component.css']
+  styleUrls: []
 })
 export class NotificationsComponent implements OnInit {
   notifications$!: Observable<UserNotification[]>;

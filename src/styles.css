@@ -2,6 +2,40 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Roboto+Mono&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Righteous&display=swap');
 
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  @keyframes neon-flicker {
+    0%, 100% {
+      text-shadow:
+        0 0 2px #fff,
+        0 0 5px #fff,
+        0 0 8px #fff,
+        0 0 10px #f038ff,
+        0 0 18px #f038ff,
+        0 0 25px #f038ff,
+        0 0 40px #f038ff;
+      color: #f8c3ff;
+    }
+    50% {
+      text-shadow:
+        0 0 2px #fff,
+        0 0 6px #fff,
+        0 0 10px #fff,
+        0 0 15px #0abdc6,
+        0 0 25px #0abdc6,
+        0 0 35px #0abdc6,
+        0 0 50px #0abdc6;
+      color: #c7faff;
+    }
+  }
+  .animate-neon-flicker {
+    animation: neon-flicker 5s infinite alternate ease-in-out;
+  }
+}
+
 * {
   margin: 0;
   padding: 0;
