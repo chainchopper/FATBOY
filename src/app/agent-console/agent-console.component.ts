@@ -20,6 +20,7 @@ import { ProductCardComponent } from '../product-card/product-card.component';
 import { ShareService } from '../services/share.service'; // Import ShareService
 import { ShoppingListService } from '../services/shopping-list.service'; // Import ShoppingListService
 import { FoodDiaryService } from '../services/food-diary.service'; // Import FoodDiaryService
+import { firstValueFrom } from 'rxjs'; // Import firstValueFrom
 
 // Define UI Element interfaces
 interface UiElement {
@@ -426,9 +427,13 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
         uiElements: item.content.uiElements
       }));
     } else {
+      // Fetch user profile for personalized greeting
+      const userProfile = await firstValueFrom(this.profileService.getProfile());
+      const userName = userProfile?.first_name || 'there'; // Default to 'there' if no first name
+
       this.messages = [{
         sender: 'agent',
-        text: 'Hello! I am Fat Boy, your personal AI co-pilot, powered by NIRVANA from Fanalogy. How can I help you today?',
+        text: `Hello ${userName}! I am Fat Boy, your personal AI co-pilot, powered by NIRVANA from Fanalogy. How can I help you today?`,
         timestamp: new Date(),
         avatar: this.agentAvatar,
         suggestedPrompts: [
