@@ -101,16 +101,16 @@ export class CameraFeedComponent implements AfterViewInit, OnDestroy {
   @ViewChild('readerElement') readerElement!: ElementRef;
   @ViewChild('canvasElement') canvasElement!: ElementRef<HTMLCanvasElement>;
 
-  @Input() instanceId: string = 'default';
+  @Input() instanceId: string = 'default'; // Unique ID for multiple instances if needed
   @Output() barcodeScanned = new EventEmitter<string>();
-  @Output() imageCaptured = new EventEmitter<string>();
+  @Output() imageCaptured = new EventEmitter<string>(); // Emits base64 image data
   @Output() cameraClosed = new EventEmitter<void>();
 
   private html5QrcodeScanner: Html5Qrcode | null = null;
   private selectedCameraId: string | null = null;
   private currentCameraIndex = 0;
   public cameras: MediaDeviceInfo[] = [];
-  public isBarcodeScanning = true;
+  public isBarcodeScanning = true; // State for toggling barcode scanning
 
   constructor(
     private notificationService: NotificationService,
@@ -130,7 +130,7 @@ export class CameraFeedComponent implements AfterViewInit, OnDestroy {
     const hasCameraPermission = await this.permissionsService.checkAndRequestCameraPermission();
     if (!hasCameraPermission) {
       this.notificationService.showError('Camera access is required.');
-      this.cameraClosed.emit();
+      this.cameraClosed.emit(); // Emit close if permission denied
       return;
     }
 
@@ -176,16 +176,16 @@ export class CameraFeedComponent implements AfterViewInit, OnDestroy {
     try {
       await this.html5QrcodeScanner.start(
         { deviceId: { exact: this.selectedCameraId } },
-        { fps: 10, qrbox: { width: 200, height: 150 } },
+        { fps: 10, qrbox: { width: 200, height: 150 } }, // Smaller QR box for chat window
         (decodedText, decodedResult) => {
           if (this.isBarcodeScanning) {
             this.barcodeScanned.emit(decodedText);
-            this.audioService.playSuccessSound();
-            this.html5QrcodeScanner?.pause();
+            this.audioService.playSuccessSound(); // Play sound on successful scan
+            this.html5QrcodeScanner?.pause(); // Pause after scan to prevent multiple triggers
           }
         },
         (errorMessage) => {
-          // console.warn('Barcode scan error:', errorMessage);
+          // console.warn('Barcode scan error:', errorMessage); // Suppress frequent errors
         }
       );
       this.notificationService.showInfo('Camera started.', 'Live Feed');
@@ -234,7 +234,7 @@ export class CameraFeedComponent implements AfterViewInit, OnDestroy {
         ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
         const imageDataUrl = canvas.toDataURL('image/png');
         this.imageCaptured.emit(imageDataUrl);
-        this.audioService.playSuccessSound();
+        this.audioService.playSuccessSound(); // Play sound on capture
         this.notificationService.showInfo('Image captured!', 'OCR Ready');
       }
     } else {
@@ -245,10 +245,10 @@ export class CameraFeedComponent implements AfterViewInit, OnDestroy {
   public toggleBarcodeScanning(): void {
     this.isBarcodeScanning = !this.isBarcodeScanning;
     if (this.isBarcodeScanning) {
-      this.html5QrcodeScanner?.resume();
+      this.html5QrcodeScanner?.resume(); // Ensure scanning is active if toggled on
       this.notificationService.showInfo('Barcode scanning enabled.', 'Scanner Mode');
     } else {
-      this.html5QrcodeScanner?.pause();
+      this.html5QrcodeScanner?.pause(); // Pause barcode detection
       this.notificationService.showInfo('Barcode scanning disabled.', 'Scanner Mode');
     }
   }

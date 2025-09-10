@@ -25,6 +25,24 @@
               {{ btn.text }}
             </button>
           </div>
+          <!-- New: UI Elements -->
+          <div *ngIf="msg.uiElements && msg.uiElements.length > 0" class="ui-elements-container">
+            <ng-container *ngFor="let uiElement of msg.uiElements">
+              <ng-container [ngSwitch]="uiElement.type">
+                <app-product-card 
+                  *ngSwitchCase="'product_card'" 
+                  [product]="uiElement.data"
+                  [showShareButton]="true"
+                  [showAddToShoppingListButton]="true"
+                  [showAddToFoodDiaryButton]="true"
+                  (share)="shareProductFromConsole($event)"
+                  (addToShoppingList)="addToShoppingListFromConsole($event)"
+                  (addToFoodDiary)="addToFoodDiaryFromConsole($event)">
+                </app-product-card>
+                <!-- Add more cases for other UI element types here -->
+              </ng-container>
+            </ng-container>
+          </div>
           <!-- Suggested Prompts -->
           <div *ngIf="msg.suggestedPrompts && msg.suggestedPrompts.length > 0" class="suggested-prompts">
             <button *ngFor="let prompt of msg.suggestedPrompts" (click)="submitSuggestedPrompt(prompt)" class="suggested-prompt-btn">

@@ -367,3 +367,20 @@
   color: #a0a0c0;
   text-align: center;
 }
+
+/* New: UI Elements Container */
+.ui-elements-container {
+  margin-top: 10px;
+  max-width: 100%;
+  align-self: flex-start;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Styling for product card within console */
+.ui-elements-container app-product-card {
+  width: 100%; /* Ensure product card takes full width of its container */
+  max-width: 400px; /* Limit width for better readability in chat */
+  margin-bottom: 10px;
+}
