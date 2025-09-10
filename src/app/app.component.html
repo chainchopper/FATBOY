@@ -2,81 +2,81 @@
 
 <app-notifications *ngIf="showNotifications" (close)="showNotifications = false"></app-notifications>
 
-<div class="nav-overlay" [class.open]="isMenuOpen" (click)="closeMenu()">
-  <div class="nav-menu" [class.open]="isMenuOpen" (click)="$event.stopPropagation()">
-    <button class="close-menu-btn" (click)="closeMenu()">×</button>
+<div class="fixed inset-0 bg-gray-900/80 backdrop-blur-lg z-50 transition-opacity duration-300 ease-in-out" [ngClass]="isMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible'" (click)="closeMenu()">
+  <div class="fixed top-0 left-0 h-full w-full transform transition-transform duration-300 ease-in-out grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 p-24 overflow-y-auto" [ngClass]="isMenuOpen ? 'translate-x-0' : '-translate-x-full'" (click)="$event.stopPropagation()">
+    <button class="absolute top-5 right-5 bg-none border-none text-gray-200 text-4xl cursor-pointer z-[100]" (click)="closeMenu()">×</button>
     
-    <a routerLink="/scanner" routerLinkActive="active" (click)="closeMenu()" class="menu-item">
-      <lucide-icon name="camera" [size]="36"></lucide-icon>
+    <a routerLink="/scanner" routerLinkActive="active" (click)="closeMenu()" class="text-gray-200 no-underline p-5 text-lg transition-all duration-300 text-center rounded-xl flex flex-col items-center justify-center gap-2 bg-gray-900/70 border border-gray-700 shadow-lg relative overflow-hidden hover:bg-purple-900/20 hover:text-purple-400 hover:shadow-purple-500/50 hover:border-purple-500 hover:-translate-y-1">
+      <lucide-icon name="camera" [size]="36" class="text-teal-400 transition-colors duration-300"></lucide-icon>
       <span>Unified Scan</span>
     </a>
-    <a routerLink="/console" routerLinkActive="active" (click)="closeMenu()" class="menu-item">
-      <lucide-icon name="message-circle" [size]="36"></lucide-icon>
+    <a routerLink="/console" routerLinkActive="active" (click)="closeMenu()" class="text-gray-200 no-underline p-5 text-lg transition-all duration-300 text-center rounded-xl flex flex-col items-center justify-center gap-2 bg-gray-900/70 border border-gray-700 shadow-lg relative overflow-hidden hover:bg-purple-900/20 hover:text-purple-400 hover:shadow-purple-500/50 hover:border-purple-500 hover:-translate-y-1">
+      <lucide-icon name="message-circle" [size]="36" class="text-teal-400 transition-colors duration-300"></lucide-icon>
       <span>Fat Boy Assistant</span>
     </a>
-    <a routerLink="/food-diary" routerLinkActive="active" (click)="closeMenu()" class="menu-item">
-      <lucide-icon name="book-open" [size]="36"></lucide-icon>
+    <a routerLink="/food-diary" routerLinkActive="active" (click)="closeMenu()" class="text-gray-200 no-underline p-5 text-lg transition-all duration-300 text-center rounded-xl flex flex-col items-center justify-center gap-2 bg-gray-900/70 border border-gray-700 shadow-lg relative overflow-hidden hover:bg-purple-900/20 hover:text-purple-400 hover:shadow-purple-500/50 hover:border-purple-500 hover:-translate-y-1">
+      <lucide-icon name="book-open" [size]="36" class="text-teal-400 transition-colors duration-300"></lucide-icon>
       <span>Food Diary</span>
     </a>
-    <a routerLink="/favorites" routerLinkActive="active" (click)="closeMenu()" class="menu-item">
-      <lucide-icon name="heart" [size]="36"></lucide-icon>
+    <a routerLink="/favorites" routerLinkActive="active" (click)="closeMenu()" class="text-gray-200 no-underline p-5 text-lg transition-all duration-300 text-center rounded-xl flex flex-col items-center justify-center gap-2 bg-gray-900/70 border border-gray-700 shadow-lg relative overflow-hidden hover:bg-purple-900/20 hover:text-purple-400 hover:shadow-purple-500/50 hover:border-purple-500 hover:-translate-y-1">
+      <lucide-icon name="heart" [size]="36" class="text-teal-400 transition-colors duration-300"></lucide-icon>
       <span>Favorites</span>
     </a>
-    <a routerLink="/history" routerLinkActive="active" (click)="closeMenu()" class="menu-item">
-      <lucide-icon name="history" [size]="36"></lucide-icon>
+    <a routerLink="/history" routerLinkActive="active" (click)="closeMenu()" class="text-gray-200 no-underline p-5 text-lg transition-all duration-300 text-center rounded-xl flex flex-col items-center justify-center gap-2 bg-gray-900/70 border border-gray-700 shadow-lg relative overflow-hidden hover:bg-purple-900/20 hover:text-purple-400 hover:shadow-purple-500/50 hover:border-purple-500 hover:-translate-y-1">
+      <lucide-icon name="history" [size]="36" class="text-teal-400 transition-colors duration-300"></lucide-icon>
       <span>History</span>
     </a>
-    <a routerLink="/shopping-list" routerLinkActive="active" (click)="closeMenu()" class="menu-item">
-      <lucide-icon name="shopping-cart" [size]="36"></lucide-icon>
+    <a routerLink="/shopping-list" routerLinkActive="active" (click)="closeMenu()" class="text-gray-200 no-underline p-5 text-lg transition-all duration-300 text-center rounded-xl flex flex-col items-center justify-center gap-2 bg-gray-900/70 border border-gray-700 shadow-lg relative overflow-hidden hover:bg-purple-900/20 hover:text-purple-400 hover:shadow-purple-500/50 hover:border-purple-500 hover:-translate-y-1">
+      <lucide-icon name="shopping-cart" [size]="36" class="text-teal-400 transition-colors duration-300"></lucide-icon>
       <span>Shopping List</span>
     </a>
-    <a routerLink="/achievements" routerLinkActive="active" (click)="closeMenu()" class="menu-item">
-      <lucide-icon name="award" [size]="36"></lucide-icon>
+    <a routerLink="/achievements" routerLinkActive="active" (click)="closeMenu()" class="text-gray-200 no-underline p-5 text-lg transition-all duration-300 text-center rounded-xl flex flex-col items-center justify-center gap-2 bg-gray-900/70 border border-gray-700 shadow-lg relative overflow-hidden hover:bg-purple-900/20 hover:text-purple-400 hover:shadow-purple-500/50 hover:border-purple-500 hover:-translate-y-1">
+      <lucide-icon name="award" [size]="36" class="text-teal-400 transition-colors duration-300"></lucide-icon>
       <span>Achievements</span>
     </a>
-    <a routerLink="/friends" routerLinkActive="active" (click)="closeMenu()" class="menu-item">
-      <lucide-icon name="users" [size]="36"></lucide-icon>
+    <a routerLink="/friends" routerLinkActive="active" (click)="closeMenu()" class="text-gray-200 no-underline p-5 text-lg transition-all duration-300 text-center rounded-xl flex flex-col items-center justify-center gap-2 bg-gray-900/70 border border-gray-700 shadow-lg relative overflow-hidden hover:bg-purple-900/20 hover:text-purple-400 hover:shadow-purple-500/50 hover:border-purple-500 hover:-translate-y-1">
+      <lucide-icon name="users" [size]="36" class="text-teal-400 transition-colors duration-300"></lucide-icon>
       <span>Friends</span>
     </a>
-    <a routerLink="/suggestions" routerLinkActive="active" (click)="closeMenu()" class="menu-item">
-      <lucide-icon name="lightbulb" [size]="36"></lucide-icon>
+    <a routerLink="/suggestions" routerLinkActive="active" (click)="closeMenu()" class="text-gray-200 no-underline p-5 text-lg transition-all duration-300 text-center rounded-xl flex flex-col items-center justify-center gap-2 bg-gray-900/70 border border-gray-700 shadow-lg relative overflow-hidden hover:bg-purple-900/20 hover:text-purple-400 hover:shadow-purple-500/50 hover:border-purple-500 hover:-translate-y-1">
+      <lucide-icon name="lightbulb" [size]="36" class="text-teal-400 transition-colors duration-300"></lucide-icon>
       <span>Suggestions</span>
     </a>
-    <a routerLink="/community" routerLinkActive="active" (click)="closeMenu()" class="menu-item">
-      <lucide-icon name="globe" [size]="36"></lucide-icon>
+    <a routerLink="/community" routerLinkActive="active" (click)="closeMenu()" class="text-gray-200 no-underline p-5 text-lg transition-all duration-300 text-center rounded-xl flex flex-col items-center justify-center gap-2 bg-gray-900/70 border border-gray-700 shadow-lg relative overflow-hidden hover:bg-purple-900/20 hover:text-purple-400 hover:shadow-purple-500/50 hover:border-purple-500 hover:-translate-y-1">
+      <lucide-icon name="globe" [size]="36" class="text-teal-400 transition-colors duration-300"></lucide-icon>
       <span>Community</span>
     </a>
-    <a routerLink="/preferences" routerLinkActive="active" (click)="closeMenu()" class="menu-item">
-      <lucide-icon name="settings" [size]="36"></lucide-icon>
+    <a routerLink="/preferences" routerLinkActive="active" (click)="closeMenu()" class="text-gray-200 no-underline p-5 text-lg transition-all duration-300 text-center rounded-xl flex flex-col items-center justify-center gap-2 bg-gray-900/70 border border-gray-700 shadow-lg relative overflow-hidden hover:bg-purple-900/20 hover:text-purple-400 hover:shadow-purple-500/50 hover:border-purple-500 hover:-translate-y-1">
+      <lucide-icon name="settings" [size]="36" class="text-teal-400 transition-colors duration-300"></lucide-icon>
       <span>Preferences</span>
     </a>
     
-    <hr class="nav-divider">
+    <hr class="border-0 h-px bg-gray-700 my-2 w-full col-span-full">
     
-    <a routerLink="/profile" routerLinkActive="active" (click)="closeMenu()" class="menu-item">
-      <lucide-icon name="user" [size]="36"></lucide-icon>
+    <a routerLink="/profile" routerLinkActive="active" (click)="closeMenu()" class="text-gray-200 no-underline p-5 text-lg transition-all duration-300 text-center rounded-xl flex flex-col items-center justify-center gap-2 bg-gray-900/70 border border-gray-700 shadow-lg relative overflow-hidden hover:bg-purple-900/20 hover:text-purple-400 hover:shadow-purple-500/50 hover:border-purple-500 hover:-translate-y-1">
+      <lucide-icon name="user" [size]="36" class="text-teal-400 transition-colors duration-300"></lucide-icon>
       <span>Profile</span>
     </a>
-    <a *ngIf="isAdmin$ | async" routerLink="/admin" routerLinkActive="active" (click)="closeMenu()" class="menu-item">
-      <lucide-icon name="shield" [size]="36"></lucide-icon>
+    <a *ngIf="isAdmin$ | async" routerLink="/admin" routerLinkActive="active" (click)="closeMenu()" class="text-gray-200 no-underline p-5 text-lg transition-all duration-300 text-center rounded-xl flex flex-col items-center justify-center gap-2 bg-gray-900/70 border border-gray-700 shadow-lg relative overflow-hidden hover:bg-purple-900/20 hover:text-purple-400 hover:shadow-purple-500/50 hover:border-purple-500 hover:-translate-y-1">
+      <lucide-icon name="shield" [size]="36" class="text-teal-400 transition-colors duration-300"></lucide-icon>
       <span>Admin</span>
     </a>
     <ng-container *ngIf="(currentUser$ | async) as user; else loginLink">
-      <a (click)="signOut()" class="logout-link menu-item">
-        <lucide-icon name="log-out" [size]="36"></lucide-icon>
+      <a (click)="signOut()" class="text-gray-200 no-underline p-5 text-lg transition-all duration-300 text-center rounded-xl flex flex-col items-center justify-center gap-2 bg-gray-900/70 border border-gray-700 shadow-lg relative overflow-hidden hover:bg-purple-900/20 hover:text-purple-400 hover:shadow-purple-500/50 hover:border-purple-500 hover:-translate-y-1">
+        <lucide-icon name="log-out" [size]="36" class="text-teal-400 transition-colors duration-300"></lucide-icon>
         <span>Logout ({{ (displayName$ | async) || user.email }})</span>
       </a>
     </ng-container>
     <ng-template #loginLink>
-      <a routerLink="/login" routerLinkActive="active" (click)="closeMenu()" class="menu-item">
-        <lucide-icon name="log-in" [size]="36"></lucide-icon>
+      <a routerLink="/login" routerLinkActive="active" (click)="closeMenu()" class="text-gray-200 no-underline p-5 text-lg transition-all duration-300 text-center rounded-xl flex flex-col items-center justify-center gap-2 bg-gray-900/70 border border-gray-700 shadow-lg relative overflow-hidden hover:bg-purple-900/20 hover:text-purple-400 hover:shadow-purple-500/50 hover:border-purple-500 hover:-translate-y-1">
+        <lucide-icon name="log-in" [size]="36" class="text-teal-400 transition-colors duration-300"></lucide-icon>
         <span>Login</span>
       </a>
     </ng-template>
   </div>
 </div>
 
-<main [class.full-screen]="isScannerPage">
+<main class="pt-[70px] pb-[60px]" [class.full-screen]="isScannerPage">
   <router-outlet></router-outlet>
 </main>
 

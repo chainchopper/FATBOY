@@ -7,7 +7,7 @@ import { LucideAngularModule } from 'lucide-angular';
   standalone: true,
   imports: [CommonModule, LucideAngularModule],
   templateUrl: './footer.component.html',
-  styleUrls: ['./footer.component.css']
+  styleUrls: []
 })
 export class FooterComponent {
   currentYear: number = new Date().getFullYear();
