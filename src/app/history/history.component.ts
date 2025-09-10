@@ -7,13 +7,15 @@ import { AppModalService } from '../services/app-modal.service';
 import { ProductCardComponent } from '../product-card/product-card.component';
 import { ShareService } from '../services/share.service';
 import { AiIntegrationService } from '../services/ai-integration.service'; // Import AiIntegrationService
+import { ButtonComponent } from '../button.component'; // Import ButtonComponent
+import { CustomTitleCasePipe } from '../shared/custom-title-case.pipe'; // Import CustomTitleCasePipe
 
 @Component({
   selector: 'app-history',
   standalone: true,
-  imports: [CommonModule, ProductCardComponent],
+  imports: [CommonModule, ProductCardComponent, ButtonComponent, CustomTitleCasePipe], // Add ButtonComponent and CustomTitleCasePipe
   templateUrl: './history.component.html',
-  styleUrls: ['./history.component.css']
+  styleUrls: []
 })
 export class HistoryComponent implements OnInit {
   products: Product[] = [];

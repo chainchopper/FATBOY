@@ -1,36 +1,36 @@
-<div class="history-container">
-  <div class="history-header">
-    <h2>Your Scan History</h2>
-    <button (click)="clearHistory()" class="clear-btn">Clear All Scans</button>
+<div class="history-container p-5 max-w-5xl mx-auto text-gray-100">
+  <div class="history-header flex justify-between items-center mb-5">
+    <h2 class="text-3xl font-bold text-teal-400 drop-shadow-lg shadow-teal-400">Your Scan History</h2>
+    <app-button variant="destructive" (onClick)="clearHistory()" class="clear-btn">Clear All Scans</app-button>
   </div>
 
-  <div class="stats-section" *ngIf="stats.length > 0">
-    <h3>Most Frequently Avoided Ingredients</h3>
-    <div class="stats-grid">
-      <div *ngFor="let stat of stats.slice(0, 5)" class="stat-item">
-        <span class="stat-count">{{stat.count}}</span>
-        <span class="stat-ingredient">{{stat.ingredient}}</span>
+  <div class="stats-section bg-gray-900/80 p-5 rounded-xl mb-5 border border-gray-700" *ngIf="stats.length > 0">
+    <h3 class="text-xl font-semibold text-purple-400 mb-4 border-b border-gray-700 pb-3">Most Frequently Avoided Ingredients</h3>
+    <div class="stats-grid grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mt-4">
+      <div *ngFor="let stat of stats.slice(0, 5)" class="stat-item bg-gray-800 p-4 rounded-lg text-center border border-gray-700">
+        <span class="stat-count block text-3xl font-bold text-teal-400">{{stat.count}}</span>
+        <span class="stat-ingredient text-sm text-gray-400">{{stat.ingredient}}</span>
       </div>
     </div>
   </div>
 
-  <div class="category-filters">
-    <button 
-      (click)="filterByCategory(null)" 
-      [class.active]="selectedCategory === null"
+  <div class="category-filters flex flex-wrap gap-3 mb-5">
+    <app-button 
+      (onClick)="filterByCategory(null)" 
+      [variant]="selectedCategory === null ? 'default' : 'outline'"
       class="category-btn">
       All Scans
-    </button>
-    <button 
+    </app-button>
+    <app-button 
       *ngFor="let category of ['natural', 'artificialSweeteners', 'artificialColors', 'preservatives']"
-      (click)="filterByCategory(category)" 
-      [class.active]="selectedCategory === category"
+      (onClick)="filterByCategory(category)" 
+      [variant]="selectedCategory === category ? 'default' : 'outline'"
       class="category-btn">
-      {{getCategoryIcon(category)}} {{category}}
-    </button>
+      {{getCategoryIcon(category)}} {{category | customTitleCase}}
+    </app-button>
   </div>
 
-  <div class="products-grid">
+  <div class="products-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
     <app-product-card 
       *ngFor="let product of filteredProducts"
       [product]="product"
@@ -44,10 +44,10 @@
       (addToShoppingList)="addToShoppingList($event)"
       (addToFoodDiary)="addToFoodDiary($event)"
       (toggleFavorite)="toggleFavorite($event)"
-      (viewDetails)="onViewDetails($event)"> <!-- Bind new event here -->
+      (viewDetails)="onViewDetails($event)">
     </app-product-card>
     
-    <div *ngIf="filteredProducts.length === 0" class="empty-state">
+    <div *ngIf="filteredProducts.length === 0" class="empty-state text-center p-10 text-gray-400 bg-gray-900/80 rounded-xl border border-gray-700 col-span-full">
       <p>No scan history yet. Start scanning products to build your history!</p>
     </div>
   </div>
