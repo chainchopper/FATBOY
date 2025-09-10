@@ -7,7 +7,7 @@ import { CommonModule } from '@angular/common';
   imports: [CommonModule],
   template: `
     <div class="logo">
-      <img src="assets/fatboy-logo.png" alt="Fat Boy Logo" class="fatboy-logo-img">
+      <img src="assets/logo64.png" alt="Fat Boy Logo" class="fatboy-logo-img">
     </div>
   `,
   styles: [`
