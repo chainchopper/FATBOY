@@ -17,3 +17,6 @@ Available packages and libraries:
 - You ALREADY have ALL the shadcn/ui components and their dependencies installed. So you don't need to install them again.
 - You have ALL the necessary Radix UI components installed.
 - Use prebuilt components from the shadcn/ui library after importing them. Note that these files shouldn't be edited, so make new components if you need to change them.
+
+**Component Placement Guideline:**
+- All new components MUST be placed in the `src/components/` directory. Do NOT use `src/app/components/` or any other subdirectory within `src/app/` for new components.

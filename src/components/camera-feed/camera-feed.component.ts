@@ -2,9 +2,9 @@ import { Component, ElementRef, ViewChild, AfterViewInit, OnDestroy, Output, Eve
 import { CommonModule } from '@angular/common';
 import { Html5Qrcode } from 'html5-qrcode';
 import { LucideAngularModule } from 'lucide-angular';
-import { NotificationService } from '../../services/notification.service';
-import { PermissionsService } from '../../services/permissions.service';
-import { AudioService } from '../../services/audio.service';
+import { NotificationService } from '../../app/services/notification.service';
+import { PermissionsService } from '../../app/services/permissions.service';
+import { AudioService } from '../../app/services/audio.service';
 
 @Component({
   selector: 'app-camera-feed',
