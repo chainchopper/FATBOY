@@ -14,9 +14,9 @@
         rows="10" 
         placeholder="e.g.,&#10;Organic Oats&#10;Whole Wheat Bread&#10;Almond Milk">
       </textarea>
-      <button (click)="onPrepopulate()" [disabled]="isLoading" class="action-btn">
+      <app-button (onClick)="onPrepopulate()" [disabled]="isLoading" variant="outline" class="action-btn">
         {{ isLoading ? 'Processing...' : 'Pre-populate Data' }}
-      </button>
+      </app-button>
     </div>
 
     <div *ngIf="results.length > 0" class="results-section">

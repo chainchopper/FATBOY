@@ -117,15 +117,7 @@ td {
   vertical-align: middle;
 }
 
-.expand-btn {
-  background: #2a2a4e;
-  border: 1px solid #4a4a6e;
-  color: #e0e0e0;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  cursor: pointer;
-}
+/* Removed .expand-btn styles as they are now handled by ButtonComponent */
 
 .details-row td {
   padding: 0;
@@ -152,30 +144,4 @@ td {
   gap: 10px;
 }
 
-.action-btn {
-  padding: 8px 16px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.9rem;
-  border: 1px solid;
-  background: transparent;
-  transition: all 0.3s;
-}
-
-.action-btn.approve {
-  border-color: #0abdc6;
-  color: #0abdc6;
-}
-.action-btn.approve:hover {
-  background-color: rgba(10, 189, 198, 0.1);
-  box-shadow: 0 0 10px #0abdc6;
-}
-
-.action-btn.reject {
-  border-color: #F44336;
-  color: #F44336;
-}
-.action-btn.reject:hover {
-  background-color: rgba(244, 67, 54, 0.1);
-  box-shadow: 0 0 10px #F44336;
-}
+/* Removed .action-btn, .action-btn.approve, .action-btn.reject styles as they are now handled by ButtonComponent */

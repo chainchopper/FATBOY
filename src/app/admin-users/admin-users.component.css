@@ -6,10 +6,13 @@
 }
 
 .back-link {
+  /* These styles are now handled by app-button's variant="link" */
+  /*
   color: #0abdc6;
   text-decoration: none;
   margin-bottom: 1.5rem;
   display: inline-block;
+  */
 }
 
 h2 {

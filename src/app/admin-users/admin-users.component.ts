@@ -4,11 +4,12 @@ import { AdminService } from '../services/admin.service';
 import { Profile } from '../services/profile.service';
 import { NotificationService } from '../services/notification.service';
 import { RouterLink } from '@angular/router';
+import { ButtonComponent } from '../components/ui/button/button.component'; // Import ButtonComponent
 
 @Component({
   selector: 'app-admin-users',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, ButtonComponent], // Add ButtonComponent to imports
   templateUrl: './admin-users.component.html',
   styleUrls: ['./admin-users.component.css']
 })

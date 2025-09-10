@@ -2,11 +2,13 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AdminService } from '../services/admin.service';
 import { NotificationService } from '../services/notification.service';
+import { ButtonComponent } from '../components/ui/button/button.component'; // Import ButtonComponent
+import { RouterLink } from '@angular/router'; // Keep RouterLink for navigation
 
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink, ButtonComponent], // Add ButtonComponent to imports
   templateUrl: './admin-dashboard.component.html',
   styleUrls: ['./admin-dashboard.component.css']
 })

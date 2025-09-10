@@ -6,11 +6,12 @@ import { ProfileService, Profile } from '../services/profile.service';
 import { NotificationService } from '../services/notification.service';
 import { AuthService } from '../services/auth.service';
 import { firstValueFrom } from 'rxjs';
+import { ButtonComponent } from '../components/ui/button/button.component'; // Import ButtonComponent
 
 @Component({
   selector: 'app-profile-editor',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, ButtonComponent], // Add ButtonComponent to imports
   templateUrl: './profile-editor.component.html',
   styleUrls: ['./profile-editor.component.css']
 })

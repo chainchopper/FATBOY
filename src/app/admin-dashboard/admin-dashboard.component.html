@@ -42,14 +42,14 @@
         <tbody *ngFor="let item of pendingContributions">
           <tr class="main-row" (click)="toggleExpand(item.id)">
             <td>
-              <button class="expand-btn">{{ expandedContributionId === item.id ? '−' : '+' }}</button>
+              <app-button variant="secondary" size="icon" (onClick)="toggleExpand(item.id); $event.stopPropagation()" class="expand-btn">{{ expandedContributionId === item.id ? '−' : '+' }}</app-button>
             </td>
             <td>{{ item.product_name }}</td>
             <td>{{ item.brand }}</td>
             <td>{{ item.profile.first_name || 'Anonymous' }}</td>
             <td class="actions-cell">
-              <button (click)="approve(item.id); $event.stopPropagation()" class="action-btn approve">Approve</button>
-              <button (click)="reject(item.id); $event.stopPropagation()" class="action-btn reject">Reject</button>
+              <app-button variant="outline" (onClick)="approve(item.id); $event.stopPropagation()" class="action-btn approve">Approve</app-button>
+              <app-button variant="destructive" (onClick)="reject(item.id); $event.stopPropagation()" class="action-btn reject">Reject</app-button>
             </td>
           </tr>
           <tr *ngIf="expandedContributionId === item.id" class="details-row">
