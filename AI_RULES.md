@@ -5,7 +5,7 @@
 - Use React Router. KEEP the routes in src/App.tsx
 - Always put source code in the src folder.
 - Put pages into src/pages/
-- Put components into src/components/
+- Put components into src/app/components/
 - The main page (default page) is src/pages/Index.tsx
 - UPDATE the main page to include the new components. OTHERWISE, the user can NOT see any components!
 - ALWAYS try to use the shadcn/ui library.
@@ -19,4 +19,4 @@ Available packages and libraries:
 - Use prebuilt components from the shadcn/ui library after importing them. Note that these files shouldn't be edited, so make new components if you need to change them.
 
 **Component Placement Guideline:**
-- All new components MUST be placed in the `src/components/` directory. Do NOT use `src/app/components/` or any other subdirectory within `src/app/` for new components.
+- All new components MUST be placed in the `src/app/components/` directory. Do NOT use `src/components/` or any other top-level directory for new components.
