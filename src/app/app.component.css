@@ -114,13 +114,34 @@ main.full-screen {
 }
 
 /* Responsive adjustments for smaller screens */
-@media (max-width: 768px) {
+@media (min-width: 1024px) { /* Apply 3 columns on larger desktops */
   .nav-menu {
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); /* More columns on smaller screens */
+    grid-template-columns: repeat(3, 1fr); /* Force 3 columns */
+  }
+}
+
+@media (max-width: 1023px) and (min-width: 768px) { /* 2 columns for tablets */
+  .nav-menu {
+    grid-template-columns: repeat(2, 1fr);
     gap: 15px;
     padding: 90px 15px 15px 15px;
   }
+}
 
+@media (max-width: 767px) { /* Single column for mobile */
+  .nav-menu {
+    grid-template-columns: 1fr;
+    padding: 90px 10px 10px 10px;
+  }
+  .nav-menu .menu-item {
+    width: 100%;
+    max-width: 300px; /* Limit width for single column */
+    margin: 0 auto;
+  }
+}
+
+/* General menu item adjustments */
+@media (max-width: 768px) {
   .nav-menu .menu-item {
     font-size: 0.9rem;
     padding: 15px 5px;
@@ -131,17 +152,5 @@ main.full-screen {
     font-size: 30px; /* Smaller icons */
     width: 30px;
     height: 30px;
-  }
-}
-
-@media (max-width: 480px) {
-  .nav-menu {
-    grid-template-columns: 1fr; /* Single column on very small screens */
-    padding: 90px 10px 10px 10px;
-  }
-  .nav-menu .menu-item {
-    width: 100%;
-    max-width: 300px; /* Limit width for single column */
-    margin: 0 auto;
   }
 }

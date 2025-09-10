@@ -22,6 +22,14 @@
       <label for="calories">Calories per Serving (optional)</label>
       <app-input type="number" id="calories" [(ngModel)]="productData.calories" name="calories" placeholder="e.g., 150"></app-input>
     </div>
+
+    <div class="form-group">
+      <label for="productImage">Product Image (optional)</label>
+      <input type="file" id="productImage" (change)="onFileSelected($event)" accept="image/png, image/jpeg">
+      <div *ngIf="imageUrl" class="image-preview">
+        <img [src]="imageUrl" alt="Product Image Preview">
+      </div>
+    </div>
     
     <app-button type="submit" variant="outline" class="submit-btn">Analyze & Save Product</app-button>
   </form>

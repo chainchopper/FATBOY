@@ -39,6 +39,19 @@ p {
 
 /* Removed .form-group input, .form-group textarea styles */
 
+.image-preview {
+  margin-top: 15px;
+  text-align: center;
+}
+
+.image-preview img {
+  max-width: 150px;
+  max-height: 150px;
+  border-radius: 8px;
+  border: 1px solid #4a4a6e;
+  object-fit: cover;
+}
+
 .submit-btn {
   display: block;
   margin: 1rem auto 0;

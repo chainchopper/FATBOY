@@ -41,6 +41,10 @@
     </button>
 
     <div class="footer-actions-right">
+      <button class="footer-btn" (click)="unifiedScannerService.handleStableFrameCapture()" [class.hidden]="showExpandedOptions">
+        <lucide-icon name="camera" [size]="24"></lucide-icon>
+        <span>Capture</span>
+      </button>
       <button class="footer-btn" (click)="toggleVoiceListening()" [class.active]="isVoiceListening" [class.hidden]="!showExpandedOptions">
         <lucide-icon name="mic" [size]="24"></lucide-icon>
         <span>Voice</span>
