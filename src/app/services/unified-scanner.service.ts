@@ -178,8 +178,7 @@ export class UnifiedScannerService {
 
       this.screenFlash = true;
       this.audioService.playSuccessSound();
-      sessionStorage.setItem('scannedProduct', JSON.stringify(savedProduct));
-      this.productDb.setLastViewedProduct(savedProduct); // Use ProductDbService
+      this.productDb.setLastViewedProduct(savedProduct);
       this.router.navigate(['/results']);
       this.productScanned.emit(savedProduct);
 
@@ -240,8 +239,7 @@ export class UnifiedScannerService {
 
       this.screenFlash = true;
       this.audioService.playSuccessSound();
-      sessionStorage.setItem('viewingProduct', JSON.stringify(savedProduct));
-      this.productDb.setLastViewedProduct(savedProduct); // Use ProductDbService
+      this.productDb.setLastViewedProduct(savedProduct);
       this.router.navigate(['/ocr-results']);
       this.productProcessed.emit(savedProduct);
 
@@ -290,8 +288,7 @@ export class UnifiedScannerService {
 
         this.screenFlash = true;
         this.audioService.playSuccessSound();
-        sessionStorage.setItem('viewingProduct', JSON.stringify(savedProduct));
-        this.productDb.setLastViewedProduct(savedProduct); // Use ProductDbService
+        this.productDb.setLastViewedProduct(savedProduct);
         this.router.navigate(['/ocr-results']);
         this.productProcessed.emit(savedProduct);
 

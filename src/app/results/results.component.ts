@@ -13,6 +13,7 @@ import { PreferencesService } from '../services/preferences.service';
 import { ButtonComponent } from '../button.component';
 import { ShareService } from '../services/share.service'; // Import ShareService
 import { CustomTitleCasePipe } from '../shared/custom-title-case.pipe'; // Import CustomTitleCasePipe
+import { take } from 'rxjs/operators';
 
 @Component({
   selector: 'app-results',
@@ -42,24 +43,25 @@ export class ResultsComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    const productData = sessionStorage.getItem('scannedProduct');
-    if (productData) {
-      this.product = JSON.parse(productData) as Product;
-      this.verdict = this.product.verdict;
-      this.flaggedItems = this.product.flaggedIngredients.map(ing => ({ ingredient: ing, reason: `Contains ${ing}, which you avoid.` }));
-      this.productForModal = this.product;
+    this.productDb.lastViewedProduct$.pipe(take(1)).subscribe(productData => {
+      if (productData) {
+        this.product = productData;
+        this.verdict = this.product.verdict;
+        this.flaggedItems = this.product.flaggedIngredients.map(ing => ({ ingredient: ing, reason: `Contains ${ing}, which you avoid.` }));
+        this.productForModal = this.product;
 
-      if (this.verdict === 'good') {
-        this.audioService.playSuccessSound();
-        this.speechService.speak('Fat Boy Approved!');
+        if (this.verdict === 'good') {
+          this.audioService.playSuccessSound();
+          this.speechService.speak('Fat Boy Approved!');
+        } else {
+          this.audioService.playErrorSound();
+          this.speechService.speak('Contains Items You Avoid');
+        }
+        this.checkScanContext();
       } else {
-        this.audioService.playErrorSound();
-        this.speechService.speak('Contains Items You Avoid');
+        this.router.navigate(['/scanner']);
       }
-      this.checkScanContext();
-    } else {
-      this.router.navigate(['/scanner']);
-    }
+    });
   }
 
   private checkScanContext() {

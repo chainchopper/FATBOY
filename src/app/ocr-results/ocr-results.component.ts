@@ -14,6 +14,7 @@ import { PreferencesService } from '../services/preferences.service';
 import { ButtonComponent } from '../button.component';
 import { ShareService } from '../services/share.service'; // Import ShareService
 import { CustomTitleCasePipe } from '../shared/custom-title-case.pipe'; // Import CustomTitleCasePipe
+import { take } from 'rxjs/operators';
 
 @Component({
   selector: 'app-ocr-results',
@@ -42,14 +43,15 @@ export class OcrResultsComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    const productData = sessionStorage.getItem('viewingProduct');
-    if (productData) {
-      this.product = JSON.parse(productData);
-      this.evaluateProduct();
-      this.checkScanContext();
-    } else {
-      this.router.navigate(['/scanner']);
-    }
+    this.productDb.lastViewedProduct$.pipe(take(1)).subscribe(productData => {
+      if (productData) {
+        this.product = productData;
+        this.evaluateProduct();
+        this.checkScanContext();
+      } else {
+        this.router.navigate(['/scanner']);
+      }
+    });
   }
 
   private evaluateProduct(): void {
