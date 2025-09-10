@@ -39,6 +39,7 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
   showExpandedOptions = false;
   screenFlash = false;
   showNotifications = false; // Declare showNotifications property
+  isScanningActive = false; // New property to control overall scanning state
 
   public unreadNotifications$!: Observable<number>;
   private voiceCommandSubscription!: Subscription;
@@ -70,21 +71,7 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
   }
 
   async ngAfterViewInit() {
-    const cameraStarted = await this.scannerCameraService.startScanning('reader');
-    if (cameraStarted) {
-      this.scannerCameraService.cameraStarted.subscribe(started => {
-        if (started) {
-          this.stabilityDetectorService.start(
-            () => this.scannerCameraService.getVideoElement(),
-            () => this.canvasElement.nativeElement
-          );
-          this.humanDetectorService.startDetection(
-            () => this.scannerCameraService.getVideoElement(),
-            () => this.canvasElement.nativeElement
-          );
-        }
-      });
-    }
+    await this.startAllScanningFeatures();
 
     this.preferencesSubscription = this.preferencesService.preferences$.subscribe(prefs => {
       this.isVoiceListening = prefs.enableVoiceCommands;
@@ -109,16 +96,38 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.scannerCameraService.stopScanning();
-    this.stabilityDetectorService.stop();
-    this.humanDetectorService.stopDetection();
-    this.speechService.stopListening();
+    this.stopAllScanningFeatures();
     this.voiceCommandSubscription?.unsubscribe();
     this.preferencesSubscription?.unsubscribe();
     this.barcodeScannedSubscription?.unsubscribe();
     this.stableFrameSubscription?.unsubscribe();
     this.cameraStartedSubscription?.unsubscribe();
     this.abortProcessing();
+  }
+
+  private async startAllScanningFeatures(): Promise<void> {
+    const cameraStarted = await this.scannerCameraService.startScanning('reader');
+    if (cameraStarted) {
+      this.isScanningActive = true;
+      this.stabilityDetectorService.start(
+        () => this.scannerCameraService.getVideoElement(),
+        () => this.canvasElement.nativeElement
+      );
+      this.humanDetectorService.startDetection(
+        () => this.scannerCameraService.getVideoElement(),
+        () => this.canvasElement.nativeElement
+      );
+    } else {
+      this.isScanningActive = false;
+    }
+  }
+
+  private stopAllScanningFeatures(): void {
+    this.scannerCameraService.stopScanning();
+    this.stabilityDetectorService.stop();
+    this.humanDetectorService.stopDetection();
+    this.speechService.stopListening();
+    this.isScanningActive = false;
   }
 
   get isScanningBarcode(): boolean {
@@ -159,21 +168,14 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
   }
 
   toggleExpandedOptions(): void {
-    if (this.showExpandedOptions) { // Collapsing
-      this.scannerCameraService.resumeDetection();
-      this.stabilityDetectorService.start(
-        () => this.scannerCameraService.getVideoElement(),
-        () => this.canvasElement.nativeElement
-      );
-      this.humanDetectorService.startDetection(
-        () => this.scannerCameraService.getVideoElement(),
-        () => this.canvasElement.nativeElement
-      );
-    } else { // Expanding
+    if (this.showExpandedOptions) { // Collapsing options
+      this.startAllScanningFeatures(); // Resume all scanning features
+    } else { // Expanding options
       this.scannerCameraService.pauseDetection();
       this.stabilityDetectorService.stop();
       this.humanDetectorService.stopDetection();
       this.abortProcessing(); // Cancel any ongoing processing
+      this.isScanningActive = false; // Indicate scanner is paused for options
     }
     this.showExpandedOptions = !this.showExpandedOptions;
   }
@@ -193,13 +195,13 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
       if (!productInfo) {
         this.notificationService.showWarning('Product not found or could not be processed.', 'Not Found');
         this.audioService.playErrorSound();
-        return;
+        return; // Do not proceed with flash/sound/navigation
       }
 
       const savedProduct = await this.productDb.addProduct(productInfo);
       if (!savedProduct) {
         // productDb.addProduct now handles 'not logged in' and shows notification
-        return;
+        return; // Do not proceed with flash/sound/navigation
       }
 
       this.screenFlash = true;
@@ -218,9 +220,17 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
       }
     } finally {
       this.isProcessingOcr = false;
-      this.screenFlash = false;
+      this.screenFlash = false; // Ensure flash is reset
       this.processingAbortController = null;
       this.scannerCameraService.resumeDetection(); // Resume detection after processing
+      this.stabilityDetectorService.start( // Restart stability detector
+        () => this.scannerCameraService.getVideoElement(),
+        () => this.canvasElement.nativeElement
+      );
+      this.humanDetectorService.startDetection( // Restart human detector
+        () => this.scannerCameraService.getVideoElement(),
+        () => this.canvasElement.nativeElement
+      );
     }
   }
 
@@ -250,12 +260,12 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
       if (!productInfo) {
         this.notificationService.showWarning('No product data extracted from image.', 'OCR Failed');
         this.audioService.playErrorSound();
-        return;
+        return; // Do not proceed with flash/sound/navigation
       }
 
       const savedProduct = await this.productDb.addProduct(productInfo);
       if (!savedProduct) {
-        return;
+        return; // Do not proceed with flash/sound/navigation
       }
 
       this.screenFlash = true;
@@ -274,9 +284,17 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
       }
     } finally {
       this.isProcessingOcr = false;
-      this.screenFlash = false;
+      this.screenFlash = false; // Ensure flash is reset
       this.processingAbortController = null;
       this.scannerCameraService.resumeDetection(); // Resume detection after processing
+      this.stabilityDetectorService.start( // Restart stability detector
+        () => this.scannerCameraService.getVideoElement(),
+        () => this.canvasElement.nativeElement
+      );
+      this.humanDetectorService.startDetection( // Restart human detector
+        () => this.scannerCameraService.getVideoElement(),
+        () => this.canvasElement.nativeElement
+      );
     }
   }
 
@@ -305,12 +323,12 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
           if (!productInfo) {
             this.notificationService.showWarning('No product data extracted from uploaded image.', 'OCR Failed');
             this.audioService.playErrorSound();
-            return;
+            return; // Do not proceed with flash/sound/navigation
           }
 
           const savedProduct = await this.productDb.addProduct(productInfo);
           if (!savedProduct) {
-            return;
+            return; // Do not proceed with flash/sound/navigation
           }
 
           this.screenFlash = true;
@@ -329,9 +347,17 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
           }
         } finally {
           this.isProcessingOcr = false;
-          this.screenFlash = false;
+          this.screenFlash = false; // Ensure flash is reset
           this.processingAbortController = null;
-          this.scannerCameraService.resumeDetection();
+          this.scannerCameraService.resumeDetection(); // Resume detection after processing
+          this.stabilityDetectorService.start( // Restart stability detector
+            () => this.scannerCameraService.getVideoElement(),
+            () => this.canvasElement.nativeElement
+          );
+          this.humanDetectorService.startDetection( // Restart human detector
+            () => this.scannerCameraService.getVideoElement(),
+            () => this.canvasElement.nativeElement
+          );
         }
       };
       reader.readAsDataURL(file);

@@ -12,14 +12,14 @@
       <span class="tagline-word">Choose.</span>
     </div>
     <div class="scan-area" [class.stable]="isStable">
-      <div *ngIf="isScanningBarcode || isProcessingOcr" class="scan-line"></div>
+      <div *ngIf="isScanningActive" class="scan-line"></div>
     </div>
     <!-- Refined text feedback logic -->
     <p *ngIf="showExpandedOptions">Scanner options open.</p>
     <p *ngIf="!showExpandedOptions && isProcessingOcr">Processing...</p>
-    <p *ngIf="!showExpandedOptions && !isProcessingOcr && isScanningBarcode && !isStable">Hold steady to scan a label or barcode.</p>
-    <p *ngIf="!showExpandedOptions && !isProcessingOcr && isScanningBarcode && isStable">Analyzing...</p>
-    <p *ngIf="!showExpandedOptions && !isProcessingOcr && !isScanningBarcode">Nothing recognized. Hold steady to scan.</p>
+    <p *ngIf="!showExpandedOptions && !isProcessingOcr && isScanningActive && !isStable">Hold steady to scan a label or barcode.</p>
+    <p *ngIf="!showExpandedOptions && !isProcessingOcr && isScanningActive && isStable">Analyzing...</p>
+    <p *ngIf="!showExpandedOptions && !isProcessingOcr && !isScanningActive">Nothing recognized. Hold steady to scan.</p>
   </div>
 
   <!-- New Immersive Footer -->
