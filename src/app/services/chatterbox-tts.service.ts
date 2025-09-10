@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http'; // Import HttpErrorResponse
+import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { NotificationService } from './notification.service';
 import { PreferencesService, UserPreferences } from './preferences.service';
@@ -38,8 +38,8 @@ export class ChatterboxTtsService {
       this.isApiAvailable = false;
     } else {
       // Use the base URL from environment and append specific paths
-      this.ttsApiUrl = `${environment.ttsApiEndpoint}/v1/audio/speech`;
-      this.voicesApiUrl = `${environment.ttsApiEndpoint}/v1/voices`; // CORRECTED ENDPOINT
+      this.ttsApiUrl = `${environment.ttsApiEndpoint}/v1/speech`; // CORRECTED ENDPOINT
+      this.voicesApiUrl = `${environment.ttsApiEndpoint}/v1/voices`;
       this.healthApiUrl = `${environment.ttsApiEndpoint}/v1/health`;
       this.checkApiHealthAndLoadVoices();
     }
