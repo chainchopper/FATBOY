@@ -22,6 +22,7 @@ import { ButtonComponent } from '../button.component';
 import { ChatHistoryService, ChatMessage } from '../services/chat-history.service';
 import { ConsoleCameraService } from '../services/console-camera.service';
 import { ProductDbService } from '../services/product-db.service'; // Import ProductDbService
+import { ConsoleCommandService } from '../services/console-command.service';
 
 interface SlashCommand {
   command: string;
@@ -85,7 +86,8 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
     // Inject new services
     private chatHistoryService: ChatHistoryService,
     public consoleCameraService: ConsoleCameraService, // Public to access showCameraFeed
-    private productDbService: ProductDbService // Inject ProductDbService
+    private productDbService: ProductDbService, // Inject ProductDbService
+    private consoleCommandService: ConsoleCommandService
   ) {}
 
   ngOnInit() {
@@ -118,6 +120,7 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
     this.chatMessagesSubscription = this.chatHistoryService.messages$.subscribe(messages => {
       this.messages = messages;
       this.cdr.detectChanges(); // Ensure view updates after messages load
+      this.executePreloadedCommand();
     });
 
     this.preferencesSubscription = this.preferencesService.preferences$.subscribe(prefs => {
@@ -165,6 +168,14 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
     // Pass the CameraFeedComponent instance to the service once it's available
     if (this.chatCameraFeed) {
       this.consoleCameraService.setCameraFeedComponent(this.chatCameraFeed);
+    }
+  }
+
+  private executePreloadedCommand() {
+    const command = this.consoleCommandService.getCommand();
+    if (command) {
+      this.userInput = command;
+      this.sendMessage();
     }
   }
 

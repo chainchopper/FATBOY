@@ -12,6 +12,7 @@ import { ButtonComponent } from '../button.component';
 import { CustomTitleCasePipe } from '../shared/custom-title-case.pipe';
 import { firstValueFrom } from 'rxjs';
 import { SpeechService } from '../services/speech.service';
+import { ConsoleCommandService } from '../services/console-command.service';
 
 @Component({
   selector: 'app-product-details',
@@ -35,7 +36,8 @@ export class ProductDetailsComponent implements OnInit {
     private shareService: ShareService,
     private shoppingListService: ShoppingListService,
     private appModalService: AppModalService,
-    private speechService: SpeechService
+    private speechService: SpeechService,
+    private consoleCommandService: ConsoleCommandService
   ) {}
 
   async ngOnInit() {
@@ -102,5 +104,13 @@ export class ProductDetailsComponent implements OnInit {
   addComments() {
     this.notificationService.showInfo('Adding comments/details functionality is coming soon!', 'Feature Coming');
     this.speechService.speak('Adding comments or details functionality is coming soon.');
+  }
+
+  findAlternatives() {
+    if (this.product) {
+      const command = `Find healthier alternatives for "${this.product.name}" by ${this.product.brand}.`;
+      this.consoleCommandService.setCommand(command);
+      this.router.navigate(['/console']);
+    }
   }
 }
