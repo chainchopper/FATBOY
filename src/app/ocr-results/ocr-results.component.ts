@@ -11,11 +11,12 @@ import { FoodDiaryService } from '../services/food-diary.service';
 import { ScanContextService } from '../services/scan-context.service';
 import { ModalService } from '../services/modal.service';
 import { PreferencesService } from '../services/preferences.service'; // Import PreferencesService
+import { ButtonComponent } from '../components/ui/button/button.component'; // Import ButtonComponent
 
 @Component({
   selector: 'app-ocr-results',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ButtonComponent], // Add ButtonComponent to imports
   templateUrl: './ocr-results.component.html',
   styleUrls: ['./ocr-results.component.css']
 })

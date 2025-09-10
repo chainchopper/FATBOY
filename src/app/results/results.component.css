@@ -82,30 +82,3 @@
   justify-content: center;
   gap: 15px;
 }
-
-.outline-btn, .filled-btn {
-  padding: 12px 24px;
-  border-radius: 30px;
-  font-size: 16px;
-  cursor: pointer;
-  background: transparent;
-  transition: all 0.3s;
-}
-
-.outline-btn {
-  border: 2px solid #0abdc6;
-  color: #0abdc6;
-}
-.outline-btn:hover {
-  background-color: rgba(10, 189, 198, 0.1);
-  box-shadow: 0 0 15px #0abdc6;
-}
-
-.filled-btn {
-  border: 2px solid #f038ff;
-  color: #f038ff;
-}
-.filled-btn:hover {
-  background-color: rgba(240, 56, 255, 0.1);
-  box-shadow: 0 0 15px #f038ff;
-}

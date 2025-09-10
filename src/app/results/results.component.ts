@@ -10,11 +10,12 @@ import { ScanContextService } from '../services/scan-context.service';
 import { FoodDiaryService } from '../services/food-diary.service';
 import { ModalService } from '../services/modal.service';
 import { PreferencesService } from '../services/preferences.service';
+import { ButtonComponent } from '../components/ui/button/button.component'; // Import ButtonComponent
 
 @Component({
   selector: 'app-results',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ButtonComponent], // Add ButtonComponent to imports
   templateUrl: './results.component.html',
   styleUrls: ['./results.component.css']
 })

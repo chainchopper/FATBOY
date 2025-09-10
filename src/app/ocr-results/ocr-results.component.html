@@ -33,8 +33,8 @@
   </div>
 
   <div class="action-buttons">
-    <button (click)="scanAgain()" class="outline-btn">Scan Another</button>
-    <button (click)="addToList()" class="filled-btn">Add to...</button>
-    <button (click)="viewRawText()" class="text-btn">View Raw Text</button>
+    <app-button variant="outline" (onClick)="scanAgain()">Scan Another</app-button>
+    <app-button variant="default" (onClick)="addToList()">Add to...</app-button>
+    <app-button variant="ghost" (onClick)="viewRawText()">View Raw Text</app-button>
   </div>
 </div>

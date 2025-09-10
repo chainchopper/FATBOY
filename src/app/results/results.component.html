@@ -27,7 +27,7 @@
   </div>
 
   <div class="action-buttons">
-    <button (click)="scanAgain()" class="outline-btn">Scan Again</button>
-    <button (click)="addToList()" class="filled-btn">Add to...</button>
+    <app-button variant="outline" (onClick)="scanAgain()">Scan Again</app-button>
+    <app-button variant="default" (onClick)="addToList()">Add to...</app-button>
   </div>
 </div>
