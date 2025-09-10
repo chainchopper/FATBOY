@@ -18,6 +18,13 @@ export interface DiaryEntry {
 
 export type DailyVerdict = 'excellent' | 'good' | 'fair' | 'poor';
 
+export interface HistoricalDataSummary {
+  labels: string[]; // Dates
+  calorieData: number[];
+  flaggedIngredientCounts: { [key: string]: number };
+  averageCaloriesByMeal: { [key in MealType]: number };
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -189,6 +196,48 @@ export class FoodDiaryService {
     } else {
       return 'poor';
     }
+  }
+
+  getHistoricalDataSummary(days: number): HistoricalDataSummary {
+    const labels: string[] = [];
+    const calorieData: number[] = [];
+    const flaggedIngredientCounts: { [key: string]: number } = {};
+    const mealCalories: { [key in MealType]: { total: number, count: number } } = {
+      'Breakfast': { total: 0, count: 0 },
+      'Lunch': { total: 0, count: 0 },
+      'Dinner': { total: 0, count: 0 },
+      'Snack': { total: 0, count: 0 },
+      'Drinks': { total: 0, count: 0 }
+    };
+
+    for (let i = days - 1; i >= 0; i--) {
+      const date = new Date();
+      date.setDate(date.getDate() - i);
+      const dateString = date.toISOString().split('T')[0];
+      labels.push(dateString);
+
+      const summary = this.getDailySummary(dateString);
+      calorieData.push(summary.totalCalories);
+
+      for (const [ingredient, count] of Object.entries(summary.flaggedIngredients)) {
+        flaggedIngredientCounts[ingredient] = (flaggedIngredientCounts[ingredient] || 0) + count;
+      }
+
+      const entries = this.getEntriesForDate(dateString);
+      entries.forEach(entry => {
+        if (entry.product.calories) {
+          mealCalories[entry.meal].total += entry.product.calories;
+          mealCalories[entry.meal].count++;
+        }
+      });
+    }
+
+    const averageCaloriesByMeal = Object.entries(mealCalories).reduce((acc, [meal, data]) => {
+      acc[meal as MealType] = data.count > 0 ? Math.round(data.total / data.count) : 0;
+      return acc;
+    }, {} as { [key in MealType]: number });
+
+    return { labels, calorieData, flaggedIngredientCounts, averageCaloriesByMeal };
   }
 
   private async loadFromSupabase(): Promise<void> {

@@ -18,6 +18,7 @@ export const routes: Routes = [
   { path: 'shopping-list', loadComponent: () => import('./shopping-list/shopping-list.component').then(m => m.ShoppingListComponent) },
   { path: 'achievements', loadComponent: () => import('./achievements/achievements.component').then(m => m.AchievementsComponent) },
   { path: 'food-diary', loadComponent: () => import('./food-diary/food-diary.component').then(m => m.FoodDiaryComponent) },
+  { path: 'analytics', loadComponent: () => import('./performance-analytics/performance-analytics.component').then(m => m.PerformanceAnalyticsComponent) },
   { path: 'profile', loadComponent: () => import('./profile/profile.component').then(m => m.ProfileComponent) },
   { path: 'users/:id', loadComponent: () => import('./profile/profile.component').then(m => m.ProfileComponent) },
   { path: 'profile/edit', loadComponent: () => import('./profile-editor/profile-editor.component').then(m => m.ProfileEditorComponent) },

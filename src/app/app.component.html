@@ -18,6 +18,10 @@
       <lucide-icon name="book-open" [size]="36" class="text-teal-400 transition-colors duration-300"></lucide-icon>
       <span>Food Diary</span>
     </a>
+    <a routerLink="/analytics" routerLinkActive="active" (click)="closeMenu()" class="text-gray-200 no-underline p-5 text-lg transition-all duration-300 text-center rounded-xl flex flex-col items-center justify-center gap-2 bg-gray-900/70 border border-gray-700 shadow-lg relative overflow-hidden hover:bg-purple-900/20 hover:text-purple-400 hover:shadow-purple-500/50 hover:border-purple-500 hover:-translate-y-1">
+      <lucide-icon name="bar-chart-2" [size]="36" class="text-teal-400 transition-colors duration-300"></lucide-icon>
+      <span>Analytics</span>
+    </a>
     <a routerLink="/favorites" routerLinkActive="active" (click)="closeMenu()" class="text-gray-200 no-underline p-5 text-lg transition-all duration-300 text-center rounded-xl flex flex-col items-center justify-center gap-2 bg-gray-900/70 border border-gray-700 shadow-lg relative overflow-hidden hover:bg-purple-900/20 hover:text-purple-400 hover:shadow-purple-500/50 hover:border-purple-500 hover:-translate-y-1">
       <lucide-icon name="heart" [size]="36" class="text-teal-400 transition-colors duration-300"></lucide-icon>
       <span>Favorites</span>
