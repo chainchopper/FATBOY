@@ -16,6 +16,7 @@ import { ProductCardComponent } from '../product-card/product-card.component';
 import { ShareService } from '../services/share.service';
 import { ShoppingListService } from '../services/shopping-list.service';
 import { FoodDiaryService } from '../services/food-diary.service';
+import { ButtonComponent } from '../button.component';
 
 // Import new services
 import { ChatHistoryService, ChatMessage } from '../services/chat-history.service';
@@ -31,7 +32,7 @@ interface SlashCommand {
 @Component({
   selector: 'app-agent-console',
   standalone: true,
-  imports: [CommonModule, FormsModule, CameraFeedComponent, ProductCardComponent],
+  imports: [CommonModule, FormsModule, CameraFeedComponent, ProductCardComponent, ButtonComponent],
   templateUrl: './agent-console.component.html',
   styleUrls: []
 })

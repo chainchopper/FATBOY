@@ -45,7 +45,7 @@
         <lucide-icon name="camera" [size]="24"></lucide-icon>
         <span>Capture</span>
       </button>
-      <button class="flex flex-col items-center gap-1 text-sm text-gray-400 hover:text-teal-400 transition-all duration-300 w-[60px]" (click)="toggleVoiceListening()" [class.text-purple-400]="isVoiceListening" [class.opacity-0]="!showExpandedOptions" [class.translate-y-5]="!showExpandedOptions" [class.pointer-events-none]="!showExpandedOptions">
+      <button class="flex flex-col items-center gap-1 text-sm text-gray-400 hover:text-teal-400 transition-all duration-300 w-[60px]" (click)="toggleVoiceListening()" [class.text-purple-400]="isListening" [class.opacity-0]="!showExpandedOptions" [class.translate-y-5]="!showExpandedOptions" [class.pointer-events-none]="!showExpandedOptions">
         <lucide-icon name="mic" [size]="24"></lucide-icon>
         <span>Voice</span>
       </button>
