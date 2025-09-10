@@ -236,8 +236,12 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
 
     try {
       const aiResponse: AiResponse = await this.aiService.getChatCompletion(text, messagesHistoryForAi);
-      this.chatHistoryService.addAgentMessage(aiResponse); // Add agent message via service
+      
+      // Prioritize speech: Speak the response immediately
       this.speechService.speak(aiResponse.text);
+
+      // Then add the message to history (which updates the UI)
+      this.chatHistoryService.addAgentMessage(aiResponse); 
 
     } catch (error) {
       const errorMessage: ChatMessage = { sender: 'agent', text: 'Sorry, I encountered an error. Please try again.', timestamp: new Date(), avatar: this.agentAvatar };

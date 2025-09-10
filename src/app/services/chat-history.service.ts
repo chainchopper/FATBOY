@@ -3,7 +3,7 @@ import { BehaviorSubject, firstValueFrom } from 'rxjs';
 import { supabase } from '../../integrations/supabase/client';
 import { AuthService } from './auth.service';
 import { ProfileService } from './profile.service';
-import { DynamicButton, UiElement } from './ai-integration.service';
+import { DynamicButton, UiElement, AiIntegrationService } from './ai-integration.service'; // Import AiIntegrationService
 
 // Define the Message interface here, as it's central to chat history
 export interface ChatMessage {
@@ -31,7 +31,8 @@ export class ChatHistoryService {
 
   constructor(
     private authService: AuthService,
-    private profileService: ProfileService
+    private profileService: ProfileService,
+    private aiService: AiIntegrationService // Inject AiIntegrationService
   ) {
     this.authService.currentUser$.subscribe(user => {
       this.currentUserId = user?.id || null;
@@ -80,25 +81,39 @@ export class ChatHistoryService {
       }));
       this.messagesSubject.next(loadedMessages);
     } else {
-      // Initial greeting for new chat
+      // Initial greeting for new chat - now fetched from AI
       const userProfile = await firstValueFrom(this.profileService.getProfile());
       const userName = userProfile?.first_name || 'there';
 
-      const initialMessage: ChatMessage = {
-        sender: 'agent',
-        text: `Hello ${userName}! I am Fat Boy, your personal AI co-pilot, powered by NIRVANA from Fanalogy. How can I help you today?`,
-        timestamp: new Date(),
-        avatar: this.agentAvatar,
-        suggestedPrompts: [
-          'Can you scan a product for me?',
-          'What are my top avoided ingredients?',
-          'Can you show me my shopping list?',
-          'Can you suggest a healthy snack?',
-          'Can you summarize my food diary for today?'
-        ]
-      };
-      this.messagesSubject.next([initialMessage]);
-      this.saveMessage(initialMessage); // Save initial greeting
+      try {
+        const initialAiResponse = await this.aiService.getChatCompletion(`Hello, I am ${userName}. How can you help me today?`);
+        const initialMessage: ChatMessage = {
+          sender: 'agent',
+          text: initialAiResponse.text,
+          timestamp: new Date(),
+          avatar: this.agentAvatar,
+          suggestedPrompts: initialAiResponse.suggestedPrompts,
+          dynamicButtons: initialAiResponse.dynamicButtons,
+          uiElements: initialAiResponse.uiElements
+        };
+        this.messagesSubject.next([initialMessage]);
+        this.saveMessage(initialMessage); // Save initial greeting
+      } catch (aiError) {
+        console.error('Error fetching initial AI greeting:', aiError);
+        const fallbackMessage: ChatMessage = {
+          sender: 'agent',
+          text: `Hello ${userName}! I am Fat Boy, your personal AI co-pilot. I'm having trouble connecting to my brain right now, but I'm here to help!`,
+          timestamp: new Date(),
+          avatar: this.agentAvatar,
+          suggestedPrompts: [
+            'Can you scan a product for me?',
+            'What are my top avoided ingredients?',
+            'Can you show me my shopping list?'
+          ]
+        };
+        this.messagesSubject.next([fallbackMessage]);
+        this.saveMessage(fallbackMessage);
+      }
     }
   }
 
