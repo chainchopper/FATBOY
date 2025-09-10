@@ -85,8 +85,8 @@ export class AppHeaderComponent implements OnInit {
   }
 
   getAnimatedTitle(): SafeHtml {
-    const logoHtml = `<img src="assets/logo64.png" alt="O" class="logo-in-text">`;
-    const title = `FAT B${logoHtml}Y TIME`;
+    const logoHtml = `<img src="assets/logo64.png" alt="A" class="logo-in-text">`;
+    const title = `NATUR${logoHtml}LYTE`;
     return this.sanitizer.bypassSecurityTrustHtml(title);
   }
 }
