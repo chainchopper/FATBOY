@@ -9,9 +9,9 @@ import { ModalService } from '../services/modal.service';
 import { PreferencesService } from '../services/preferences.service';
 import { AiIntegrationService } from '../services/ai-integration.service';
 import { supabase } from '../../integrations/supabase/client';
-import { InputComponent } from '../components/ui/input/input.component'; // Correct import path
-import { TextareaComponent } from '../components/ui/textarea/textarea.component'; // Correct import path
-import { ButtonComponent } from '../components/ui/button/button.component'; // Correct import path
+import { InputComponent } from '../input/input.component'; // Corrected import path
+import { TextareaComponent } from '../textarea/textarea.component'; // Corrected import path
+import { ButtonComponent } from '../button/button.component'; // Corrected import path
 
 @Component({
   selector: 'app-manual-entry',
@@ -75,7 +75,7 @@ export class ManualEntryComponent {
     }
 
     const savedProduct = await this.productDb.addProduct(newProduct);
-    if (!savedProduct) return; // Stop if product wasn't saved (e.g., user not logged in)
+    if (!savedProduct) return;
 
     this.aiService.setLastDiscussedProduct(savedProduct);
     this.modalService.open(savedProduct);

@@ -11,8 +11,8 @@ import { LogoComponent } from './logo/logo.component';
 import { LucideAngularModule } from 'lucide-angular';
 import { UserNotificationService } from './services/user-notification.service';
 import { NotificationsComponent } from './notifications/notifications.component';
-import { UiService } from './services/ui.service'; // Import UiService
-import { AppHeaderComponent } from './components/app-header/app-header.component'; // Import new AppHeaderComponent
+import { UiService } from './services/ui.service';
+import { AppHeaderComponent } from './app-header/app-header.component'; // Corrected import path
 
 @Component({
   selector: 'app-root',
@@ -26,7 +26,7 @@ import { AppHeaderComponent } from './components/app-header/app-header.component
     LogoComponent, 
     LucideAngularModule,
     NotificationsComponent,
-    AppHeaderComponent // Add AppHeaderComponent here
+    AppHeaderComponent
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
@@ -36,7 +36,7 @@ export class AppComponent implements OnInit {
   currentUser$!: Observable<User | null>;
   displayName$!: Observable<string | null>;
   isAdmin$!: Observable<boolean>;
-  isScannerPage = false; // Keep for main content padding adjustment
+  isScannerPage = false;
 
   showNotifications = false;
   unreadNotifications$!: Observable<number>;
@@ -46,7 +46,7 @@ export class AppComponent implements OnInit {
     private router: Router,
     private profileService: ProfileService,
     private userNotificationService: UserNotificationService,
-    private uiService: UiService // Inject UiService
+    private uiService: UiService
   ) {}
 
   ngOnInit(): void {
@@ -72,17 +72,15 @@ export class AppComponent implements OnInit {
       filter((event): event is NavigationEnd => event instanceof NavigationEnd)
     ).subscribe((event: NavigationEnd) => {
       this.isScannerPage = event.urlAfterRedirects === '/scanner';
-      this.showNotifications = false; // Close notifications on navigation
-      this.uiService.closeMenu(); // Close menu on navigation
+      this.showNotifications = false;
+      this.uiService.closeMenu();
     });
 
-    // Subscribe to UiService's menu state
     this.uiService.isMenuOpen$.subscribe(isOpen => {
       this.isMenuOpen = isOpen;
     });
   }
 
-  // toggleMenu() and closeMenu() are now handled by HeaderComponent and UiService
   toggleMenu(): void {
     this.uiService.toggleMenu();
     this.showNotifications = false;
@@ -94,7 +92,7 @@ export class AppComponent implements OnInit {
 
   toggleNotifications(): void {
     this.showNotifications = !this.showNotifications;
-    this.uiService.closeMenu(); // Close main menu when opening notifications
+    this.uiService.closeMenu();
   }
 
   goToAgentConsole(): void {

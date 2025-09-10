@@ -3,24 +3,24 @@ import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { IngredientParserService } from '../services/ingredient-parser.service';
 import { ProductDbService, Product } from '../services/product-db.service';
-import { AudioService } from '../services/audio.service';
+import { AudioService } => '../services/audio.service';
 import { NotificationService } from '../services/notification.service';
 import { SpeechService } from '../services/speech.service';
 import { ScanContextService } from '../services/scan-context.service';
 import { FoodDiaryService } from '../services/food-diary.service';
 import { ModalService } from '../services/modal.service';
 import { PreferencesService } from '../services/preferences.service';
-import { ButtonComponent } from '../components/ui/button/button.component'; // Import ButtonComponent
+import { ButtonComponent } from '../button/button.component'; // Corrected import path
 
 @Component({
   selector: 'app-results',
   standalone: true,
-  imports: [CommonModule, ButtonComponent], // Add ButtonComponent to imports
+  imports: [CommonModule, ButtonComponent],
   templateUrl: './results.component.html',
   styleUrls: ['./results.component.css']
 })
 export class ResultsComponent implements OnInit {
-  product: Product | null = null; // Changed type to Product | null
+  product: Product | null = null;
   verdict: 'good' | 'bad' = 'bad';
   flaggedItems: { ingredient: string, reason: string }[] = [];
   productForModal: Product | null = null;
@@ -41,10 +41,10 @@ export class ResultsComponent implements OnInit {
   ngOnInit() {
     const productData = sessionStorage.getItem('scannedProduct');
     if (productData) {
-      this.product = JSON.parse(productData) as Product; // Cast to Product
+      this.product = JSON.parse(productData) as Product;
       this.verdict = this.product.verdict;
-      this.flaggedItems = this.product.flaggedIngredients.map(ing => ({ ingredient: ing, reason: `Contains ${ing}, which you avoid.` })); // Reconstruct for display
-      this.productForModal = this.product; // Already a full product
+      this.flaggedItems = this.product.flaggedIngredients.map(ing => ({ ingredient: ing, reason: `Contains ${ing}, which you avoid.` }));
+      this.productForModal = this.product;
 
       if (this.verdict === 'good') {
         this.audioService.playSuccessSound();
@@ -58,8 +58,6 @@ export class ResultsComponent implements OnInit {
       this.router.navigate(['/scanner']);
     }
   }
-
-  // evaluateProduct() and addToHistory() are no longer needed here as they are handled in the scanner.
 
   private checkScanContext() {
     const mealType = this.scanContextService.getMealType();

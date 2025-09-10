@@ -2,13 +2,13 @@ import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
-import { LogoComponent } from '../../logo/logo.component';
-import { UserNotificationService } from '../../services/user-notification.service';
-import { UiService } from '../../services/ui.service';
+import { LogoComponent } from '../logo/logo.component'; // Updated import path for LogoComponent
+import { UserNotificationService } from '../services/user-notification.service';
+import { UiService } from '../services/ui.service';
 import { Observable } from 'rxjs';
 
 @Component({
-  selector: 'app-app-header', // Updated selector name
+  selector: 'app-app-header',
   standalone: true,
   imports: [CommonModule, RouterLink, LucideAngularModule, LogoComponent],
   template: `
@@ -73,7 +73,7 @@ import { Observable } from 'rxjs';
       padding: 15px 20px;
       background: rgba(26, 26, 46, 0.6);
       backdrop-filter: blur(10px);
-      border-bottom: 1px solid #f038ff;
+      border-bottom: 1px solid transparent; /* Changed to transparent */
       position: fixed;
       top: 0;
       left: 0;
@@ -164,7 +164,7 @@ import { Observable } from 'rxjs';
     }
   `]
 })
-export class AppHeaderComponent implements OnInit { // Updated class name
+export class AppHeaderComponent implements OnInit {
   unreadNotifications$!: Observable<number>;
   @Output() toggleNotificationsEvent = new EventEmitter<void>();
 

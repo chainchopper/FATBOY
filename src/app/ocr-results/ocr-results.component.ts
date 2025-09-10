@@ -10,13 +10,13 @@ import { ProductDbService } from '../services/product-db.service';
 import { FoodDiaryService } from '../services/food-diary.service';
 import { ScanContextService } from '../services/scan-context.service';
 import { ModalService } from '../services/modal.service';
-import { PreferencesService } from '../services/preferences.service'; // Import PreferencesService
-import { ButtonComponent } from '../components/ui/button/button.component'; // Import ButtonComponent
+import { PreferencesService } from '../services/preferences.service';
+import { ButtonComponent } from '../button/button.component'; // Corrected import path
 
 @Component({
   selector: 'app-ocr-results',
   standalone: true,
-  imports: [CommonModule, ButtonComponent], // Add ButtonComponent to imports
+  imports: [CommonModule, ButtonComponent],
   templateUrl: './ocr-results.component.html',
   styleUrls: ['./ocr-results.component.css']
 })
@@ -35,7 +35,7 @@ export class OcrResultsComponent implements OnInit {
     private foodDiaryService: FoodDiaryService,
     private scanContextService: ScanContextService,
     private modalService: ModalService,
-    private preferencesService: PreferencesService // Inject PreferencesService
+    private preferencesService: PreferencesService
   ) {}
 
   ngOnInit(): void {
@@ -52,7 +52,7 @@ export class OcrResultsComponent implements OnInit {
   private evaluateProduct(): void {
     if (!this.product) return;
 
-    const preferences = this.preferencesService.getPreferences(); // Get preferences from service
+    const preferences = this.preferencesService.getPreferences();
     const evaluation = this.ingredientParser.evaluateProduct(this.product.ingredients, this.product.calories, preferences);
 
     this.verdict = evaluation.verdict;

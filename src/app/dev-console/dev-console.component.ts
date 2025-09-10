@@ -3,12 +3,12 @@ import { CommonModule, TitleCasePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DevConsoleService, PrepopulationResult } from '../services/dev-console.service';
 import { NotificationService } from '../services/notification.service';
-import { ButtonComponent } from '../components/ui/button/button.component'; // Import ButtonComponent
+import { ButtonComponent } from '../button/button.component'; // Corrected import path
 
 @Component({
   selector: 'app-dev-console',
   standalone: true,
-  imports: [CommonModule, FormsModule, TitleCasePipe, ButtonComponent], // Add ButtonComponent to imports
+  imports: [CommonModule, FormsModule, TitleCasePipe, ButtonComponent],
   templateUrl: './dev-console.component.html',
   styleUrls: ['./dev-console.component.css']
 })

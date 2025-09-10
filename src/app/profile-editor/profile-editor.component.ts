@@ -6,12 +6,12 @@ import { ProfileService, Profile } from '../services/profile.service';
 import { NotificationService } from '../services/notification.service';
 import { AuthService } from '../services/auth.service';
 import { firstValueFrom } from 'rxjs';
-import { ButtonComponent } from '../components/ui/button/button.component'; // Import ButtonComponent
+import { ButtonComponent } from '../button/button.component'; // Corrected import path
 
 @Component({
   selector: 'app-profile-editor',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, ButtonComponent], // Add ButtonComponent to imports
+  imports: [CommonModule, FormsModule, RouterLink, ButtonComponent],
   templateUrl: './profile-editor.component.html',
   styleUrls: ['./profile-editor.component.css']
 })
@@ -45,7 +45,6 @@ export class ProfileEditorComponent implements OnInit {
     let fileList: FileList | null = element.files;
     if (fileList) {
       this.avatarFile = fileList[0];
-      // Create a preview URL
       const reader = new FileReader();
       reader.onload = (e: any) => {
         this.avatarUrl = e.target.result;

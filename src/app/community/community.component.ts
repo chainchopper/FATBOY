@@ -9,10 +9,9 @@ import { Observable } from 'rxjs';
 import { PreferencesService } from '../services/preferences.service';
 import { AuthService } from '../services/auth.service';
 import { NotificationService } from '../services/notification.service';
-import { AiIntegrationService } from '../services/ai-integration.service'; // Import AiIntegrationService
-import { ButtonComponent } from '../components/ui/button/button.component'; // Import ButtonComponent
+import { AiIntegrationService } from '../services/ai-integration.service';
+import { ButtonComponent } from '../button/button.component'; // Corrected import path
 
-// Define interfaces for our data structures
 interface CommunityContribution {
   id: string;
   product_name: string;
@@ -34,7 +33,7 @@ interface CommunityContribution {
 @Component({
   selector: 'app-community',
   standalone: true,
-  imports: [CommonModule, FormsModule, TitleCasePipe, ButtonComponent], // Add ButtonComponent to imports
+  imports: [CommonModule, FormsModule, TitleCasePipe, ButtonComponent],
   templateUrl: './community.component.html',
   styleUrls: ['./community.component.css']
 })
@@ -62,7 +61,7 @@ export class CommunityComponent implements OnInit {
     private preferencesService: PreferencesService,
     private authService: AuthService,
     private notificationService: NotificationService,
-    private aiService: AiIntegrationService // Inject AiIntegrationService
+    private aiService: AiIntegrationService
   ) {}
 
   ngOnInit() {
@@ -93,7 +92,7 @@ export class CommunityComponent implements OnInit {
       notes: ''
     };
     this.mode = 'manual';
-    this.aiService.setLastDiscussedProduct(product); // Set last discussed product
+    this.aiService.setLastDiscussedProduct(product);
   }
 
   async submitContribution() {
@@ -128,7 +127,7 @@ export class CommunityComponent implements OnInit {
       setTimeout(() => {
         this.isSubmitted = false;
         this.toggleAddMode();
-        this.loadContributions(); // Refresh the feed
+        this.loadContributions();
       }, 3000);
     }
   }
@@ -146,7 +145,6 @@ export class CommunityComponent implements OnInit {
       return;
     }
 
-    // Optimistic UI update
     const userHasLiked = this.currentUserHasLiked(contribution);
     if (userHasLiked) {
       contribution.likes = contribution.likes.filter(like => like.user_id !== userId);
@@ -154,17 +152,15 @@ export class CommunityComponent implements OnInit {
       contribution.likes.push({ user_id: userId });
     }
 
-    // Call the service
     await this.communityService.toggleLike(contribution.id, contribution.likes);
 
-    // Set last discussed product
     this.aiService.setLastDiscussedProduct({
       id: contribution.id,
       name: contribution.product_name,
       brand: contribution.brand,
       ingredients: contribution.ingredients.split(',').map(i => i.trim()),
-      verdict: contribution.status === 'approved' ? 'good' : 'bad', // Assuming approved is good
-      flaggedIngredients: [], // Not directly available here
+      verdict: contribution.status === 'approved' ? 'good' : 'bad',
+      flaggedIngredients: [],
       scanDate: contribution.created_at,
       categories: ['community']
     });
@@ -179,14 +175,13 @@ export class CommunityComponent implements OnInit {
       const contribution = this.communityContributions.find(c => c.id === contributionId);
       if (contribution) {
         contribution.comments.push(newComment);
-        // Set last discussed product
         this.aiService.setLastDiscussedProduct({
           id: contribution.id,
           name: contribution.product_name,
           brand: contribution.brand,
           ingredients: contribution.ingredients.split(',').map(i => i.trim()),
-          verdict: contribution.status === 'approved' ? 'good' : 'bad', // Assuming approved is good
-          flaggedIngredients: [], // Not directly available here
+          verdict: contribution.status === 'approved' ? 'good' : 'bad',
+          flaggedIngredients: [],
           scanDate: contribution.created_at,
           categories: ['community']
         });
@@ -201,8 +196,8 @@ export class CommunityComponent implements OnInit {
       name: contribution.product_name,
       brand: contribution.brand,
       ingredients: contribution.ingredients.split(',').map(i => i.trim()),
-      verdict: contribution.status === 'approved' ? 'good' : 'bad', // Assuming approved is good
-      flaggedIngredients: [], // Not directly available here
+      verdict: contribution.status === 'approved' ? 'good' : 'bad',
+      flaggedIngredients: [],
       scanDate: contribution.created_at,
       categories: ['community']
     });

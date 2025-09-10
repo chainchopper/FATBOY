@@ -7,12 +7,12 @@ import { FoodDiaryService, MealType } from '../services/food-diary.service';
 import { ProductDbService } from '../services/product-db.service';
 import { NotificationService } from '../services/notification.service';
 import { Observable } from 'rxjs';
-import { ButtonComponent } from '../components/ui/button/button.component'; // Import ButtonComponent
+import { ButtonComponent } from '../button/button.component'; // Corrected import path
 
 @Component({
   selector: 'app-app-modal',
   standalone: true,
-  imports: [CommonModule, ButtonComponent], // Add ButtonComponent to imports
+  imports: [CommonModule, ButtonComponent],
   templateUrl: './app-modal.component.html',
   styleUrls: ['./app-modal.component.css']
 })

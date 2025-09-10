@@ -4,12 +4,12 @@ import { AdminService } from '../services/admin.service';
 import { Profile } from '../services/profile.service';
 import { NotificationService } from '../services/notification.service';
 import { RouterLink } from '@angular/router';
-import { ButtonComponent } from '../components/ui/button/button.component'; // Import ButtonComponent
+import { ButtonComponent } from '../button/button.component'; // Corrected import path
 
 @Component({
   selector: 'app-admin-users',
   standalone: true,
-  imports: [CommonModule, RouterLink, ButtonComponent], // Add ButtonComponent to imports
+  imports: [CommonModule, RouterLink, ButtonComponent],
   templateUrl: './admin-users.component.html',
   styleUrls: ['./admin-users.component.css']
 })
@@ -39,10 +39,9 @@ export class AdminUsersComponent implements OnInit {
     const updatedUser = await this.adminService.updateUserRole(user.id, newRole);
     if (updatedUser) {
       this.notificationService.showSuccess(`${user.first_name}'s role updated to ${newRole}.`);
-      this.loadUsers(); // Refresh the list
+      this.loadUsers();
     } else {
       this.notificationService.showError(`Failed to update ${user.first_name}'s role.`);
-      // Revert the dropdown on failure
       selectElement.value = user.role;
     }
   }

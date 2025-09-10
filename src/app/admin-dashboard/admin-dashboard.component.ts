@@ -2,13 +2,13 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AdminService } from '../services/admin.service';
 import { NotificationService } from '../services/notification.service';
-import { ButtonComponent } from '../components/ui/button/button.component'; // Import ButtonComponent
-import { RouterLink } from '@angular/router'; // Keep RouterLink for navigation
+import { ButtonComponent } from '../button/button.component'; // Corrected import path
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterLink, ButtonComponent], // Add ButtonComponent to imports
+  imports: [CommonModule, RouterLink, ButtonComponent],
   templateUrl: './admin-dashboard.component.html',
   styleUrls: ['./admin-dashboard.component.css']
 })
@@ -41,12 +41,12 @@ export class AdminDashboardComponent implements OnInit {
   async approve(id: string) {
     await this.adminService.updateContributionStatus(id, 'approved');
     this.notificationService.showSuccess('Contribution approved.');
-    this.loadData(); // Refresh list
+    this.loadData();
   }
 
   async reject(id: string) {
     await this.adminService.updateContributionStatus(id, 'rejected');
     this.notificationService.showInfo('Contribution rejected.');
-    this.loadData(); // Refresh list
+    this.loadData();
   }
 }

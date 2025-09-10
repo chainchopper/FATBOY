@@ -6,12 +6,12 @@ import { AuthService } from '../services/auth.service';
 import { IngredientParserService } from '../services/ingredient-parser.service';
 import { PreferencesService } from '../services/preferences.service';
 import { GamificationService } from '../services/gamification.service';
-import { ButtonComponent } from '../components/ui/button/button.component'; // Import ButtonComponent
+import { ButtonComponent } from '../button/button.component'; // Corrected import path
 
 @Component({
   selector: 'app-preferences',
   standalone: true,
-  imports: [CommonModule, FormsModule, KeyValuePipe, TitleCasePipe, ButtonComponent], // Add ButtonComponent to imports
+  imports: [CommonModule, FormsModule, KeyValuePipe, TitleCasePipe, ButtonComponent],
   templateUrl: './preferences.component.html',
   styleUrls: ['./preferences.component.css']
 })
@@ -45,24 +45,21 @@ export class PreferencesComponent implements OnInit {
     const ingredient = selectElement.value;
     if (ingredient) {
       this.addAvoidedIngredient(ingredient);
-      selectElement.value = ''; // Reset the dropdown
+      selectElement.value = '';
     }
   }
 
-  // Get the list of avoided ingredients that belong to a specific category
   getAvoidedIngredientsForCategory(categoryKey: string): string[] {
     const categoryItems = this.ingredientCategories[categoryKey].items;
     return this.preferences.avoidedIngredients.filter((item: string) => categoryItems.includes(item));
   }
 
-  // Add a new ingredient to the avoided list from a dropdown
   addAvoidedIngredient(ingredient: string): void {
     if (ingredient && !this.preferences.avoidedIngredients.includes(ingredient)) {
       this.preferences.avoidedIngredients.push(ingredient);
     }
   }
 
-  // Remove an ingredient from the avoided list
   removeAvoidedIngredient(ingredient: string): void {
     const index = this.preferences.avoidedIngredients.indexOf(ingredient);
     if (index > -1) {
@@ -75,7 +72,6 @@ export class PreferencesComponent implements OnInit {
     if (ingredient && !this.preferences.customAvoidedIngredients.includes(ingredient)) {
       this.preferences.customAvoidedIngredients.push(ingredient);
       
-      // Automatically categorize and add to the main list if a category is found
       const category = this.ingredientParser.categorizeSingleIngredient(ingredient);
       if (category) {
         this.addAvoidedIngredient(ingredient);
@@ -93,6 +89,6 @@ export class PreferencesComponent implements OnInit {
   savePreferences() {
     this.preferencesService.savePreferences(this.preferences);
     this.notificationService.showSuccess('Preferences saved!');
-    this.gamificationService.checkAndUnlockAchievements(); // Check for new badges
+    this.gamificationService.checkAndUnlockAchievements();
   }
 }
