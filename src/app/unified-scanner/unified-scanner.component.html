@@ -1,4 +1,4 @@
-<div class="unified-scanner-container" [class.screen-flash]="screenFlash">
+<div class="unified-scanner-container" [class.screen-flash]="unifiedScannerService.screenFlash">
   <div class="camera-preview">
     <!-- Html5Qrcode will render its video stream inside this div -->
     <div id="reader" #reader class="barcode-reader-container"></div> 
@@ -11,15 +11,15 @@
       <span class="tagline-word">Know.</span>
       <span class="tagline-word">Choose.</span>
     </div>
-    <div class="scan-area" [class.stable]="isStable">
-      <div *ngIf="isScanningActive && !showExpandedOptions" class="scan-line"></div>
+    <div class="scan-area" [class.stable]="unifiedScannerService.isStable">
+      <div *ngIf="unifiedScannerService.isScanningActive && !showExpandedOptions" class="scan-line"></div>
     </div>
     <!-- Refined text feedback logic -->
     <p *ngIf="showExpandedOptions">Scanner options open.</p>
-    <p *ngIf="!showExpandedOptions && isProcessingOcr">Processing...</p>
-    <p *ngIf="!showExpandedOptions && !isProcessingOcr && isScanningActive && !isStable">Hold steady to scan a label or barcode.</p>
-    <p *ngIf="!showExpandedOptions && !isProcessingOcr && isScanningActive && isStable">Analyzing...</p>
-    <p *ngIf="!showExpandedOptions && !isProcessingOcr && !isScanningActive">Nothing recognized. Hold steady to scan.</p>
+    <p *ngIf="!showExpandedOptions && unifiedScannerService.isProcessingOcr">Processing...</p>
+    <p *ngIf="!showExpandedOptions && !unifiedScannerService.isProcessingOcr && unifiedScannerService.isScanningActive && !unifiedScannerService.isStable">Hold steady to scan a label or barcode.</p>
+    <p *ngIf="!showExpandedOptions && !unifiedScannerService.isProcessingOcr && unifiedScannerService.isScanningActive && unifiedScannerService.isStable">Analyzing...</p>
+    <p *ngIf="!showExpandedOptions && !unifiedScannerService.isProcessingOcr && !unifiedScannerService.isScanningActive">Nothing recognized. Hold steady to scan.</p>
   </div>
 
   <!-- New Immersive Footer -->

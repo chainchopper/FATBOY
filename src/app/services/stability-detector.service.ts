@@ -1,5 +1,6 @@
 import { Injectable, EventEmitter } from '@angular/core';
 import { NotificationService } from './notification.service';
+import { BehaviorSubject, Observable } from 'rxjs'; // Import BehaviorSubject and Observable
 
 @Injectable({
   providedIn: 'root'
@@ -11,7 +12,8 @@ export class StabilityDetectorService {
   private stableCounter = 0;
   private requiredStableFrames = 3; // Number of consecutive stable frames needed
 
-  public isStable = false;
+  private isStableSubject = new BehaviorSubject<boolean>(false);
+  public isStable$: Observable<boolean> = this.isStableSubject.asObservable();
   public stableFrameCaptured = new EventEmitter<void>();
 
   constructor(private notificationService: NotificationService) {}
@@ -19,7 +21,7 @@ export class StabilityDetectorService {
   public start(getVideoElement: () => HTMLVideoElement | null, getCanvasElement: () => HTMLCanvasElement): void {
     this.stop(); // Ensure any previous interval is cleared
     this.stableCounter = 0;
-    this.isStable = false;
+    this.isStableSubject.next(false); // Reset state
     this.lastFrame = null;
 
     this.stabilityCheckInterval = setInterval(() => {
@@ -34,7 +36,7 @@ export class StabilityDetectorService {
     }
     this.lastFrame = null;
     this.stableCounter = 0;
-    this.isStable = false;
+    this.isStableSubject.next(false); // Reset state
   }
 
   private checkForStability(getVideoElement: () => HTMLVideoElement | null, getCanvasElement: () => HTMLCanvasElement): void {
@@ -65,7 +67,10 @@ export class StabilityDetectorService {
     }
 
     this.lastFrame = currentFrame;
-    this.isStable = this.stableCounter > 0;
+    const newStability = this.stableCounter > 0;
+    if (newStability !== this.isStableSubject.getValue()) {
+      this.isStableSubject.next(newStability);
+    }
 
     if (this.stableCounter >= this.requiredStableFrames) {
       this.notificationService.showInfo('Camera is stable, analyzing label...', 'Auto-Scan');
