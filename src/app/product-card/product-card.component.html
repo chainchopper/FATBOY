@@ -1,57 +1,67 @@
-<div class="product-card" [class.good]="product.verdict === 'good'" [class.bad]="product.verdict === 'bad'" [class.purchased]="isPurchased">
-  <div class="card-header" (click)="onViewDetailsClick()"> <!-- Changed to onViewDetailsClick -->
-    <img [src]="product.image" alt="{{product.name}}" class="product-image">
-    <div class="product-summary">
-      <h4>{{product.name}}</h4>
-      <p>{{product.brand}}</p>
+<div class="rounded-xl p-4 transition-all duration-300 ease-in-out border-l-4"
+  [ngClass]="{
+    'bg-gray-900/80 border border-gray-700 shadow-lg shadow-gray-500/20': true,
+    'border-teal-500': product.verdict === 'good',
+    'border-purple-500': product.verdict === 'bad',
+    'opacity-60 bg-gray-800': isPurchased
+  }">
+  <div class="flex items-center gap-4 cursor-pointer" (click)="onViewDetailsClick()">
+    <img [src]="product.image" alt="{{product.name}}" class="w-14 h-14 object-cover rounded-lg border border-gray-600">
+    <div class="flex-grow">
+      <h4 class="text-lg font-semibold text-gray-100 mb-1">{{product.name}}</h4>
+      <p class="text-sm text-gray-400">{{product.brand}}</p>
     </div>
-    <div class="verdict-icon">
+    <div class="text-3xl font-bold"
+      [ngClass]="{
+        'text-teal-400 drop-shadow-md shadow-teal-400': product.verdict === 'good',
+        'text-purple-400 drop-shadow-md shadow-purple-400': product.verdict === 'bad'
+      }">
       <span *ngIf="product.verdict === 'good'">✓</span>
       <span *ngIf="product.verdict === 'bad'">✗</span>
     </div>
   </div>
 
-  <div class="card-details" *ngIf="isExpanded">
-    <div class="detail-item">
-      <strong>Calories:</strong> {{ product.calories || 'N/A' }}
+  <div class="mt-4 pt-4 border-t border-gray-800 text-sm text-gray-400" *ngIf="isExpanded">
+    <div class="mb-2">
+      <strong class="text-teal-400">Calories:</strong> {{ product.calories || 'N/A' }} kcal
     </div>
-    <div class="detail-item">
-      <strong>Flagged:</strong> 
-      <span *ngIf="product.flaggedIngredients.length > 0">{{ product.flaggedIngredients.join(', ') }}</span>
+    <div class="mb-2">
+      <strong class="text-teal-400">Flagged:</strong> 
+      <span *ngIf="product.flaggedIngredients.length > 0" class="text-purple-300">{{ product.flaggedIngredients.join(', ') }}</span>
       <span *ngIf="product.flaggedIngredients.length === 0">None</span>
     </div>
-    <div class="detail-item categories">
-      <strong>Categories:</strong>
-      <div class="category-tags">
-        <span *ngFor="let category of product.categories" class="category-tag">
+    <div class="mb-2 flex items-start gap-2">
+      <strong class="text-teal-400">Categories:</strong>
+      <div class="flex flex-wrap gap-1">
+        <span *ngFor="let category of product.categories" class="bg-gray-800 px-2 py-1 rounded-full text-xs text-gray-300 border border-gray-700">
           {{ category | customTitleCase }}
         </span>
       </div>
     </div>
-    <div class="detail-item">
-      <strong>Ingredients:</strong> {{ product.ingredients.join(', ') }}
+    <div class="mb-2">
+      <strong class="text-teal-400">Ingredients:</strong> <span class="text-gray-300">{{ product.ingredients.join(', ') }}</span>
     </div>
   </div>
 
-  <div class="card-actions">
-    <app-button variant="ghost" size="icon" (onClick)="onToggleFavorite()" [ngClass]="{'active': isFavorite}" title="Toggle Favorite">
+  <div class="mt-4 pt-4 border-t border-gray-800 flex items-center gap-2">
+    <app-button variant="ghost" size="icon" (onClick)="onToggleFavorite()" [ngClass]="{'text-purple-400 hover:text-purple-300': isFavorite, 'text-gray-500 hover:text-gray-400': !isFavorite}" title="Toggle Favorite">
       <lucide-icon name="heart" [size]="18"></lucide-icon>
     </app-button>
-    <app-button *ngIf="showAddToShoppingListButton" variant="ghost" size="icon" (onClick)="onAddToShoppingList()" title="Add to Shopping List">
+    <app-button *ngIf="showAddToShoppingListButton" variant="ghost" size="icon" (onClick)="onAddToShoppingList()" class="text-gray-500 hover:text-teal-400" title="Add to Shopping List">
       <lucide-icon name="shopping-cart" [size]="18"></lucide-icon>
     </app-button>
-    <app-button *ngIf="showAddToFoodDiaryButton" variant="ghost" size="icon" (onClick)="onAddToFoodDiary()" title="Add to Food Diary">
+    <app-button *ngIf="showAddToFoodDiaryButton" variant="ghost" size="icon" (onClick)="onAddToFoodDiary()" class="text-gray-500 hover:text-teal-400" title="Add to Food Diary">
       <lucide-icon name="book-plus" [size]="18"></lucide-icon>
     </app-button>
-    <app-button *ngIf="showShareButton" variant="ghost" size="icon" (onClick)="onShare()" title="Share">
+    <app-button *ngIf="showShareButton" variant="ghost" size="icon" (onClick)="onShare()" class="text-gray-500 hover:text-teal-400" title="Share">
       <lucide-icon name="share-2" [size]="18"></lucide-icon>
     </app-button>
-    <app-button *ngIf="showRemoveButton" variant="destructive" size="icon" (onClick)="onRemove()" title="Remove">
+    <app-button *ngIf="showRemoveButton" variant="destructive" size="icon" (onClick)="onRemove()" class="text-gray-500 hover:text-red-500" title="Remove">
       <lucide-icon name="trash-2" [size]="18"></lucide-icon>
     </app-button>
-    <div *ngIf="showCheckbox" class="checkbox-container">
-      <input type="checkbox" [checked]="isPurchased" (change)="onTogglePurchased()">
-      <label>Purchased</label>
+    <div *ngIf="showCheckbox" class="flex items-center gap-2 ml-auto">
+      <input type="checkbox" [checked]="isPurchased" (change)="onTogglePurchased()" class="form-checkbox h-5 w-5 text-purple-600 rounded border-gray-300 focus:ring-purple-500">
+      <label class="text-gray-400">Purchased</label>
     </div>
   </div>
 </div>
