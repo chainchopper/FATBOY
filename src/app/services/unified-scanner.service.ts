@@ -170,7 +170,7 @@ export class UnifiedScannerService {
 
       this.screenFlash = true;
       this.audioService.playSuccessSound();
-      this.router.navigate(['/results']);
+      this.router.navigate(['/products', savedProduct.id]);
       this.productScanned.emit(savedProduct);
 
     } catch (error: any) {
@@ -215,7 +215,7 @@ export class UnifiedScannerService {
 
       this.screenFlash = true;
       this.audioService.playSuccessSound();
-      this.router.navigate(['/ocr-results']);
+      this.router.navigate(['/products', savedProduct.id]);
       this.productProcessed.emit(savedProduct);
 
     } catch (err: any) {
@@ -251,7 +251,7 @@ export class UnifiedScannerService {
 
         this.screenFlash = true;
         this.audioService.playSuccessSound();
-        this.router.navigate(['/ocr-results']);
+        this.router.navigate(['/products', savedProduct.id]);
         this.productProcessed.emit(savedProduct);
 
       } catch (err: any) {

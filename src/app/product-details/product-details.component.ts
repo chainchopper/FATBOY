@@ -11,6 +11,7 @@ import { AppModalService } from '../services/app-modal.service';
 import { ButtonComponent } from '../button.component';
 import { CustomTitleCasePipe } from '../shared/custom-title-case.pipe';
 import { firstValueFrom } from 'rxjs';
+import { SpeechService } from '../services/speech.service';
 
 @Component({
   selector: 'app-product-details',
@@ -33,7 +34,8 @@ export class ProductDetailsComponent implements OnInit {
     private notificationService: NotificationService,
     private shareService: ShareService,
     private shoppingListService: ShoppingListService,
-    private appModalService: AppModalService
+    private appModalService: AppModalService,
+    private speechService: SpeechService
   ) {}
 
   async ngOnInit() {
@@ -91,5 +93,14 @@ export class ProductDetailsComponent implements OnInit {
 
   goBack(): void {
     this.router.navigate(['/history']); // Or a more dynamic back navigation
+  }
+
+  scanAgain() {
+    this.router.navigate(['/scanner']);
+  }
+
+  addComments() {
+    this.notificationService.showInfo('Adding comments/details functionality is coming soon!', 'Feature Coming');
+    this.speechService.speak('Adding comments or details functionality is coming soon.');
   }
 }

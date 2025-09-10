@@ -7,8 +7,6 @@ export const routes: Routes = [
   { path: '', redirectTo: '/scanner', pathMatch: 'full' },
   { path: 'login', loadComponent: () => import('./login/login.component').then(m => m.LoginComponent) },
   { path: 'scanner', loadComponent: () => import('./unified-scanner/unified-scanner.component').then(m => m.UnifiedScannerComponent) },
-  { path: 'results', loadComponent: () => import('./results/results.component').then(m => m.ResultsComponent) },
-  { path: 'ocr-results', loadComponent: () => import('./ocr-results/ocr-results.component').then(m => m.OcrResultsComponent) },
   { path: 'products/:id', loadComponent: () => import('./product-details/product-details.component').then(m => m.ProductDetailsComponent) }, // New route
   
   // Authenticated User Routes - Now whitelisted for development
