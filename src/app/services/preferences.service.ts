@@ -121,10 +121,6 @@ export class PreferencesService {
       return;
     }
 
-    console.log('Attempting to save preferences to Supabase:');
-    console.log('User ID:', this.currentUserId);
-    console.log('Preferences Data:', prefs);
-
     const { error } = await supabase
       .from('user_preferences')
       .upsert(
