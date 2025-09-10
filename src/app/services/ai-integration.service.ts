@@ -5,11 +5,18 @@ import { AudioService } from './audio.service';
 import { AiContextService } from './ai-context.service';
 import { ToolExecutorService } from './tool-executor.service';
 
+interface DynamicButton {
+  text: string;
+  action: string; // e.g., 'add_to_shopping_list', 'add_to_food_diary'
+  payload?: any; // Data needed for the action
+}
+
 export interface AiResponse {
   text: string;
   suggestedPrompts: string[];
   toolCalls?: any[];
   humanReadableToolCall?: string;
+  dynamicButtons?: DynamicButton[]; // New: for interactive buttons
 }
 
 @Injectable({
@@ -207,7 +214,8 @@ export class AiIntegrationService {
     if (parsedJson && parsedJson.response) {
       return {
         text: parsedJson.response,
-        suggestedPrompts: Array.isArray(parsedJson.suggestions) ? parsedJson.suggestions.slice(0, 3) : defaultSuggestions
+        suggestedPrompts: Array.isArray(parsedJson.suggestions) ? parsedJson.suggestions.slice(0, 3) : defaultSuggestions,
+        dynamicButtons: Array.isArray(parsedJson.dynamicButtons) ? parsedJson.dynamicButtons : undefined
       };
     } else {
       const cleanedText = fullResponseText.replace(/```json/g, '').replace(/```/g, '').trim();
@@ -231,23 +239,25 @@ export class AiIntegrationService {
     
     const systemMessage = `You are Fat Boy, an AI nutritional co-pilot.
     **CRITICAL: YOUR ENTIRE RESPONSE MUST BE A SINGLE, VALID JSON OBJECT AND NOTHING ELSE. NO INTRODUCTORY TEXT, NO EXPLANATIONS, NO MARKDOWN.
-    The JSON object must have two keys:
+    The JSON object must have three keys:
     1. "response": (string) Your friendly, user-facing message. This must be natural, conversational, and contain no technical jargon.
     2. "suggestions": (array of 3 strings) Three unique, relevant, and diverse follow-up prompts for the user.
+    3. "dynamicButtons": (optional array of objects) If a multi-turn interaction is needed (e.g., after a tool call that requires further user input), provide an array of interactive buttons. Each button object must have "text" (string) and "action" (string, representing a follow-up command or intent).
     **INSTRUCTIONS:**
     - Analyze the user's query and the provided context.
     - If the user's intent matches a tool, call the tool.
     - Use the tool's output to formulate your final "response" message.
     - Always provide 3 helpful "suggestions".
+    - If a tool call requires further clarification or a "yes/no" confirmation from the user, generate "dynamicButtons" to guide the interaction. For example, after suggesting to add an item to a list, provide "Yes, add it!" and "No, cancel." buttons.
     Here is the current user's context:
     ${userContext}
     `;
 
     const messagesForApi = [
       { role: 'system', content: systemMessage },
-      ...messagesHistory.filter(msg => msg.text && msg.sender).map(msg => ({
-        role: msg.sender === 'agent' ? 'assistant' : msg.sender,
-        content: msg.text,
+      ...messagesHistory.filter(msg => msg.content && msg.role).map(msg => ({
+        role: msg.role,
+        content: msg.content,
         ...(msg.toolCalls && { tool_calls: msg.toolCalls })
       })),
       { role: 'user', content: userInput }
