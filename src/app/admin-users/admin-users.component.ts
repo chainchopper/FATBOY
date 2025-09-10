@@ -11,7 +11,7 @@ import { ButtonComponent } from '../button.component'; // Updated import path
   standalone: true,
   imports: [CommonModule, RouterLink, ButtonComponent],
   templateUrl: './admin-users.component.html',
-  styleUrls: ['./admin-users.component.css']
+  styleUrls: []
 })
 export class AdminUsersComponent implements OnInit {
   users: Profile[] = [];

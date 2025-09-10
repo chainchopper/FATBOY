@@ -1,62 +1,64 @@
-<div class="admin-container">
-  <h2>Admin Dashboard</h2>
-  <p>Review and moderate new community contributions.</p>
+<div class="max-w-5xl mx-auto p-4 text-gray-100">
+  <h2 class="text-3xl font-bold text-teal-400 drop-shadow-lg shadow-teal-400 text-center mb-4">Admin Dashboard</h2>
+  <p class="text-center text-gray-400 mb-8">Review and moderate new community contributions.</p>
 
-  <div class="stats-grid">
-    <div class="stat-card interactive" routerLink="/admin/users">
-      <span class="stat-value">{{ dashboardStats.totalUsers }}</span>
-      <span class="stat-label">Manage Users ➔</span>
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
+    <div class="bg-gray-900/80 border border-gray-700 rounded-xl p-6 text-center transition-all duration-300 ease-in-out cursor-pointer hover:border-teal-500 hover:shadow-lg hover:shadow-teal-500/30" routerLink="/admin/users">
+      <span class="block text-5xl font-extrabold text-purple-400 drop-shadow-lg shadow-purple-400">{{ dashboardStats.totalUsers }}</span>
+      <span class="text-lg text-gray-400 mt-2">Manage Users ➔</span>
     </div>
-    <div class="stat-card">
-      <span class="stat-value">{{ dashboardStats.pendingContributions }}</span>
-      <span class="stat-label">Pending Submissions</span>
+    <div class="bg-gray-900/80 border border-gray-700 rounded-xl p-6 text-center">
+      <span class="block text-5xl font-extrabold text-purple-400 drop-shadow-lg shadow-purple-400">{{ dashboardStats.pendingContributions }}</span>
+      <span class="text-lg text-gray-400 mt-2">Pending Submissions</span>
     </div>
-    <div class="stat-card">
-      <span class="stat-value">{{ dashboardStats.totalContributions }}</span>
-      <span class="stat-label">Total Contributions</span>
+    <div class="bg-gray-900/80 border border-gray-700 rounded-xl p-6 text-center">
+      <span class="block text-5xl font-extrabold text-purple-400 drop-shadow-lg shadow-purple-400">{{ dashboardStats.totalContributions }}</span>
+      <span class="text-lg text-gray-400 mt-2">Total Contributions</span>
     </div>
   </div>
 
-  <div class="dashboard-section">
-    <h3>Pending Contributions ({{ pendingContributions.length }})</h3>
+  <div class="bg-gray-900/80 border border-teal-700 rounded-xl p-6 shadow-lg shadow-teal-500/30">
+    <h3 class="text-2xl font-semibold text-purple-400 mb-4">Pending Contributions ({{ pendingContributions.length }})</h3>
     
-    <div *ngIf="isLoading" class="loading-state">
+    <div *ngIf="isLoading" class="text-center py-8 text-gray-500 italic">
       <p>Loading submissions...</p>
     </div>
 
-    <div *ngIf="!isLoading && pendingContributions.length === 0" class="empty-state">
+    <div *ngIf="!isLoading && pendingContributions.length === 0" class="text-center py-8 text-gray-500 italic">
       <p>No pending contributions to review.</p>
     </div>
 
-    <div *ngIf="!isLoading && pendingContributions.length > 0" class="contributions-table">
-      <table>
+    <div *ngIf="!isLoading && pendingContributions.length > 0" class="overflow-x-auto">
+      <table class="w-full text-left">
         <thead>
-          <tr>
-            <th></th>
-            <th>Product Name</th>
-            <th>Brand</th>
-            <th>Submitted By</th>
-            <th>Actions</th>
+          <tr class="border-b-2 border-purple-500">
+            <th class="p-3"></th>
+            <th class="p-3">Product Name</th>
+            <th class="p-3">Brand</th>
+            <th class="p-3">Submitted By</th>
+            <th class="p-3 text-right">Actions</th>
           </tr>
         </thead>
         <tbody *ngFor="let item of pendingContributions">
-          <tr class="main-row" (click)="toggleExpand(item.id)">
-            <td>
-              <app-button variant="secondary" size="icon" (onClick)="toggleExpand(item.id); $event.stopPropagation()" class="expand-btn">{{ expandedContributionId === item.id ? '−' : '+' }}</app-button>
+          <tr class="border-b border-gray-800 hover:bg-gray-800/50 cursor-pointer" (click)="toggleExpand(item.id)">
+            <td class="p-3">
+              <app-button variant="secondary" size="icon" (click)="toggleExpand(item.id); $event.stopPropagation()">{{ expandedContributionId === item.id ? '−' : '+' }}</app-button>
             </td>
-            <td>{{ item.product_name }}</td>
-            <td>{{ item.brand }}</td>
-            <td>{{ item.profile.first_name || 'Anonymous' }}</td>
-            <td class="actions-cell">
-              <app-button variant="outline" (onClick)="approve(item.id); $event.stopPropagation()" class="action-btn approve">Approve</app-button>
-              <app-button variant="destructive" (onClick)="reject(item.id); $event.stopPropagation()" class="action-btn reject">Reject</app-button>
+            <td class="p-3">{{ item.product_name }}</td>
+            <td class="p-3">{{ item.brand }}</td>
+            <td class="p-3">{{ item.profile.first_name || 'Anonymous' }}</td>
+            <td class="p-3">
+              <div class="flex justify-end gap-2">
+                <app-button variant="outline" (click)="approve(item.id); $event.stopPropagation()">Approve</app-button>
+                <app-button variant="destructive" (click)="reject(item.id); $event.stopPropagation()">Reject</app-button>
+              </div>
             </td>
           </tr>
-          <tr *ngIf="expandedContributionId === item.id" class="details-row">
-            <td colspan="5">
-              <div class="contribution-details">
-                <p><strong>Ingredients:</strong> {{ item.ingredients }}</p>
-                <p *ngIf="item.notes"><strong>Notes:</strong> {{ item.notes }}</p>
+          <tr *ngIf="expandedContributionId === item.id">
+            <td colspan="5" class="p-0">
+              <div class="bg-gray-800 p-4 border-l-4 border-teal-500">
+                <p class="mb-2"><strong class="text-teal-400">Ingredients:</strong> {{ item.ingredients }}</p>
+                <p *ngIf="item.notes"><strong class="text-teal-400">Notes:</strong> {{ item.notes }}</p>
               </div>
             </td>
           </tr>

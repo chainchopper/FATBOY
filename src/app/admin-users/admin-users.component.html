@@ -1,45 +1,47 @@
-<div class="admin-container">
-  <app-button variant="link" routerLink="/admin/dashboard" class="back-link">← Back to Dashboard</app-button>
-  <h2>User Management</h2>
-  <p>View all registered users and manage their roles.</p>
+<div class="max-w-5xl mx-auto p-4 text-gray-100">
+  <div class="mb-6">
+    <app-button variant="link" routerLink="/admin/dashboard" class="text-teal-400 hover:text-purple-400">← Back to Dashboard</app-button>
+  </div>
+  <h2 class="text-3xl font-bold text-teal-400 drop-shadow-lg shadow-teal-400 text-center mb-4">User Management</h2>
+  <p class="text-center text-gray-400 mb-8">View all registered users and manage their roles.</p>
 
-  <div class="dashboard-section">
-    <h3>All Users ({{ users.length }})</h3>
+  <div class="bg-gray-900/80 border border-teal-700 rounded-xl p-6 shadow-lg shadow-teal-500/30">
+    <h3 class="text-2xl font-semibold text-purple-400 mb-4">All Users ({{ users.length }})</h3>
     
-    <div *ngIf="isLoading" class="loading-state">
+    <div *ngIf="isLoading" class="text-center py-8 text-gray-500 italic">
       <p>Loading users...</p>
     </div>
 
-    <div *ngIf="!isLoading && users.length === 0" class="empty-state">
+    <div *ngIf="!isLoading && users.length === 0" class="text-center py-8 text-gray-500 italic">
       <p>No users found.</p>
     </div>
 
-    <div *ngIf="!isLoading && users.length > 0" class="users-table">
-      <table>
+    <div *ngIf="!isLoading && users.length > 0" class="overflow-x-auto">
+      <table class="w-full text-left">
         <thead>
-          <tr>
-            <th>User</th>
-            <th>Email</th>
-            <th>Role</th>
-            <th>Last Updated</th>
+          <tr class="border-b-2 border-purple-500">
+            <th class="p-3">User</th>
+            <th class="p-3">Email</th>
+            <th class="p-3">Role</th>
+            <th class="p-3">Last Updated</th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let user of users">
-            <td>
-              <div class="user-cell">
-                <img [src]="user.avatar_url" alt="Avatar" class="avatar">
+          <tr *ngFor="let user of users" class="border-b border-gray-800 hover:bg-gray-800/50">
+            <td class="p-3">
+              <div class="flex items-center gap-3">
+                <img [src]="user.avatar_url" alt="Avatar" class="w-10 h-10 rounded-full object-cover border border-gray-600">
                 <span>{{ user.first_name }} {{ user.last_name }}</span>
               </div>
             </td>
-            <td>{{ user.id }}</td>
-            <td>
-              <select [value]="user.role" (change)="changeRole(user, $event)" class="role-select">
+            <td class="p-3 text-gray-400">{{ user.id }}</td>
+            <td class="p-3">
+              <select [value]="user.role" (change)="changeRole(user, $event)" class="bg-gray-800 border border-gray-700 text-gray-100 rounded-md p-2 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500">
                 <option value="user">User</option>
                 <option value="admin">Admin</option>
               </select>
             </td>
-            <td>{{ user.updated_at | date:'medium' }}</td>
+            <td class="p-3 text-gray-400">{{ user.updated_at | date:'medium' }}</td>
           </tr>
         </tbody>
       </table>
