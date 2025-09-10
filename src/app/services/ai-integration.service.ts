@@ -5,6 +5,7 @@ import { AudioService } from './audio.service';
 import { AiContextService } from './ai-context.service';
 import { ToolExecutorService, ToolExecutionResult } from './tool-executor.service'; // Import ToolExecutionResult
 import { firstValueFrom } from 'rxjs'; // Import firstValueFrom
+import { NotificationService } from './notification.service'; // Import NotificationService
 
 export interface DynamicButton {
   text: string;
@@ -41,7 +42,8 @@ export class AiIntegrationService {
     private audioService: AudioService,
     private aiContextService: AiContextService,
     private toolExecutorService: ToolExecutorService,
-    private productDbService: ProductDbService // Inject ProductDbService
+    private productDbService: ProductDbService, // Inject ProductDbService
+    private notificationService: NotificationService // Inject NotificationService
   ) {
     if (this.apiKey === 'your_openai_compatible_api_key') {
       console.warn('WARNING: OpenAI API Key is still a placeholder. Please update environment.ts with your actual key.');
@@ -53,18 +55,26 @@ export class AiIntegrationService {
     try {
       const response = await fetch(endpoint);
       if (!response.ok) {
-        console.error(`[AI STATUS CHECK FAILED]: Server responded with status ${response.status}`);
+        const errorText = await response.text();
+        console.error(`[AI STATUS CHECK FAILED]: Server responded with status ${response.status}: ${errorText}`);
+        this.notificationService.showError(`AI Service Offline: Could not connect to models endpoint (${response.status}).`, 'AI Error');
         return false;
       }
       const data = await response.json();
       if (!data || !Array.isArray(data.data)) { // Robust check for data.data
         console.error(`[AI STATUS CHECK FAILED]: Unexpected response structure for models endpoint:`, data);
+        this.notificationService.showError('AI Service Offline: Invalid response from models endpoint.', 'AI Error');
         return false;
       }
       const models = data.data.map((m: any) => m.id);
-      return models.includes(this.chatModelName) && models.includes('Moonbeam2');
+      const isOnline = models.includes(this.chatModelName) && models.includes('Moonbeam2');
+      if (!isOnline) {
+        this.notificationService.showWarning('AI Service Online, but required models are not loaded.', 'AI Warning');
+      }
+      return isOnline;
     } catch (error) {
       console.error(`[AI STATUS CHECK FAILED]: Could not connect to ${endpoint}. Is the server running?`, error);
+      this.notificationService.showError(`AI Service Offline: Could not connect to ${this.apiBaseUrl}. Is the server running?`, 'AI Error');
       return false;
     }
   }
@@ -73,6 +83,7 @@ export class AiIntegrationService {
     const endpoint = `${this.apiBaseUrl}/v1/embeddings`; // Added /v1
     if (!endpoint || !this.embeddingModelName) {
       console.warn("Embedding endpoint or model name not configured.");
+      this.notificationService.showError('Embedding service not configured.', 'AI Error');
       return [];
     }
 
@@ -96,17 +107,20 @@ export class AiIntegrationService {
       if (!response.ok) {
         const errorBody = await response.text();
         console.error('Embeddings API Error:', response.status, errorBody);
+        this.notificationService.showError(`Embedding API Error: ${response.status} - ${errorBody}`, 'AI Error');
         return [];
       }
 
       const data = await response.json();
       if (!data || !Array.isArray(data.data) || !data.data[0]?.embedding) { // Robust check for data.data[0].embedding
         console.error(`Embeddings API Error: Unexpected response structure for embeddings endpoint:`, data);
+        this.notificationService.showError('Embedding API Error: Invalid response structure.', 'AI Error');
         return [];
       }
       return data.data[0].embedding;
     } catch (error) {
       console.error('Network or other error calling Embeddings API:', error);
+      this.notificationService.showError('Network error calling Embedding API.', 'AI Error');
       return [];
     }
   }
@@ -228,12 +242,13 @@ export class AiIntegrationService {
   ];
 
   private _extractJsonFromMarkdown(text: string): any | null {
-    const match = text.match(/```json\n([\s\S]*?)\n```/);
+    const regex = /```(?:json)?\s*([\s\S]*?)```/;
+    const match = text.match(regex);
     if (match && match[1]) {
       try {
         return JSON.parse(match[1]);
       } catch (error) {
-        console.error("Failed to parse JSON from markdown block:", match[1], error);
+        console.error("Failed to parse extracted JSON from Markdown:", match[1], error);
         return null;
       }
     }
@@ -279,6 +294,7 @@ export class AiIntegrationService {
   async getChatCompletion(userInput: string, messagesHistory: any[] = []): Promise<AiResponse> {
     const endpoint = `${this.apiBaseUrl}/v1/chat/completions`; // Added /v1
     if (!endpoint || !this.chatModelName) {
+      this.notificationService.showError('AI Chat service not configured.', 'AI Error');
       return { text: "AI endpoint is not configured.", suggestedPrompts: [] };
     }
 
@@ -343,11 +359,17 @@ export class AiIntegrationService {
 
     try {
       const response = await fetch(endpoint, { method: 'POST', headers, body: JSON.stringify(payload) });
-      if (!response.ok) throw new Error(`API Error: ${response.status} ${await response.text()}`);
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`API Error: ${response.status} ${errorText}`);
+        this.notificationService.showError(`AI Chat Error: ${response.status} - ${errorText}`, 'AI Error');
+        throw new Error(`API Error: ${response.status} ${errorText}`);
+      }
       
       const data = await response.json();
       if (!data || !Array.isArray(data.choices) || data.choices.length === 0) { // Robust check for data.choices
         console.error(`Chat Completion API Error: Unexpected response structure for chat completions endpoint:`, data);
+        this.notificationService.showError('AI Chat Error: Invalid response structure.', 'AI Error');
         throw new Error('Invalid response from chat completion API.');
       }
       const choice = data.choices[0];
@@ -371,11 +393,17 @@ export class AiIntegrationService {
 
         const toolResponsePayload = { ...payload, messages: toolResponseMessages };
         const toolResponse = await fetch(endpoint, { method: 'POST', headers, body: JSON.stringify(toolResponsePayload) });
-        if (!toolResponse.ok) throw new Error(`Tool Response API Error: ${toolResponse.status} ${await toolResponse.text()}`);
+        if (!toolResponse.ok) {
+          const errorText = await toolResponse.text();
+          console.error(`Tool Response API Error: ${toolResponse.status} ${errorText}`);
+          this.notificationService.showError(`AI Tool Response Error: ${toolResponse.status} - ${errorText}`, 'AI Error');
+          throw new Error(`Tool Response API Error: ${toolResponse.status} ${errorText}`);
+        }
 
         const toolData = await toolResponse.json();
         if (!toolData || !Array.isArray(toolData.choices) || toolData.choices.length === 0) { // Robust check for toolData.choices
           console.error(`Tool Response API Error: Unexpected response structure for tool response endpoint:`, toolData);
+          this.notificationService.showError('AI Tool Response Error: Invalid response structure.', 'AI Error');
           throw new Error('Invalid response from tool response API.');
         }
         const toolResponseMessage = toolData.choices[0].message.content;
@@ -398,6 +426,7 @@ export class AiIntegrationService {
       return parsedResponse;
     } catch (error) {
       console.error('Error in getChatCompletion:', error);
+      // A generic error message is already handled by the AgentConsoleComponent
       return {
         text: "Sorry, I couldn't connect to the AI service. Please ensure the model server is running and accessible.",
         suggestedPrompts: []
