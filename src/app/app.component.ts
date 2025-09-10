@@ -31,7 +31,7 @@ import { FooterComponent } from './footer/footer.component'; // Re-importing Foo
     FooterComponent 
   ],
   templateUrl: './app.component.html',
-  styleUrl: './app.component.css'
+  styleUrls: [] // Corrected from styleUrl
 })
 export class AppComponent implements OnInit {
   isMenuOpen = false;
