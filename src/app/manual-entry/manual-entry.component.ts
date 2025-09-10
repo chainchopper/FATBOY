@@ -9,11 +9,14 @@ import { ModalService } from '../services/modal.service';
 import { PreferencesService } from '../services/preferences.service';
 import { AiIntegrationService } from '../services/ai-integration.service';
 import { supabase } from '../../integrations/supabase/client';
+import { InputComponent } from '../components/ui/input/input.component'; // Correct import path
+import { TextareaComponent } from '../components/ui/textarea/textarea.component'; // Correct import path
+import { ButtonComponent } from '../components/ui/button/button.component'; // Correct import path
 
 @Component({
   selector: 'app-manual-entry',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, InputComponent, TextareaComponent, ButtonComponent],
   templateUrl: './manual-entry.component.html',
   styleUrls: ['./manual-entry.component.css']
 })

@@ -37,45 +37,10 @@ p {
   color: #0abdc6;
 }
 
-.form-group input,
-.form-group textarea {
-  width: 100%;
-  padding: 12px;
-  border: 1px solid #4a4a6e;
-  border-radius: 4px;
-  font-family: inherit;
-  background-color: #1a1a2e;
-  color: #e0e0e0;
-  font-size: 1rem;
-  transition: all 0.3s;
-}
-
-.form-group input:focus,
-.form-group textarea:focus {
-  outline: none;
-  border-color: #f038ff;
-  box-shadow: 0 0 10px #f038ff;
-}
-
-.form-group textarea {
-  resize: vertical;
-  min-height: 80px;
-}
+/* Removed .form-group input, .form-group textarea styles */
 
 .submit-btn {
-  padding: 12px 24px;
-  border-radius: 30px;
-  font-size: 16px;
-  cursor: pointer;
-  background: transparent;
-  transition: all 0.3s;
-  border: 2px solid #f038ff;
-  color: #f038ff;
   display: block;
   margin: 1rem auto 0;
   width: 250px;
-}
-.submit-btn:hover {
-  background-color: rgba(240, 56, 255, 0.1);
-  box-shadow: 0 0 15px #f038ff;
 }

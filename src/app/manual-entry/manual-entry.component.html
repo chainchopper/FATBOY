@@ -5,24 +5,24 @@
   <form (ngSubmit)="submitProduct()" class="entry-form">
     <div class="form-group">
       <label for="productName">Product Name</label>
-      <input type="text" id="productName" [(ngModel)]="productData.name" name="productName" required placeholder="e.g., Organic Berry Granola">
+      <app-input type="text" id="productName" [(ngModel)]="productData.name" name="productName" required placeholder="e.g., Organic Berry Granola"></app-input>
     </div>
     
     <div class="form-group">
       <label for="brand">Brand</label>
-      <input type="text" id="brand" [(ngModel)]="productData.brand" name="brand" required placeholder="e.g., Nature's Best">
+      <app-input type="text" id="brand" [(ngModel)]="productData.brand" name="brand" required placeholder="e.g., Nature's Best"></app-input>
     </div>
     
     <div class="form-group">
       <label for="ingredients">Ingredients (comma separated)</label>
-      <textarea id="ingredients" [(ngModel)]="productData.ingredients" name="ingredients" rows="4" required placeholder="e.g., Organic Oats, Dried Berries, Maple Syrup"></textarea>
+      <app-textarea id="ingredients" [(ngModel)]="productData.ingredients" name="ingredients" [rows]="4" required placeholder="e.g., Organic Oats, Dried Berries, Maple Syrup"></app-textarea>
     </div>
     
     <div class="form-group">
       <label for="calories">Calories per Serving (optional)</label>
-      <input type="number" id="calories" [(ngModel)]="productData.calories" name="calories" placeholder="e.g., 150">
+      <app-input type="number" id="calories" [(ngModel)]="productData.calories" name="calories" placeholder="e.g., 150"></app-input>
     </div>
     
-    <button type="submit" class="submit-btn">Analyze & Save Product</button>
+    <app-button type="submit" variant="outline" class="submit-btn">Analyze & Save Product</app-button>
   </form>
 </div>
