@@ -5,6 +5,7 @@ import { PreferencesService } from './preferences.service';
 import { Product } from './product-db.service';
 import { Router } from '@angular/router'; // Import Router
 import { DynamicButton, UiElement } from './ai-integration.service'; // Import DynamicButton and UiElement
+import { supabase } from '../../integrations/supabase/client';
 
 export interface ToolExecutionResult {
   tool_call_id: string;
@@ -132,6 +133,26 @@ export class ToolExecutorService {
         this.router.navigate(['/scanner']);
         toolOutput = `SCANNER_OPENED: Navigated user to the unified scanner.`;
         humanReadableSummary = `Opening the unified scanner.`;
+        break;
+      case 'search_products':
+        const { data: searchResults, error } = await supabase.functions.invoke('search-products', {
+          body: { query: functionArgs.query }
+        });
+
+        if (error) {
+          toolOutput = `FAILED: Error searching for products: ${error.message}`;
+          humanReadableSummary = `Failed to search for products.`;
+        } else if (searchResults && searchResults.length > 0) {
+          toolOutput = `PRODUCT_SEARCH_SUCCESS: Found ${searchResults.length} products matching "${functionArgs.query}". The results are displayed as UI elements.`;
+          humanReadableSummary = `Searching for products matching "${functionArgs.query}"...`;
+          uiElements = searchResults.map((product: Product) => ({
+            type: 'product_card',
+            data: product
+          }));
+        } else {
+          toolOutput = `PRODUCT_SEARCH_EMPTY: No products found matching "${functionArgs.query}".`;
+          humanReadableSummary = `Couldn't find any products matching "${functionArgs.query}".`;
+        }
         break;
       default:
         toolOutput = `Unknown tool: ${functionName}`;

@@ -200,6 +200,23 @@ export class AiIntegrationService {
           properties: {}
         }
       }
+    },
+    {
+      type: "function",
+      function: {
+        name: "search_products",
+        description: "Searches the product database for items matching a query. Useful for finding alternatives or specific types of products.",
+        parameters: {
+          type: "object",
+          properties: {
+            query: {
+              type: "string",
+              description: "The search query (e.g., 'healthy bread', 'low calorie snacks')."
+            }
+          },
+          required: ["query"]
+        }
+      }
     }
   ];
 
@@ -294,6 +311,8 @@ export class AiIntegrationService {
     - If a tool call requires further clarification or a "yes/no" confirmation from the user, generate "dynamicButtons" to guide the interaction. For example, after suggesting to add an item to a list, provide "Yes, add it!" and "No, cancel." buttons.
     - If the 'add_to_food_diary' tool is called without a 'meal_type', you MUST respond with dynamic buttons for meal selection (Breakfast, Lunch, Dinner, Snack, Drinks) and include the product_card UI element for context. The action for these buttons should be 'add_to_food_diary_meal_select' with the product details and selected meal_type in the payload.
     - If the user asks to scan something or open the camera, use the 'open_scanner' tool.
+    - When a user asks for product alternatives or to find products, use the 'search_products' tool.
+    - When the 'search_products' tool returns results, you MUST display them to the user using a 'product_card' UI element for each result. Formulate a response that introduces these results.
     - **IMPORTANT**: CONSIDER including a 'product_card' UI element in the 'uiElements' array if a specific product is the primary subject of the conversation or is being suggested. The 'data' for this 'product_card' should be the full 'Product' object.
     Example of a 'product_card' UI element:
     {
