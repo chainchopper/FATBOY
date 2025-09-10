@@ -69,7 +69,7 @@ export class HistoryComponent implements OnInit {
   }
 
   addToFoodDiary(product: Product) {
-    this.appModalService.open(product);
+    this.appModalService.open(product); // Still use modal for meal type selection
   }
 
   shareProduct(product: Product) {

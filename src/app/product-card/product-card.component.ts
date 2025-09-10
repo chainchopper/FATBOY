@@ -4,7 +4,7 @@ import { Product } from '../services/product-db.service';
 import { LucideAngularModule } from 'lucide-angular';
 import { FoodIconComponent } from '../food-icon/food-icon.component';
 import { CustomTitleCasePipe } from '../shared/custom-title-case.pipe';
-import { ButtonComponent } from '../button.component'; // Updated import path
+import { ButtonComponent } from '../button.component';
 
 @Component({
   selector: 'app-product-card',
@@ -53,11 +53,11 @@ export class ProductCardComponent {
   }
 
   onAddToShoppingList() {
-    this.addToShoppingList.emit(this.product);
+    this.addToShoppingList.emit(this.product); // Emit directly
   }
 
   onAddToFoodDiary() {
-    this.addToFoodDiary.emit(this.product);
+    this.addToFoodDiary.emit(this.product); // Emit directly
   }
 
   onToggleFavorite() {

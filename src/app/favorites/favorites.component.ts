@@ -47,7 +47,7 @@ export class FavoritesComponent implements OnInit {
   }
 
   addToFoodDiary(product: Product) {
-    this.appModalService.open(product);
+    this.appModalService.open(product); // Still use modal for meal type selection
   }
 
   onViewDetails(product: Product) { // New method to handle viewDetails event

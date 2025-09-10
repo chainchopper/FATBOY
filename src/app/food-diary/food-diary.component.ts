@@ -108,7 +108,7 @@ export class FoodDiaryComponent implements OnInit {
   }
 
   onAddToShoppingList(product: Product) {
-    this.shoppingListService.addItem(product);
+    this.shoppingListService.addItem(product); // Directly add to shopping list
   }
 
   onViewDetails(product: Product) { // New method to handle viewDetails event
