@@ -5,7 +5,7 @@ import { provideToastr } from 'ngx-toastr';
 import { routes } from './app.routes';
 import { provideHttpClient } from '@angular/common/http';
 import { LucideAngularModule, icons } from 'lucide-angular';
-// import { CameraFeedComponent } from './components/camera-feed/camera-feed.component'; // Removed global import
+// import { CameraFeedComponent } from './camera-feed/camera-feed.component'; // Removed global import
 
 export const appConfig: ApplicationConfig = {
   providers: [
