@@ -3,9 +3,9 @@
   <p>See what others are discovering and contribute your own finds!</p>
 
   <div class="add-contribution-section">
-    <button (click)="toggleAddMode()" class="add-btn">
+    <app-button variant="outline" (onClick)="toggleAddMode()" class="add-btn">
       {{ isAddingNewProduct ? 'Cancel' : '＋ Add New Product' }}
-    </button>
+    </app-button>
   </div>
 
   <div *ngIf="isAddingNewProduct" class="contribution-workflow">
@@ -25,7 +25,7 @@
             <h4>{{ product.name }}</h4>
             <p>{{ product.brand }}</p>
           </div>
-          <button class="select-btn">→</button>
+          <app-button variant="ghost" size="icon" class="select-btn">→</app-button>
         </div>
       </div>
     </div>
@@ -52,7 +52,7 @@
           <label for="notes">Additional Notes (e.g., where you found it)</label>
           <textarea id="notes" [(ngModel)]="newContribution.notes" name="notes" rows="3"></textarea>
         </div>
-        <button type="submit" class="submit-btn">Submit Contribution</button>
+        <app-button type="submit" variant="default" class="submit-btn">Submit Contribution</app-button>
       </form>
     </div>
   </div>
@@ -81,7 +81,7 @@
       </div>
 
       <div class="social-actions">
-        <button (click)="toggleLike(contribution); $event.stopPropagation()" class="like-btn" [class.active]="currentUserHasLiked(contribution)">👍 {{ contribution.likes.length }}</button>
+        <app-button variant="outline" (onClick)="toggleLike(contribution); $event.stopPropagation()" class="like-btn" [class.active]="currentUserHasLiked(contribution)">👍 {{ contribution.likes.length }}</app-button>
         <span class="comment-count">💬 {{ contribution.comments.length }}</span>
       </div>
 
@@ -91,7 +91,7 @@
         </div>
         <div class="add-comment">
           <input type="text" [(ngModel)]="newCommentText[contribution.id]" placeholder="Add a comment..." (keydown.enter)="addComment(contribution.id)" [ngModelOptions]="{standalone: true}">
-          <button (click)="addComment(contribution.id)">Post</button>
+          <app-button variant="default" (onClick)="addComment(contribution.id)">Post</app-button>
         </div>
       </div>
     </div>

@@ -125,6 +125,8 @@ h2 {
 }
 
 .add-btn {
+  /* These styles are now handled by app-button's variant="outline" and custom styling */
+  /*
   padding: 10px 20px;
   border: 1px solid #0abdc6;
   background-color: transparent;
@@ -132,10 +134,14 @@ h2 {
   border-radius: 4px;
   cursor: pointer;
   transition: all 0.3s;
+  */
 }
 .add-btn:hover {
+  /* These styles are now handled by app-button's hover states */
+  /*
   background-color: rgba(10, 189, 198, 0.1);
   box-shadow: 0 0 10px #0abdc6;
+  */
 }
 
 .custom-ingredient-list {
@@ -155,12 +161,15 @@ h2 {
 }
 
 .remove-btn {
+  /* These styles are now handled by app-button's variant="ghost" and size="icon" */
+  /*
   background: none;
   border: none;
   color: #a0a0c0;
   font-size: 1.2rem;
   cursor: pointer;
   padding: 0 5px;
+  */
 }
 
 .calorie-slider label {
@@ -209,6 +218,8 @@ input[type="range"] {
 }
 
 .save-btn {
+  /* These styles are now handled by app-button's variant="default" and custom styling */
+  /*
   padding: 12px 24px;
   border-radius: 30px;
   font-size: 16px;
@@ -220,8 +231,12 @@ input[type="range"] {
   display: block;
   margin: 2rem auto 0;
   width: 200px;
+  */
 }
 .save-btn:hover {
+  /* These styles are now handled by app-button's hover states */
+  /*
   background-color: rgba(240, 56, 255, 0.1);
   box-shadow: 0 0 15px #f038ff;
+  */
 }

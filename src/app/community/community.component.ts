@@ -10,6 +10,7 @@ import { PreferencesService } from '../services/preferences.service';
 import { AuthService } from '../services/auth.service';
 import { NotificationService } from '../services/notification.service';
 import { AiIntegrationService } from '../services/ai-integration.service'; // Import AiIntegrationService
+import { ButtonComponent } from '../components/ui/button/button.component'; // Import ButtonComponent
 
 // Define interfaces for our data structures
 interface CommunityContribution {
@@ -33,7 +34,7 @@ interface CommunityContribution {
 @Component({
   selector: 'app-community',
   standalone: true,
-  imports: [CommonModule, FormsModule, TitleCasePipe],
+  imports: [CommonModule, FormsModule, TitleCasePipe, ButtonComponent], // Add ButtonComponent to imports
   templateUrl: './community.component.html',
   styleUrls: ['./community.component.css']
 })

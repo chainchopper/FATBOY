@@ -4,11 +4,12 @@ import { supabase } from '../../integrations/supabase/client';
 import { Provider } from '@supabase/supabase-js';
 import { Router } from '@angular/router';
 import { NotificationService } from '../services/notification.service';
+import { ButtonComponent } from '../components/ui/button/button.component'; // Import ButtonComponent
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, TitleCasePipe],
+  imports: [CommonModule, TitleCasePipe, ButtonComponent], // Add ButtonComponent to imports
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']
 })

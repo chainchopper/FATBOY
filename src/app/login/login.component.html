@@ -3,9 +3,9 @@
     <h2>Welcome to Fat Boy</h2>
     <p>Sign in to save your preferences and history.</p>
     <div class="social-providers">
-      <button *ngFor="let provider of providers" (click)="signInWith(provider)" class="social-btn {{provider}}">
+      <app-button *ngFor="let provider of providers" (onClick)="signInWith(provider)" variant="outline" class="social-btn">
         Sign in with {{ provider | titlecase }}
-      </button>
+      </app-button>
     </div>
     <p class="powered-by-fanalogy">Powered by Fanalogy</p>
   </div>

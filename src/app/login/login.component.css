@@ -35,6 +35,8 @@
 }
 
 .social-btn {
+  /* These styles are now handled by app-button's variant="outline" and custom styling */
+  /*
   padding: 12px 20px;
   border-radius: 8px;
   border: 1px solid #4a4a6e;
@@ -44,12 +46,16 @@
   cursor: pointer;
   transition: all 0.3s;
   text-transform: capitalize;
+  */
 }
 
 .social-btn:hover {
+  /* These styles are now handled by app-button's hover states */
+  /*
   border-color: #0abdc6;
   box-shadow: 0 0 10px #0abdc6;
   color: #0abdc6;
+  */
 }
 
 .powered-by-fanalogy {

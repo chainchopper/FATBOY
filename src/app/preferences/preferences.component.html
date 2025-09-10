@@ -35,12 +35,12 @@
         [(ngModel)]="newCustomIngredient" 
         placeholder="e.g., carrageenan"
         (keyup.enter)="addCustomIngredient()">
-      <button (click)="addCustomIngredient()" class="add-btn">Add</button>
+      <app-button variant="outline" (onClick)="addCustomIngredient()" class="add-btn">Add</app-button>
     </div>
     <div class="custom-ingredient-list">
       <div *ngFor="let item of preferences.customAvoidedIngredients; let i = index" class="custom-ingredient-item">
         <span>{{ item }}</span>
-        <button (click)="removeCustomIngredient(i)" class="remove-btn">×</button>
+        <app-button variant="ghost" size="icon" (onClick)="removeCustomIngredient(i)" class="remove-btn">×</app-button>
       </div>
     </div>
   </div>
@@ -100,5 +100,5 @@
     </div>
   </div>
   
-  <button class="save-btn" (click)="savePreferences()">Save Preferences</button>
+  <app-button variant="default" (onClick)="savePreferences()" class="save-btn">Save Preferences</app-button>
 </div>

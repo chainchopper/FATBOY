@@ -25,6 +25,8 @@ p {
 }
 
 .add-btn {
+  /* These styles are now handled by app-button's variant="outline" and custom styling */
+  /*
   padding: 12px 24px;
   border-radius: 30px;
   font-size: 1rem;
@@ -33,10 +35,14 @@ p {
   transition: all 0.3s;
   border: 2px solid #0abdc6;
   color: #0abdc6;
+  */
 }
 .add-btn:hover {
+  /* These styles are now handled by app-button's hover states */
+  /*
   background-color: rgba(10, 189, 198, 0.1);
   box-shadow: 0 0 15px #0abdc6;
+  */
 }
 
 .contribution-workflow {
@@ -123,6 +129,8 @@ p {
 }
 
 .select-btn {
+  /* These styles are now handled by app-button's variant="ghost" and size="icon" */
+  /*
   background: transparent;
   border: 1px solid #0abdc6;
   color: #0abdc6;
@@ -130,6 +138,7 @@ p {
   height: 40px;
   border-radius: 50%;
   font-size: 1.5rem;
+  */
 }
 
 .success-message, .empty-state {
@@ -178,6 +187,8 @@ p {
 }
 
 .submit-btn {
+  /* These styles are now handled by app-button's variant="default" and custom styling */
+  /*
   padding: 12px 24px;
   border-radius: 30px;
   font-size: 16px;
@@ -189,10 +200,14 @@ p {
   display: block;
   margin: 1rem auto 0;
   width: 220px;
+  */
 }
 .submit-btn:hover {
+  /* These styles are now handled by app-button's hover states */
+  /*
   background-color: rgba(10, 189, 198, 0.1);
   box-shadow: 0 0 15px #0abdc6;
+  */
 }
 
 .community-feed {
@@ -275,6 +290,8 @@ p {
 }
 
 .like-btn {
+  /* These styles are now handled by app-button's variant="outline" and custom styling */
+  /*
   background: transparent;
   border: 1px solid #4a4a6e;
   color: #e0e0e0;
@@ -282,11 +299,15 @@ p {
   border-radius: 15px;
   cursor: pointer;
   transition: all 0.3s;
+  */
 }
 .like-btn:hover {
+  /* These styles are now handled by app-button's hover states */
+  /*
   background-color: rgba(240, 56, 255, 0.1);
   border-color: #f038ff;
   color: #f038ff;
+  */
 }
 
 .like-btn.active {
@@ -337,10 +358,13 @@ p {
 }
 
 .add-comment button {
+  /* These styles are now handled by app-button's variant="default" */
+  /*
   background-color: #0abdc6;
   color: #1a1a2e;
   border: none;
   padding: 8px 15px;
   border-radius: 4px;
   cursor: pointer;
+  */
 }

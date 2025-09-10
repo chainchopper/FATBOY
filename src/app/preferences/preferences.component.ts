@@ -6,11 +6,12 @@ import { AuthService } from '../services/auth.service';
 import { IngredientParserService } from '../services/ingredient-parser.service';
 import { PreferencesService } from '../services/preferences.service';
 import { GamificationService } from '../services/gamification.service';
+import { ButtonComponent } from '../components/ui/button/button.component'; // Import ButtonComponent
 
 @Component({
   selector: 'app-preferences',
   standalone: true,
-  imports: [CommonModule, FormsModule, KeyValuePipe, TitleCasePipe],
+  imports: [CommonModule, FormsModule, KeyValuePipe, TitleCasePipe, ButtonComponent], // Add ButtonComponent to imports
   templateUrl: './preferences.component.html',
   styleUrls: ['./preferences.component.css']
 })
