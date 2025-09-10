@@ -4,13 +4,14 @@ import { FormsModule } from '@angular/forms';
 import { DevConsoleService, PrepopulationResult } from '../services/dev-console.service';
 import { NotificationService } from '../services/notification.service';
 import { ButtonComponent } from '../button.component'; // Updated import path
+import { TextareaComponent } from '../textarea.component'; // Import TextareaComponent
 
 @Component({
   selector: 'app-dev-console',
   standalone: true,
-  imports: [CommonModule, FormsModule, TitleCasePipe, ButtonComponent],
+  imports: [CommonModule, FormsModule, TitleCasePipe, ButtonComponent, TextareaComponent], // Add TextareaComponent
   templateUrl: './dev-console.component.html',
-  styleUrls: ['./dev-console.component.css']
+  styleUrls: []
 })
 export class DevConsoleComponent {
   productNames: string = '';
@@ -44,10 +45,10 @@ export class DevConsoleComponent {
 
   getResultClass(status: string) {
     switch (status) {
-      case 'success': return 'status-success';
-      case 'skipped': return 'status-skipped';
-      case 'not_found': return 'status-not-found';
-      case 'failed': return 'status-failed';
+      case 'success': return 'border-teal-500 bg-teal-900/20';
+      case 'skipped': return 'border-yellow-500 bg-yellow-900/20';
+      case 'not_found': return 'border-gray-500 bg-gray-800/50';
+      case 'failed': return 'border-red-500 bg-red-900/20';
       default: return '';
     }
   }

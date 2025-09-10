@@ -1,36 +1,36 @@
-<div class="manual-entry-container">
-  <h2>Manually Add a Product</h2>
-  <p>Enter the details of a product to add it to your history and lists.</p>
+<div class="manual-entry-container max-w-2xl mx-auto p-4 text-gray-100">
+  <h2 class="text-3xl font-bold text-teal-400 drop-shadow-lg shadow-teal-400 text-center mb-4">Manually Add a Product</h2>
+  <p class="text-center text-gray-400 mb-8">Enter the details of a product to add it to your history and lists.</p>
 
-  <form (ngSubmit)="submitProduct()" class="entry-form">
-    <div class="form-group">
-      <label for="productName">Product Name</label>
+  <form (ngSubmit)="submitProduct()" class="entry-form bg-gray-900/80 p-8 rounded-xl border border-teal-700 shadow-lg shadow-teal-500/30">
+    <div class="form-group mb-6">
+      <label for="productName" class="block mb-2 font-medium text-teal-400">Product Name</label>
       <app-input type="text" id="productName" [(ngModel)]="productData.name" name="productName" required placeholder="e.g., Organic Berry Granola"></app-input>
     </div>
     
-    <div class="form-group">
-      <label for="brand">Brand</label>
+    <div class="form-group mb-6">
+      <label for="brand" class="block mb-2 font-medium text-teal-400">Brand</label>
       <app-input type="text" id="brand" [(ngModel)]="productData.brand" name="brand" required placeholder="e.g., Nature's Best"></app-input>
     </div>
     
-    <div class="form-group">
-      <label for="ingredients">Ingredients (comma separated)</label>
+    <div class="form-group mb-6">
+      <label for="ingredients" class="block mb-2 font-medium text-teal-400">Ingredients (comma separated)</label>
       <app-textarea id="ingredients" [(ngModel)]="productData.ingredients" name="ingredients" [rows]="4" required placeholder="e.g., Organic Oats, Dried Berries, Maple Syrup"></app-textarea>
     </div>
     
-    <div class="form-group">
-      <label for="calories">Calories per Serving (optional)</label>
+    <div class="form-group mb-6">
+      <label for="calories" class="block mb-2 font-medium text-teal-400">Calories per Serving (optional)</label>
       <app-input type="number" id="calories" [(ngModel)]="productData.calories" name="calories" placeholder="e.g., 150"></app-input>
     </div>
 
-    <div class="form-group">
-      <label for="productImage">Product Image (optional)</label>
-      <input type="file" id="productImage" (change)="onFileSelected($event)" accept="image/png, image/jpeg">
-      <div *ngIf="imageUrl" class="image-preview">
-        <img [src]="imageUrl" alt="Product Image Preview">
+    <div class="form-group mb-8">
+      <label for="productImage" class="block mb-2 font-medium text-teal-400">Product Image (optional)</label>
+      <input type="file" id="productImage" (change)="onFileSelected($event)" accept="image/png, image/jpeg" class="block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-purple-500 file:text-gray-900 hover:file:bg-purple-600">
+      <div *ngIf="imageUrl" class="image-preview mt-4 text-center">
+        <img [src]="imageUrl" alt="Product Image Preview" class="max-w-[150px] max-h-[150px] rounded-lg border border-gray-700 object-cover inline-block">
       </div>
     </div>
     
-    <app-button type="submit" variant="outline" class="submit-btn">Analyze & Save Product</app-button>
+    <app-button type="submit" variant="outline" class="submit-btn block mx-auto w-full max-w-xs">Analyze & Save Product</app-button>
   </form>
 </div>

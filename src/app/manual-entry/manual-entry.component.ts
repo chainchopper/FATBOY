@@ -19,7 +19,7 @@ import { ProfileService } from '../services/profile.service'; // Import ProfileS
   standalone: true,
   imports: [CommonModule, FormsModule, InputComponent, TextareaComponent, ButtonComponent],
   templateUrl: './manual-entry.component.html',
-  styleUrls: ['./manual-entry.component.css']
+  styleUrls: []
 })
 export class ManualEntryComponent {
   productData = {

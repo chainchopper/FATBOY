@@ -11,7 +11,7 @@ import { ButtonComponent } from '../button.component'; // Updated import path
   standalone: true,
   imports: [CommonModule, TitleCasePipe, ButtonComponent],
   templateUrl: './login.component.html',
-  styleUrls: ['./login.component.css']
+  styleUrls: []
 })
 export class LoginComponent {
   providers: Provider[] = ['google', 'facebook', 'apple', 'discord', 'github'];

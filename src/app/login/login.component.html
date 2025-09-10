@@ -1,12 +1,12 @@
-<div class="login-container">
-  <div class="login-card">
-    <h2>Welcome to Fat Boy</h2>
-    <p>Sign in to save your preferences and history.</p>
-    <div class="social-providers">
-      <app-button *ngFor="let provider of providers" (onClick)="signInWith(provider)" variant="outline" class="social-btn">
+<div class="login-container flex justify-center items-center min-h-[80vh] p-5">
+  <div class="login-card bg-gray-900/80 border border-purple-500 rounded-xl p-10 w-full max-w-md text-center shadow-lg shadow-purple-500/50">
+    <h2 class="text-3xl font-bold text-purple-400 drop-shadow-lg shadow-purple-400 mb-4">Welcome to Fat Boy</h2>
+    <p class="text-gray-400 mb-8">Sign in to save your preferences and history.</p>
+    <div class="social-providers flex flex-col gap-4">
+      <app-button *ngFor="let provider of providers" (onClick)="signInWith(provider)" variant="outline" class="w-full justify-center">
         Sign in with {{ provider | titlecase }}
       </app-button>
     </div>
-    <p class="powered-by-fanalogy">Powered by Fanalogy</p>
+    <p class="powered-by-fanalogy mt-8 text-xs text-gray-500">Powered by Fanalogy</p>
   </div>
 </div>
