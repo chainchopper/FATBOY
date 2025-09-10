@@ -18,6 +18,7 @@ export interface Product {
   scanDate: Date;
   ocrText?: string;
   categories: string[];
+  source?: 'scan' | 'ocr' | 'manual' | 'ai_suggestion'; // New field
 }
 
 @Injectable({

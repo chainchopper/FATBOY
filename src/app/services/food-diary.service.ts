@@ -114,6 +114,10 @@ export class FoodDiaryService {
     return this.diary.get(date) || [];
   }
 
+  public getDiarySnapshot(): Map<string, DiaryEntry[]> {
+    return new Map(this.diary);
+  }
+
   getDailySummary(date: string): { totalCalories: number; totalFlaggedItems: number; flaggedIngredients: { [key: string]: number } } {
     const entries = this.getEntriesForDate(date);
     let totalCalories = 0;

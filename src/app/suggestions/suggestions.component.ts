@@ -122,7 +122,8 @@ export class SuggestionsComponent implements OnInit {
             flaggedIngredients: [],
             scanDate: new Date(),
             categories: ['suggestion'],
-            image: 'https://via.placeholder.com/150?text=Suggestion'
+            image: 'https://via.placeholder.com/150?text=Suggestion',
+            source: 'ai_suggestion'
           },
           similarity: 0, // Removed random similarity
           reason: suggestion.reason

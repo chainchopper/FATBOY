@@ -36,6 +36,8 @@ export class GamificationService {
     { id: 'first_good_save', name: 'Healthy Choice', description: 'Add your first approved product to the shopping list.', icon: '💚' },
     { id: 'picky_eater', name: 'Picky Eater', description: 'Add your first custom ingredient to your avoid list.', icon: '✍️' },
     { id: 'meal_planner', name: 'Meal Planner', description: 'Log breakfast, lunch, and dinner in a single day.', icon: '📅' },
+    { id: 'explorer', name: 'Explorer', description: 'Manually add your first product.', icon: '🗺️' },
+    { id: 'perfect_day', name: 'Perfect Day', description: 'Log a full day in your food diary with zero flagged ingredients.', icon: '✅' },
     // Community & Social Badges
     { id: 'first_contribution', name: 'Community Helper', description: 'Contribute a new product to the database.', icon: '🤝' },
     { id: 'top_contributor', name: 'Top Contributor', description: 'Contribute 5 products to the community database.', icon: '🌟' },
@@ -69,8 +71,7 @@ export class GamificationService {
     const preferences = this.preferencesService.getPreferences();
     const friends = await this.friendsService.getFriends();
     const myContributions = await this.communityService.getMyContributions();
-    const today = new Date().toISOString().split('T')[0];
-    const todayDiaryEntries = this.foodDiaryService.getEntriesForDate(today);
+    const foodDiaryMap = this.foodDiaryService.getDiarySnapshot();
 
     // --- Achievement Logic ---
     const unlockPromises: Promise<boolean>[] = [];
@@ -87,10 +88,33 @@ export class GamificationService {
 
     if (preferences.customAvoidedIngredients.length >= 1) unlockPromises.push(this.unlockBadge('picky_eater'));
 
-    const hasBreakfast = todayDiaryEntries.some(e => e.meal === 'Breakfast');
-    const hasLunch = todayDiaryEntries.some(e => e.meal === 'Lunch');
-    const hasDinner = todayDiaryEntries.some(e => e.meal === 'Dinner');
-    if (hasBreakfast && hasLunch && hasDinner) unlockPromises.push(this.unlockBadge('meal_planner'));
+    let hasMealPlannerDay = false;
+    for (const date of foodDiaryMap.keys()) {
+      const entries = foodDiaryMap.get(date) || [];
+      const hasBreakfast = entries.some(e => e.meal === 'Breakfast');
+      const hasLunch = entries.some(e => e.meal === 'Lunch');
+      const hasDinner = entries.some(e => e.meal === 'Dinner');
+      if (hasBreakfast && hasLunch && hasDinner) {
+        hasMealPlannerDay = true;
+        break;
+      }
+    }
+    if (hasMealPlannerDay) unlockPromises.push(this.unlockBadge('meal_planner'));
+
+    // Explorer
+    if (scanHistory.some(p => p.source === 'manual')) unlockPromises.push(this.unlockBadge('explorer'));
+
+    // Perfect Day
+    let hasPerfectDay = false;
+    for (const date of foodDiaryMap.keys()) {
+      const summary = this.foodDiaryService.getDailySummary(date);
+      const entries = foodDiaryMap.get(date) || [];
+      if (entries.length >= 3 && summary.totalFlaggedItems === 0) {
+        hasPerfectDay = true;
+        break;
+      }
+    }
+    if (hasPerfectDay) unlockPromises.push(this.unlockBadge('perfect_day'));
 
     // Social & Community
     if (myContributions.length >= 1) unlockPromises.push(this.unlockBadge('first_contribution'));

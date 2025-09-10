@@ -57,7 +57,8 @@ export class BarcodeProcessorService {
         image: productData.image || "https://via.placeholder.com/150",
         categories,
         verdict: evaluation.verdict,
-        flaggedIngredients: evaluation.flaggedIngredients.map(f => f.ingredient)
+        flaggedIngredients: evaluation.flaggedIngredients.map(f => f.ingredient),
+        source: 'scan'
       };
 
       return productInfo;

@@ -59,7 +59,8 @@ export class OcrProcessorService {
         verdict: evaluation.verdict,
         flaggedIngredients: evaluation.flaggedIngredients.map(f => f.ingredient),
         ocrText: text,
-        image: 'https://via.placeholder.com/150?text=OCR+Scan' // Default image for OCR
+        image: 'https://via.placeholder.com/150?text=OCR+Scan', // Default image for OCR
+        source: 'ocr'
       };
 
       return productInfo;

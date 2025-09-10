@@ -105,7 +105,8 @@ export class ManualEntryComponent {
       verdict: evaluation.verdict,
       flaggedIngredients: evaluation.flaggedIngredients.map(f => f.ingredient),
       categories: categories,
-      image: productImageUrl
+      image: productImageUrl,
+      source: 'manual'
     };
 
     const savedProduct = await this.productDb.addProduct(newProduct);
