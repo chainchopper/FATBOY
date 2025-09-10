@@ -154,6 +154,26 @@ export class ToolExecutorService {
           humanReadableSummary = `Couldn't find any products matching "${functionArgs.query}".`;
         }
         break;
+      case 'search_external_database':
+        const { data: externalResults, error: externalError } = await supabase.functions.invoke('search-open-food-facts', {
+          body: { query: functionArgs.query }
+        });
+
+        if (externalError) {
+          toolOutput = `FAILED: Error searching external database: ${externalError.message}`;
+          humanReadableSummary = `Failed to search the public database.`;
+        } else if (externalResults && externalResults.length > 0) {
+          toolOutput = `EXTERNAL_SEARCH_SUCCESS: Found ${externalResults.length} products in the public database matching "${functionArgs.query}". The results are displayed as UI elements.`;
+          humanReadableSummary = `Searching the public database for "${functionArgs.query}"...`;
+          uiElements = externalResults.map((product: Product) => ({
+            type: 'product_card',
+            data: product
+          }));
+        } else {
+          toolOutput = `EXTERNAL_SEARCH_EMPTY: No products found in the public database matching "${functionArgs.query}".`;
+          humanReadableSummary = `Couldn't find any products in the public database matching "${functionArgs.query}".`;
+        }
+        break;
       default:
         toolOutput = `Unknown tool: ${functionName}`;
         console.warn(toolOutput);
