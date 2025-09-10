@@ -1,12 +1,3 @@
-/* Removed @keyframes neon-flicker as it's now in HeaderComponent */
-/* Removed .main-nav styles as it's now in HeaderComponent */
-/* Removed .logo-container styles as it's now in HeaderComponent */
-/* Removed .app-title styles as it's now in HeaderComponent */
-/* Removed .nav-actions styles as it's now in HeaderComponent */
-/* Removed .notification-btn styles as it's now in HeaderComponent */
-/* Removed .notification-badge styles as it's now in HeaderComponent */
-/* Removed .hamburger-menu styles as it's now in HeaderComponent */
-
 .nav-overlay {
   position: fixed;
   top: 0;
@@ -35,10 +26,13 @@
   transform: translateX(-100%);
   transition: transform 0.3s ease-in-out;
   padding-top: 80px;
-  display: flex;
-  flex-direction: column;
+  display: grid; /* Changed to grid */
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); /* Responsive columns */
+  gap: 20px; /* Gap between grid items */
   align-items: center;
   justify-content: center;
+  padding: 100px 20px 20px 20px; /* Adjust padding for header and overall layout */
+  overflow-y: auto; /* Allow scrolling if many items */
 }
 
 .nav-overlay.open .nav-menu {
@@ -54,37 +48,63 @@
   color: #e0e0e0;
   font-size: 2.5rem;
   cursor: pointer;
+  z-index: 100; /* Ensure it's above menu items */
 }
 
-.nav-menu a {
+.nav-menu .menu-item { /* New class for menu items */
   color: #e0e0e0;
   text-decoration: none;
-  padding: 15px 25px;
-  font-size: 1.5rem;
-  transition: background-color 0.3s, color 0.3s, text-shadow 0.3s;
-  width: 80%;
+  padding: 20px 10px;
+  font-size: 1.1rem;
+  transition: background-color 0.3s, color 0.3s, text-shadow 0.3s, transform 0.3s, box-shadow 0.3s;
   text-align: center;
-  border-radius: 8px;
-  margin-bottom: 10px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: rgba(26, 26, 46, 0.7); /* Darker background for card effect */
+  border: 1px solid #4a4a6e;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); /* Subtle 3D shadow */
+  position: relative;
+  overflow: hidden;
 }
 
-.nav-menu a:hover, .nav-menu a.active {
+.nav-menu .menu-item:hover, .nav-menu .menu-item.active {
   background-color: rgba(240, 56, 255, 0.1);
   color: #f038ff;
   text-shadow: 0 0 8px #f038ff;
+  border-color: #f038ff;
+  box-shadow: 0 0 20px rgba(240, 56, 255, 0.5);
+  transform: translateY(-5px); /* Lift effect */
+}
+
+.nav-menu .menu-item lucide-icon {
+  color: #0abdc6; /* Icon color */
+  transition: color 0.3s;
+}
+
+.nav-menu .menu-item:hover lucide-icon, .nav-menu .menu-item.active lucide-icon {
+  color: #f038ff; /* Change icon color on hover/active */
+}
+
+.nav-menu .menu-item span {
+  margin-top: 5px;
+  font-weight: 500;
 }
 
 .nav-divider {
   border: 0;
   height: 1px;
   background-color: #4a4a6e;
-  margin: 10px 25px;
-  width: 80%;
+  margin: 10px 0; /* Adjust margin for grid */
+  width: 100%;
+  grid-column: 1 / -1; /* Span all columns */
 }
 
 main {
   padding-top: 70px; /* Space for fixed header */
-  /* Removed padding-bottom for FAB */
 }
 
 main.full-screen {
@@ -92,4 +112,35 @@ main.full-screen {
   padding-bottom: 0;
 }
 
-/* Removed Floating Action Button (FAB) styles */
+/* Responsive adjustments for smaller screens */
+@media (max-width: 768px) {
+  .nav-menu {
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); /* More columns on smaller screens */
+    gap: 15px;
+    padding: 90px 15px 15px 15px;
+  }
+
+  .nav-menu .menu-item {
+    font-size: 0.9rem;
+    padding: 15px 5px;
+    gap: 5px;
+  }
+
+  .nav-menu .menu-item lucide-icon {
+    font-size: 30px; /* Smaller icons */
+    width: 30px;
+    height: 30px;
+  }
+}
+
+@media (max-width: 480px) {
+  .nav-menu {
+    grid-template-columns: 1fr; /* Single column on very small screens */
+    padding: 90px 10px 10px 10px;
+  }
+  .nav-menu .menu-item {
+    width: 100%;
+    max-width: 300px; /* Limit width for single column */
+    margin: 0 auto;
+  }
+}

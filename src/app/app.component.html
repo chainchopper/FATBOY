@@ -5,30 +5,76 @@
 <div class="nav-overlay" [class.open]="isMenuOpen" (click)="closeMenu()">
   <div class="nav-menu" [class.open]="isMenuOpen" (click)="$event.stopPropagation()">
     <button class="close-menu-btn" (click)="closeMenu()">×</button>
-    <a routerLink="/scanner" routerLinkActive="active" (click)="closeMenu()">📸 Unified Scan</a>
-    <a routerLink="/console" routerLinkActive="active" (click)="closeMenu()">🤖 Fat Boy Assistant</a>
-    <a routerLink="/food-diary" routerLinkActive="active" (click)="closeMenu()">🥗 Food Diary</a>
-    <a routerLink="/favorites" routerLinkActive="active" (click)="closeMenu()">❤️ Favorites</a>
-    <a routerLink="/history" routerLinkActive="active" (click)="closeMenu()">📖 History</a>
-    <a routerLink="/shopping-list" routerLinkActive="active" (click)="closeMenu()">🛒 Shopping List</a>
-    <a routerLink="/achievements" routerLinkActive="active" (click)="closeMenu()">🏆 Achievements</a>
-    <a routerLink="/friends" routerLinkActive="active" (click)="closeMenu()">🫂 Friends</a>
-    <a routerLink="/suggestions" routerLinkActive="active" (click)="closeMenu()">💡 Suggestions</a>
-    <a routerLink="/community" routerLinkActive="active" (click)="closeMenu()">🤝 Community</a>
-    <a routerLink="/preferences" routerLinkActive="active" (click)="closeMenu()">⚙️ Preferences</a>
+    
+    <a routerLink="/scanner" routerLinkActive="active" (click)="closeMenu()" class="menu-item">
+      <lucide-icon name="camera" [size]="36"></lucide-icon>
+      <span>Unified Scan</span>
+    </a>
+    <a routerLink="/console" routerLinkActive="active" (click)="closeMenu()" class="menu-item">
+      <lucide-icon name="message-circle" [size]="36"></lucide-icon>
+      <span>Fat Boy Assistant</span>
+    </a>
+    <a routerLink="/food-diary" routerLinkActive="active" (click)="closeMenu()" class="menu-item">
+      <lucide-icon name="book-open" [size]="36"></lucide-icon>
+      <span>Food Diary</span>
+    </a>
+    <a routerLink="/favorites" routerLinkActive="active" (click)="closeMenu()" class="menu-item">
+      <lucide-icon name="heart" [size]="36"></lucide-icon>
+      <span>Favorites</span>
+    </a>
+    <a routerLink="/history" routerLinkActive="active" (click)="closeMenu()" class="menu-item">
+      <lucide-icon name="history" [size]="36"></lucide-icon>
+      <span>History</span>
+    </a>
+    <a routerLink="/shopping-list" routerLinkActive="active" (click)="closeMenu()" class="menu-item">
+      <lucide-icon name="shopping-cart" [size]="36"></lucide-icon>
+      <span>Shopping List</span>
+    </a>
+    <a routerLink="/achievements" routerLinkActive="active" (click)="closeMenu()" class="menu-item">
+      <lucide-icon name="award" [size]="36"></lucide-icon>
+      <span>Achievements</span>
+    </a>
+    <a routerLink="/friends" routerLinkActive="active" (click)="closeMenu()" class="menu-item">
+      <lucide-icon name="users" [size]="36"></lucide-icon>
+      <span>Friends</span>
+    </a>
+    <a routerLink="/suggestions" routerLinkActive="active" (click)="closeMenu()" class="menu-item">
+      <lucide-icon name="lightbulb" [size]="36"></lucide-icon>
+      <span>Suggestions</span>
+    </a>
+    <a routerLink="/community" routerLinkActive="active" (click)="closeMenu()" class="menu-item">
+      <lucide-icon name="globe" [size]="36"></lucide-icon>
+      <span>Community</span>
+    </a>
+    <a routerLink="/preferences" routerLinkActive="active" (click)="closeMenu()" class="menu-item">
+      <lucide-icon name="settings" [size]="36"></lucide-icon>
+      <span>Preferences</span>
+    </a>
+    
     <hr class="nav-divider">
-    <a routerLink="/profile" routerLinkActive="active" (click)="closeMenu()">👤 Profile</a>
-    <a *ngIf="isAdmin$ | async" routerLink="/admin" routerLinkActive="active" (click)="closeMenu()">🛠️ Admin</a>
+    
+    <a routerLink="/profile" routerLinkActive="active" (click)="closeMenu()" class="menu-item">
+      <lucide-icon name="user" [size]="36"></lucide-icon>
+      <span>Profile</span>
+    </a>
+    <a *ngIf="isAdmin$ | async" routerLink="/admin" routerLinkActive="active" (click)="closeMenu()" class="menu-item">
+      <lucide-icon name="shield" [size]="36"></lucide-icon>
+      <span>Admin</span>
+    </a>
     <ng-container *ngIf="(currentUser$ | async) as user; else loginLink">
-      <a (click)="signOut()" class="logout-link">👋 Logout ({{ (displayName$ | async) || user.email }})</a>
+      <a (click)="signOut()" class="logout-link menu-item">
+        <lucide-icon name="log-out" [size]="36"></lucide-icon>
+        <span>Logout ({{ (displayName$ | async) || user.email }})</span>
+      </a>
     </ng-container>
     <ng-template #loginLink>
-      <a routerLink="/login" routerLinkActive="active" (click)="closeMenu()">👤 Login</a>
+      <a routerLink="/login" routerLinkActive="active" (click)="closeMenu()" class="menu-item">
+        <lucide-icon name="log-in" [size]="36"></lucide-icon>
+        <span>Login</span>
+      </a>
     </ng-template>
   </div>
 </div>
-
-<!-- Removed Floating Action Button (FAB) -->
 
 <main [class.full-screen]="isScannerPage">
   <router-outlet></router-outlet>
