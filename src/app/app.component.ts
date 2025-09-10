@@ -12,6 +12,7 @@ import { LucideAngularModule } from 'lucide-angular';
 import { UserNotificationService } from './services/user-notification.service';
 import { NotificationsComponent } from './notifications/notifications.component';
 import { UiService } from './services/ui.service'; // Import UiService
+import { AppHeaderComponent } from './components/app-header/app-header.component'; // Import new AppHeaderComponent
 
 @Component({
   selector: 'app-root',
@@ -24,7 +25,8 @@ import { UiService } from './services/ui.service'; // Import UiService
     AppModalComponent, 
     LogoComponent, 
     LucideAngularModule,
-    NotificationsComponent
+    NotificationsComponent,
+    AppHeaderComponent // Add AppHeaderComponent here
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
@@ -34,8 +36,8 @@ export class AppComponent implements OnInit {
   currentUser$!: Observable<User | null>;
   displayName$!: Observable<string | null>;
   isAdmin$!: Observable<boolean>;
-  isScannerPage = false;
-  
+  isScannerPage = false; // Keep for main content padding adjustment
+
   showNotifications = false;
   unreadNotifications$!: Observable<number>;
 
@@ -80,13 +82,14 @@ export class AppComponent implements OnInit {
     });
   }
 
+  // toggleMenu() and closeMenu() are now handled by HeaderComponent and UiService
   toggleMenu(): void {
-    this.uiService.toggleMenu(); // Use UiService to toggle
+    this.uiService.toggleMenu();
     this.showNotifications = false;
   }
 
   closeMenu(): void {
-    this.uiService.closeMenu(); // Use UiService to close
+    this.uiService.closeMenu();
   }
 
   toggleNotifications(): void {

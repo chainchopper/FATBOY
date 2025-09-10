@@ -1,24 +1,4 @@
-<nav class="main-nav" *ngIf="!isScannerPage">
-  <div class="logo-container" (click)="goToHome()">
-    <app-logo></app-logo>
-  </div>
-
-  <div class="app-title">Fat Boy Time <span class="powered-by">Powered by Fanalogy</span></div>
-
-  <div class="nav-actions">
-    <button class="notification-btn" (click)="toggleNotifications()">
-      <lucide-icon name="bell" [size]="24"></lucide-icon>
-      <span *ngIf="(unreadNotifications$ | async) as count" class="notification-badge" [class.visible]="count > 0">
-        {{ count }}
-      </span>
-    </button>
-    <button class="hamburger-menu" (click)="toggleMenu()" [class.open]="isMenuOpen" aria-label="Toggle menu">
-      <div class="bar"></div>
-      <div class="bar"></div>
-      <div class="bar"></div>
-    </button>
-  </div>
-</nav>
+<app-app-header (toggleNotificationsEvent)="toggleNotifications()"></app-app-header>
 
 <app-notifications *ngIf="showNotifications" (close)="showNotifications = false"></app-notifications>
 
@@ -48,10 +28,7 @@
   </div>
 </div>
 
-<!-- Floating Action Button (FAB) -->
-<button *ngIf="!isScannerPage" class="fab-button" (click)="goToAgentConsole()" title="Open Fat Boy Assistant">
-  <lucide-icon name="message-circle" [size]="32"></lucide-icon>
-</button>
+<!-- Removed Floating Action Button (FAB) -->
 
 <main [class.full-screen]="isScannerPage">
   <router-outlet></router-outlet>

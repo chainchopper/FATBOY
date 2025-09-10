@@ -19,13 +19,13 @@ import { Subscription, Observable } from 'rxjs';
 import { LucideAngularModule } from 'lucide-angular';
 import { UiService } from '../services/ui.service';
 import { LogoComponent } from '../logo/logo.component';
-import { UserNotificationService } from '../services/user-notification.service'; // Import UserNotificationService
-import { NotificationsComponent } from '../notifications/notifications.component'; // Import NotificationsComponent
+import { UserNotificationService } from '../services/user-notification.service';
+import { NotificationsComponent } from '../notifications/notifications.component';
 
 @Component({
   selector: 'app-unified-scanner',
   standalone: true,
-  imports: [CommonModule, RouterLink, LucideAngularModule, LogoComponent, NotificationsComponent], // Add NotificationsComponent here
+  imports: [CommonModule, RouterLink, LucideAngularModule, LogoComponent, NotificationsComponent],
   templateUrl: './unified-scanner.component.html',
   styleUrls: ['./unified-scanner.component.css']
 })
@@ -45,8 +45,8 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
   private voiceCommandSubscription!: Subscription;
   private preferencesSubscription!: Subscription;
 
-  public showNotifications = false; // Add property for notifications panel visibility
-  public unreadNotifications$!: Observable<number>; // Add observable for unread count
+  public showNotifications = false; // Keep for local notifications panel visibility
+  public unreadNotifications$!: Observable<number>; // Keep for local notifications panel visibility
 
   private stabilityCheckInterval: any;
   private lastFrame: ImageData | null = null;
@@ -68,9 +68,9 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
     private aiService: AiIntegrationService,
     private barcodeLookupService: BarcodeLookupService,
     public uiService: UiService,
-    private userNotificationService: UserNotificationService // Inject UserNotificationService
+    private userNotificationService: UserNotificationService
   ) {
-    this.unreadNotifications$ = this.userNotificationService.unreadCount$; // Initialize
+    this.unreadNotifications$ = this.userNotificationService.unreadCount$;
   }
 
   async ngAfterViewInit() {
@@ -109,10 +109,7 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
     this.preferencesService.savePreferences({ ...currentPrefs, enableVoiceCommands: !currentPrefs.enableVoiceCommands });
   }
 
-  toggleNotifications(): void {
-    this.showNotifications = !this.showNotifications;
-    this.uiService.closeMenu(); // Close main menu when opening notifications
-  }
+  // Removed toggleNotifications() as it's now handled by the global HeaderComponent
 
   private handleVoiceCommand(command: string): void {
     if (command.includes('scan label') || command.includes('capture label')) {
