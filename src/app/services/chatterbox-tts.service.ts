@@ -3,6 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { NotificationService } from './notification.service';
 import { PreferencesService, UserPreferences } from './preferences.service';
+import { environment } from '../../environments/environment'; // Import environment
 
 export interface ChatterboxVoice {
   id: string;
@@ -15,9 +16,9 @@ export interface ChatterboxVoice {
   providedIn: 'root'
 })
 export class ChatterboxTtsService {
-  private ttsApiUrl = 'http://api.blacknation.io:4123/v1/audio/speech';
-  private voicesApiUrl = 'http://api.blacknation.io:4123/voices';
-  private healthApiUrl = 'http://api.blacknation.io:4123/health';
+  private ttsApiUrl = environment.ttsApiEndpoint; // Use environment variable
+  private voicesApiUrl = environment.ttsApiEndpoint.replace('/speech', '/voices'); // Derive voices URL
+  private healthApiUrl = environment.ttsApiEndpoint.replace('/speech', '/health'); // Derive health URL
   private defaultVoice = 'KEVIN'; // Default voice as requested
   private maxRetries = 2;
 

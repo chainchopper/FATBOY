@@ -236,6 +236,15 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
         this.notificationService.showError('Failed to process barcode.', 'Error');
         this.audioService.playErrorSound();
       }
+      this.scannerCameraService.resumeDetection(); // Ensure resume on error
+      this.stabilityDetectorService.start( // Restart stability detector on error
+        () => this.scannerCameraService.getVideoElement(),
+        () => this.canvasElement.nativeElement
+      );
+      this.humanDetectorService.startDetection( // Restart human detector on error
+        () => this.scannerCameraService.getVideoElement(),
+        () => this.canvasElement.nativeElement
+      );
     } finally {
       this.isProcessingOcr = false;
       this.screenFlash = false; // Ensure flash is reset
@@ -310,6 +319,15 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
         this.notificationService.showError('Failed to capture image for OCR. Please try again.', 'Error');
         this.audioService.playErrorSound();
       }
+      this.scannerCameraService.resumeDetection(); // Ensure resume on error
+      this.stabilityDetectorService.start( // Restart stability detector on error
+        () => this.scannerCameraService.getVideoElement(),
+        () => this.canvasElement.nativeElement
+      );
+      this.humanDetectorService.startDetection( // Restart human detector on error
+        () => this.scannerCameraService.getVideoElement(),
+        () => this.canvasElement.nativeElement
+      );
     } finally {
       this.isProcessingOcr = false;
       this.screenFlash = false; // Ensure flash is reset
@@ -383,6 +401,15 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
             this.notificationService.showError('Failed to process uploaded image. Please try again.', 'Error');
             this.audioService.playErrorSound();
           }
+          this.scannerCameraService.resumeDetection(); // Ensure resume on error
+          this.stabilityDetectorService.start( // Restart stability detector on error
+            () => this.scannerCameraService.getVideoElement(),
+            () => this.canvasElement.nativeElement
+          );
+          this.humanDetectorService.startDetection( // Restart human detector on error
+            () => this.scannerCameraService.getVideoElement(),
+            () => this.canvasElement.nativeElement
+          );
         } finally {
           this.isProcessingOcr = false;
           this.screenFlash = false;
