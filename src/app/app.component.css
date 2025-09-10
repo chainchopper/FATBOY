@@ -105,6 +105,7 @@
 
 main {
   padding-top: 70px; /* Space for fixed header */
+  padding-bottom: 60px; /* Space for fixed footer */
 }
 
 main.full-screen {

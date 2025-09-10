@@ -7,12 +7,13 @@ import { User } from '@supabase/supabase-js';
 import { ProfileService, Profile } from './services/profile.service';
 import { map, filter } from 'rxjs/operators';
 import { AppModalComponent } from './app-modal/app-modal.component';
-import { LogoComponent } from './logo.component'; // Corrected import path
+import { LogoComponent } from './logo.component';
 import { LucideAngularModule } from 'lucide-angular';
 import { UserNotificationService } from './services/user-notification.service';
 import { NotificationsComponent } from './notifications/notifications.component';
 import { UiService } from './services/ui.service';
 import { AppHeaderComponent } from './app-header.component';
+import { FooterComponent } from './footer/footer.component'; // Re-importing FooterComponent
 
 @Component({
   selector: 'app-root',
@@ -26,7 +27,8 @@ import { AppHeaderComponent } from './app-header.component';
     LogoComponent, 
     LucideAngularModule,
     NotificationsComponent,
-    AppHeaderComponent
+    AppHeaderComponent,
+    FooterComponent 
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'

@@ -1,5 +1,4 @@
 {
-  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "outDir": "./out-tsc/app",
@@ -10,7 +9,7 @@
     "src/polyfills.ts"
   ],
   "include": [
-    "src/**/*.d.ts",
-    "src/**/*.ts"
+    "src/**/*.ts", // Explicitly include all .ts files
+    "src/**/*.d.ts"
   ]
 }
