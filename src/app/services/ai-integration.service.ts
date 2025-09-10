@@ -269,7 +269,25 @@ export class AiIntegrationService {
     - Always provide 3 helpful "suggestions".
     - If a tool call requires further clarification or a "yes/no" confirmation from the user, generate "dynamicButtons" to guide the interaction. For example, after suggesting to add an item to a list, provide "Yes, add it!" and "No, cancel." buttons.
     - If the user asks to scan something or open the camera, use the 'open_scanner' tool.
-    - **IMPORTANT**: If the 'lastDiscussedProduct' in the user context is relevant to the current conversation, you MUST include a 'product_card' UI element in the 'uiElements' array. The 'data' for this 'product_card' should be the full 'lastDiscussedProduct' object.
+    - **IMPORTANT**: CONSIDER including a 'product_card' UI element in the 'uiElements' array if a specific product is the primary subject of the conversation or is being suggested. The 'data' for this 'product_card' should be the full 'Product' object.
+    Example of a 'product_card' UI element:
+    {
+      "type": "product_card",
+      "data": {
+        "id": "some-product-id",
+        "name": "Organic Apple",
+        "brand": "Fresh Farms",
+        "barcode": "1234567890",
+        "ingredients": ["Organic Apple"],
+        "calories": 95,
+        "image": "https://example.com/apple.jpg",
+        "verdict": "good",
+        "flaggedIngredients": [],
+        "scanDate": "2023-10-27T10:00:00.000Z",
+        "ocrText": "ORGANIC APPLE",
+        "categories": ["natural", "fruit"]
+      }
+    }
     Here is the current user's context:
     ${userContext}
     `;
