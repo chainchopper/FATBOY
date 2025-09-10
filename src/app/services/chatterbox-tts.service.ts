@@ -16,9 +16,9 @@ export interface ChatterboxVoice {
   providedIn: 'root'
 })
 export class ChatterboxTtsService {
-  private ttsApiUrl = environment.ttsApiEndpoint; // Use environment variable
-  private voicesApiUrl = environment.ttsApiEndpoint.replace('/speech', '/voices'); // Derive voices URL
-  private healthApiUrl = environment.ttsApiEndpoint.replace('/speech', '/health'); // Derive health URL
+  private ttsApiUrl: string;
+  private voicesApiUrl: string;
+  private healthApiUrl: string;
   private defaultVoice = 'KEVIN'; // Default voice as requested
   private maxRetries = 2;
 
@@ -30,10 +30,23 @@ export class ChatterboxTtsService {
     private notificationService: NotificationService,
     private preferencesService: PreferencesService
   ) {
-    this.checkApiHealthAndLoadVoices();
+    if (!environment.ttsApiEndpoint || environment.ttsApiEndpoint === 'your_tts_api_endpoint_here') {
+      console.warn('Chatterbox TTS API endpoint is not configured in environment. Falling back to on-device TTS.');
+      this.ttsApiUrl = ''; // Set to empty to disable API calls
+      this.voicesApiUrl = '';
+      this.healthApiUrl = '';
+      this.isApiAvailable = false;
+    } else {
+      this.ttsApiUrl = environment.ttsApiEndpoint;
+      this.voicesApiUrl = this.ttsApiUrl.replace('/speech', '/voices');
+      this.healthApiUrl = this.ttsApiUrl.replace('/speech', '/health');
+      this.checkApiHealthAndLoadVoices();
+    }
   }
 
   private async checkApiHealthAndLoadVoices(): Promise<void> {
+    if (!this.healthApiUrl) return; // Skip if API endpoint is not configured
+
     try {
       const healthResponse = await firstValueFrom(this.http.get<any>(this.healthApiUrl));
       this.isApiAvailable = healthResponse.status === 'healthy' && healthResponse.model_loaded;
@@ -49,6 +62,8 @@ export class ChatterboxTtsService {
   }
 
   private async fetchAvailableVoices(): Promise<void> {
+    if (!this.voicesApiUrl) return; // Skip if API endpoint is not configured
+
     try {
       const voicesResponse = await firstValueFrom(this.http.get<ChatterboxVoice[]>(this.voicesApiUrl));
       this.availableVoices = voicesResponse;

@@ -12,7 +12,7 @@
       <span class="tagline-word">Choose.</span>
     </div>
     <div class="scan-area" [class.stable]="isStable">
-      <div *ngIf="isScanningActive" class="scan-line"></div>
+      <div *ngIf="isScanningActive && !showExpandedOptions" class="scan-line"></div>
     </div>
     <!-- Refined text feedback logic -->
     <p *ngIf="showExpandedOptions">Scanner options open.</p>
