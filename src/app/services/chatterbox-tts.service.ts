@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http'; // Import HttpErrorResponse
 import { firstValueFrom } from 'rxjs';
 import { NotificationService } from './notification.service';
 import { PreferencesService, UserPreferences } from './preferences.service';
@@ -124,10 +124,15 @@ export class ChatterboxTtsService {
         return; // Success, exit loop
       } catch (error) {
         console.error(`Chatterbox TTS API call failed (attempt ${i + 1}/${this.maxRetries + 1}):`, error);
-        if (i === this.maxRetries) {
+        if (error instanceof HttpErrorResponse && error.status === 0) {
+          this.notificationService.showError(
+            'Chatterbox TTS API unreachable. This might be a CORS issue or the service is offline. Please check your server.',
+            'TTS Connection Error'
+          );
+        } else if (i === this.maxRetries) {
           this.notificationService.showWarning('Chatterbox TTS unavailable. Falling back to on-device speech.', 'TTS Error');
-          this.speakOnDevice(text); // Fallback after all retries fail
         }
+        this.speakOnDevice(text); // Fallback after all retries fail or on specific error
       }
     }
   }
