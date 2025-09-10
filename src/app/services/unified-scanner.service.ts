@@ -179,7 +179,7 @@ export class UnifiedScannerService {
       this.screenFlash = true;
       this.audioService.playSuccessSound();
       sessionStorage.setItem('scannedProduct', JSON.stringify(savedProduct));
-      this.aiService.setLastDiscussedProduct(savedProduct);
+      this.productDb.setLastViewedProduct(savedProduct); // Use ProductDbService
       this.router.navigate(['/results']);
       this.productScanned.emit(savedProduct);
 
@@ -199,7 +199,7 @@ export class UnifiedScannerService {
     }
   }
 
-  public async handleStableFrameCapture(): Promise<void> { // Made public
+  public async handleStableFrameCapture(): Promise<void> {
     if (this.isProcessingOcr) return;
 
     this.pauseAllDetectionServices(); // Pause all detection during processing
@@ -241,7 +241,7 @@ export class UnifiedScannerService {
       this.screenFlash = true;
       this.audioService.playSuccessSound();
       sessionStorage.setItem('viewingProduct', JSON.stringify(savedProduct));
-      this.aiService.setLastDiscussedProduct(savedProduct);
+      this.productDb.setLastViewedProduct(savedProduct); // Use ProductDbService
       this.router.navigate(['/ocr-results']);
       this.productProcessed.emit(savedProduct);
 
@@ -291,7 +291,7 @@ export class UnifiedScannerService {
         this.screenFlash = true;
         this.audioService.playSuccessSound();
         sessionStorage.setItem('viewingProduct', JSON.stringify(savedProduct));
-        this.aiService.setLastDiscussedProduct(savedProduct);
+        this.productDb.setLastViewedProduct(savedProduct); // Use ProductDbService
         this.router.navigate(['/ocr-results']);
         this.productProcessed.emit(savedProduct);
 

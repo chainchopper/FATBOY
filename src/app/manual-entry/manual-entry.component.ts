@@ -77,7 +77,7 @@ export class ManualEntryComponent {
     const savedProduct = await this.productDb.addProduct(newProduct);
     if (!savedProduct) return;
 
-    this.aiService.setLastDiscussedProduct(savedProduct);
+    this.productDb.setLastViewedProduct(savedProduct); // Use ProductDbService
     this.modalService.open(savedProduct);
     this.router.navigate(['/scanner']);
   }

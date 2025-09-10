@@ -68,7 +68,7 @@ export class ConsoleCameraService {
 
       this.notificationService.showSuccess(`Scanned "${savedProduct.name}"!`, 'Chat Scan Success');
       this.audioService.playSuccessSound();
-      this.aiService.setLastDiscussedProduct(savedProduct);
+      this.productDb.setLastViewedProduct(savedProduct); // Use ProductDbService
       this.cameraInputProcessed.emit(savedProduct);
 
     } catch (error: any) {
@@ -109,7 +109,7 @@ export class ConsoleCameraService {
 
       this.notificationService.showSuccess(`Processed "${savedProduct.name}"!`, 'Chat OCR Success');
       this.audioService.playSuccessSound();
-      this.aiService.setLastDiscussedProduct(savedProduct);
+      this.productDb.setLastViewedProduct(savedProduct); // Use ProductDbService
       this.cameraInputProcessed.emit(savedProduct);
 
     } catch (error: any) {

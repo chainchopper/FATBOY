@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
-import { Product } from './product-db.service';
+import { Product, ProductDbService } from './product-db.service'; // Import ProductDbService
 import { AudioService } from './audio.service';
 import { AiContextService } from './ai-context.service';
 import { ToolExecutorService, ToolExecutionResult } from './tool-executor.service'; // Import ToolExecutionResult
+import { firstValueFrom } from 'rxjs'; // Import firstValueFrom
 
 export interface DynamicButton {
   text: string;
@@ -36,16 +37,15 @@ export class AiIntegrationService {
   private chatModelName = environment.chatModelName;
   private embeddingModelName = environment.embeddingModelName;
 
-  private lastDiscussedProduct: Product | null = null;
-
   constructor(
     private audioService: AudioService,
     private aiContextService: AiContextService,
-    private toolExecutorService: ToolExecutorService
+    private toolExecutorService: ToolExecutorService,
+    private productDbService: ProductDbService // Inject ProductDbService
   ) { }
 
   async checkAgentStatus(): Promise<boolean> {
-    const endpoint = `${this.apiBaseUrl}/models`;
+    const endpoint = `${this.apiBaseUrl}/v1/models`; // Added /v1
     try {
       const response = await fetch(endpoint);
       if (!response.ok) return false;
@@ -59,7 +59,7 @@ export class AiIntegrationService {
   }
 
   async getEmbeddings(text: string): Promise<number[]> {
-    const endpoint = `${this.apiBaseUrl}/embeddings`;
+    const endpoint = `${this.apiBaseUrl}/v1/embeddings`; // Added /v1
     if (!endpoint || !this.embeddingModelName) {
       console.warn("Embedding endpoint or model name not configured.");
       return [];
@@ -245,7 +245,7 @@ export class AiIntegrationService {
   }
 
   async getChatCompletion(userInput: string, messagesHistory: any[] = []): Promise<AiResponse> {
-    const endpoint = `${this.apiBaseUrl}/chat/completions`;
+    const endpoint = `${this.apiBaseUrl}/v1/chat/completions`; // Added /v1
     if (!endpoint || !this.chatModelName) {
       return { text: "AI endpoint is not configured.", suggestedPrompts: [] };
     }
@@ -253,7 +253,8 @@ export class AiIntegrationService {
     const headers: HeadersInit = { 'Content-Type': 'application/json' };
     if (this.apiKey) headers['Authorization'] = `Bearer ${this.apiKey}`;
 
-    const userContext = await this.aiContextService.buildUserContext(this.lastDiscussedProduct);
+    const lastDiscussedProduct = this.productDbService.getLastViewedProduct(); // Get from ProductDbService
+    const userContext = await this.aiContextService.buildUserContext(lastDiscussedProduct);
     
     const systemMessage = `You are Fat Boy, an AI nutritional co-pilot.
     **CRITICAL: YOUR ENTIRE RESPONSE MUST BE A SINGLE, VALID JSON OBJECT AND NOTHING ELSE. NO INTRODUCTORY TEXT, NO EXPLANATIONS, NO MARKDOWN.
@@ -317,7 +318,7 @@ export class AiIntegrationService {
 
       if (choice.message.tool_calls && choice.message.tool_calls.length > 0) {
         const toolExecutionResults: ToolExecutionResult[] = await Promise.all( // Specify type
-          choice.message.tool_calls.map((tc: any) => this.toolExecutorService.executeTool(tc, this.lastDiscussedProduct))
+          choice.message.tool_calls.map((tc: any) => this.toolExecutorService.executeTool(tc, lastDiscussedProduct))
         );
 
         if (toolExecutionResults.some(r => !r.output.startsWith('FAILED'))) this.audioService.playSuccessSound();
@@ -353,22 +354,14 @@ export class AiIntegrationService {
         };
       }
 
-      return this._parseAiResponse(choice.message.content);
-
+      const parsedResponse = this._parseAiResponse(choice.message.content);
+      return parsedResponse;
     } catch (error) {
       console.error('Error in getChatCompletion:', error);
       return {
-        text: "Sorry, I couldn't connect to the AI service. Please ensure the model server is running.",
+        text: "Sorry, I couldn't connect to the AI service. Please ensure the model server is running and accessible.",
         suggestedPrompts: []
       };
     }
-  }
-
-  setLastDiscussedProduct(product: Product | null): void {
-    this.lastDiscussedProduct = product;
-  }
-
-  getLastDiscussedProduct(): Product | null {
-    return this.lastDiscussedProduct;
   }
 }

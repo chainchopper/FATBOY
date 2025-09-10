@@ -85,7 +85,7 @@ export class HistoryComponent implements OnInit {
   }
 
   onViewDetails(product: Product) { // New method to handle viewDetails event
-    this.aiService.setLastDiscussedProduct(product);
+    this.productDb.setLastViewedProduct(product); // Use ProductDbService
   }
 
   getCategoryIcon(category: string): string {

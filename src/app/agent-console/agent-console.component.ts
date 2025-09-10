@@ -20,6 +20,7 @@ import { FoodDiaryService } from '../services/food-diary.service';
 // Import new services
 import { ChatHistoryService, ChatMessage } from '../services/chat-history.service';
 import { ConsoleCameraService } from '../services/console-camera.service';
+import { ProductDbService } from '../services/product-db.service'; // Import ProductDbService
 
 interface SlashCommand {
   command: string;
@@ -81,7 +82,8 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
     private foodDiaryService: FoodDiaryService,
     // Inject new services
     private chatHistoryService: ChatHistoryService,
-    public consoleCameraService: ConsoleCameraService // Public to access showCameraFeed
+    public consoleCameraService: ConsoleCameraService, // Public to access showCameraFeed
+    private productDbService: ProductDbService // Inject ProductDbService
   ) {}
 
   ngOnInit() {
@@ -273,7 +275,7 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
   }
 
   onViewDetailsFromConsole(product: Product) {
-    this.aiService.setLastDiscussedProduct(product);
+    this.productDbService.setLastViewedProduct(product); // Use ProductDbService
     this.notificationService.showInfo(`AI context updated for: ${product.name}`, 'Product Details');
   }
 

@@ -92,7 +92,7 @@ export class CommunityComponent implements OnInit {
       notes: ''
     };
     this.mode = 'manual';
-    this.aiService.setLastDiscussedProduct(product);
+    this.productDb.setLastViewedProduct(product); // Use ProductDbService
   }
 
   async submitContribution() {
@@ -154,7 +154,7 @@ export class CommunityComponent implements OnInit {
 
     await this.communityService.toggleLike(contribution.id, contribution.likes);
 
-    this.aiService.setLastDiscussedProduct({
+    this.productDb.setLastViewedProduct({ // Use ProductDbService
       id: contribution.id,
       name: contribution.product_name,
       brand: contribution.brand,
@@ -175,7 +175,7 @@ export class CommunityComponent implements OnInit {
       const contribution = this.communityContributions.find(c => c.id === contributionId);
       if (contribution) {
         contribution.comments.push(newComment);
-        this.aiService.setLastDiscussedProduct({
+        this.productDb.setLastViewedProduct({ // Use ProductDbService
           id: contribution.id,
           name: contribution.product_name,
           brand: contribution.brand,
@@ -191,7 +191,7 @@ export class CommunityComponent implements OnInit {
   }
 
   onContributionClick(contribution: CommunityContribution) {
-    this.aiService.setLastDiscussedProduct({
+    this.productDb.setLastViewedProduct({ // Use ProductDbService
       id: contribution.id,
       name: contribution.product_name,
       brand: contribution.brand,

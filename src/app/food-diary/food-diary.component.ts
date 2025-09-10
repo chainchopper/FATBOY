@@ -6,12 +6,12 @@ import { map } from 'rxjs/operators';
 import { ScanContextService } from '../services/scan-context.service';
 import { Router } from '@angular/router';
 import { PreferencesService, UserPreferences } from '../services/preferences.service';
-import { Product } from '../services/product-db.service';
+import { Product, ProductDbService } from '../services/product-db.service'; // Import ProductDbService
 import { ShareService } from '../services/share.service';
 import { ShoppingListService } from '../services/shopping-list.service';
+import { AiIntegrationService } from '../services/ai-integration.service'; // Import AiIntegrationService
 import { DailySummaryCardComponent } from '../daily-summary-card/daily-summary-card.component';
 import { DiaryItemComponent } from '../diary-item/diary-item.component';
-import { AiIntegrationService } from '../services/ai-integration.service'; // Import AiIntegrationService
 
 @Component({
   selector: 'app-food-diary',
@@ -45,7 +45,8 @@ export class FoodDiaryComponent implements OnInit {
     private preferencesService: PreferencesService,
     private shareService: ShareService,
     private shoppingListService: ShoppingListService,
-    private aiService: AiIntegrationService // Inject AiIntegrationService
+    private aiService: AiIntegrationService, // Inject AiIntegrationService
+    private productDbService: ProductDbService // Inject ProductDbService
   ) {}
 
   ngOnInit() {
@@ -112,6 +113,6 @@ export class FoodDiaryComponent implements OnInit {
   }
 
   onViewDetails(product: Product) { // New method to handle viewDetails event
-    this.aiService.setLastDiscussedProduct(product);
+    this.productDbService.setLastViewedProduct(product); // Use ProductDbService
   }
 }

@@ -5,6 +5,7 @@ import { LucideAngularModule } from 'lucide-angular';
 import { FoodIconComponent } from '../food-icon/food-icon.component';
 import { CustomTitleCasePipe } from '../shared/custom-title-case.pipe';
 import { ButtonComponent } from '../button.component';
+import { ProductDbService } from '../services/product-db.service'; // Import ProductDbService
 
 @Component({
   selector: 'app-product-card',
@@ -33,9 +34,12 @@ export class ProductCardComponent {
 
   isExpanded: boolean = false;
 
+  constructor(private productDbService: ProductDbService) {} // Inject ProductDbService
+
   toggleExpand() {
     this.isExpanded = !this.isExpanded;
     if (this.isExpanded) {
+      this.productDbService.setLastViewedProduct(this.product); // Use ProductDbService
       this.viewDetails.emit(this.product);
     }
   }

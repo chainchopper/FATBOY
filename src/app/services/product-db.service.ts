@@ -39,6 +39,10 @@ export class ProductDbService {
   
   private currentUserId: string | null = null;
 
+  // New: Centralized state for the last viewed product
+  private lastViewedProductSubject = new BehaviorSubject<Product | null>(null);
+  public lastViewedProduct$ = this.lastViewedProductSubject.asObservable();
+
   constructor(
     private authService: AuthService,
     private leaderboardService: LeaderboardService,
@@ -48,6 +52,14 @@ export class ProductDbService {
       this.currentUserId = user?.id || null;
       this.loadData();
     });
+  }
+
+  public setLastViewedProduct(product: Product | null): void {
+    this.lastViewedProductSubject.next(product);
+  }
+
+  public getLastViewedProduct(): Product | null {
+    return this.lastViewedProductSubject.getValue();
   }
 
   private async loadData(): Promise<void> {
@@ -62,6 +74,7 @@ export class ProductDbService {
       this.productsSubject.next([]);
       this.avoidedProductsSubject.next([]);
       this.favoritesSubject.next([]);
+      this.lastViewedProductSubject.next(null); // Clear last viewed product
     }
   }
 

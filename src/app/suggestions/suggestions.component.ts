@@ -193,7 +193,7 @@ export class SuggestionsComponent implements OnInit {
 
   saveSuggestion(suggestionProduct: Product) {
     this.shoppingListService.addItem(suggestionProduct);
-    this.aiService.setLastDiscussedProduct(suggestionProduct); // Set last discussed product
+    this.productDb.setLastViewedProduct(suggestionProduct); // Set last discussed product
   }
 
   resolveConflict(conflict: Conflict) {
