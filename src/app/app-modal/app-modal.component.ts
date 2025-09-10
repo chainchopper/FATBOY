@@ -14,7 +14,7 @@ import { ButtonComponent } from '../button.component'; // Updated import path
   standalone: true,
   imports: [CommonModule, ButtonComponent],
   templateUrl: './app-modal.component.html',
-  styleUrls: ['./app-modal.component.css']
+  styleUrls: []
 })
 export class AppModalComponent implements OnInit {
   display$!: Observable<'open' | 'closed'>;

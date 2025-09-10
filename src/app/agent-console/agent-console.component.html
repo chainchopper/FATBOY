@@ -1,32 +1,33 @@
-<div class="console-container">
-  <div class="console-header">
-    <h2>🤖 Fat Boy Assistant</h2>
-    <button (click)="clearChatHistory()" class="clear-chat-btn">Clear Chat</button>
+<div class="flex flex-col h-[calc(100vh-130px)] bg-[#0f0f1e] text-gray-100">
+  <div class="flex justify-between items-center p-4 bg-gray-900/60 backdrop-blur-lg z-10">
+    <h2 class="m-0 text-2xl font-bold text-teal-400 drop-shadow-lg shadow-teal-400">🤖 Fat Boy Assistant</h2>
+    <app-button variant="destructive" (onClick)="clearChatHistory()">Clear Chat</app-button>
   </div>
-  <div class="message-window" #messageWindow>
-    <div *ngFor="let msg of messages" class="message" [ngClass]="'message-' + msg.sender">
+  <div class="flex-grow overflow-y-auto p-5 flex flex-col gap-4" #messageWindow>
+    <div *ngFor="let msg of messages" class="flex max-w-[80%] items-end gap-2.5" [ngClass]="{
+      'self-end justify-end flex-row-reverse': msg.sender === 'user',
+      'self-start justify-start flex-row items-start': msg.sender === 'agent'
+    }">
       <ng-container *ngIf="msg.sender === 'agent'">
-        <div class="avatar-container">
-          <img [src]="msg.avatar" alt="Agent Avatar" class="avatar">
-          <div class="status-dot" [ngClass]="agentStatus"></div>
+        <div class="relative flex-shrink-0">
+          <img [src]="msg.avatar" alt="Agent Avatar" class="w-10 h-10 rounded-full border border-gray-700 object-cover">
+          <div class="absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-[#0f0f1e]" [ngClass]="{
+            'bg-teal-400 shadow-[0_0_8px_#0abdc6]': agentStatus === 'online',
+            'bg-red-500 shadow-[0_0_8px_#F44336]': agentStatus === 'offline'
+          }"></div>
         </div>
-        <div class="agent-content">
-          <div class="message-bubble">
-            <p>{{ msg.text }}</p>
-            <span class="timestamp">{{ msg.timestamp | date:'shortTime' }}</span>
+        <div class="flex flex-col items-start">
+          <div class="p-3 px-4 rounded-2xl relative bg-gray-800 border border-gray-700 rounded-bl-lg mb-1.5">
+            <p class="m-0 whitespace-pre-wrap">{{ msg.text }}</p>
+            <span class="text-xs text-gray-500 block text-right mt-1.5 opacity-70">{{ msg.timestamp | date:'shortTime' }}</span>
           </div>
-          <!-- Display human-readable tool call if present -->
-          <div *ngIf="msg.humanReadableToolCall" class="tool-call-indicator">
+          <div *ngIf="msg.humanReadableToolCall" class="bg-teal-900/20 border border-teal-500 text-teal-400 px-3 py-2 rounded-lg text-sm mt-1.5 self-start">
             ⚙️ {{ msg.humanReadableToolCall }}
           </div>
-          <!-- New: Dynamic Buttons -->
-          <div *ngIf="msg.dynamicButtons && msg.dynamicButtons.length > 0" class="dynamic-buttons">
-            <button *ngFor="let btn of msg.dynamicButtons" (click)="handleDynamicButtonClick(btn.action, btn.payload)" class="dynamic-btn">
-              {{ btn.text }}
-            </button>
+          <div *ngIf="msg.dynamicButtons && msg.dynamicButtons.length > 0" class="flex flex-wrap gap-2 mt-2.5 max-w-full self-start">
+            <app-button *ngFor="let btn of msg.dynamicButtons" (onClick)="handleDynamicButtonClick(btn.action, btn.payload)" variant="default" size="sm">{{ btn.text }}</app-button>
           </div>
-          <!-- New: UI Elements -->
-          <div *ngIf="msg.uiElements && msg.uiElements.length > 0" class="ui-elements-container">
+          <div *ngIf="msg.uiElements && msg.uiElements.length > 0" class="mt-2.5 max-w-full self-start flex flex-col gap-2.5">
             <ng-container *ngFor="let uiElement of msg.uiElements">
               <ng-container [ngSwitch]="uiElement.type">
                 <app-product-card 
@@ -38,15 +39,14 @@
                   (share)="shareProductFromConsole($event)"
                   (addToShoppingList)="addToShoppingListFromConsole($event)"
                   (addToFoodDiary)="addToFoodDiaryFromConsole($event)"
-                  (viewDetails)="onViewDetailsFromConsole($event)">
+                  (viewDetails)="onViewDetailsFromConsole($event)"
+                  class="w-full max-w-sm mb-2.5">
                 </app-product-card>
-                <!-- Add more cases for other UI element types here -->
               </ng-container>
             </ng-container>
           </div>
-          <!-- Suggested Prompts -->
-          <div *ngIf="msg.suggestedPrompts && msg.suggestedPrompts.length > 0" class="suggested-prompts">
-            <button *ngFor="let prompt of msg.suggestedPrompts" (click)="submitSuggestedPrompt(prompt)" class="suggested-prompt-btn">
+          <div *ngIf="msg.suggestedPrompts && msg.suggestedPrompts.length > 0" class="flex flex-wrap gap-2 mt-2.5 max-w-full self-start">
+            <button *ngFor="let prompt of msg.suggestedPrompts" (click)="submitSuggestedPrompt(prompt)" class="bg-gray-700 border border-teal-500 text-gray-100 px-4 py-2 rounded-full cursor-pointer text-sm transition-all hover:bg-teal-900/20 hover:shadow-lg hover:shadow-teal-500/50 hover:text-teal-400 whitespace-nowrap">
               {{ prompt }}
             </button>
           </div>
@@ -54,60 +54,63 @@
       </ng-container>
 
       <ng-container *ngIf="msg.sender === 'user'">
-        <div class="message-bubble">
-          <p>{{ msg.text }}</p>
-          <span class="timestamp">{{ msg.timestamp | date:'shortTime' }}</span>
+        <div class="p-3 px-4 rounded-2xl relative bg-gradient-to-br from-purple-500 to-purple-700 rounded-br-lg">
+          <p class="m-0 whitespace-pre-wrap">{{ msg.text }}</p>
+          <span class="text-xs text-gray-300 block text-right mt-1.5 opacity-70">{{ msg.timestamp | date:'shortTime' }}</span>
         </div>
-        <div class="avatar-container">
-          <img [src]="msg.avatar" alt="User Avatar" class="avatar">
+        <div class="relative flex-shrink-0">
+          <img [src]="msg.avatar" alt="User Avatar" class="w-10 h-10 rounded-full border border-gray-700 object-cover">
         </div>
       </ng-container>
     </div>
-    <div *ngIf="isAgentTyping" class="message message-agent">
-       <div class="avatar-container">
-        <img [src]="agentAvatar" alt="Agent Avatar" class="avatar">
-        <div class="status-dot" [ngClass]="agentStatus"></div>
+    <div *ngIf="isAgentTyping" class="flex max-w-[80%] items-end gap-2.5 self-start justify-start flex-row items-start">
+       <div class="relative flex-shrink-0">
+        <img [src]="agentAvatar" alt="Agent Avatar" class="w-10 h-10 rounded-full border border-gray-700 object-cover">
+        <div class="absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-[#0f0f1e]" [ngClass]="agentStatus === 'online' ? 'bg-teal-400 shadow-[0_0_8px_#0abdc6]' : 'bg-red-500 shadow-[0_0_8px_#F44336]'"></div>
       </div>
-      <div class="agent-content">
-        <div class="message-bubble typing-indicator">
-          <span></span><span></span><span></span>
+      <div class="flex flex-col items-start">
+        <div class="p-4 px-4 rounded-2xl relative bg-gray-800 border border-gray-700 rounded-bl-lg mb-1.5">
+          <div class="flex gap-1.5">
+            <span class="h-2 w-2 bg-gray-400 rounded-full inline-block animate-[bounce_1.4s_infinite_ease-in-out_both] [animation-delay:-0.32s]"></span>
+            <span class="h-2 w-2 bg-gray-400 rounded-full inline-block animate-[bounce_1.4s_infinite_ease-in-out_both] [animation-delay:-0.16s]"></span>
+            <span class="h-2 w-2 bg-gray-400 rounded-full inline-block animate-[bounce_1.4s_infinite_ease-in-out_both]"></span>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- Integrated Camera Feed -->
-    <div *ngIf="consoleCameraService.showCameraFeed" class="camera-integration-area">
+    <div *ngIf="consoleCameraService.showCameraFeed" class="mt-5 p-4 bg-gray-900/80 border border-teal-500 rounded-xl flex flex-col items-center gap-2.5">
       <app-camera-feed
         instanceId="chat-camera"
         (barcodeScanned)="consoleCameraService.handleBarcodeScanned($event)"
         (imageCaptured)="consoleCameraService.handleImageCaptured($event)"
         (cameraClosed)="consoleCameraService.closeCamera()">
       </app-camera-feed>
-      <div class="camera-feedback">
-        <p *ngIf="consoleCameraService.isProcessingCameraInput">Processing camera input...</p>
-        <p *ngIf="!consoleCameraService.isProcessingCameraInput">Camera active. Scan a barcode or capture a label.</p>
+      <div class="text-center">
+        <p *ngIf="consoleCameraService.isProcessingCameraInput" class="m-0 text-sm text-gray-400">Processing camera input...</p>
+        <p *ngIf="!consoleCameraService.isProcessingCameraInput" class="m-0 text-sm text-gray-400">Camera active. Scan a barcode or capture a label.</p>
       </div>
     </div>
   </div>
 
-  <div class="input-area">
-    <div *ngIf="showSlashCommands" class="slash-command-popup">
-      <div *ngFor="let cmd of filteredCommands" class="command-item" (click)="selectCommand(cmd)">
-        <strong>{{ cmd.command }}</strong>
-        <span>{{ cmd.description }}</span>
+  <div class="p-4 bg-gray-900 relative">
+    <div *ngIf="showSlashCommands" class="absolute bottom-full left-4 right-4 bg-gray-800 border border-purple-500 rounded-xl mb-1.5 max-h-52 overflow-y-auto shadow-lg shadow-purple-500/50">
+      <div *ngFor="let cmd of filteredCommands" class="p-3 cursor-pointer border-b border-gray-700 flex flex-col hover:bg-gray-700" (click)="selectCommand(cmd)">
+        <strong class="text-purple-400">{{ cmd.command }}</strong>
+        <span class="text-xs text-gray-400">{{ cmd.description }}</span>
       </div>
     </div>
-    <div class="input-wrapper">
+    <div class="flex items-center bg-[#0f0f1e] border border-gray-700 rounded-full p-2">
       <textarea 
         [(ngModel)]="userInput" 
         (ngModelChange)="handleInput()"
         (keydown.enter)="sendMessage(); $event.preventDefault()"
         placeholder="Type a command or message..."
-        class="input-field"
+        class="flex-grow bg-transparent border-none p-2 text-gray-100 resize-none max-h-24 outline-none placeholder-gray-500"
         [disabled]="agentStatus === 'offline'">
       </textarea>
-      <button (click)="toggleVoiceListening()" class="mic-btn" [class.active]="isListening" title="Use Voice" [disabled]="agentStatus === 'offline'">🎤</button>
-      <button (click)="sendMessage()" class="send-btn" [disabled]="!userInput.trim() || agentStatus === 'offline'">→</button>
+      <button (click)="toggleVoiceListening()" class="bg-transparent border-none text-gray-400 w-10 h-10 rounded-full text-2xl cursor-pointer transition-all hover:text-teal-400 flex items-center justify-center" [class.text-purple-400]="isListening" title="Use Voice" [disabled]="agentStatus === 'offline'">🎤</button>
+      <button (click)="sendMessage()" class="bg-transparent border-none text-teal-400 w-10 h-10 rounded-full text-2xl cursor-pointer transition-all hover:text-teal-300 flex items-center justify-center" [disabled]="!userInput.trim() || agentStatus === 'offline'">→</button>
     </div>
   </div>
 </div>

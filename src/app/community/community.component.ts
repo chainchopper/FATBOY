@@ -11,6 +11,8 @@ import { AuthService } from '../services/auth.service';
 import { NotificationService } from '../services/notification.service';
 import { AiIntegrationService } from '../services/ai-integration.service';
 import { ButtonComponent } from '../button.component'; // Updated import path
+import { InputComponent } from '../input.component';
+import { TextareaComponent } from '../textarea.component';
 
 interface CommunityContribution {
   id: string;
@@ -33,9 +35,9 @@ interface CommunityContribution {
 @Component({
   selector: 'app-community',
   standalone: true,
-  imports: [CommonModule, FormsModule, TitleCasePipe, ButtonComponent],
+  imports: [CommonModule, FormsModule, TitleCasePipe, ButtonComponent, InputComponent, TextareaComponent],
   templateUrl: './community.component.html',
-  styleUrls: ['./community.component.css']
+  styleUrls: []
 })
 export class CommunityComponent implements OnInit {
   mode: 'select' | 'manual' = 'select';

@@ -33,7 +33,7 @@ interface SlashCommand {
   standalone: true,
   imports: [CommonModule, FormsModule, CameraFeedComponent, ProductCardComponent],
   templateUrl: './agent-console.component.html',
-  styleUrls: ['./agent-console.component.css']
+  styleUrls: []
 })
 export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecked {
   @ViewChild('messageWindow') private messageWindow!: ElementRef;

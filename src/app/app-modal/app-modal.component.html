@@ -1,12 +1,12 @@
-<div class="modal-overlay" *ngIf="(display$ | async) === 'open'" (click)="close()">
-  <div class="modal-content" (click)="$event.stopPropagation()">
-    <button class="close-btn" (click)="close()">×</button>
+<div *ngIf="(display$ | async) === 'open'" class="fixed inset-0 w-full h-full bg-gray-900/80 backdrop-blur-lg flex justify-center items-center z-[2000] animate-[fadeIn_0.3s_forwards]" (click)="close()">
+  <div class="bg-[#1a1a2e] border border-purple-500 rounded-xl p-8 w-[90%] max-w-md relative shadow-lg shadow-purple-500/50 animate-[scaleIn_0.3s_forwards]" (click)="$event.stopPropagation()">
+    <button class="absolute top-2 right-4 bg-transparent border-none text-gray-400 text-4xl cursor-pointer" (click)="close()">×</button>
 
     <!-- Confirmation Modal -->
     <div *ngIf="isConfirmation">
-      <h3>{{ modalTitle }}</h3>
-      <p>{{ modalMessage }}</p>
-      <div class="modal-actions confirmation-actions">
+      <h3 class="text-purple-400 text-shadow-[0_0_8px_#f038ff] mt-0 mb-4 text-center">{{ modalTitle }}</h3>
+      <p class="text-gray-400 mb-8 text-center">{{ modalMessage }}</p>
+      <div class="flex flex-row justify-end gap-4">
         <app-button variant="secondary" (onClick)="handleCancel()">{{ cancelButtonText }}</app-button>
         <app-button variant="default" (onClick)="handleConfirm()">{{ confirmButtonText }}</app-button>
       </div>
@@ -14,15 +14,15 @@
 
     <!-- Product Action Modal -->
     <div *ngIf="!isConfirmation && currentProduct">
-      <h3>Add '{{ currentProduct.name }}' to...</h3>
+      <h3 class="text-purple-400 text-shadow-[0_0_8px_#f038ff] mt-0 mb-4 text-center">Add '{{ currentProduct.name }}' to...</h3>
       
-      <div class="modal-actions product-actions">
+      <div class="flex flex-col gap-4">
         <app-button variant="outline" (onClick)="addToShoppingList()">🛒 Shopping List</app-button>
         <app-button variant="outline" (onClick)="addToAvoidList()">🚫 Avoid List</app-button>
         <app-button variant="outline" (onClick)="toggleMealOptions()">🥗 Food Diary</app-button>
       </div>
 
-      <div *ngIf="showMealOptions" class="meal-options">
+      <div *ngIf="showMealOptions" class="mt-5 pt-5 border-t border-gray-700 grid grid-cols-2 gap-2.5">
         <app-button variant="ghost" (onClick)="addToDiary('Breakfast')">🍳 Breakfast</app-button>
         <app-button variant="ghost" (onClick)="addToDiary('Lunch')">🥗 Lunch</app-button>
         <app-button variant="ghost" (onClick)="addToDiary('Dinner')">🍲 Dinner</app-button>

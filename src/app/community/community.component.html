@@ -1,96 +1,99 @@
-<div class="community-container">
-  <h2>Community Feed</h2>
-  <p>See what others are discovering and contribute your own finds!</p>
+<div class="max-w-3xl mx-auto p-5 text-gray-100">
+  <h2 class="text-center mb-4 text-3xl font-bold text-purple-400 text-shadow-[0_0_8px_#f038ff]">Community Feed</h2>
+  <p class="text-center mb-8 text-gray-400">See what others are discovering and contribute your own finds!</p>
 
-  <div class="add-contribution-section">
-    <app-button variant="outline" (onClick)="toggleAddMode()" class="add-btn">
+  <div class="text-center mb-8">
+    <app-button variant="outline" (onClick)="toggleAddMode()" class="px-6 py-3 rounded-full text-base">
       {{ isAddingNewProduct ? 'Cancel' : '＋ Add New Product' }}
     </app-button>
   </div>
 
-  <div *ngIf="isAddingNewProduct" class="contribution-workflow">
-    <div class="contribution-toggle">
-      <button (click)="setMode('select')" [class.active]="mode === 'select'">Contribute from History</button>
-      <button (click)="setMode('manual')" [class.active]="mode === 'manual'">Add Manually</button>
+  <div *ngIf="isAddingNewProduct" class="mb-8 p-5 bg-gray-900/80 border border-gray-700 rounded-xl">
+    <div class="flex justify-center mb-8 bg-gray-900 rounded-full p-1 border border-gray-700">
+      <button (click)="setMode('select')" class="flex-1 px-5 py-2 border-none bg-transparent text-gray-400 rounded-full cursor-pointer transition-all text-base" [ngClass]="{'active': mode === 'select', 'bg-purple-500 text-gray-900 shadow-md shadow-purple-500/50': mode === 'select'}">Contribute from History</button>
+      <button (click)="setMode('manual')" class="flex-1 px-5 py-2 border-none bg-transparent text-gray-400 rounded-full cursor-pointer transition-all text-base" [ngClass]="{'active': mode === 'manual', 'bg-purple-500 text-gray-900 shadow-md shadow-purple-500/50': mode === 'manual'}">Add Manually</button>
     </div>
 
     <div *ngIf="mode === 'select'">
-      <div *ngIf="(scanHistory$ | async) as history" class="history-list">
-        <div *ngIf="history.length === 0" class="empty-state">
+      <div *ngIf="(scanHistory$ | async) as history" class="flex flex-col gap-4">
+        <div *ngIf="history.length === 0" class="bg-teal-900/20 border border-teal-500 rounded-lg p-4 text-center text-teal-400">
           <p>Your scan history is empty. Scan some products to contribute them!</p>
         </div>
-        <div *ngFor="let product of history" class="history-item" (click)="selectProduct(product)">
-          <img [src]="product.image || 'https://via.placeholder.com/50'" alt="{{ product.name }}" class="product-thumb">
-          <div class="product-info">
-            <h4>{{ product.name }}</h4>
-            <p>{{ product.brand }}</p>
+        <div *ngFor="let product of history" class="flex items-center bg-gray-900 border border-gray-700 rounded-lg p-4 cursor-pointer transition-all hover:border-teal-500 hover:shadow-lg hover:shadow-teal-500/30 hover:-translate-y-1" (click)="selectProduct(product)">
+          <img [src]="product.image || 'https://via.placeholder.com/50'" alt="{{ product.name }}" class="w-12 h-12 object-cover rounded-md mr-4">
+          <div class="flex-grow">
+            <h4 class="m-0 mb-1 text-gray-100">{{ product.name }}</h4>
+            <p class="m-0 text-left text-gray-400 text-sm">{{ product.brand }}</p>
           </div>
-          <app-button variant="ghost" size="icon" class="select-btn">→</app-button>
+          <app-button variant="ghost" size="icon" class="text-teal-400">→</app-button>
         </div>
       </div>
     </div>
 
     <div *ngIf="mode === 'manual'">
-      <div *ngIf="isSubmitted" class="success-message">
+      <div *ngIf="isSubmitted" class="bg-teal-900/20 border border-teal-500 rounded-lg p-4 mb-5 text-center text-teal-400">
         <p>Thank you for your contribution! Your submission is pending review.</p>
       </div>
       
-      <form (ngSubmit)="submitContribution()" class="contribution-form">
-        <div class="form-group">
-          <label for="productName">Product Name</label>
-          <input type="text" id="productName" [(ngModel)]="newContribution.product_name" name="productName" required>
+      <form (ngSubmit)="submitContribution()" class="pt-5">
+        <div class="mb-6">
+          <label for="productName" class="block mb-2.5 font-medium text-teal-400">Product Name</label>
+          <app-input type="text" id="productName" [(ngModel)]="newContribution.product_name" name="productName" required></app-input>
         </div>
-        <div class="form-group">
-          <label for="brand">Brand</label>
-          <input type="text" id="brand" [(ngModel)]="newContribution.brand" name="brand" required>
+        <div class="mb-6">
+          <label for="brand" class="block mb-2.5 font-medium text-teal-400">Brand</label>
+          <app-input type="text" id="brand" [(ngModel)]="newContribution.brand" name="brand" required></app-input>
         </div>
-        <div class="form-group">
-          <label for="ingredients">Ingredients (comma separated)</label>
-          <textarea id="ingredients" [(ngModel)]="newContribution.ingredients" name="ingredients" rows="4" required></textarea>
+        <div class="mb-6">
+          <label for="ingredients" class="block mb-2.5 font-medium text-teal-400">Ingredients (comma separated)</label>
+          <app-textarea id="ingredients" [(ngModel)]="newContribution.ingredients" name="ingredients" [rows]="4" required></app-textarea>
         </div>
-        <div class="form-group">
-          <label for="notes">Additional Notes (e.g., where you found it)</label>
-          <textarea id="notes" [(ngModel)]="newContribution.notes" name="notes" rows="3"></textarea>
+        <div class="mb-6">
+          <label for="notes" class="block mb-2.5 font-medium text-teal-400">Additional Notes (e.g., where you found it)</label>
+          <app-textarea id="notes" [(ngModel)]="newContribution.notes" name="notes" [rows]="3"></app-textarea>
         </div>
-        <app-button type="submit" variant="default" class="submit-btn">Submit Contribution</app-button>
+        <app-button type="submit" variant="default" class="block mx-auto my-4 w-56 px-6 py-3 rounded-full text-base">Submit Contribution</app-button>
       </form>
     </div>
   </div>
 
-  <div class="community-feed">
-    <div *ngIf="communityContributions.length === 0 && !isAddingNewProduct" class="empty-state">
+  <div class="mt-8">
+    <div *ngIf="communityContributions.length === 0 && !isAddingNewProduct" class="bg-teal-900/20 border border-teal-500 rounded-lg p-4 text-center text-teal-400">
       <p>No contributions yet. Be the first to share!</p>
     </div>
-    <div *ngFor="let contribution of communityContributions" class="contribution-card" (click)="onContributionClick(contribution)"> <!-- Bind click event here -->
-      <div class="card-header">
-        <h4>{{ contribution.product_name }}</h4>
-        <span class="status-badge status-{{ contribution.status }}">{{ contribution.status | titlecase }}</span>
+    <div *ngFor="let contribution of communityContributions" class="bg-gray-900/80 border border-gray-700 rounded-xl p-5 mb-5 shadow-lg" (click)="onContributionClick(contribution)">
+      <div class="flex justify-between items-center mb-2.5">
+        <h4 class="m-0 text-purple-400 text-lg">{{ contribution.product_name }}</h4>
+        <span class="px-2.5 py-1 rounded-full text-xs font-bold text-gray-900" [ngClass]="{
+          'bg-teal-500': contribution.status === 'approved',
+          'bg-yellow-500': contribution.status === 'pending'
+        }">{{ contribution.status | titlecase }}</span>
       </div>
-      <p class="card-brand">{{ contribution.brand }}</p>
-      <p class="card-ingredients"><strong>Ingredients:</strong> {{ contribution.ingredients }}</p>
-      <p class="card-notes" *ngIf="contribution.notes"><strong>Notes:</strong> {{ contribution.notes }}</p>
+      <p class="text-gray-400 text-sm mb-1.5">{{ contribution.brand }}</p>
+      <p class="text-gray-400 text-sm mb-1.5"><strong>Ingredients:</strong> {{ contribution.ingredients }}</p>
+      <p class="text-gray-400 text-sm mb-1.5" *ngIf="contribution.notes"><strong>Notes:</strong> {{ contribution.notes }}</p>
       
-      <div class="metadata-footer">
-        <div class="user-info">
-          <span class="username">👤 {{ contribution.profile.first_name || 'Anonymous' }}</span>
-          <span *ngIf="contribution.metadata?.goal" class="user-goal">🎯 Goal: {{ contribution.metadata.goal | titlecase }}</span>
+      <div class="border-t border-gray-800 mt-4 pt-4 flex justify-between items-center text-xs text-gray-400">
+        <div class="flex flex-col gap-1.5">
+          <span class="font-bold text-gray-100">👤 {{ contribution.profile.first_name || 'Anonymous' }}</span>
+          <span *ngIf="contribution.metadata?.goal" class="text-gray-400">🎯 Goal: {{ contribution.metadata.goal | titlecase }}</span>
         </div>
-        <div *ngIf="contribution.metadata?.rank" class="leaderboard-status">
+        <div *ngIf="contribution.metadata?.rank" class="bg-gray-800 px-2.5 py-1.5 rounded-xl">
           🏆 Rank #{{ contribution.metadata.rank }} ({{ contribution.metadata.score }} pts)
         </div>
       </div>
 
-      <div class="social-actions">
-        <app-button variant="outline" (onClick)="toggleLike(contribution); $event.stopPropagation()" class="like-btn" [class.active]="currentUserHasLiked(contribution)">👍 {{ contribution.likes.length }}</app-button>
-        <span class="comment-count">💬 {{ contribution.comments.length }}</span>
+      <div class="flex gap-4 mt-4 pt-4 border-t border-gray-800">
+        <app-button variant="outline" (onClick)="toggleLike(contribution); $event.stopPropagation()" class="px-2.5 py-1.5 rounded-full" [class.active]="currentUserHasLiked(contribution)" [class.bg-purple-500]="currentUserHasLiked(contribution)" [class.text-gray-900]="currentUserHasLiked(contribution)" [class.border-purple-500]="currentUserHasLiked(contribution)">👍 {{ contribution.likes.length }}</app-button>
+        <span class="text-gray-400 flex items-center gap-1.5">💬 {{ contribution.comments.length }}</span>
       </div>
 
-      <div class="comments-section">
-        <div *ngFor="let comment of contribution.comments" class="comment-item">
-          <strong>{{ comment.profile?.first_name || 'User' }}:</strong> {{ comment.text }}
+      <div class="mt-4 pt-4 border-t border-gray-800">
+        <div *ngFor="let comment of contribution.comments" class="bg-gray-800 p-2 rounded-lg mb-2 text-sm">
+          <strong class="text-purple-400">{{ comment.profile?.first_name || 'User' }}:</strong> {{ comment.text }}
         </div>
-        <div class="add-comment">
-          <input type="text" [(ngModel)]="newCommentText[contribution.id]" placeholder="Add a comment..." (keydown.enter)="addComment(contribution.id)" [ngModelOptions]="{standalone: true}">
+        <div class="flex gap-2.5 mt-2.5">
+          <app-input type="text" [(ngModel)]="newCommentText[contribution.id]" placeholder="Add a comment..." (keydown.enter)="addComment(contribution.id)" [ngModelOptions]="{standalone: true}" class="flex-grow"></app-input>
           <app-button variant="default" (onClick)="addComment(contribution.id)">Post</app-button>
         </div>
       </div>
