@@ -25,7 +25,7 @@ import { AudioService } from '../services/audio.service';
           <span>{{ isBarcodeScanning ? 'Barcode ON' : 'Barcode OFF' }}</span>
         </button>
         <button (click)="switchCamera()" class="control-btn" title="Switch Camera">
-          <lucide-icon name="rotate-ccw" [size]="24"></lucide></lucide-icon>
+          <lucide-icon name="rotate-ccw" [size]="24"></lucide-icon>
           <span>Switch</span>
         </button>
         <button (click)="closeCamera()" class="control-btn close-btn" title="Close Camera">
