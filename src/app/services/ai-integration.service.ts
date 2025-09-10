@@ -48,8 +48,15 @@ export class AiIntegrationService {
     const endpoint = `${this.apiBaseUrl}/v1/models`; // Added /v1
     try {
       const response = await fetch(endpoint);
-      if (!response.ok) return false;
+      if (!response.ok) {
+        console.error(`[AI STATUS CHECK FAILED]: Server responded with status ${response.status}`);
+        return false;
+      }
       const data = await response.json();
+      if (!data || !Array.isArray(data.data)) { // Robust check for data.data
+        console.error(`[AI STATUS CHECK FAILED]: Unexpected response structure for models endpoint:`, data);
+        return false;
+      }
       const models = data.data.map((m: any) => m.id);
       return models.includes(this.chatModelName) && models.includes('Moonbeam2');
     } catch (error) {
@@ -89,6 +96,10 @@ export class AiIntegrationService {
       }
 
       const data = await response.json();
+      if (!data || !Array.isArray(data.data) || !data.data[0]?.embedding) { // Robust check for data.data[0].embedding
+        console.error(`Embeddings API Error: Unexpected response structure for embeddings endpoint:`, data);
+        return [];
+      }
       return data.data[0].embedding;
     } catch (error) {
       console.error('Network or other error calling Embeddings API:', error);
@@ -314,6 +325,10 @@ export class AiIntegrationService {
       if (!response.ok) throw new Error(`API Error: ${response.status} ${await response.text()}`);
       
       const data = await response.json();
+      if (!data || !Array.isArray(data.choices) || data.choices.length === 0) { // Robust check for data.choices
+        console.error(`Chat Completion API Error: Unexpected response structure for chat completions endpoint:`, data);
+        throw new Error('Invalid response from chat completion API.');
+      }
       const choice = data.choices[0];
 
       if (choice.message.tool_calls && choice.message.tool_calls.length > 0) {
@@ -338,6 +353,10 @@ export class AiIntegrationService {
         if (!toolResponse.ok) throw new Error(`Tool Response API Error: ${toolResponse.status} ${await toolResponse.text()}`);
 
         const toolData = await toolResponse.json();
+        if (!toolData || !Array.isArray(toolData.choices) || toolData.choices.length === 0) { // Robust check for toolData.choices
+          console.error(`Tool Response API Error: Unexpected response structure for tool response endpoint:`, toolData);
+          throw new Error('Invalid response from tool response API.');
+        }
         const toolResponseMessage = toolData.choices[0].message.content;
         const parsedToolResponse = this._parseAiResponse(toolResponseMessage);
         
