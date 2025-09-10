@@ -437,9 +437,11 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
         timestamp: new Date(),
         avatar: this.agentAvatar,
         suggestedPrompts: [
-          'What are some healthy snack options?',
-          'Can you summarize my recent food diary entries?',
-          'How do I add a product to my shopping list?'
+          'Scan a product for me!',
+          'What are my top avoided ingredients?',
+          'Show me my shopping list.',
+          'Suggest a healthy snack.',
+          'Summarize my food diary for today.'
         ]
       }];
     }
