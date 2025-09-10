@@ -40,7 +40,7 @@ export class PreferencesComponent implements OnInit {
       this.preferencesService.preferences$.subscribe(prefs => {
         this.preferences = { ...prefs }; // Create a copy to avoid direct mutation
       });
-      this.loadTtsVoices();
+      this.loadTtsVoices(); // Load voices when component initializes and user is known
     });
   }
 
