@@ -1,62 +1,41 @@
 import { Routes } from '@angular/router';
-import { ResultsComponent } from './results/results.component';
-import { FavoritesComponent } from './favorites/favorites.component';
-import { PreferencesComponent } from './preferences/preferences.component';
-import { OcrResultsComponent } from './ocr-results/ocr-results.component';
-import { HistoryComponent } from './history/history.component';
-import { SuggestionsComponent } from './suggestions/suggestions.component';
-import { CommunityComponent } from './community/community.component';
-import { ShoppingListComponent } from './shopping-list/shopping-list.component';
-import { AchievementsComponent } from './achievements/achievements.component';
-import { LoginComponent } from './login/login.component';
-import { FoodDiaryComponent } from './food-diary/food-diary.component';
 import { AuthGuard } from './guards/auth.guard';
 import { AdminGuard } from './guards/admin.guard';
-import { UnifiedScannerComponent } from './unified-scanner/unified-scanner.component';
-import { ProfileComponent } from './profile/profile.component';
-import { ManualEntryComponent } from './manual-entry/manual-entry.component';
-import { LeaderboardComponent } from './leaderboard/leaderboard.component';
-import { FriendsComponent } from './friends/friends.component';
-import { AgentConsoleComponent } from './agent-console/agent-console.component';
-import { AdminDashboardComponent } from './admin-dashboard/admin-dashboard.component';
-import { DevConsoleComponent } from './dev-console/dev-console.component';
-import { AdminUsersComponent } from './admin-users/admin-users.component';
-import { ProfileEditorComponent } from './profile-editor/profile-editor.component';
 
 export const routes: Routes = [
-  // Public and User Routes
+  // Public and User Routes - Eagerly loaded for initial experience
   { path: '', redirectTo: '/scanner', pathMatch: 'full' },
-  { path: 'login', component: LoginComponent },
-  { path: 'scanner', component: UnifiedScannerComponent },
-  { path: 'results', component: ResultsComponent },
-  { path: 'ocr-results', component: OcrResultsComponent },
+  { path: 'login', loadComponent: () => import('./login/login.component').then(m => m.LoginComponent) },
+  { path: 'scanner', loadComponent: () => import('./unified-scanner/unified-scanner.component').then(m => m.UnifiedScannerComponent) },
+  { path: 'results', loadComponent: () => import('./results/results.component').then(m => m.ResultsComponent) },
+  { path: 'ocr-results', loadComponent: () => import('./ocr-results/ocr-results.component').then(m => m.OcrResultsComponent) },
   
-  // Authenticated User Routes
-  { path: 'favorites', component: FavoritesComponent, canActivate: [AuthGuard] },
-  { path: 'preferences', component: PreferencesComponent, canActivate: [AuthGuard] },
-  { path: 'history', component: HistoryComponent, canActivate: [AuthGuard] },
-  { path: 'suggestions', component: SuggestionsComponent, canActivate: [AuthGuard] },
-  { path: 'community', component: CommunityComponent, canActivate: [AuthGuard] },
-  { path: 'shopping-list', component: ShoppingListComponent, canActivate: [AuthGuard] },
-  { path: 'achievements', component: AchievementsComponent, canActivate: [AuthGuard] },
-  { path: 'food-diary', component: FoodDiaryComponent, canActivate: [AuthGuard] },
-  { path: 'profile', component: ProfileComponent, canActivate: [AuthGuard] },
-  { path: 'users/:id', component: ProfileComponent, canActivate: [AuthGuard] },
-  { path: 'profile/edit', component: ProfileEditorComponent, canActivate: [AuthGuard] },
-  { path: 'manual-entry', component: ManualEntryComponent, canActivate: [AuthGuard] },
-  { path: 'leaderboard', component: LeaderboardComponent, canActivate: [AuthGuard] },
-  { path: 'friends', component: FriendsComponent, canActivate: [AuthGuard] },
-  { path: 'console', component: AgentConsoleComponent, canActivate: [AuthGuard] },
+  // Authenticated User Routes - Lazy loaded
+  { path: 'favorites', loadComponent: () => import('./favorites/favorites.component').then(m => m.FavoritesComponent), canActivate: [AuthGuard] },
+  { path: 'preferences', loadComponent: () => import('./preferences/preferences.component').then(m => m.PreferencesComponent), canActivate: [AuthGuard] },
+  { path: 'history', loadComponent: () => import('./history/history.component').then(m => m.HistoryComponent), canActivate: [AuthGuard] },
+  { path: 'suggestions', loadComponent: () => import('./suggestions/suggestions.component').then(m => m.SuggestionsComponent), canActivate: [AuthGuard] },
+  { path: 'community', loadComponent: () => import('./community/community.component').then(m => m.CommunityComponent), canActivate: [AuthGuard] },
+  { path: 'shopping-list', loadComponent: () => import('./shopping-list/shopping-list.component').then(m => m.ShoppingListComponent), canActivate: [AuthGuard] },
+  { path: 'achievements', loadComponent: () => import('./achievements/achievements.component').then(m => m.AchievementsComponent), canActivate: [AuthGuard] },
+  { path: 'food-diary', loadComponent: () => import('./food-diary/food-diary.component').then(m => m.FoodDiaryComponent), canActivate: [AuthGuard] },
+  { path: 'profile', loadComponent: () => import('./profile/profile.component').then(m => m.ProfileComponent), canActivate: [AuthGuard] },
+  { path: 'users/:id', loadComponent: () => import('./profile/profile.component').then(m => m.ProfileComponent), canActivate: [AuthGuard] },
+  { path: 'profile/edit', loadComponent: () => import('./profile-editor/profile-editor.component').then(m => m.ProfileEditorComponent), canActivate: [AuthGuard] },
+  { path: 'manual-entry', loadComponent: () => import('./manual-entry/manual-entry.component').then(m => m.ManualEntryComponent), canActivate: [AuthGuard] },
+  { path: 'leaderboard', loadComponent: () => import('./leaderboard/leaderboard.component').then(m => m.LeaderboardComponent), canActivate: [AuthGuard] },
+  { path: 'friends', loadComponent: () => import('./friends/friends.component').then(m => m.FriendsComponent), canActivate: [AuthGuard] },
+  { path: 'console', loadComponent: () => import('./agent-console/agent-console.component').then(m => m.AgentConsoleComponent), canActivate: [AuthGuard] },
 
-  // Protected Admin Routes
+  // Protected Admin Routes - Lazy loaded
   { 
     path: 'admin', 
     canActivate: [AdminGuard],
     children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
-      { path: 'dashboard', component: AdminDashboardComponent },
-      { path: 'users', component: AdminUsersComponent },
-      { path: 'dev-console', component: DevConsoleComponent }
+      { path: 'dashboard', loadComponent: () => import('./admin-dashboard/admin-dashboard.component').then(m => m.AdminDashboardComponent) },
+      { path: 'users', loadComponent: () => import('./admin-users/admin-users.component').then(m => m.AdminUsersComponent) },
+      { path: 'dev-console', loadComponent: () => import('./dev-console/dev-console.component').then(m => m.DevConsoleComponent) }
     ]
   }
 ];
