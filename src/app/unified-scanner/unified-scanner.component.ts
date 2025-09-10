@@ -39,6 +39,7 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
   isProcessingOcr = false;
   isVoiceListening = false;
   isStable = false;
+  showExpandedOptions = false; // New state for footer options
 
   public cameras: MediaDeviceInfo[] = [];
   private selectedCameraId: string | null = null;
@@ -249,12 +250,10 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
     }
   }
 
-  // New method to trigger the hidden file input
   triggerFileUpload(): void {
     this.fileInput.nativeElement.click();
   }
 
-  // New method to handle file selection
   onFileSelected(event: Event): void {
     const element = event.currentTarget as HTMLInputElement;
     const fileList: FileList | null = element.files;
@@ -263,7 +262,7 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
       const reader = new FileReader();
       reader.onload = async (e: any) => {
         this.isProcessingOcr = true;
-        await this.stopBarcodeScanning(); // Stop camera if it's running
+        await this.stopBarcodeScanning();
         this.notificationService.showInfo('Image uploaded, processing for OCR...', 'Upload');
         await this.processImageForOcr(e.target.result);
       };
@@ -418,5 +417,9 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
       this.notificationService.showInfo('Camera is stable, analyzing label...', 'Auto-Scan');
       this.captureLabelForOcr();
     }
+  }
+
+  toggleExpandedOptions() {
+    this.showExpandedOptions = !this.showExpandedOptions;
   }
 }

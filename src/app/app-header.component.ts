@@ -2,15 +2,15 @@ import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
-import { LogoComponent } from './logo.component'; // This import will no longer be needed in the template, but kept for now.
 import { UserNotificationService } from './services/user-notification.service';
 import { UiService } from './services/ui.service';
 import { Observable } from 'rxjs';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser'; // Import DomSanitizer
 
 @Component({
   selector: 'app-app-header',
   standalone: true,
-  imports: [CommonModule, RouterLink, LucideAngularModule, LogoComponent], // LogoComponent is still imported but not used in template
+  imports: [CommonModule, RouterLink, LucideAngularModule],
   template: `
     <nav class="main-nav">
       <div class="header-left">
@@ -23,10 +23,9 @@ import { Observable } from 'rxjs';
       </div>
 
       <div class="header-title" (click)="goToHome()">
-        <!-- Removed <app-logo></app-logo> as per user's request -->
         <div class="title-text">
-          <span>FAT BOY TIME</span> <!-- Corrected main title text -->
-          <span class="header-subtitle">Powered by Nirvana</span> <!-- Corrected subtitle text -->
+          <span [innerHTML]="getAnimatedTitle()"></span> <!-- Use innerHTML for dynamic content -->
+          <span class="header-subtitle">Powered by Nirvana</span>
         </div>
       </div>
 
@@ -73,7 +72,7 @@ import { Observable } from 'rxjs';
       padding: 15px 20px;
       background: rgba(26, 26, 46, 0.6);
       backdrop-filter: blur(10px);
-      border-bottom: 1px solid transparent; /* Changed to transparent */
+      border-bottom: 1px solid transparent;
       position: fixed;
       top: 0;
       left: 0;
@@ -103,13 +102,13 @@ import { Observable } from 'rxjs';
     .header-title {
       font-family: 'Righteous', cursive;
       font-size: 1.5rem;
-      color: #f038ff;
+      color: #f038ff; /* Base color for the title */
       text-shadow: 0 0 8px #f038ff;
       display: flex;
       align-items: center;
       gap: 10px;
       cursor: pointer;
-      animation: neon-flicker 5s infinite alternate ease-in-out;
+      /* Animation applied to the span inside title-text */
     }
 
     .header-title .title-text {
@@ -122,6 +121,10 @@ import { Observable } from 'rxjs';
       font-size: 1.5rem;
       color: #f038ff;
       text-shadow: 0 0 8px #f038ff;
+      animation: neon-flicker 5s infinite alternate ease-in-out; /* Apply animation here */
+      display: flex; /* Allow image to sit inline */
+      align-items: center;
+      gap: 5px; /* Space between text parts and image */
     }
 
     .header-title .header-subtitle {
@@ -162,6 +165,12 @@ import { Observable } from 'rxjs';
     .notification-badge.visible {
       transform: scale(1);
     }
+
+    .logo-in-text {
+      height: 1.5em; /* Adjust size relative to font-size */
+      vertical-align: middle;
+      margin: 0 2px;
+    }
   `]
 })
 export class AppHeaderComponent implements OnInit {
@@ -171,7 +180,8 @@ export class AppHeaderComponent implements OnInit {
   constructor(
     private userNotificationService: UserNotificationService,
     private uiService: UiService,
-    private router: Router
+    private router: Router,
+    private sanitizer: DomSanitizer // Inject DomSanitizer
   ) {}
 
   ngOnInit(): void {
@@ -188,5 +198,11 @@ export class AppHeaderComponent implements OnInit {
 
   goToHome(): void {
     this.router.navigate(['/scanner']);
+  }
+
+  getAnimatedTitle(): SafeHtml {
+    const logoHtml = `<img src="assets/logo64.png" alt="O" class="logo-in-text">`;
+    const title = `FAT B${logoHtml}Y TIME`;
+    return this.sanitizer.bypassSecurityTrustHtml(title);
   }
 }

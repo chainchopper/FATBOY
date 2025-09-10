@@ -134,8 +134,6 @@
   border-radius: 4px;
 }
 
-/* Removed .scanner-header styles as it's now in HeaderComponent */
-
 .scanner-footer {
   position: absolute;
   bottom: 0;
@@ -144,16 +142,21 @@
   padding: 15px 20px;
   background: rgba(15, 15, 30, 0.6);
   backdrop-filter: blur(10px);
-  border-top: 1px solid transparent; /* Changed to transparent */
+  border-top: 1px solid transparent;
   z-index: 30;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center; /* Center the main button */
   color: #e0e0e0;
+  gap: 10px; /* Space between main button and side groups */
 }
 
-/* Removed .header-title styles as it's now in HeaderComponent */
-/* Removed .header-btn styles as it's now in HeaderComponent */
+.footer-actions-left, .footer-actions-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.3s ease-in-out;
+}
 
 .footer-btn {
   background: transparent;
@@ -165,65 +168,46 @@
   align-items: center;
   gap: 4px;
   font-size: 0.8rem;
-  transition: color 0.3s;
+  transition: color 0.3s, opacity 0.3s, transform 0.3s;
   width: 60px;
+  opacity: 1;
+  transform: translateY(0);
 }
 .footer-btn:hover, .footer-btn.active {
   color: #0abdc6;
 }
 
-.capture-btn {
+.footer-btn.hidden {
+  opacity: 0;
+  transform: translateY(20px);
+  pointer-events: none;
+}
+
+.main-action-btn {
   width: 70px;
   height: 70px;
   border-radius: 50%;
-  background-color: transparent;
+  background-color: #f038ff; /* Pink/purple for the main button */
   border: 3px solid #fff;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.3s;
+  transition: all 0.3s ease-in-out;
   padding: 0;
+  box-shadow: 0 0 15px #f038ff;
+  color: #1a1a2e; /* Dark text for contrast */
+  font-size: 2.5rem; /* Size for the plus/x icon */
 }
-.capture-btn:hover {
+.main-action-btn:hover {
   border-color: #0abdc6;
-}
-.capture-btn:active .capture-inner-ring {
-  transform: scale(0.8);
-}
-
-.capture-inner-ring {
-  width: 56px;
-  height: 56px;
-  background-color: #fff;
-  border-radius: 50%;
-  transition: all 0.3s;
+  box-shadow: 0 0 20px #0abdc6;
+  background-color: #0abdc6;
+  color: #1a1a2e;
 }
 
-.voice-listening-indicator {
-  position: absolute;
-  bottom: 120px;
-  left: 50%;
-  transform: translateX(-50%);
-  color: #0abdc6;
-  font-size: 1rem;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  text-shadow: 0 0 8px #0abdc6;
-  animation: pulse-indicator 1.5s infinite;
-  background-color: rgba(15, 15, 30, 0.7);
-  padding: 5px 10px;
-  border-radius: 12px;
-  z-index: 25;
+.logo-in-text {
+  height: 1.5em; /* Adjust size relative to font-size */
+  vertical-align: middle;
+  margin: 0 2px;
 }
-
-@keyframes pulse-indicator {
-  0% { opacity: 0.7; }
-  50% { opacity: 1; }
-  100% { opacity: 0.7; }
-}
-
-/* Removed .header-left styles as it's now in HeaderComponent */
-/* Removed .notification-btn styles as it's now in HeaderComponent */
-/* Removed .notification-badge styles as it's now in HeaderComponent */

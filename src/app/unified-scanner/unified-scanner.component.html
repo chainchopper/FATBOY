@@ -19,22 +19,32 @@
 
   <!-- New Immersive Footer -->
   <div class="scanner-footer">
-    <button class="footer-btn" routerLink="/manual-entry">
-      <lucide-icon name="edit-3" [size]="24"></lucide-icon>
-      <span>Manual</span>
+    <div class="footer-actions-left">
+      <button class="footer-btn" routerLink="/manual-entry" [class.hidden]="!showExpandedOptions">
+        <lucide-icon name="edit-3" [size]="24"></lucide-icon>
+        <span>Manual</span>
+      </button>
+      <button class="footer-btn" (click)="triggerFileUpload()" [class.hidden]="!showExpandedOptions">
+        <lucide-icon name="upload" [size]="24"></lucide-icon>
+        <span>Upload</span>
+      </button>
+      <input type="file" #fileInput style="display: none;" accept="image/*" (change)="onFileSelected($event)">
+    </div>
+
+    <button class="main-action-btn" (click)="toggleExpandedOptions()">
+      <lucide-icon [name]="showExpandedOptions ? 'x' : 'plus'" [size]="36"></lucide-icon>
     </button>
-    <button class="footer-btn" (click)="triggerFileUpload()">
-      <lucide-icon name="upload" [size]="24"></lucide-icon>
-      <span>Upload</span>
-    </button>
-    <input type="file" #fileInput style="display: none;" accept="image/*" (change)="onFileSelected($event)">
-    <button class="capture-btn" (click)="captureLabelForOcr()">
-      <div class="capture-inner-ring"></div>
-    </button>
-    <button class="footer-btn" (click)="toggleVoiceListening()" [class.active]="isVoiceListening">
-      <lucide-icon name="mic" [size]="24"></lucide-icon>
-      <span>Voice</span>
-    </button>
+
+    <div class="footer-actions-right">
+      <button class="footer-btn" (click)="toggleVoiceListening()" [class.active]="isVoiceListening" [class.hidden]="!showExpandedOptions">
+        <lucide-icon name="mic" [size]="24"></lucide-icon>
+        <span>Voice</span>
+      </button>
+      <button class="footer-btn" (click)="captureLabelForOcr()" [class.hidden]="!showExpandedOptions">
+        <lucide-icon name="camera" [size]="24"></lucide-icon>
+        <span>Scan</span>
+      </button>
+    </div>
   </div>
 </div>
 
