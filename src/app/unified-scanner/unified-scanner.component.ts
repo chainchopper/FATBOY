@@ -195,12 +195,30 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
       if (!productInfo) {
         this.notificationService.showWarning('Product not found or could not be processed.', 'Not Found');
         this.audioService.playErrorSound();
+        this.scannerCameraService.resumeDetection(); // Resume detection after failure
+        this.stabilityDetectorService.start( // Restart stability detector
+          () => this.scannerCameraService.getVideoElement(),
+          () => this.canvasElement.nativeElement
+        );
+        this.humanDetectorService.startDetection( // Restart human detector
+          () => this.scannerCameraService.getVideoElement(),
+          () => this.canvasElement.nativeElement
+        );
         return; // Do not proceed with flash/sound/navigation
       }
 
       const savedProduct = await this.productDb.addProduct(productInfo);
       if (!savedProduct) {
         // productDb.addProduct now handles 'not logged in' and shows notification
+        this.scannerCameraService.resumeDetection(); // Resume detection after failure
+        this.stabilityDetectorService.start( // Restart stability detector
+          () => this.scannerCameraService.getVideoElement(),
+          () => this.canvasElement.nativeElement
+        );
+        this.humanDetectorService.startDetection( // Restart human detector
+          () => this.scannerCameraService.getVideoElement(),
+          () => this.canvasElement.nativeElement
+        );
         return; // Do not proceed with flash/sound/navigation
       }
 
@@ -222,15 +240,7 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
       this.isProcessingOcr = false;
       this.screenFlash = false; // Ensure flash is reset
       this.processingAbortController = null;
-      this.scannerCameraService.resumeDetection(); // Resume detection after processing
-      this.stabilityDetectorService.start( // Restart stability detector
-        () => this.scannerCameraService.getVideoElement(),
-        () => this.canvasElement.nativeElement
-      );
-      this.humanDetectorService.startDetection( // Restart human detector
-        () => this.scannerCameraService.getVideoElement(),
-        () => this.canvasElement.nativeElement
-      );
+      // Resume detection is handled in the success/failure paths
     }
   }
 
@@ -260,11 +270,29 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
       if (!productInfo) {
         this.notificationService.showWarning('No product data extracted from image.', 'OCR Failed');
         this.audioService.playErrorSound();
+        this.scannerCameraService.resumeDetection(); // Resume detection after failure
+        this.stabilityDetectorService.start( // Restart stability detector
+          () => this.scannerCameraService.getVideoElement(),
+          () => this.canvasElement.nativeElement
+        );
+        this.humanDetectorService.startDetection( // Restart human detector
+          () => this.scannerCameraService.getVideoElement(),
+          () => this.canvasElement.nativeElement
+        );
         return; // Do not proceed with flash/sound/navigation
       }
 
       const savedProduct = await this.productDb.addProduct(productInfo);
       if (!savedProduct) {
+        this.scannerCameraService.resumeDetection(); // Resume detection after failure
+        this.stabilityDetectorService.start( // Restart stability detector
+          () => this.scannerCameraService.getVideoElement(),
+          () => this.canvasElement.nativeElement
+        );
+        this.humanDetectorService.startDetection( // Restart human detector
+          () => this.scannerCameraService.getVideoElement(),
+          () => this.canvasElement.nativeElement
+        );
         return; // Do not proceed with flash/sound/navigation
       }
 
@@ -286,15 +314,7 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
       this.isProcessingOcr = false;
       this.screenFlash = false; // Ensure flash is reset
       this.processingAbortController = null;
-      this.scannerCameraService.resumeDetection(); // Resume detection after processing
-      this.stabilityDetectorService.start( // Restart stability detector
-        () => this.scannerCameraService.getVideoElement(),
-        () => this.canvasElement.nativeElement
-      );
-      this.humanDetectorService.startDetection( // Restart human detector
-        () => this.scannerCameraService.getVideoElement(),
-        () => this.canvasElement.nativeElement
-      );
+      // Resume detection is handled in the success/failure paths
     }
   }
 
@@ -323,11 +343,29 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
           if (!productInfo) {
             this.notificationService.showWarning('No product data extracted from uploaded image.', 'OCR Failed');
             this.audioService.playErrorSound();
+            this.scannerCameraService.resumeDetection(); // Resume detection after failure
+            this.stabilityDetectorService.start( // Restart stability detector
+              () => this.scannerCameraService.getVideoElement(),
+              () => this.canvasElement.nativeElement
+            );
+            this.humanDetectorService.startDetection( // Restart human detector
+              () => this.scannerCameraService.getVideoElement(),
+              () => this.canvasElement.nativeElement
+            );
             return; // Do not proceed with flash/sound/navigation
           }
 
           const savedProduct = await this.productDb.addProduct(productInfo);
           if (!savedProduct) {
+            this.scannerCameraService.resumeDetection(); // Resume detection after failure
+            this.stabilityDetectorService.start( // Restart stability detector
+              () => this.scannerCameraService.getVideoElement(),
+              () => this.canvasElement.nativeElement
+            );
+            this.humanDetectorService.startDetection( // Restart human detector
+              () => this.scannerCameraService.getVideoElement(),
+              () => this.canvasElement.nativeElement
+            );
             return; // Do not proceed with flash/sound/navigation
           }
 
@@ -347,17 +385,9 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
           }
         } finally {
           this.isProcessingOcr = false;
-          this.screenFlash = false; // Ensure flash is reset
+          this.screenFlash = false;
           this.processingAbortController = null;
-          this.scannerCameraService.resumeDetection(); // Resume detection after processing
-          this.stabilityDetectorService.start( // Restart stability detector
-            () => this.scannerCameraService.getVideoElement(),
-            () => this.canvasElement.nativeElement
-          );
-          this.humanDetectorService.startDetection( // Restart human detector
-            () => this.scannerCameraService.getVideoElement(),
-            () => this.canvasElement.nativeElement
-          );
+          // Resume detection is handled in the success/failure paths
         }
       };
       reader.readAsDataURL(file);
