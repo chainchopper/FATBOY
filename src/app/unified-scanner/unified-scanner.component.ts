@@ -18,7 +18,7 @@ import { take } from 'rxjs/operators';
 import { Subscription, Observable } from 'rxjs';
 import { LucideAngularModule } from 'lucide-angular';
 import { UiService } from '../services/ui.service';
-import { LogoComponent } from '../logo.component'; // Corrected import path to go up one level
+import { LogoComponent } from '../logo.component';
 import { UserNotificationService } from '../services/user-notification.service';
 import { NotificationsComponent } from '../notifications/notifications.component';
 
@@ -32,6 +32,7 @@ import { NotificationsComponent } from '../notifications/notifications.component
 export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
   @ViewChild('canvasElement', { static: false }) canvasElement!: ElementRef<HTMLCanvasElement>;
   @ViewChild('reader') reader!: ElementRef;
+  @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>; // Reference to the hidden file input
 
   private html5QrcodeScanner!: Html5Qrcode;
   isScanningBarcode = false;
@@ -45,8 +46,8 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
   private voiceCommandSubscription!: Subscription;
   private preferencesSubscription!: Subscription;
 
-  public showNotifications = false; // Keep for local notifications panel visibility
-  public unreadNotifications$!: Observable<number>; // Keep for local notifications panel visibility
+  public showNotifications = false;
+  public unreadNotifications$!: Observable<number>;
 
   private stabilityCheckInterval: any;
   private lastFrame: ImageData | null = null;
@@ -119,6 +120,9 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
     } else if (command.includes('go to history')) {
       this.router.navigate(['/history']);
       this.speechService.speak('Going to history.');
+    } else if (command.includes('upload image')) {
+      this.triggerFileUpload();
+      this.speechService.speak('Opening file upload.');
     } else {
       this.speechService.speak('Command not recognized. Please try again.');
     }
@@ -236,11 +240,44 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
 
     try {
       const dataUrl = canvas.toDataURL('image/png');
-      const result = await Tesseract.recognize(dataUrl, 'eng');
+      await this.processImageForOcr(dataUrl);
+    } catch (err) {
+      console.error('OCR error:', err);
+      this.notificationService.showError('Failed to process the image. Please try again.');
+      this.isProcessingOcr = false;
+      this.startBarcodeScanning();
+    }
+  }
+
+  // New method to trigger the hidden file input
+  triggerFileUpload(): void {
+    this.fileInput.nativeElement.click();
+  }
+
+  // New method to handle file selection
+  onFileSelected(event: Event): void {
+    const element = event.currentTarget as HTMLInputElement;
+    const fileList: FileList | null = element.files;
+    if (fileList && fileList.length > 0) {
+      const file = fileList[0];
+      const reader = new FileReader();
+      reader.onload = async (e: any) => {
+        this.isProcessingOcr = true;
+        await this.stopBarcodeScanning(); // Stop camera if it's running
+        this.notificationService.showInfo('Image uploaded, processing for OCR...', 'Upload');
+        await this.processImageForOcr(e.target.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  private async processImageForOcr(imageDataUrl: string): Promise<void> {
+    try {
+      const result = await Tesseract.recognize(imageDataUrl, 'eng');
       const text = result.data?.text || '';
 
       if (!text || text.trim().length === 0) {
-        this.notificationService.showWarning('No text detected. Please adjust lighting and try again.');
+        this.notificationService.showWarning('No text detected. Please try a different image.');
         this.isProcessingOcr = false;
         this.startBarcodeScanning();
         return;
