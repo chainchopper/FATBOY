@@ -1,97 +1,98 @@
-<div class="diary-container">
-  <div class="diary-header">
-    <h2>Food Diary</h2>
-    <div class="date-navigator">
-      <button (click)="goToPreviousDay()" class="nav-button">◀️ Previous Day</button>
-      <span class="current-date">{{ currentDate | date:'fullDate' }} <span *ngIf="isToday()">(Today)</span></span>
-      <button (click)="goToNextDay()" class="nav-button" [disabled]="isToday()">Next Day ▶️</button>
+<div class="container mx-auto p-4 text-gray-100 max-w-7xl">
+  <div class="text-center mb-8">
+    <h2 class="text-3xl font-bold text-teal-400 drop-shadow-lg shadow-teal-400 mb-4">Food Diary</h2>
+    <div class="flex justify-center items-center gap-4 mb-8 bg-gray-900/80 border border-purple-700 rounded-xl p-3 shadow-lg shadow-purple-500/30">
+      <button (click)="goToPreviousDay()" class="px-4 py-2 rounded-full border border-purple-500 text-purple-400 hover:bg-purple-900/20 transition-all duration-300">◀️ Previous Day</button>
+      <span class="text-xl font-bold text-teal-400 drop-shadow-md shadow-teal-400">{{ currentDate | date:'fullDate' }} <span *ngIf="isToday()">(Today)</span></span>
+      <button (click)="goToNextDay()" class="px-4 py-2 rounded-full border border-purple-500 text-purple-400 hover:bg-purple-900/20 transition-all duration-300" [disabled]="isToday()">Next Day ▶️</button>
     </div>
   </div>
 
   <app-daily-summary-card
     [summary]="dailySummary"
     [verdict]="dailyVerdict"
-    [preferences]="userPreferences">
+    [preferences]="userPreferences"
+    class="block mb-8">
   </app-daily-summary-card>
 
-  <div class="diary-grid">
-    <div class="meal-section">
-      <div class="meal-header">
-        <h3>🍳 Breakfast</h3>
-        <button (click)="scanForMeal('Breakfast')" class="scan-meal-btn">Scan Item</button>
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div class="bg-gray-900/80 border border-teal-700 rounded-xl p-6 shadow-lg shadow-teal-500/30">
+      <div class="flex justify-between items-center mb-4 border-b border-gray-700 pb-3">
+        <h3 class="text-2xl font-semibold text-purple-400">🍳 Breakfast</h3>
+        <button (click)="scanForMeal('Breakfast')" class="px-3 py-1 rounded-full border border-teal-500 text-teal-400 hover:bg-teal-900/20 transition-all duration-300">Scan Item</button>
       </div>
-      <div *ngIf="(breakfast$ | async) as entries" class="meal-list">
+      <div *ngIf="(breakfast$ | async) as entries" class="flex flex-col gap-3">
         <app-diary-item 
           *ngFor="let entry of entries"
           [product]="entry.product"
           (remove)="onRemoveEntry(entry.id)"
-          (viewDetails)="onViewDetails($event)"> <!-- Bind new event here -->
+          (viewDetails)="onViewDetails($event)">
         </app-diary-item>
-        <p *ngIf="entries.length === 0" class="empty-meal">No breakfast items logged.</p>
+        <p *ngIf="entries.length === 0" class="text-gray-500 italic text-center py-4">No breakfast items logged.</p>
       </div>
     </div>
 
-    <div class="meal-section">
-      <div class="meal-header">
-        <h3>🥗 Lunch</h3>
-        <button (click)="scanForMeal('Lunch')" class="scan-meal-btn">Scan Item</button>
+    <div class="bg-gray-900/80 border border-teal-700 rounded-xl p-6 shadow-lg shadow-teal-500/30">
+      <div class="flex justify-between items-center mb-4 border-b border-gray-700 pb-3">
+        <h3 class="text-2xl font-semibold text-purple-400">🥗 Lunch</h3>
+        <button (click)="scanForMeal('Lunch')" class="px-3 py-1 rounded-full border border-teal-500 text-teal-400 hover:bg-teal-900/20 transition-all duration-300">Scan Item</button>
       </div>
-      <div *ngIf="(lunch$ | async) as entries" class="meal-list">
+      <div *ngIf="(lunch$ | async) as entries" class="flex flex-col gap-3">
         <app-diary-item 
           *ngFor="let entry of entries"
           [product]="entry.product"
           (remove)="onRemoveEntry(entry.id)"
-          (viewDetails)="onViewDetails($event)"> <!-- Bind new event here -->
+          (viewDetails)="onViewDetails($event)">
         </app-diary-item>
-        <p *ngIf="entries.length === 0" class="empty-meal">No lunch items logged.</p>
+        <p *ngIf="entries.length === 0" class="text-gray-500 italic text-center py-4">No lunch items logged.</p>
       </div>
     </div>
 
-    <div class="meal-section">
-      <div class="meal-header">
-        <h3>🍲 Dinner</h3>
-        <button (click)="scanForMeal('Dinner')" class="scan-meal-btn">Scan Item</button>
+    <div class="bg-gray-900/80 border border-teal-700 rounded-xl p-6 shadow-lg shadow-teal-500/30">
+      <div class="flex justify-between items-center mb-4 border-b border-gray-700 pb-3">
+        <h3 class="text-2xl font-semibold text-purple-400">🍲 Dinner</h3>
+        <button (click)="scanForMeal('Dinner')" class="px-3 py-1 rounded-full border border-teal-500 text-teal-400 hover:bg-teal-900/20 transition-all duration-300">Scan Item</button>
       </div>
-      <div *ngIf="(dinner$ | async) as entries" class="meal-list">
+      <div *ngIf="(dinner$ | async) as entries" class="flex flex-col gap-3">
         <app-diary-item 
           *ngFor="let entry of entries"
           [product]="entry.product"
           (remove)="onRemoveEntry(entry.id)"
-          (viewDetails)="onViewDetails($event)"> <!-- Bind new event here -->
+          (viewDetails)="onViewDetails($event)">
         </app-diary-item>
-        <p *ngIf="entries.length === 0" class="empty-meal">No dinner items logged.</p>
+        <p *ngIf="entries.length === 0" class="text-gray-500 italic text-center py-4">No dinner items logged.</p>
       </div>
     </div>
 
-    <div class="meal-section">
-      <div class="meal-header">
-        <h3>🍎 Snacks</h3>
-        <button (click)="scanForMeal('Snack')" class="scan-meal-btn">Scan Item</button>
+    <div class="bg-gray-900/80 border border-teal-700 rounded-xl p-6 shadow-lg shadow-teal-500/30">
+      <div class="flex justify-between items-center mb-4 border-b border-gray-700 pb-3">
+        <h3 class="text-2xl font-semibold text-purple-400">🍎 Snacks</h3>
+        <button (click)="scanForMeal('Snack')" class="px-3 py-1 rounded-full border border-teal-500 text-teal-400 hover:bg-teal-900/20 transition-all duration-300">Scan Item</button>
       </div>
-      <div *ngIf="(snacks$ | async) as entries" class="meal-list">
+      <div *ngIf="(snacks$ | async) as entries" class="flex flex-col gap-3">
         <app-diary-item 
           *ngFor="let entry of entries"
           [product]="entry.product"
           (remove)="onRemoveEntry(entry.id)"
-          (viewDetails)="onViewDetails($event)"> <!-- Bind new event here -->
+          (viewDetails)="onViewDetails($event)">
         </app-diary-item>
-        <p *ngIf="entries.length === 0" class="empty-meal">No snack items logged.</p>
+        <p *ngIf="entries.length === 0" class="text-gray-500 italic text-center py-4">No snack items logged.</p>
       </div>
     </div>
 
-    <div class="meal-section">
-      <div class="meal-header">
-        <h3>🥤 Drinks</h3>
-        <button (click)="scanForMeal('Drinks')" class="scan-meal-btn">Scan Item</button>
+    <div class="bg-gray-900/80 border border-teal-700 rounded-xl p-6 shadow-lg shadow-teal-500/30">
+      <div class="flex justify-between items-center mb-4 border-b border-gray-700 pb-3">
+        <h3 class="text-2xl font-semibold text-purple-400">🥤 Drinks</h3>
+        <button (click)="scanForMeal('Drinks')" class="px-3 py-1 rounded-full border border-teal-500 text-teal-400 hover:bg-teal-900/20 transition-all duration-300">Scan Item</button>
       </div>
-      <div *ngIf="(drinks$ | async) as entries" class="meal-list">
+      <div *ngIf="(drinks$ | async) as entries" class="flex flex-col gap-3">
         <app-diary-item 
           *ngFor="let entry of entries"
           [product]="entry.product"
           (remove)="onRemoveEntry(entry.id)"
-          (viewDetails)="onViewDetails($event)"> <!-- Bind new event here -->
+          (viewDetails)="onViewDetails($event)">
         </app-diary-item>
-        <p *ngIf="entries.length === 0" class="empty-meal">No drinks logged.</p>
+        <p *ngIf="entries.length === 0" class="text-gray-500 italic text-center py-4">No drinks logged.</p>
       </div>
     </div>
   </div>
