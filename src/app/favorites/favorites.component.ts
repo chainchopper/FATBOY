@@ -7,6 +7,7 @@ import { ProductCardComponent } from '../product-card/product-card.component';
 import { ShoppingListService } from '../services/shopping-list.service';
 import { AppModalService } from '../services/app-modal.service';
 import { AiIntegrationService } from '../services/ai-integration.service'; // Import AiIntegrationService
+import { Router } from '@angular/router'; // Import Router
 
 @Component({
   selector: 'app-favorites',
@@ -23,7 +24,8 @@ export class FavoritesComponent implements OnInit {
     private shareService: ShareService,
     private shoppingListService: ShoppingListService,
     private appModalService: AppModalService,
-    private aiService: AiIntegrationService // Inject AiIntegrationService
+    private aiService: AiIntegrationService, // Inject AiIntegrationService
+    private router: Router // Inject Router
   ) {}
 
   ngOnInit() {
@@ -52,5 +54,6 @@ export class FavoritesComponent implements OnInit {
 
   onViewDetails(product: Product) { // New method to handle viewDetails event
     this.productDb.setLastViewedProduct(product); // Use ProductDbService
+    this.router.navigate(['/products', product.id]); // Navigate to details page
   }
 }

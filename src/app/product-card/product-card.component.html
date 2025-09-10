@@ -1,5 +1,5 @@
 <div class="product-card" [class.good]="product.verdict === 'good'" [class.bad]="product.verdict === 'bad'" [class.purchased]="isPurchased">
-  <div class="card-header" (click)="toggleExpand()">
+  <div class="card-header" (click)="onViewDetailsClick()"> <!-- Changed to onViewDetailsClick -->
     <img [src]="product.image" alt="{{product.name}}" class="product-image">
     <div class="product-summary">
       <h4>{{product.name}}</h4>

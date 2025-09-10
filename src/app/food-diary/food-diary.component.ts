@@ -114,5 +114,6 @@ export class FoodDiaryComponent implements OnInit {
 
   onViewDetails(product: Product) { // New method to handle viewDetails event
     this.productDbService.setLastViewedProduct(product); // Use ProductDbService
+    this.router.navigate(['/products', product.id]); // Navigate to details page
   }
 }

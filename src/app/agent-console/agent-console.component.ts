@@ -276,7 +276,7 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
 
   onViewDetailsFromConsole(product: Product) {
     this.productDbService.setLastViewedProduct(product); // Use ProductDbService
-    this.notificationService.showInfo(`AI context updated for: ${product.name}`, 'Product Details');
+    this.router.navigate(['/products', product.id]); // Navigate to details page
   }
 
   handleCameraInputProcessed(product: Product): void {

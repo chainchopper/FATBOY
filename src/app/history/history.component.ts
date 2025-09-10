@@ -25,7 +25,8 @@ export class HistoryComponent implements OnInit {
     private shoppingListService: ShoppingListService,
     private appModalService: AppModalService,
     private shareService: ShareService,
-    private aiService: AiIntegrationService // Inject AiIntegrationService
+    private aiService: AiIntegrationService, // Inject AiIntegrationService
+    private router: Router // Inject Router
   ) {}
 
   ngOnInit() {
@@ -86,6 +87,7 @@ export class HistoryComponent implements OnInit {
 
   onViewDetails(product: Product) { // New method to handle viewDetails event
     this.productDb.setLastViewedProduct(product); // Use ProductDbService
+    this.router.navigate(['/products', product.id]); // Navigate to details page
   }
 
   getCategoryIcon(category: string): string {

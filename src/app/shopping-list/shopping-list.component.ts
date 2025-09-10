@@ -7,6 +7,7 @@ import { map } from 'rxjs/operators';
 import { ShoppingListItemComponent } from '../shopping-list-item/shopping-list-item.component';
 import { AiIntegrationService } from '../services/ai-integration.service'; // Import AiIntegrationService
 import { ProductDbService } from '../services/product-db.service'; // Import ProductDbService
+import { Router } from '@angular/router'; // Import Router
 
 @Component({
   selector: 'app-shopping-list',
@@ -23,7 +24,8 @@ export class ShoppingListComponent implements OnInit {
     private shoppingListService: ShoppingListService,
     private appModalService: AppModalService,
     private aiService: AiIntegrationService, // Inject AiIntegrationService
-    private productDbService: ProductDbService // Inject ProductDbService
+    private productDbService: ProductDbService, // Inject ProductDbService
+    private router: Router // Inject Router
   ) {}
 
   ngOnInit() {
@@ -49,6 +51,7 @@ export class ShoppingListComponent implements OnInit {
   onViewDetails(item: ShoppingListItem) { // New method to handle viewDetails event
     if (item.product) {
       this.productDbService.setLastViewedProduct(item.product); // Use ProductDbService
+      this.router.navigate(['/products', item.product.id]); // Navigate to details page
     }
   }
 

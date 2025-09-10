@@ -6,6 +6,7 @@ import { FoodIconComponent } from '../food-icon/food-icon.component';
 import { CustomTitleCasePipe } from '../shared/custom-title-case.pipe';
 import { ButtonComponent } from '../button.component';
 import { ProductDbService } from '../services/product-db.service'; // Import ProductDbService
+import { Router } from '@angular/router'; // Import Router
 
 @Component({
   selector: 'app-product-card',
@@ -34,13 +35,13 @@ export class ProductCardComponent {
 
   isExpanded: boolean = false;
 
-  constructor(private productDbService: ProductDbService) {} // Inject ProductDbService
+  constructor(private productDbService: ProductDbService, private router: Router) {} // Inject Router
 
   toggleExpand() {
     this.isExpanded = !this.isExpanded;
     if (this.isExpanded) {
       this.productDbService.setLastViewedProduct(this.product); // Use ProductDbService
-      this.viewDetails.emit(this.product);
+      this.router.navigate(['/products', this.product.id]); // Navigate to details page
     }
   }
 
@@ -66,5 +67,10 @@ export class ProductCardComponent {
 
   onToggleFavorite() {
     this.toggleFavorite.emit(this.product.id);
+  }
+
+  onViewDetailsClick() { // New method to handle explicit view details click
+    this.productDbService.setLastViewedProduct(this.product);
+    this.router.navigate(['/products', this.product.id]);
   }
 }

@@ -1,0 +1,68 @@
+<div *ngIf="product" class="product-details-container" [class.good]="verdict === 'good'" [class.bad]="verdict === 'bad'">
+  <div class="header-actions">
+    <app-button variant="link" (onClick)="goBack()">← Back</app-button>
+  </div>
+
+  <div class="verdict-card">
+    <div class="verdict-icon">
+      <span *ngIf="verdict === 'good'">✓</span>
+      <span *ngIf="verdict === 'bad'">✗</span>
+    </div>
+    <h2 *ngIf="verdict === 'good'">Fat Boy Approved!</h2>
+    <h2 *ngIf="verdict === 'bad'">Contains Items You Avoid</h2>
+  </div>
+
+  <div class="product-info">
+    <img [src]="product.image" alt="{{product.name}}" class="product-image">
+    <h3>{{product.name}}</h3>
+    <p class="brand">{{product.brand}}</p>
+    <p class="scan-date">Scanned on: {{ product.scanDate | date:'mediumDate' }}</p>
+  </div>
+
+  <div class="product-details-section">
+    <h3>Product Details</h3>
+    <div class="detail-grid">
+      <div class="detail-item">
+        <strong>Barcode:</strong> <span>{{ product.barcode || 'N/A' }}</span>
+      </div>
+      <div class="detail-item">
+        <strong>Calories:</strong> <span>{{ product.calories || 'N/A' }} kcal</span>
+      </div>
+      <div class="detail-item categories">
+        <strong>Categories:</strong>
+        <div class="category-tags">
+          <span *ngFor="let category of product.categories" class="category-tag">
+            {{ category | customTitleCase }}
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ingredient-breakdown">
+    <h3>Why this rating?</h3>
+    <ul>
+      <li *ngFor="let item of flaggedItems" class="bad-ingredient">
+        ⚠️ <strong>{{item.ingredient}}:</strong> {{item.reason}}
+      </li>
+      <li *ngIf="flaggedItems.length === 0" class="good-ingredient">
+        No ingredients match your avoid list.
+      </li>
+    </ul>
+  </div>
+
+  <div class="full-ingredients-list">
+    <h3>Full Ingredients List:</h3>
+    <p>{{ product.ingredients.join(', ') }}</p>
+  </div>
+
+  <div class="raw-text-section" *ngIf="product.ocrText">
+    <h3>Raw Scanned Text:</h3>
+    <p class="raw-text-content">{{ product.ocrText }}</p>
+  </div>
+
+  <div class="action-buttons">
+    <app-button variant="default" (onClick)="addToList()">Add to...</app-button>
+    <app-button variant="outline" (onClick)="shareProduct()">Share</app-button>
+  </div>
+</div>
