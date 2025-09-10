@@ -93,6 +93,7 @@ export class ChatterboxTtsService {
 
     const selectedVoice = voiceId || preferences.chatterboxVoiceId || this.defaultVoice;
 
+    // Explicitly check isApiAvailable before attempting API call
     if (preferences.useOnDeviceTts || !this.isApiAvailable) {
       // Fallback to on-device TTS
       this.speakOnDevice(text);

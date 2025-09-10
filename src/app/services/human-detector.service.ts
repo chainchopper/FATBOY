@@ -83,7 +83,12 @@ export class HumanDetectorService {
       }
 
       const data = await response.json();
-      const aiResponse = data.choices?.[0]?.message?.content; // Robust access
+      // Robust checks for response structure
+      if (!data || !Array.isArray(data.choices) || data.choices.length === 0 || !data.choices[0].message?.content) {
+        console.error(`Vision API Error: Unexpected response structure for chat completions endpoint:`, data);
+        throw new Error('Invalid response from Vision API.');
+      }
+      const aiResponse = data.choices[0].message.content;
 
       if (aiResponse && aiResponse.toLowerCase().includes('no human')) {
         // console.log('No human detected.'); // Keep silent for no human
