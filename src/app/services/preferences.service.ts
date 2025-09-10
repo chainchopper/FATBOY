@@ -51,6 +51,7 @@ export class PreferencesService {
 
   async loadPreferences(): Promise<void> {
     if (this.currentUserId) {
+      // Logic for loading from Supabase
       const { data, error } = await supabase
         .from('user_preferences')
         .select('preferences_data')
@@ -71,8 +72,19 @@ export class PreferencesService {
         await this.savePreferencesToSupabase(this.defaultPreferences);
       }
     } else {
-      // Not logged in, use default preferences
-      this.preferencesSubject.next(this.defaultPreferences);
+      // Not logged in, load from local storage
+      const localPrefsString = localStorage.getItem('fatboy_guest_preferences');
+      if (localPrefsString) {
+        try {
+          const localPrefs = JSON.parse(localPrefsString);
+          this.preferencesSubject.next({ ...this.defaultPreferences, ...localPrefs });
+        } catch (e) {
+          console.error('Error parsing local preferences, using defaults:', e);
+          this.preferencesSubject.next(this.defaultPreferences);
+        }
+      } else {
+        this.preferencesSubject.next(this.defaultPreferences);
+      }
     }
   }
 
@@ -81,11 +93,13 @@ export class PreferencesService {
   }
 
   async savePreferences(prefs: UserPreferences): Promise<void> {
-    this.preferencesSubject.next(prefs);
+    this.preferencesSubject.next(prefs); // Update observable immediately
+
     if (this.currentUserId) {
       await this.savePreferencesToSupabase(prefs);
     } else {
-      console.warn('Cannot save preferences: User not authenticated.');
+      this.savePreferencesLocally(prefs);
+      console.log('Preferences saved locally (user not authenticated).');
     }
   }
 
@@ -117,7 +131,7 @@ export class PreferencesService {
 
   private async savePreferencesToSupabase(prefs: UserPreferences): Promise<void> {
     if (!this.currentUserId) {
-      console.warn('savePreferencesToSupabase: currentUserId is null. Cannot save preferences.');
+      console.warn('savePreferencesToSupabase: currentUserId is null. This should not be called directly if user is not authenticated.');
       return;
     }
 
@@ -132,6 +146,14 @@ export class PreferencesService {
       console.error('Error saving preferences to Supabase:', error);
     } else {
       console.log('Preferences successfully saved to Supabase.');
+    }
+  }
+
+  private savePreferencesLocally(prefs: UserPreferences): void {
+    try {
+      localStorage.setItem('fatboy_guest_preferences', JSON.stringify(prefs));
+    } catch (e) {
+      console.error('Error saving preferences to local storage:', e);
     }
   }
 }
