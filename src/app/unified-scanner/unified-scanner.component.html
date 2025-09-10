@@ -14,10 +14,10 @@
     <div class="scan-area" [class.stable]="isStable">
       <div *ngIf="isScanningBarcode || isProcessingOcr" class="scan-line"></div>
     </div>
-    <p *ngIf="!isProcessingOcr && !isScanningBarcode">Scanner paused.</p>
-    <p *ngIf="isScanningBarcode && !isProcessingOcr && !isStable">Hold steady to scan a label or barcode.</p>
-    <p *ngIf="isScanningBarcode && !isProcessingOcr && isStable">Analyzing...</p>
-    <p *ngIf="isProcessingOcr">Processing...</p>
+    <p *ngIf="!isProcessingOcr && !isScanningBarcode && !showExpandedOptions">Scanner paused.</p>
+    <p *ngIf="isScanningBarcode && !isProcessingOcr && !isStable && !showExpandedOptions">Hold steady to scan a label or barcode.</p>
+    <p *ngIf="isScanningBarcode && !isProcessingOcr && isStable && !showExpandedOptions">Analyzing...</p>
+    <p *ngIf="isProcessingOcr && !showExpandedOptions">Processing...</p>
     <p *ngIf="!isProcessingOcr && !isScanningBarcode && !isStable && !showExpandedOptions">Nothing recognized. Hold steady to scan.</p>
   </div>
 
