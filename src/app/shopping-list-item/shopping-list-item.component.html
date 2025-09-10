@@ -1,15 +1,24 @@
-<div class="list-item" [class.purchased]="item.purchased" (click)="onViewDetails()"> <!-- Bind click event here -->
-  <div class="checkbox-container" (click)="onToggle(); $event.stopPropagation()"> <!-- Stop propagation to prevent parent click -->
-    <div class="custom-checkbox">
+<div class="flex items-center gap-4 bg-gray-900/80 p-3 rounded-lg border-l-4 transition-all duration-300 ease-in-out cursor-pointer"
+  [ngClass]="{
+    'border-purple-500': !item.purchased,
+    'border-teal-500 opacity-60': item.purchased
+  }"
+  (click)="onViewDetails()">
+  <div class="flex items-center" (click)="onToggle(); $event.stopPropagation()">
+    <div class="w-6 h-6 rounded-md border-2 flex items-center justify-center transition-all duration-300"
+      [ngClass]="{
+        'border-purple-500 text-transparent': !item.purchased,
+        'bg-purple-500 border-purple-500 text-gray-900': item.purchased
+      }">
       <lucide-icon *ngIf="item.purchased" name="check" [size]="18"></lucide-icon>
     </div>
   </div>
-  <img [src]="item.image_url" alt="{{item.product_name}}" class="product-image">
-  <div class="item-info">
-    <span class="product-name">{{ item.product_name }}</span>
-    <span class="product-brand">{{ item.brand }}</span>
+  <img [src]="item.image_url" alt="{{item.product_name}}" class="w-12 h-12 object-cover rounded-md border border-gray-700">
+  <div class="flex-grow flex flex-col">
+    <span class="font-medium text-gray-100" [ngClass]="{'line-through text-gray-400': item.purchased}">{{ item.product_name }}</span>
+    <span class="text-sm text-gray-400">{{ item.brand }}</span>
   </div>
-  <button (click)="onRemove(); $event.stopPropagation()" class="remove-btn" title="Remove from List"> <!-- Stop propagation -->
+  <button (click)="onRemove(); $event.stopPropagation()" class="bg-gray-800 text-gray-400 w-8 h-8 rounded-full flex items-center justify-center hover:bg-red-600 hover:text-white transition-all duration-300" title="Remove from List">
     <lucide-icon name="x" [size]="18"></lucide-icon>
   </button>
 </div>

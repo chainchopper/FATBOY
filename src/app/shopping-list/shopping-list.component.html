@@ -1,34 +1,34 @@
-<div class="shopping-list-container">
-  <div class="list-header">
-    <h2>Your Shopping List</h2>
-    <button (click)="clearList()" class="clear-btn">Clear All</button>
+<div class="shopping-list-container max-w-4xl mx-auto p-4 text-gray-100">
+  <div class="flex justify-between items-center mb-6">
+    <h2 class="text-3xl font-bold text-teal-400 drop-shadow-lg shadow-teal-400">Your Shopping List</h2>
+    <button (click)="clearList()" class="px-4 py-2 rounded-full border border-red-500 text-red-400 hover:bg-red-900/20 transition-all duration-300">Clear All</button>
   </div>
 
   <div *ngIf="(unpurchasedItems$ | async) as unpurchasedList">
-    <div *ngIf="unpurchasedList.length === 0 && (purchasedItems$ | async)?.length === 0" class="empty-state">
+    <div *ngIf="unpurchasedList.length === 0 && (purchasedItems$ | async)?.length === 0" class="text-center p-10 text-gray-400 bg-gray-900/80 rounded-xl border border-gray-700">
       <p>Your shopping list is empty. Add approved products from the results or saved pages!</p>
     </div>
 
-    <div class="list-items-container">
+    <div class="flex flex-col gap-3 mb-8">
       <app-shopping-list-item
         *ngFor="let item of unpurchasedList"
         [item]="item"
         (togglePurchased)="onTogglePurchased($event)"
         (remove)="onRemoveItem($event)"
-        (viewDetails)="onViewDetails($event)"> <!-- Bind new event here -->
+        (viewDetails)="onViewDetails($event)">
       </app-shopping-list-item>
     </div>
 
     <div *ngIf="(purchasedItems$ | async) as purchasedList">
-      <div *ngIf="purchasedList.length > 0" class="purchased-section">
-        <h3 class="purchased-header">Purchased Items ({{ purchasedList.length }})</h3>
-        <div class="list-items-container">
+      <div *ngIf="purchasedList.length > 0" class="mt-8 pt-6 border-t-2 border-gray-700">
+        <h3 class="text-xl font-semibold text-purple-400 text-center mb-4">Purchased Items ({{ purchasedList.length }})</h3>
+        <div class="flex flex-col gap-3">
           <app-shopping-list-item
             *ngFor="let item of purchasedList"
             [item]="item"
             (togglePurchased)="onTogglePurchased($event)"
             (remove)="onRemoveItem($event)"
-            (viewDetails)="onViewDetails($event)"> <!-- Bind new event here -->
+            (viewDetails)="onViewDetails($event)">
           </app-shopping-list-item>
         </div>
       </div>

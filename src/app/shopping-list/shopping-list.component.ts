@@ -14,7 +14,7 @@ import { Router } from '@angular/router'; // Import Router
   standalone: true,
   imports: [CommonModule, ShoppingListItemComponent],
   templateUrl: './shopping-list.component.html',
-  styleUrls: ['./shopping-list.component.css']
+  styleUrls: []
 })
 export class ShoppingListComponent implements OnInit {
   unpurchasedItems$!: Observable<ShoppingListItem[]>;

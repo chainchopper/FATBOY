@@ -14,7 +14,7 @@ import { Router } from '@angular/router'; // Import Router
   standalone: true,
   imports: [CommonModule, ProductCardComponent],
   templateUrl: './favorites.component.html',
-  styleUrls: ['./favorites.component.css']
+  styleUrls: []
 })
 export class FavoritesComponent implements OnInit {
   favorites$!: Observable<Product[]>;

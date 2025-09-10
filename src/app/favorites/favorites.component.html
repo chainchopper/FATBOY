@@ -1,13 +1,13 @@
-<div class="favorites-container">
-  <h2>Your Favorite Products</h2>
-  <p>This is your curated list of approved products you love.</p>
+<div class="favorites-container p-5 max-w-5xl mx-auto text-gray-100">
+  <h2 class="text-3xl font-bold text-teal-400 drop-shadow-lg shadow-teal-400 text-center mb-4">Your Favorite Products</h2>
+  <p class="text-center text-gray-400 mb-8">This is your curated list of approved products you love.</p>
 
   <div *ngIf="(favorites$ | async) as products">
-    <div *ngIf="products.length === 0" class="empty-state">
+    <div *ngIf="products.length === 0" class="text-center p-10 text-gray-400 bg-gray-900/80 rounded-xl border border-gray-700">
       <p>You haven't favorited any products yet. Tap the heart icon on a product in your history to add it here!</p>
     </div>
     
-    <div class="products-grid">
+    <div class="products-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
       <app-product-card
         *ngFor="let product of products"
         [product]="product"
@@ -19,7 +19,7 @@
         (share)="shareProduct($event)"
         (addToShoppingList)="addToShoppingList($event)"
         (addToFoodDiary)="addToFoodDiary($event)"
-        (viewDetails)="onViewDetails($event)"> <!-- Bind new event here -->
+        (viewDetails)="onViewDetails($event)">
       </app-product-card>
     </div>
   </div>

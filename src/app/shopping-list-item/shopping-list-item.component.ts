@@ -10,7 +10,7 @@ import { ProductDbService } from '../services/product-db.service'; // Import Pro
   standalone: true,
   imports: [CommonModule, LucideAngularModule],
   templateUrl: './shopping-list-item.component.html',
-  styleUrls: ['./shopping-list-item.component.css']
+  styleUrls: []
 })
 export class ShoppingListItemComponent {
   @Input() item!: ShoppingListItem;
@@ -30,8 +30,8 @@ export class ShoppingListItemComponent {
 
   onViewDetails() { // New method to emit viewDetails
     if (this.item.product) {
-      this.productDbService.setLastViewedProduct(this.item.product);
-      this.router.navigate(['/products', this.item.product.id]);
+      this.productDbService.setLastViewedProduct(this.item.product); // Use ProductDbService
+      this.router.navigate(['/products', this.item.product.id]); // Navigate to details page
     }
   }
 }
