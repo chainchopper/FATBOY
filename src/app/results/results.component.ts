@@ -7,15 +7,17 @@ import { AudioService } from '../services/audio.service';
 import { NotificationService } from '../services/notification.service';
 import { SpeechService } from '../services/speech.service';
 import { ScanContextService } from '../services/scan-context.service';
-import { FoodDiaryService } from '../services/food-diary.service';
+import { FoodDiaryService } from '../services/food-diary.service'; // Import FoodDiaryService
 import { ModalService } from '../services/modal.service';
 import { PreferencesService } from '../services/preferences.service';
-import { ButtonComponent } from '../button.component'; // Updated import path
+import { ButtonComponent } from '../button.component';
+import { ShareService } from '../services/share.service'; // Import ShareService
+import { CustomTitleCasePipe } from '../shared/custom-title-case.pipe'; // Import CustomTitleCasePipe
 
 @Component({
   selector: 'app-results',
   standalone: true,
-  imports: [CommonModule, ButtonComponent],
+  imports: [CommonModule, ButtonComponent, CustomTitleCasePipe], // Add CustomTitleCasePipe
   templateUrl: './results.component.html',
   styleUrls: ['./results.component.css']
 })
@@ -33,9 +35,10 @@ export class ResultsComponent implements OnInit {
     private notificationService: NotificationService,
     private speechService: SpeechService,
     private scanContextService: ScanContextService,
-    private foodDiaryService: FoodDiaryService,
+    private foodDiaryService: FoodDiaryService, // Inject FoodDiaryService
     private modalService: ModalService,
-    private preferencesService: PreferencesService
+    private preferencesService: PreferencesService,
+    private shareService: ShareService // Inject ShareService
   ) {}
 
   ngOnInit() {
@@ -77,5 +80,18 @@ export class ResultsComponent implements OnInit {
 
   scanAgain() {
     this.router.navigate(['/scanner']);
+  }
+
+  shareProduct() {
+    if (this.product) {
+      this.shareService.shareProduct(this.product);
+    } else {
+      this.notificationService.showError('No product to share.');
+    }
+  }
+
+  addComments() {
+    this.notificationService.showInfo('Adding comments/details functionality is coming soon!', 'Feature Coming');
+    this.speechService.speak('Adding comments or details functionality is coming soon.');
   }
 }

@@ -11,12 +11,14 @@ import { FoodDiaryService } from '../services/food-diary.service';
 import { ScanContextService } from '../services/scan-context.service';
 import { ModalService } from '../services/modal.service';
 import { PreferencesService } from '../services/preferences.service';
-import { ButtonComponent } from '../button.component'; // Updated import path
+import { ButtonComponent } from '../button.component';
+import { ShareService } from '../services/share.service'; // Import ShareService
+import { CustomTitleCasePipe } from '../shared/custom-title-case.pipe'; // Import CustomTitleCasePipe
 
 @Component({
   selector: 'app-ocr-results',
   standalone: true,
-  imports: [CommonModule, ButtonComponent],
+  imports: [CommonModule, ButtonComponent, CustomTitleCasePipe], // Add CustomTitleCasePipe
   templateUrl: './ocr-results.component.html',
   styleUrls: ['./ocr-results.component.css']
 })
@@ -35,7 +37,8 @@ export class OcrResultsComponent implements OnInit {
     private foodDiaryService: FoodDiaryService,
     private scanContextService: ScanContextService,
     private modalService: ModalService,
-    private preferencesService: PreferencesService
+    private preferencesService: PreferencesService,
+    private shareService: ShareService // Inject ShareService
   ) {}
 
   ngOnInit(): void {
@@ -91,13 +94,16 @@ export class OcrResultsComponent implements OnInit {
     this.router.navigate(['/scanner']);
   }
 
-  viewRawText(): void {
-    if (this.product?.ocrText) {
-      this.notificationService.showInfo(this.product.ocrText, 'Raw Text');
-      this.speechService.speak('Displaying raw text.');
+  shareProduct() {
+    if (this.product) {
+      this.shareService.shareProduct(this.product);
     } else {
-      this.notificationService.showWarning('No raw text available.', 'Info');
-      this.speechService.speak('No raw text available.');
+      this.notificationService.showError('No product to share.');
     }
+  }
+
+  addComments() {
+    this.notificationService.showInfo('Adding comments/details functionality is coming soon!', 'Feature Coming');
+    this.speechService.speak('Adding comments or details functionality is coming soon.');
   }
 }

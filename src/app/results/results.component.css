@@ -59,26 +59,138 @@
   border: 2px solid #4a4a6e;
 }
 
+.product-info h3 {
+  color: #e0e0e0;
+  margin-bottom: 5px;
+}
+
+.product-info .brand {
+  color: #a0a0c0;
+  font-size: 1rem;
+  margin-bottom: 10px;
+}
+
+.product-info .scan-date {
+  color: #a0a0c0;
+  font-size: 0.9rem;
+}
+
+.product-details-section {
+  background-color: rgba(15, 15, 30, 0.8);
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  border: 1px solid #4a4a6e;
+  color: #e0e0e0;
+}
+
+.product-details-section h3 {
+  color: #0abdc6;
+  margin-bottom: 15px;
+  border-bottom: 1px solid #2a2a4e;
+  padding-bottom: 10px;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 15px;
+}
+
+.detail-item {
+  background-color: #2a2a4e;
+  padding: 10px 15px;
+  border-radius: 4px;
+  border: 1px solid #4a4a6e;
+  font-size: 0.9rem;
+}
+
+.detail-item strong {
+  color: #f038ff;
+  display: block;
+  margin-bottom: 5px;
+}
+
+.detail-item span {
+  color: #e0e0e0;
+}
+
+.category-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 5px;
+}
+
+.category-tag {
+  background-color: #1a1a2e;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  color: #a0a0c0;
+  border: 1px solid #2a2a4e;
+}
+
 .ingredient-breakdown {
+  background-color: rgba(15, 15, 30, 0.8);
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  border: 1px solid #4a4a6e;
+  color: #e0e0e0;
+}
+
+.ingredient-breakdown h3 {
+  color: #f038ff;
+  margin-bottom: 15px;
+  border-bottom: 1px solid #2a2a4e;
+  padding-bottom: 10px;
+}
+
+.ingredient-breakdown ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.ingredient-breakdown li {
+  margin: 8px 0;
+}
+
+.bad-ingredient {
+  color: #f038ff;
+  font-weight: bold;
+}
+
+.good-ingredient {
+  color: #0abdc6;
+  font-weight: bold;
+}
+
+.full-ingredients-list {
   background-color: rgba(15, 15, 30, 0.8);
   padding: 20px;
   border-radius: 8px;
   margin-bottom: 30px;
   border: 1px solid #4a4a6e;
+  color: #e0e0e0;
 }
 
-.bad-ingredient {
-  color: #f038ff;
-  margin: 10px 0;
-}
-
-.good-ingredient {
+.full-ingredients-list h3 {
   color: #0abdc6;
-  margin: 10px 0;
+  margin-bottom: 15px;
+  border-bottom: 1px solid #2a2a4e;
+  padding-bottom: 10px;
+}
+
+.full-ingredients-list p {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  text-align: left;
 }
 
 .action-buttons {
   display: flex;
   justify-content: center;
   gap: 15px;
+  flex-wrap: wrap;
 }

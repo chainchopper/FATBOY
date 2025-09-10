@@ -1,4 +1,4 @@
-<div class="unified-scanner-container">
+<div class="unified-scanner-container" [class.screen-flash]="screenFlash">
   <div class="camera-preview">
     <!-- Html5Qrcode will render its video stream inside this div -->
     <div id="reader" #reader class="barcode-reader-container"></div> 
@@ -40,10 +40,7 @@
         <lucide-icon name="mic" [size]="24"></lucide-icon>
         <span>Voice</span>
       </button>
-      <button class="footer-btn" (click)="captureLabelForOcr()" [class.hidden]="!showExpandedOptions">
-        <lucide-icon name="camera" [size]="24"></lucide-icon>
-        <span>Scan</span>
-      </button>
+      <!-- The 'Scan' button is removed as scanning is continuous -->
     </div>
   </div>
 </div>

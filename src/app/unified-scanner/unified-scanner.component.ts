@@ -1,7 +1,7 @@
 import { Component, ElementRef, ViewChild, AfterViewInit, OnDestroy } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { Html5Qrcode } from 'html5-qrcode';
+import { Html5Qrcode, Html5QrcodeResult } from 'html5-qrcode'; // Import Html5QrcodeResult
 import Tesseract from 'tesseract.js';
 import { OpenFoodFactsService } from '../services/open-food-facts.service';
 import { OcrEnhancerService } from '../services/ocr-enhancer.service';
@@ -21,6 +21,7 @@ import { UiService } from '../services/ui.service';
 import { LogoComponent } from '../logo.component';
 import { UserNotificationService } from '../services/user-notification.service';
 import { NotificationsComponent } from '../notifications/notifications.component';
+import { AudioService } from '../services/audio.service'; // Import AudioService
 
 @Component({
   selector: 'app-unified-scanner',
@@ -32,14 +33,15 @@ import { NotificationsComponent } from '../notifications/notifications.component
 export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
   @ViewChild('canvasElement', { static: false }) canvasElement!: ElementRef<HTMLCanvasElement>;
   @ViewChild('reader') reader!: ElementRef;
-  @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>; // Reference to the hidden file input
+  @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 
   private html5QrcodeScanner!: Html5Qrcode;
   isScanningBarcode = false;
   isProcessingOcr = false;
   isVoiceListening = false;
   isStable = false;
-  showExpandedOptions = false; // New state for footer options
+  showExpandedOptions = false;
+  screenFlash = false; // New property for screen flash
 
   public cameras: MediaDeviceInfo[] = [];
   private selectedCameraId: string | null = null;
@@ -56,6 +58,10 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
   private stableCounter = 0;
   private requiredStableFrames = 3;
 
+  // Track ongoing OCR/barcode lookup promises to cancel them
+  private currentProcessingPromise: Promise<any> | null = null;
+  private processingAbortController: AbortController | null = null;
+
   constructor(
     private router: Router,
     private offService: OpenFoodFactsService,
@@ -70,7 +76,8 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
     private aiService: AiIntegrationService,
     private barcodeLookupService: BarcodeLookupService,
     public uiService: UiService,
-    private userNotificationService: UserNotificationService
+    private userNotificationService: UserNotificationService,
+    private audioService: AudioService // Inject AudioService
   ) {
     this.unreadNotifications$ = this.userNotificationService.unreadCount$;
   }
@@ -86,7 +93,7 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
       this.html5QrcodeScanner = new Html5Qrcode("reader");
       await this.setupCameras();
       if (this.cameras.length > 0) {
-        this.startBarcodeScanning();
+        this.startBarcodeScanning(); // Start scanning immediately
       }
       this.preferencesSubscription = this.preferencesService.preferences$.subscribe(prefs => {
         if (prefs.enableVoiceCommands) {
@@ -116,8 +123,9 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
       this.captureLabelForOcr();
       this.speechService.speak('Scanning label.');
     } else if (command.includes('scan barcode') || command.includes('start scanning')) {
-      this.startBarcodeScanning();
-      this.speechService.speak('Scanning barcode.');
+      // Barcode scanning is continuous, so this command might just confirm it's active
+      this.notificationService.showInfo('Barcode scanning is already active.', 'Scanning');
+      this.speechService.speak('Barcode scanning is already active.');
     } else if (command.includes('go to history')) {
       this.router.navigate(['/history']);
       this.speechService.speak('Going to history.');
@@ -144,109 +152,166 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
         this.onBarcodeScanSuccess.bind(this),
         this.onBarcodeScanFailure.bind(this)
       );
-      this.startStabilityDetector(); // Start auto-capture detector
+      this.startStabilityDetector(); // Start auto-capture detector for OCR
     } catch (error) {
       console.error('Error starting barcode scanner:', error);
-      this.notificationService.showError('Failed to start barcode scanner.');
+      this.notificationService.showError('Failed to start camera for scanning.');
       this.isScanningBarcode = false;
     }
   }
 
-  async stopBarcodeScanning() {
-    this.stopStabilityDetector();
+  // This method now only pauses the detection, not the camera stream
+  async pauseScanningDetection(): Promise<void> {
     if (this.html5QrcodeScanner && this.html5QrcodeScanner.isScanning) {
-      try {
-        await this.html5QrcodeScanner.stop();
-      } catch (error) {
-        console.error('Error stopping barcode scanner:', error);
-      }
+      this.html5QrcodeScanner.pause();
     }
-    this.isScanningBarcode = false;
+    this.stopStabilityDetector(); // Stop OCR auto-capture
+    this.isScanningBarcode = false; // Reflect that active barcode detection is paused
   }
 
-  async onBarcodeScanSuccess(decodedText: string): Promise<void> {
-    await this.stopBarcodeScanning();
+  // This method now only resumes the detection, not restarts the camera stream
+  async resumeScanningDetection(): Promise<void> {
+    if (this.html5QrcodeScanner && !this.html5QrcodeScanner.isScanning) {
+      this.html5QrcodeScanner.resume();
+    }
+    this.startStabilityDetector(); // Resume OCR auto-capture
+    this.isScanningBarcode = true; // Reflect that active barcode detection is resumed
+  }
+
+  async onBarcodeScanSuccess(decodedText: string, decodedResult: Html5QrcodeResult): Promise<void> {
+    if (this.isProcessingOcr) return; // Don't process if OCR is already running
+
+    this.pauseScanningDetection(); // Pause detection to avoid multiple triggers
+    this.isProcessingOcr = true; // Use this flag to indicate a processing task is active
+
+    this.screenFlash = true; // Flash the screen
+    this.audioService.playSuccessSound(); // Play success sound
     this.notificationService.showInfo('Barcode detected! Fetching product data...', 'Scanning');
 
-    let productData = await this.barcodeLookupService.getProductByBarcode(decodedText);
+    this.processingAbortController = new AbortController();
+    const signal = this.processingAbortController.signal;
 
-    if (!productData) {
-      this.notificationService.showInfo('Primary source failed. Trying fallback...', 'Scanning');
-      productData = await this.offService.getProductByBarcode(decodedText);
+    try {
+      let productData = await this.barcodeLookupService.getProductByBarcode(decodedText);
+
+      if (signal.aborted) throw new Error('Operation aborted');
+
+      if (!productData) {
+        this.notificationService.showInfo('Primary source failed. Trying fallback...', 'Scanning');
+        productData = await this.offService.getProductByBarcode(decodedText);
+      }
+
+      if (signal.aborted) throw new Error('Operation aborted');
+
+      if (!productData) {
+        this.notificationService.showError('Product not found in any database.', 'Not Found');
+        this.audioService.playErrorSound();
+        return;
+      }
+
+      const ingredients = productData.ingredients && productData.ingredients.length > 0
+        ? productData.ingredients
+        : ["Ingredients not available"];
+
+      const preferences = this.preferencesService.getPreferences();
+      const categories = this.ingredientParser.categorizeProduct(ingredients);
+      const evaluation = this.ingredientParser.evaluateProduct(ingredients, productData.calories, preferences);
+
+      const productInfo: Omit<Product, 'id' | 'scanDate'> = {
+        barcode: decodedText,
+        name: productData.name || "Unknown Product",
+        brand: productData.brand || "Unknown Brand",
+        ingredients: ingredients,
+        calories: productData.calories ?? undefined,
+        image: productData.image || "https://via.placeholder.com/150",
+        categories,
+        verdict: evaluation.verdict,
+        flaggedIngredients: evaluation.flaggedIngredients.map(f => f.ingredient)
+      };
+
+      const savedProduct = await this.productDb.addProduct(productInfo);
+      if (!savedProduct) {
+        this.notificationService.showError('Failed to save product.', 'Error');
+        this.audioService.playErrorSound();
+        return;
+      }
+
+      sessionStorage.setItem('scannedProduct', JSON.stringify(savedProduct));
+      this.aiService.setLastDiscussedProduct(savedProduct);
+      this.router.navigate(['/results']);
+
+    } catch (error: any) {
+      if (error.message === 'Operation aborted') {
+        this.notificationService.showInfo('Scan processing cancelled.', 'Cancelled');
+      } else {
+        console.error('Barcode processing error:', error);
+        this.notificationService.showError('Failed to process barcode.', 'Error');
+        this.audioService.playErrorSound();
+      }
+    } finally {
+      this.isProcessingOcr = false;
+      this.screenFlash = false;
+      this.processingAbortController = null;
+      this.resumeScanningDetection(); // Resume detection after processing
     }
-
-    if (!productData) {
-      this.notificationService.showError('Product not found in any database.', 'Not Found');
-      this.startBarcodeScanning();
-      return;
-    }
-
-    const ingredients = productData.ingredients && productData.ingredients.length > 0
-      ? productData.ingredients
-      : ["Ingredients not available"];
-
-    const preferences = this.preferencesService.getPreferences();
-    const categories = this.ingredientParser.categorizeProduct(ingredients);
-    const evaluation = this.ingredientParser.evaluateProduct(ingredients, productData.calories, preferences);
-
-    const productInfo: Omit<Product, 'id' | 'scanDate'> = {
-      barcode: decodedText,
-      name: productData.name || "Unknown Product",
-      brand: productData.brand || "Unknown Brand",
-      ingredients: ingredients,
-      calories: productData.calories ?? undefined,
-      image: productData.image || "https://via.placeholder.com/150",
-      categories,
-      verdict: evaluation.verdict,
-      flaggedIngredients: evaluation.flaggedIngredients.map(f => f.ingredient)
-    };
-
-    const savedProduct = await this.productDb.addProduct(productInfo);
-    if (!savedProduct) {
-      this.startBarcodeScanning();
-      return;
-    }
-
-    sessionStorage.setItem('scannedProduct', JSON.stringify(savedProduct));
-    this.aiService.setLastDiscussedProduct(savedProduct);
-    this.router.navigate(['/results']);
   }
 
-  onBarcodeScanFailure(error: string) {}
+  onBarcodeScanFailure(error: string) {
+    // This is called continuously, so avoid excessive logging or notifications
+    // console.warn('Barcode scan failure:', error);
+  }
 
   async captureLabelForOcr(): Promise<void> {
     if (this.isProcessingOcr) return;
 
-    const video = this.reader.nativeElement.querySelector('video');
-    if (!video) {
-      this.notificationService.showError('Camera feed not found. Please try again.');
-      return;
-    }
-
-    const canvas = this.canvasElement.nativeElement;
-
-    if (!video.videoWidth || !video.videoHeight) {
-      this.notificationService.showWarning('Camera not ready yet. Please try again.');
-      return;
-    }
-
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    this.pauseScanningDetection(); // Pause detection to avoid conflicts
     this.isProcessingOcr = true;
-    await this.stopBarcodeScanning();
+
+    this.screenFlash = true; // Flash the screen
+    this.audioService.playSuccessSound(); // Play success sound
+    this.notificationService.showInfo('Capturing label for OCR...', 'Scanning');
+
+    this.processingAbortController = new AbortController();
+    const signal = this.processingAbortController.signal;
 
     try {
+      const video = this.reader.nativeElement.querySelector('video');
+      if (!video) {
+        throw new Error('Camera feed not found.');
+      }
+
+      const canvas = this.canvasElement.nativeElement;
+      if (!video.videoWidth || !video.videoHeight) {
+        throw new Error('Camera not ready yet.');
+      }
+
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        throw new Error('Could not get 2d context.');
+      }
+
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
       const dataUrl = canvas.toDataURL('image/png');
-      await this.processImageForOcr(dataUrl);
-    } catch (err) {
-      console.error('OCR error:', err);
-      this.notificationService.showError('Failed to process the image. Please try again.');
+
+      if (signal.aborted) throw new Error('Operation aborted');
+
+      await this.processImageForOcr(dataUrl, signal);
+
+    } catch (err: any) {
+      if (err.message === 'Operation aborted') {
+        this.notificationService.showInfo('OCR processing cancelled.', 'Cancelled');
+      } else {
+        console.error('OCR capture error:', err);
+        this.notificationService.showError('Failed to capture image for OCR. Please try again.', 'Error');
+        this.audioService.playErrorSound();
+      }
+    } finally {
       this.isProcessingOcr = false;
-      this.startBarcodeScanning();
+      this.screenFlash = false;
+      this.processingAbortController = null;
+      this.resumeScanningDetection(); // Resume detection after processing
     }
   }
 
@@ -261,62 +326,91 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
       const file = fileList[0];
       const reader = new FileReader();
       reader.onload = async (e: any) => {
+        if (this.isProcessingOcr) return; // Prevent multiple uploads
+
+        this.pauseScanningDetection(); // Pause detection
         this.isProcessingOcr = true;
-        await this.stopBarcodeScanning();
+
+        this.screenFlash = true; // Flash the screen
+        this.audioService.playSuccessSound(); // Play success sound
         this.notificationService.showInfo('Image uploaded, processing for OCR...', 'Upload');
-        await this.processImageForOcr(e.target.result);
+
+        this.processingAbortController = new AbortController();
+        const signal = this.processingAbortController.signal;
+
+        try {
+          if (signal.aborted) throw new Error('Operation aborted');
+          await this.processImageForOcr(e.target.result, signal);
+        } catch (err: any) {
+          if (err.message === 'Operation aborted') {
+            this.notificationService.showInfo('Image upload processing cancelled.', 'Cancelled');
+          } else {
+            console.error('File upload OCR error:', err);
+            this.notificationService.showError('Failed to process uploaded image. Please try again.', 'Error');
+            this.audioService.playErrorSound();
+          }
+        } finally {
+          this.isProcessingOcr = false;
+          this.screenFlash = false;
+          this.processingAbortController = null;
+          this.resumeScanningDetection(); // Resume detection
+        }
       };
       reader.readAsDataURL(file);
     }
   }
 
-  private async processImageForOcr(imageDataUrl: string): Promise<void> {
+  private async processImageForOcr(imageDataUrl: string, signal: AbortSignal): Promise<void> {
     try {
-      const result = await Tesseract.recognize(imageDataUrl, 'eng');
+      const result = await Tesseract.recognize(imageDataUrl, 'eng', { signal } as any); // Added 'as any'
       const text = result.data?.text || '';
 
+      if (signal.aborted) throw new Error('Operation aborted');
+
       if (!text || text.trim().length === 0) {
-        this.notificationService.showWarning('No text detected. Please try a different image.');
-        this.isProcessingOcr = false;
-        this.startBarcodeScanning();
+        this.notificationService.showWarning('No text detected. Please try a different image.', 'OCR Failed');
+        this.audioService.playErrorSound();
         return;
       }
 
-      this.processExtractedText(text);
-    } catch (err) {
-      console.error('OCR error:', err);
-      this.notificationService.showError('Failed to process the image. Please try again.');
-      this.isProcessingOcr = false;
-      this.startBarcodeScanning();
+      const enhancedIngredients = this.ocrEnhancer.enhanceIngredientDetection(text);
+      const productName = this.ocrEnhancer.detectProductName(text);
+      const brand = this.ocrEnhancer.detectBrand(text);
+
+      const preferences = this.preferencesService.getPreferences();
+      const categories = this.ingredientParser.categorizeProduct(enhancedIngredients);
+      const evaluation = this.ingredientParser.evaluateProduct(enhancedIngredients, undefined, preferences);
+
+      const productInfo: Omit<Product, 'id' | 'scanDate'> = {
+        name: productName,
+        brand: brand,
+        ingredients: enhancedIngredients,
+        categories,
+        verdict: evaluation.verdict,
+        flaggedIngredients: evaluation.flaggedIngredients.map(f => f.ingredient),
+        ocrText: text
+      };
+
+      const product = await this.productDb.addProduct(productInfo);
+      if (!product) {
+        this.notificationService.showError('Failed to save product.', 'Error');
+        this.audioService.playErrorSound();
+        return;
+      }
+
+      sessionStorage.setItem('viewingProduct', JSON.stringify(product));
+      this.aiService.setLastDiscussedProduct(product);
+      this.router.navigate(['/ocr-results']);
+
+    } catch (err: any) {
+      if (err.message === 'Operation aborted') {
+        throw err; // Re-throw to be caught by the calling function's abort handler
+      } else {
+        console.error('OCR processing error:', err);
+        this.notificationService.showError('Failed to process the image. Please try again.', 'Error');
+        this.audioService.playErrorSound();
+      }
     }
-  }
-
-  private async processExtractedText(text: string): Promise<void> {
-    const enhancedIngredients = this.ocrEnhancer.enhanceIngredientDetection(text);
-    const productName = this.ocrEnhancer.detectProductName(text);
-    const brand = this.ocrEnhancer.detectBrand(text);
-
-    const preferences = this.preferencesService.getPreferences();
-    const categories = this.ingredientParser.categorizeProduct(enhancedIngredients);
-    const evaluation = this.ingredientParser.evaluateProduct(enhancedIngredients, undefined, preferences);
-
-    const productInfo: Omit<Product, 'id' | 'scanDate'> = {
-      name: productName,
-      brand: brand,
-      ingredients: enhancedIngredients,
-      categories,
-      verdict: evaluation.verdict,
-      flaggedIngredients: evaluation.flaggedIngredients.map(f => f.ingredient),
-      ocrText: text
-    };
-
-    const product = await this.productDb.addProduct(productInfo);
-    if (!product) return;
-
-    sessionStorage.setItem('viewingProduct', JSON.stringify(product));
-    this.aiService.setLastDiscussedProduct(product);
-    this.isProcessingOcr = false;
-    this.router.navigate(['/ocr-results']);
   }
 
   async switchCamera() {
@@ -324,22 +418,30 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
       this.notificationService.showInfo('No other camera found.');
       return;
     }
-    await this.stopBarcodeScanning();
+    await this.pauseScanningDetection(); // Pause current detection
     this.currentCameraIndex = (this.currentCameraIndex + 1) % this.cameras.length;
     this.selectedCameraId = this.cameras[this.currentCameraIndex].deviceId;
     localStorage.setItem('fatBoySelectedCamera', this.selectedCameraId);
     this.notificationService.showSuccess(`Switched to ${this.cameras[this.currentCameraIndex].label}`);
-    await this.startBarcodeScanning();
+    await this.resumeScanningDetection(); // Resume detection with new camera
   }
 
   ngOnDestroy(): void {
-    this.stopBarcodeScanning();
+    // Ensure camera is stopped and subscriptions are unsubscribed
+    if (this.html5QrcodeScanner && this.html5QrcodeScanner.isScanning) {
+      this.html5QrcodeScanner.stop().catch(err => console.error('Error stopping scanner on destroy:', err));
+    }
+    this.stopStabilityDetector();
     this.speechService.stopListening();
     if (this.voiceCommandSubscription) {
       this.voiceCommandSubscription.unsubscribe();
     }
     if (this.preferencesSubscription) {
       this.preferencesSubscription.unsubscribe();
+    }
+    // Abort any pending processing
+    if (this.processingAbortController) {
+      this.processingAbortController.abort();
     }
   }
 
@@ -366,6 +468,8 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
 
   private startStabilityDetector() {
     this.stopStabilityDetector();
+    this.stableCounter = 0; // Reset counter
+    this.isStable = false; // Reset stability state
     this.stabilityCheckInterval = setInterval(() => {
       this.checkForStability();
     }, 500);
@@ -382,7 +486,7 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
   }
 
   private checkForStability() {
-    if (this.isProcessingOcr || !this.isScanningBarcode) return;
+    if (this.isProcessingOcr || !this.html5QrcodeScanner || !this.html5QrcodeScanner.isScanning) return;
 
     const video = this.reader.nativeElement.querySelector('video');
     if (!video || video.readyState < video.HAVE_METADATA) return;
@@ -415,11 +519,24 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
 
     if (this.stableCounter >= this.requiredStableFrames) {
       this.notificationService.showInfo('Camera is stable, analyzing label...', 'Auto-Scan');
-      this.captureLabelForOcr();
+      this.captureLabelForOcr(); // Trigger OCR capture automatically
     }
   }
 
-  toggleExpandedOptions() {
+  toggleExpandedOptions(): void {
+    if (this.showExpandedOptions) { // If currently expanded, collapsing
+      this.resumeScanningDetection();
+      // If any processing was ongoing, it would have been aborted when expanding
+    } else { // If currently collapsed, expanding
+      this.pauseScanningDetection();
+      // Abort any ongoing processing when expanding the menu
+      if (this.processingAbortController) {
+        this.processingAbortController.abort();
+        this.isProcessingOcr = false; // Reset processing flag
+        this.screenFlash = false; // Clear flash
+        this.processingAbortController = null;
+      }
+    }
     this.showExpandedOptions = !this.showExpandedOptions;
   }
 }

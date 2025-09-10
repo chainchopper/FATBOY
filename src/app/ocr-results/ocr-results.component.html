@@ -9,8 +9,27 @@
   </div>
 
   <div class="product-info">
+    <img *ngIf="product.image" [src]="product.image" alt="{{product.name}}" class="product-image">
     <h3>{{product.name}}</h3>
-    <p>{{product.brand}}</p>
+    <p class="brand">{{product.brand}}</p>
+    <p class="scan-date">Scanned on: {{ product.scanDate | date:'mediumDate' }}</p>
+  </div>
+
+  <div class="product-details-section">
+    <h3>Product Details</h3>
+    <div class="detail-grid">
+      <div class="detail-item">
+        <strong>Calories:</strong> <span>{{ product.calories || 'N/A' }} kcal</span>
+      </div>
+      <div class="detail-item categories">
+        <strong>Categories:</strong>
+        <div class="category-tags">
+          <span *ngFor="let category of product.categories" class="category-tag">
+            {{ category | customTitleCase }}
+          </span>
+        </div>
+      </div>
+    </div>
   </div>
 
   <div class="ingredient-breakdown">
@@ -32,9 +51,15 @@
     </ul>
   </div>
 
+  <div class="raw-text-section" *ngIf="product.ocrText">
+    <h3>Raw Scanned Text:</h3>
+    <p class="raw-text-content">{{ product.ocrText }}</p>
+  </div>
+
   <div class="action-buttons">
-    <app-button variant="outline" (onClick)="scanAgain()">Scan Another</app-button>
     <app-button variant="default" (onClick)="addToList()">Add to...</app-button>
-    <app-button variant="ghost" (onClick)="viewRawText()">View Raw Text</app-button>
+    <app-button variant="outline" (onClick)="scanAgain()">Scan Another</app-button>
+    <app-button variant="ghost" (onClick)="shareProduct()">Share</app-button>
+    <app-button variant="ghost" (onClick)="addComments()">Add Comments/Details</app-button>
   </div>
 </div>
