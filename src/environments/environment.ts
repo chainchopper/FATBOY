@@ -18,6 +18,7 @@ export const environment = {
   openaiApiKey: "your_openai_compatible_api_key",
   chatModelName: "rstar-coder-qwen3-0.6b@bf16",
   embeddingModelName: "fatboy-embeddings-v4-text-retrieval",
+  visionModelName: "Moonbeam2", // New: Vision model name
 
   // New Barcode Lookup API Key
   barcodeLookupApiKey: "nkg2i7b01p0xnu16igpuvq3rjy2mik"

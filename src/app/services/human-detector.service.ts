@@ -12,6 +12,10 @@ export class HumanDetectorService {
   private lastHumanDetectionTime = 0;
   private humanDetectionCooldown = 5000; // 5 seconds cooldown
 
+  private apiBaseUrl = environment.openaiApiBaseUrl;
+  private apiKey = environment.openaiApiKey;
+  private visionModelName = environment.visionModelName;
+
   constructor(
     private notificationService: NotificationService,
     private speechService: SpeechService,
@@ -48,38 +52,41 @@ export class HumanDetectorService {
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
     const imageDataUrl = canvas.toDataURL('image/jpeg', 0.7); // Use JPEG for smaller size
 
+    const endpoint = `${this.apiBaseUrl}/v1/chat/completions`; // Ensure /v1 prefix
+    const headers: HeadersInit = { 'Content-Type': 'application/json' };
+    if (this.apiKey) {
+      headers['Authorization'] = `Bearer ${this.apiKey}`;
+    }
+
     try {
-      const response = await fetch(`${environment.openaiApiBaseUrl}/chat/completions`, {
+      const response = await fetch(endpoint, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          // 'Authorization': `Bearer ${environment.openaiApiKey}` // If API key is needed
-        },
+        headers: headers,
         body: JSON.stringify({
-          model: 'Moonbeam2', // The vision model
+          model: this.visionModelName, // Use configurable model name
           messages: [
             {
               role: 'user',
               content: [
-                { type: 'text', text: 'Is there a human in this image? If so, describe them briefly (e.g., "a person wearing a red shirt"). Then, generate a fun, quirky, and unique automated response based on their appearance, focusing on colors or other features. Keep it under 20 words. If no human, just say "no human".' },
+                { type: 'text', text: 'Is there a human in this image? If yes, describe them briefly (e.g., "a person wearing a red shirt"). If no human, just say "no human".' }, // Simplified prompt
                 { type: 'image_url', image_url: { url: imageDataUrl } }
               ]
             }
           ],
           max_tokens: 60,
-          temperature: 0.9
+          temperature: 0.7 // Slightly lower temperature for more factual response
         })
       });
 
       if (!response.ok) {
-        throw new Error(`Moonbeam2 API Error: ${response.status} ${await response.text()}`);
+        throw new Error(`Vision API Error: ${response.status} ${await response.text()}`);
       }
 
       const data = await response.json();
-      const aiResponse = data.choices[0]?.message?.content;
+      const aiResponse = data.choices?.[0]?.message?.content; // Robust access
 
       if (aiResponse && aiResponse.toLowerCase().includes('no human')) {
-        // console.log('No human detected.');
+        // console.log('No human detected.'); // Keep silent for no human
       } else if (aiResponse) {
         this.notificationService.showInfo(aiResponse, 'Human Detected!');
         this.speechService.speak(aiResponse);
@@ -87,7 +94,7 @@ export class HumanDetectorService {
       }
 
     } catch (error) {
-      console.error('Error detecting human with Moonbeam2:', error);
+      console.error('Error detecting human with Vision API:', error);
       // this.notificationService.showError('Failed to detect human.', 'Vision Error'); // Avoid spamming notifications
     }
   }
