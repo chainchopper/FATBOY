@@ -10,7 +10,7 @@ import { AppModalService } from '../services/app-modal.service';
 import { Subscription, interval } from 'rxjs';
 import { supabase } from '../../integrations/supabase/client';
 import { Router } from '@angular/router';
-import { CameraFeedComponent } from '../components/camera-feed/camera-feed.component';
+import { CameraFeedComponent } from '../camera-feed/camera-feed.component';
 import { BarcodeProcessorService } from '../services/barcode-processor.service';
 import { OcrProcessorService } from '../services/ocr-processor.service';
 import { ProductDbService, Product } from '../services/product-db.service';

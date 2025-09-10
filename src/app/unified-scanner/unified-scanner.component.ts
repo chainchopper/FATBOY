@@ -21,7 +21,7 @@ import { UiService } from '../services/ui.service';
 import { UserNotificationService } from '../services/user-notification.service';
 import { AudioService } from '../services/audio.service';
 import { NotificationsComponent } from '../notifications/notifications.component';
-import { CameraFeedComponent } from '../components/camera-feed/camera-feed.component';
+import { CameraFeedComponent } from '../camera-feed/camera-feed.component';
 
 @Component({
   selector: 'app-unified-scanner',
