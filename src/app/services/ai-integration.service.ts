@@ -227,6 +227,19 @@ export class AiIntegrationService {
     }
   ];
 
+  private _extractJsonFromMarkdown(text: string): any | null {
+    const match = text.match(/```json\n([\s\S]*?)\n```/);
+    if (match && match[1]) {
+      try {
+        return JSON.parse(match[1]);
+      } catch (error) {
+        console.error("Failed to parse JSON from markdown block:", match[1], error);
+        return null;
+      }
+    }
+    return null;
+  }
+
   private _extractJson(text: string): any | null {
     const jsonStart = text.indexOf('{');
     const jsonEnd = text.lastIndexOf('}');
@@ -241,7 +254,11 @@ export class AiIntegrationService {
   }
 
   private _parseAiResponse(fullResponseText: string): AiResponse {
-    const parsedJson = this._extractJson(fullResponseText);
+    let parsedJson = this._extractJsonFromMarkdown(fullResponseText);
+    if (!parsedJson) {
+      parsedJson = this._extractJson(fullResponseText);
+    }
+
     const defaultSuggestions = ["How can I help?", "What's in my shopping list?", "Suggest a healthy dinner."];
     if (parsedJson && parsedJson.response) {
       return {
