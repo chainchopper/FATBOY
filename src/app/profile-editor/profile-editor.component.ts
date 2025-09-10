@@ -13,7 +13,7 @@ import { ButtonComponent } from '../button.component'; // Updated import path
   standalone: true,
   imports: [CommonModule, FormsModule, RouterLink, ButtonComponent],
   templateUrl: './profile-editor.component.html',
-  styleUrls: ['./profile-editor.component.css']
+  styleUrls: []
 })
 export class ProfileEditorComponent implements OnInit {
   profile: Profile | null = null;

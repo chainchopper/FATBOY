@@ -1,46 +1,62 @@
-<div class="leaderboard-container">
-  <h2>Leaderboard</h2>
-  <p>See how you stack up against the community!</p>
+<div class="max-w-4xl mx-auto p-4 text-gray-100">
+  <h2 class="text-3xl font-bold text-teal-400 drop-shadow-lg shadow-teal-400 text-center mb-4">Leaderboard</h2>
+  <p class="text-center text-gray-400 mb-8">See how you stack up against the community!</p>
 
-  <div class="tabs">
-    <button class="tab-button" [class.active]="selectedTab === 'global'" (click)="selectTab('global')">
+  <div class="flex justify-center gap-4 mb-8 bg-gray-900/80 border border-purple-700 rounded-full p-1 shadow-lg shadow-purple-500/30">
+    <button class="px-6 py-2 rounded-full text-lg font-medium transition-all duration-300"
+      [ngClass]="{
+        'bg-purple-500 text-gray-900 shadow-md shadow-purple-500/50': selectedTab === 'global',
+        'text-gray-400 hover:bg-gray-800': selectedTab !== 'global'
+      }"
+      (click)="selectTab('global')">
       Global
     </button>
-    <button class="tab-button" [class.active]="selectedTab === 'friends'" (click)="selectTab('friends')">
+    <button class="px-6 py-2 rounded-full text-lg font-medium transition-all duration-300"
+      [ngClass]="{
+        'bg-purple-500 text-gray-900 shadow-md shadow-purple-500/50': selectedTab === 'friends',
+        'text-gray-400 hover:bg-gray-800': selectedTab !== 'friends'
+      }"
+      (click)="selectTab('friends')">
       Friends
     </button>
   </div>
 
-  <div class="leaderboard-section">
+  <div class="bg-gray-900/80 border border-teal-700 rounded-xl p-6 shadow-lg shadow-teal-500/30">
     <div *ngIf="selectedTab === 'global'">
-      <h3>Global Rankings</h3>
+      <h3 class="text-2xl font-semibold text-purple-400 mb-4 text-center">Global Rankings</h3>
       <div *ngIf="(globalLeaderboard$ | async) as leaderboard">
-        <div *ngIf="leaderboard.length === 0" class="empty-state">
+        <div *ngIf="leaderboard.length === 0" class="text-center py-8 text-gray-500 italic">
           <p>No global rankings available yet.</p>
         </div>
-        <ul class="leaderboard-list">
-          <li *ngFor="let entry of leaderboard" class="leaderboard-item" [class.current-user]="entry.isCurrentUser">
-            <span class="rank">{{ entry.rank }}</span>
-            <img [src]="entry.avatar_url" alt="Avatar" class="avatar">
-            <span class="username">{{ entry.username }}</span>
-            <span class="score">{{ entry.score }} pts</span>
+        <ul class="space-y-3">
+          <li *ngFor="let entry of leaderboard" class="flex items-center bg-gray-800 border border-gray-700 rounded-lg p-3 transition-all duration-300 ease-in-out"
+            [ngClass]="{
+              'border-teal-500 shadow-md shadow-teal-500/30 bg-teal-900/10': entry.isCurrentUser
+            }">
+            <span class="text-lg font-bold w-10 text-left text-gray-200">{{ entry.rank }}</span>
+            <img [src]="entry.avatar_url" alt="Avatar" class="w-10 h-10 rounded-full object-cover mr-4 border border-gray-600">
+            <span class="flex-grow text-left text-gray-100 text-lg">{{ entry.username }}</span>
+            <span class="text-lg font-bold text-purple-400 drop-shadow-md shadow-purple-400">{{ entry.score }} pts</span>
           </li>
         </ul>
       </div>
     </div>
 
     <div *ngIf="selectedTab === 'friends'">
-      <h3>Friends Rankings</h3>
+      <h3 class="text-2xl font-semibold text-purple-400 mb-4 text-center">Friends Rankings</h3>
       <div *ngIf="(friendsLeaderboard$ | async) as leaderboard">
-        <div *ngIf="leaderboard.length === 0" class="empty-state">
+        <div *ngIf="leaderboard.length === 0" class="text-center py-8 text-gray-500 italic">
           <p>No friends on the leaderboard yet. Add friends to see their rankings!</p>
         </div>
-        <ul class="leaderboard-list">
-          <li *ngFor="let entry of leaderboard" class="leaderboard-item" [class.current-user]="entry.isCurrentUser">
-            <span class="rank">{{ entry.rank }}</span>
-            <img [src]="entry.avatar_url" alt="Avatar" class="avatar">
-            <span class="username">{{ entry.username }}</span>
-            <span class="score">{{ entry.score }} pts</span>
+        <ul class="space-y-3">
+          <li *ngFor="let entry of leaderboard" class="flex items-center bg-gray-800 border border-gray-700 rounded-lg p-3 transition-all duration-300 ease-in-out"
+            [ngClass]="{
+              'border-teal-500 shadow-md shadow-teal-500/30 bg-teal-900/10': entry.isCurrentUser
+            }">
+            <span class="text-lg font-bold w-10 text-left text-gray-200">{{ entry.rank }}</span>
+            <img [src]="entry.avatar_url" alt="Avatar" class="w-10 h-10 rounded-full object-cover mr-4 border border-gray-600">
+            <span class="flex-grow text-left text-gray-100 text-lg">{{ entry.username }}</span>
+            <span class="text-lg font-bold text-purple-400 drop-shadow-md shadow-purple-400">{{ entry.score }} pts</span>
           </li>
         </ul>
       </div>

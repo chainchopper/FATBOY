@@ -1,18 +1,27 @@
-<div class="achievements-container">
-  <div class="achievements-header">
-    <h2>Your Achievements</h2>
-    <button class="leaderboard-btn" routerLink="/leaderboard">View Leaderboard 🏅</button>
+<div class="max-w-4xl mx-auto p-4 text-gray-100">
+  <div class="flex justify-between items-center mb-6">
+    <h2 class="text-3xl font-bold text-teal-400 drop-shadow-lg shadow-teal-400">Your Achievements</h2>
+    <button class="px-4 py-2 rounded-full border border-purple-500 text-purple-400 hover:bg-purple-900/20 transition-all duration-300" routerLink="/leaderboard">View Leaderboard 🏅</button>
   </div>
-  <p>Unlock badges by scanning products, making healthy choices, and helping the community.</p>
+  <p class="text-center text-gray-400 mb-8">Unlock badges by scanning products, making healthy choices, and helping the community.</p>
   
-  <div class="achievements-grid" *ngIf="(badges$ | async) as badges">
-    <div *ngFor="let badge of badges" class="achievement-card" [class.unlocked]="badge.unlocked">
-      <div class="badge-icon">{{badge.icon}}</div>
-      <div class="badge-info">
-        <h3>{{badge.name}}</h3>
-        <p>{{badge.description}}</p>
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" *ngIf="(badges$ | async) as badges">
+    <div *ngFor="let badge of badges" class="bg-gray-900/80 border border-gray-700 rounded-xl p-6 flex items-center gap-4 transition-all duration-300 ease-in-out relative" [ngClass]="{
+      'opacity-100 border-purple-500 shadow-lg shadow-purple-500/30': badge.unlocked,
+      'opacity-50': !badge.unlocked
+    }">
+      <div class="text-5xl transition-all duration-300" [ngClass]="{
+        'filter-none text-purple-400 drop-shadow-lg shadow-purple-400': badge.unlocked,
+        'grayscale': !badge.unlocked
+      }">{{badge.icon}}</div>
+      <div class="flex-grow">
+        <h3 class="text-xl font-semibold mb-1 transition-colors duration-300" [ngClass]="{
+          'text-teal-400': badge.unlocked,
+          'text-gray-400': !badge.unlocked
+        }">{{badge.name}}</h3>
+        <p class="text-sm text-gray-500">{{badge.description}}</p>
       </div>
-      <div *ngIf="!badge.unlocked" class="lock-icon">🔒</div>
+      <div *ngIf="!badge.unlocked" class="absolute top-3 right-3 text-gray-500 text-2xl">🔒</div>
     </div>
   </div>
 </div>

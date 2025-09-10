@@ -14,7 +14,7 @@ interface LeaderboardViewEntry extends LeaderboardEntry {
   standalone: true,
   imports: [CommonModule],
   templateUrl: './leaderboard.component.html',
-  styleUrls: ['./leaderboard.component.css']
+  styleUrls: []
 })
 export class LeaderboardComponent implements OnInit {
   globalLeaderboard$!: Observable<LeaderboardViewEntry[]>;

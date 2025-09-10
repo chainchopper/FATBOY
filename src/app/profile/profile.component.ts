@@ -25,7 +25,7 @@ export interface Contribution {
   standalone: true,
   imports: [CommonModule, RouterLink, TitleCasePipe, DatePipe, LucideAngularModule],
   templateUrl: './profile.component.html',
-  styleUrls: ['./profile.component.css']
+  styleUrls: []
 })
 export class ProfileComponent implements OnInit {
   profile$!: Observable<Profile | null>;

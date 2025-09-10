@@ -1,32 +1,34 @@
-<div class="profile-editor-container">
-  <app-button variant="link" routerLink="/profile" class="back-link">← Back to Profile</app-button>
-  <h2>Edit Your Profile</h2>
+<div class="max-w-2xl mx-auto p-4 text-gray-100">
+  <div class="mb-6">
+    <app-button variant="link" routerLink="/profile" class="text-teal-400 hover:text-purple-400">← Back to Profile</app-button>
+  </div>
+  <h2 class="text-3xl font-bold text-purple-400 drop-shadow-lg shadow-purple-400 text-center mb-8">Edit Your Profile</h2>
 
-  <div *ngIf="profile" class="editor-form">
-    <div class="avatar-section">
-      <img [src]="avatarUrl || 'https://api.dicebear.com/8.x/initials/svg?seed=?'" alt="Avatar Preview" class="avatar-preview">
-      <label for="avatarUpload" class="upload-btn">
-        <app-button variant="outline" type="button">Change Avatar</app-button>
+  <div *ngIf="profile" class="bg-gray-900/80 p-6 rounded-xl border border-teal-700 shadow-lg shadow-teal-500/30">
+    <div class="flex flex-col items-center mb-8">
+      <img [src]="avatarUrl || 'https://api.dicebear.com/8.x/initials/svg?seed=?'" alt="Avatar Preview" class="w-32 h-32 rounded-full object-cover border-4 border-purple-500 shadow-lg shadow-purple-500/50 mb-4">
+      <label for="avatarUpload" class="cursor-pointer">
+        <app-button variant="outline" type="button" class="border-teal-500 text-teal-400 hover:bg-teal-900/20">Change Avatar</app-button>
       </label>
-      <input type="file" id="avatarUpload" (change)="onFileSelected($event)" accept="image/png, image/jpeg">
+      <input type="file" id="avatarUpload" (change)="onFileSelected($event)" accept="image/png, image/jpeg" class="hidden">
     </div>
 
-    <div class="form-group">
-      <label for="firstName">First Name</label>
-      <input type="text" id="firstName" [(ngModel)]="firstName" placeholder="Your first name">
+    <div class="mb-6">
+      <label for="firstName" class="block text-teal-400 font-medium mb-2">First Name</label>
+      <input type="text" id="firstName" [(ngModel)]="firstName" placeholder="Your first name" class="w-full p-3 rounded-md bg-gray-800 border border-gray-700 text-gray-100 placeholder-gray-500 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500">
     </div>
 
-    <div class="form-group">
-      <label for="lastName">Last Name</label>
-      <input type="text" id="lastName" [(ngModel)]="lastName" placeholder="Your last name">
+    <div class="mb-6">
+      <label for="lastName" class="block text-teal-400 font-medium mb-2">Last Name</label>
+      <input type="text" id="lastName" [(ngModel)]="lastName" placeholder="Your last name" class="w-full p-3 rounded-md bg-gray-800 border border-gray-700 text-gray-100 placeholder-gray-500 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500">
     </div>
 
-    <div class="form-group">
-      <label for="bio">Your Bio</label>
-      <textarea id="bio" [(ngModel)]="bio" rows="4" placeholder="Tell the community a little about yourself..."></textarea>
+    <div class="mb-8">
+      <label for="bio" class="block text-teal-400 font-medium mb-2">Your Bio</label>
+      <textarea id="bio" [(ngModel)]="bio" rows="4" placeholder="Tell the community a little about yourself..." class="w-full p-3 rounded-md bg-gray-800 border border-gray-700 text-gray-100 placeholder-gray-500 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 resize-y"></textarea>
     </div>
 
-    <app-button type="submit" variant="default" (onClick)="saveProfile()" class="save-btn" [disabled]="isLoading">
+    <app-button type="submit" variant="default" (onClick)="saveProfile()" class="w-full py-3 rounded-full text-lg font-bold bg-purple-500 text-gray-900 hover:bg-purple-600 transition-all duration-300 shadow-md shadow-purple-500/50" [disabled]="isLoading">
       {{ isLoading ? 'Saving...' : 'Save Changes' }}
     </app-button>
   </div>

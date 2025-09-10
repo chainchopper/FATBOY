@@ -1,79 +1,89 @@
-<div class="profile-container">
+<div class="max-w-4xl mx-auto p-4 text-gray-100">
   <div *ngIf="profile$ | async as profile; else notFound">
-    <div class="profile-card">
-      <div class="profile-header">
-        <img [src]="profile.avatar_url || 'https://api.dicebear.com/8.x/initials/svg?seed=' + (profile.first_name || 'A')" alt="User Avatar" class="avatar">
-        <button *ngIf="isCurrentUserProfile" class="edit-profile-btn" routerLink="/profile/edit">Edit Profile</button>
+    <div class="bg-gray-900/80 border border-teal-700 rounded-xl p-6 text-center shadow-lg shadow-teal-500/30">
+      <div class="flex flex-col items-center mb-6 relative">
+        <img [src]="profile.avatar_url || 'https://api.dicebear.com/8.x/initials/svg?seed=' + (profile.first_name || 'A')" alt="User Avatar" class="w-32 h-32 rounded-full object-cover border-4 border-purple-500 shadow-lg shadow-purple-500/50 mb-4">
+        <button *ngIf="isCurrentUserProfile" class="absolute top-0 right-0 px-4 py-2 rounded-full border border-teal-500 text-teal-400 hover:bg-teal-900/20 transition-all duration-300" routerLink="/profile/edit">Edit Profile</button>
       </div>
-      <h2>{{ profile.first_name }} {{ profile.last_name }}</h2>
-      <p *ngIf="profile.bio" class="bio">{{ profile.bio }}</p>
-      <p *ngIf="isCurrentUserProfile" class="email">{{ profile.id }}</p> <!-- Email is not on the public profile table -->
+      <h2 class="text-3xl font-bold text-purple-400 drop-shadow-lg shadow-purple-400 mb-2">{{ profile.first_name }} {{ profile.last_name }}</h2>
+      <p *ngIf="profile.bio" class="text-gray-300 italic max-w-md mx-auto mb-4">{{ profile.bio }}</p>
+      <p *ngIf="isCurrentUserProfile" class="text-gray-500 text-sm mb-6">{{ profile.id }}</p>
       
-      <div class="profile-section stats-section" *ngIf="(leaderboardStats$ | async) as stats">
-        <div class="stat-item">
-          <span class="stat-value">{{ stats.rank || 'N/A' }}</span>
-          <span class="stat-label">Global Rank</span>
+      <div class="pt-6 border-t border-gray-800 mt-6" *ngIf="(leaderboardStats$ | async) as stats">
+        <h3 class="text-2xl font-semibold text-teal-400 mb-4">Leaderboard Stats</h3>
+        <div class="grid grid-cols-2 gap-4 mb-6">
+          <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
+            <span class="block text-4xl font-extrabold text-purple-400 drop-shadow-lg shadow-purple-400">{{ stats.rank || 'N/A' }}</span>
+            <span class="text-sm text-gray-400">Global Rank</span>
+          </div>
+          <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
+            <span class="block text-4xl font-extrabold text-purple-400 drop-shadow-lg shadow-purple-400">{{ stats.score || 0 }}</span>
+            <span class="text-sm text-gray-400">Total Score</span>
+          </div>
         </div>
-        <div class="stat-item">
-          <span class="stat-value">{{ stats.score || 0 }}</span>
-          <span class="stat-label">Total Score</span>
-        </div>
-        <button class="leaderboard-btn" routerLink="/leaderboard">View Leaderboard</button>
+        <button class="px-6 py-2 rounded-full border border-purple-500 text-purple-400 hover:bg-purple-900/20 transition-all duration-300" routerLink="/leaderboard">View Leaderboard</button>
       </div>
 
-      <div class="profile-section">
-        <h3>{{ isCurrentUserProfile ? 'Your' : profile.first_name + "'s" }} Badges</h3>
-        <div class="badges-grid">
-          <div *ngFor="let badge of (badges$ | async)" class="badge-item" [class.unlocked]="badge.unlocked">
-            <span class="badge-icon">{{ badge.icon }}</span>
-            <span class="badge-name">{{ badge.name }}</span>
+      <div class="pt-6 border-t border-gray-800 mt-6">
+        <h3 class="text-2xl font-semibold text-teal-400 mb-4">{{ isCurrentUserProfile ? 'Your' : profile.first_name + "'s" }} Badges</h3>
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div *ngFor="let badge of (badges$ | async)" class="bg-gray-800 border border-gray-700 rounded-lg p-4 flex flex-col items-center transition-all duration-300" [ngClass]="{
+            'opacity-100 border-purple-500 shadow-md shadow-purple-500/30': badge.unlocked,
+            'opacity-50': !badge.unlocked
+          }">
+            <span class="text-4xl mb-2">{{ badge.icon }}</span>
+            <span class="text-sm font-medium text-gray-200 text-center">{{ badge.name }}</span>
           </div>
         </div>
       </div>
 
-      <div class="profile-section">
-        <h3>Community Contributions</h3>
+      <div class="pt-6 border-t border-gray-800 mt-6 text-left">
+        <h3 class="text-2xl font-semibold text-teal-400 mb-4">Community Contributions</h3>
         <div *ngIf="(contributions$ | async) as contributions; else loadingContributions">
-          <div *ngIf="contributions.length > 0" class="contributions-list">
-            <div *ngFor="let contribution of contributions" class="contribution-item">
-              <div class="contribution-info">
-                <span class="contribution-name">{{ contribution.product_name }}</span>
-                <span class="contribution-brand">{{ contribution.brand }}</span>
+          <div *ngIf="contributions.length > 0" class="space-y-3">
+            <div *ngFor="let contribution of contributions" class="flex justify-between items-center bg-gray-800 p-4 rounded-lg border border-gray-700">
+              <div class="flex flex-col">
+                <span class="font-medium text-gray-100">{{ contribution.product_name }}</span>
+                <span class="text-sm text-gray-400">{{ contribution.brand }}</span>
               </div>
-              <div class="contribution-status status-{{ contribution.status }}">
+              <span class="px-3 py-1 rounded-full text-xs font-bold" [ngClass]="{
+                'bg-teal-500 text-gray-900': contribution.status === 'approved',
+                'bg-yellow-500 text-gray-900': contribution.status === 'pending',
+                'bg-red-500 text-gray-900': contribution.status === 'rejected'
+              }">
                 {{ contribution.status | titlecase }}
-              </div>
+              </span>
             </div>
           </div>
-          <div *ngIf="contributions.length === 0" class="empty-state-small">
+          <div *ngIf="contributions.length === 0" class="text-center py-4 text-gray-500 italic">
             <p>This user hasn't made any contributions yet.</p>
           </div>
         </div>
         <ng-template #loadingContributions>
-          <p>Loading contributions...</p>
+          <p class="text-center py-4 text-gray-500 italic">Loading contributions...</p>
         </ng-template>
       </div>
 
-      <div class="profile-section">
-        <h3>Recent Activity</h3>
+      <div class="pt-6 border-t border-gray-800 mt-6 text-left">
+        <h3 class="text-2xl font-semibold text-teal-400 mb-4">Recent Activity</h3>
         <div *ngIf="(activityFeed$ | async) as feed; else loadingActivity">
-          <div *ngIf="feed.length > 0" class="activity-feed-list">
-            <div *ngFor="let item of feed" class="activity-item">
-              <div class="activity-icon">
+          <div *ngIf="feed.length > 0" class="space-y-3">
+            <div *ngFor="let item of feed" class="flex items-start gap-4 bg-gray-800 p-4 rounded-lg border border-gray-700">
+              <div class="bg-gray-700 rounded-full w-10 h-10 flex items-center justify-center text-teal-400 flex-shrink-0">
                 <lucide-icon [name]="getIconForActivity(item.activity_type)" [size]="20"></lucide-icon>
               </div>
-              <div class="activity-content">
-                <p>{{ item.activity_description }}</p>
-                <span class="timestamp">{{ item.created_at | date:'short' }}</span>
+              <div class="flex-grow">
+                <p class="text-gray-200 mb-1">{{ item.activity_description }}</p>
+                <span class="text-xs text-gray-500">{{ item.created_at | date:'short' }}</span>
               </div>
             </div>
           </div>
-          <div *ngIf="feed.length === 0" class="empty-state-small">
+          <div *ngIf="feed.length === 0" class="text-center py-4 text-gray-500 italic">
             <p>This user has no recent activity.</p>
           </div>
         </div>
         <ng-template #loadingActivity>
-          <p>Loading activity...</p>
+          <p class="text-center py-4 text-gray-500 italic">Loading activity...</p>
         </ng-template>
       </div>
       
@@ -81,8 +91,8 @@
   </div>
   
   <ng-template #notFound>
-    <div class="empty-state">
-      <p>User profile not found or you are not logged in.</p>
+    <div class="text-center py-16 text-gray-400 bg-gray-900/80 rounded-xl border border-gray-700">
+      <p class="text-xl">User profile not found or you are not logged in.</p>
     </div>
   </ng-template>
 </div>

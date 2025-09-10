@@ -9,7 +9,7 @@ import { RouterLink } from '@angular/router';
   standalone: true,
   imports: [CommonModule, RouterLink],
   templateUrl: './achievements.component.html',
-  styleUrls: ['./achievements.component.css']
+  styleUrls: []
 })
 export class AchievementsComponent implements OnInit {
   badges$!: Observable<Badge[]>;
