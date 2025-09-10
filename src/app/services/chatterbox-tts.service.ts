@@ -69,7 +69,11 @@ export class ChatterboxTtsService {
   }
 
   private async fetchAvailableVoices(): Promise<void> {
-    if (!this.voicesApiUrl) return; // Skip if API endpoint is not configured
+    // Only attempt to fetch voices if the API is available and the voices API URL is configured
+    if (!this.voicesApiUrl || !this.isApiAvailable) {
+      this.availableVoices = []; // Ensure voices are cleared if API is not available
+      return; 
+    }
 
     try {
       const voicesResponse = await firstValueFrom(this.http.get<ChatterboxVoice[]>(this.voicesApiUrl));
