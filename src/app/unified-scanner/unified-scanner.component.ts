@@ -20,12 +20,12 @@ import { AiIntegrationService } from '../services/ai-integration.service';
 import { UiService } from '../services/ui.service';
 import { UserNotificationService } from '../services/user-notification.service';
 import { AudioService } from '../services/audio.service';
-import { NotificationsComponent } from '../notifications/notifications.component'; // Re-import NotificationsComponent
+import { NotificationsComponent } from '../notifications/notifications.component';
 
 @Component({
   selector: 'app-unified-scanner',
   standalone: true,
-  imports: [CommonModule, RouterLink, LucideAngularModule, NotificationsComponent], // Re-add NotificationsComponent
+  imports: [CommonModule, RouterLink, LucideAngularModule, NotificationsComponent],
   templateUrl: './unified-scanner.component.html',
   styleUrls: ['./unified-scanner.component.css']
 })
@@ -38,7 +38,6 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
   isVoiceListening = false;
   showExpandedOptions = false;
   screenFlash = false;
-  showNotifications = false; // Declare showNotifications property
 
   public unreadNotifications$!: Observable<number>;
   private voiceCommandSubscription!: Subscription;
