@@ -103,10 +103,11 @@
         (ngModelChange)="handleInput()"
         (keydown.enter)="sendMessage(); $event.preventDefault()"
         placeholder="Type a command or message..."
-        class="input-field">
+        class="input-field"
+        [disabled]="agentStatus === 'offline'">
       </textarea>
-      <button (click)="toggleVoiceListening()" class="mic-btn" [class.active]="isListening" title="Use Voice">🎤</button>
-      <button (click)="sendMessage()" class="send-btn" [disabled]="!userInput.trim()">→</button>
+      <button (click)="toggleVoiceListening()" class="mic-btn" [class.active]="isListening" title="Use Voice" [disabled]="agentStatus === 'offline'">🎤</button>
+      <button (click)="sendMessage()" class="send-btn" [disabled]="!userInput.trim() || agentStatus === 'offline'">→</button>
     </div>
   </div>
 </div>
