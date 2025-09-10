@@ -283,6 +283,11 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
     this.sendMessage();
   }
 
+  onViewDetailsFromConsole(product: Product) {
+    this.aiService.setLastDiscussedProduct(product);
+    this.notificationService.showInfo(`AI context updated for: ${product.name}`, 'Product Details');
+  }
+
   async handleBarcodeScannedFromChat(decodedText: string): Promise<void> {
     if (this.isProcessingCameraInput) return;
     this.isProcessingCameraInput = true;

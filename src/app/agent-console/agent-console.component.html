@@ -37,7 +37,8 @@
                   [showAddToFoodDiaryButton]="true"
                   (share)="shareProductFromConsole($event)"
                   (addToShoppingList)="addToShoppingListFromConsole($event)"
-                  (addToFoodDiary)="addToFoodDiaryFromConsole($event)">
+                  (addToFoodDiary)="addToFoodDiaryFromConsole($event)"
+                  (viewDetails)="onViewDetailsFromConsole($event)">
                 </app-product-card>
                 <!-- Add more cases for other UI element types here -->
               </ng-container>
