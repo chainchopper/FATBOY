@@ -45,6 +45,7 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
   isAgentTyping = false;
   isListening = false;
   agentStatus: 'online' | 'offline' = 'offline';
+  private lastAgentStatus: 'online' | 'offline' | null = null; // Track previous status
 
   private speechSubscription!: Subscription;
   private statusSubscription!: Subscription;
@@ -169,6 +170,31 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
   async checkStatus() {
     const isOnline = await this.aiService.checkAgentStatus();
     this.agentStatus = isOnline ? 'online' : 'offline';
+
+    if (this.agentStatus !== this.lastAgentStatus) {
+      if (this.agentStatus === 'offline') {
+        const offlineMessage: ChatMessage = {
+          sender: 'agent',
+          text: 'It looks like my AI brain is currently offline. I cannot process requests right now. Please check the server status.',
+          timestamp: new Date(),
+          avatar: this.agentAvatar,
+          suggestedPrompts: []
+        };
+        this.chatHistoryService.addAgentMessage(offlineMessage);
+        this.speechService.speak('My AI brain is currently offline. I cannot process requests right now.');
+      } else if (this.agentStatus === 'online' && this.lastAgentStatus === 'offline') {
+        const onlineMessage: ChatMessage = {
+          sender: 'agent',
+          text: 'Great news! My AI brain is back online and ready to assist you.',
+          timestamp: new Date(),
+          avatar: this.agentAvatar,
+          suggestedPrompts: []
+        };
+        this.chatHistoryService.addAgentMessage(onlineMessage);
+        this.speechService.speak('Great news! My AI brain is back online and ready to assist you.');
+      }
+      this.lastAgentStatus = this.agentStatus;
+    }
     this.cdr.detectChanges();
   }
 
