@@ -20,7 +20,7 @@
     <p *ngIf="!showExpandedOptions && !unifiedScannerService.isProcessingOcr && unifiedScannerService.isScanningActive && !unifiedScannerService.isStable" class="text-white text-center bg-black/50 px-4 py-2 rounded-md">Hold steady to scan a label or barcode.</p>
     <p *ngIf="!showExpandedOptions && !unifiedScannerService.isProcessingOcr && unifiedScannerService.isScanningActive && unifiedScannerService.isStable" class="text-white text-center bg-black/50 px-4 py-2 rounded-md">Analyzing...</p>
     <p *ngIf="!showExpandedOptions && !unifiedScannerService.isProcessingOcr && !unifiedScannerService.isScanningActive" class="text-white text-center bg-black/50 px-4 py-2 rounded-md">Nothing recognized. Hold steady to scan.</p>
-  </div>
+  </div> <!-- Closing tag for the div that starts on line 14 -->
 
   <!-- New Immersive Footer -->
   <div class="absolute bottom-0 left-0 right-0 p-4 bg-[#0f0f1e]/60 backdrop-blur-md border-t border-transparent z-30 flex items-center justify-center text-gray-200 gap-4 h-[90px]">
