@@ -6,25 +6,8 @@ import { LucideAngularModule } from 'lucide-angular';
   selector: 'app-food-icon',
   standalone: true,
   imports: [CommonModule, LucideAngularModule],
-  template: `
-    <div class="food-icon-container">
-      <lucide-icon 
-        [name]="getIconName(category)" 
-        [size]="16" 
-        class="food-icon"
-      ></lucide-icon>
-    </div>
-  `,
-  styles: [`
-    .food-icon-container {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .food-icon {
-      color: #a0a0c0;
-    }
-  `]
+  templateUrl: './food-icon.component.html',
+  styleUrls: []
 })
 export class FoodIconComponent {
   @Input() category: string = 'default';

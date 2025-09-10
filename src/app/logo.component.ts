@@ -5,21 +5,7 @@ import { CommonModule } from '@angular/common';
   selector: 'app-logo',
   standalone: true,
   imports: [CommonModule],
-  template: `
-    <div class="logo">
-      <img src="assets/logo64.png" alt="Fat Boy Logo" class="fatboy-logo-img">
-    </div>
-  `,
-  styles: [`
-    .logo {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .fatboy-logo-img {
-      height: 40px; /* Adjust size as needed */
-      width: auto;
-    }
-  `]
+  templateUrl: './logo.component.html',
+  styleUrls: []
 })
 export class LogoComponent { }

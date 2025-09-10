@@ -1,0 +1,23 @@
+<div class="relative w-full h-[300px] bg-black rounded-lg overflow-hidden mb-4 border border-[#4a4a6e]">
+  <div id="reader-{{instanceId}}" #readerElement class="w-full h-full flex justify-center items-center"></div>
+  <canvas #canvasElement class="hidden"></canvas>
+
+  <div class="absolute bottom-0 left-0 right-0 bg-gray-900/70 backdrop-blur-sm p-2.5 flex justify-around gap-2.5">
+    <button (click)="captureImage()" class="bg-transparent border border-teal-500 text-teal-400 px-3 py-2 rounded-full cursor-pointer flex flex-col items-center text-xs transition-all duration-300 hover:bg-teal-900/20 hover:shadow-lg hover:shadow-teal-500/50" title="Capture Image">
+      <lucide-icon name="camera" [size]="24"></lucide-icon>
+      <span>Capture</span>
+    </button>
+    <button (click)="toggleBarcodeScanning()" class="bg-transparent border border-teal-500 text-teal-400 px-3 py-2 rounded-full cursor-pointer flex flex-col items-center text-xs transition-all duration-300 hover:bg-teal-900/20 hover:shadow-lg hover:shadow-teal-500/50" title="Toggle Barcode Scan">
+      <lucide-icon [name]="isBarcodeScanning ? 'barcode' : 'scan-line'" [size]="24"></lucide-icon>
+      <span>{{ isBarcodeScanning ? 'Barcode ON' : 'Barcode OFF' }}</span>
+    </button>
+    <button (click)="switchCamera()" class="bg-transparent border border-teal-500 text-teal-400 px-3 py-2 rounded-full cursor-pointer flex flex-col items-center text-xs transition-all duration-300 hover:bg-teal-900/20 hover:shadow-lg hover:shadow-teal-500/50" title="Switch Camera">
+      <lucide-icon name="rotate-ccw" [size]="24"></lucide-icon>
+      <span>Switch</span>
+    </button>
+    <button (click)="closeCamera()" class="bg-transparent border border-red-500 text-red-500 px-3 py-2 rounded-full cursor-pointer flex flex-col items-center text-xs transition-all duration-300 hover:bg-red-900/10 hover:shadow-lg hover:shadow-red-500/50" title="Close Camera">
+      <lucide-icon name="x" [size]="24"></lucide-icon>
+      <span>Close</span>
+    </button>
+  </div>
+</div>
