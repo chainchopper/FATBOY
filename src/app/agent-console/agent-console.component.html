@@ -19,6 +19,13 @@
           <div *ngIf="msg.humanReadableToolCall" class="tool-call-indicator">
             ⚙️ {{ msg.humanReadableToolCall }}
           </div>
+          <!-- New: Dynamic Buttons -->
+          <div *ngIf="msg.dynamicButtons && msg.dynamicButtons.length > 0" class="dynamic-buttons">
+            <button *ngFor="let btn of msg.dynamicButtons" (click)="handleDynamicButtonClick(btn.action, btn.payload)" class="dynamic-btn">
+              {{ btn.text }}
+            </button>
+          </div>
+          <!-- Suggested Prompts -->
           <div *ngIf="msg.suggestedPrompts && msg.suggestedPrompts.length > 0" class="suggested-prompts">
             <button *ngFor="let prompt of msg.suggestedPrompts" (click)="submitSuggestedPrompt(prompt)" class="suggested-prompt-btn">
               {{ prompt }}
@@ -65,7 +72,7 @@
         placeholder="Type a command or message..."
         class="input-field">
       </textarea>
-      <button (click)="toggleVoiceListening()" class="mic-btn" [class.active]="isListening" title="Use Voice">🎤</button>
+      <button (click)="toggleVoiceListening()" class="mic-btn" [class.active]="isVoiceListening" title="Use Voice">🎤</button>
       <button (click)="sendMessage()" class="send-btn" [disabled]="!userInput.trim()">→</button>
     </div>
   </div>

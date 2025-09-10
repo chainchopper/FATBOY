@@ -6,7 +6,7 @@ export const environment = {
   production: false,
   
   // Specialized services (replace with your actual values)
-  ttsApiEndpoint: "http://api.blacknation.io:4123/v1/audio/speech", // Added TTS API Endpoint
+  ttsApiEndpoint: "http://api.blacknation.io:4123/v1/audio/speech", // Updated TTS API Endpoint
   ttsApiKey: "your_tts_api_key_here",
   suggestionsApiEndpoint: "https://your-suggestions-agent.com/generate",
   suggestionsApiKey: "your_suggestions_api_key_here",
@@ -14,9 +14,9 @@ export const environment = {
   metadataApiKey: "your_metadata_api_key_here",
   
   // OpenAI-like service config (replace with your actual values)
-  openaiApiBaseUrl: "http://100.67.233.36:8981/v1",
+  openaiApiBaseUrl: "http://api.blacknation.io:8981", // Updated OpenAI API Base URL
   openaiApiKey: "your_openai_compatible_api_key",
-  chatModelName: "rstar-coder-qwen3-0.6b@bf16", // Renamed from visionModelName
+  chatModelName: "rstar-coder-qwen3-0.6b@bf16",
   embeddingModelName: "fatboy-embeddings-v4-text-retrieval",
 
   // New Barcode Lookup API Key

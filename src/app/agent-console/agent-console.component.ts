@@ -9,15 +9,17 @@ import { ProfileService } from '../services/profile.service';
 import { AppModalService } from '../services/app-modal.service';
 import { Subscription, interval } from 'rxjs';
 import { supabase } from '../../integrations/supabase/client';
+import { Router } from '@angular/router'; // Import Router
 
 interface Message {
   sender: 'user' | 'agent' | 'tool';
   text: string;
   timestamp: Date;
   avatar: string;
-  suggestedPrompts?: string[]; // Renamed from followUpQuestions
+  suggestedPrompts?: string[];
   toolCalls?: any[];
   humanReadableToolCall?: string;
+  dynamicButtons?: { text: string; action: string; payload?: any }[]; // Add dynamicButtons
 }
 
 interface SlashCommand {
@@ -66,7 +68,8 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
     private preferencesService: PreferencesService,
     private profileService: ProfileService,
     private appModalService: AppModalService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private router: Router // Inject Router
   ) {}
 
   ngOnInit() {
@@ -179,7 +182,8 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
         avatar: this.agentAvatar,
         suggestedPrompts: aiResponse.suggestedPrompts,
         toolCalls: aiResponse.toolCalls,
-        humanReadableToolCall: aiResponse.humanReadableToolCall
+        humanReadableToolCall: aiResponse.humanReadableToolCall,
+        dynamicButtons: aiResponse.dynamicButtons // Store dynamic buttons
       };
       
       this.messages.push(agentMessage);
@@ -198,6 +202,36 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
   submitSuggestedPrompt(prompt: string) {
     this.userInput = prompt;
     this.sendMessage();
+  }
+
+  async handleDynamicButtonClick(action: string, payload: any = {}): Promise<void> {
+    // This method will simulate a user input based on the button click
+    // and send it back to the AI for further processing.
+    let simulatedInput = '';
+    switch (action) {
+      case 'confirm_add_to_shopping_list':
+        simulatedInput = `Yes, add "${payload.product_name}" by "${payload.brand}" to my shopping list.`;
+        break;
+      case 'cancel_add_to_shopping_list':
+        simulatedInput = `No, do not add "${payload.product_name}" to my shopping list.`;
+        break;
+      case 'confirm_add_to_food_diary':
+        simulatedInput = `Yes, add "${payload.product_name}" by "${payload.brand}" to my food diary for ${payload.meal_type}.`;
+        break;
+      case 'cancel_add_to_food_diary':
+        simulatedInput = `No, do not add "${payload.product_name}" to my food diary.`;
+        break;
+      case 'open_scanner':
+        this.router.navigate(['/scanner']);
+        this.speechService.speak('Opening the scanner now.');
+        return; // Do not send to AI, navigate directly
+      // Add more cases for other dynamic actions
+      default:
+        simulatedInput = `User clicked: ${action} with payload: ${JSON.stringify(payload)}`;
+        break;
+    }
+    this.userInput = simulatedInput;
+    await this.sendMessage();
   }
 
   private scrollToBottom(): void {
@@ -228,7 +262,8 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
         avatar: item.sender === 'user' ? this.userAvatar : this.agentAvatar,
         suggestedPrompts: item.content.suggestedPrompts,
         toolCalls: item.content.toolCalls,
-        humanReadableToolCall: item.content.humanReadableToolCall
+        humanReadableToolCall: item.content.humanReadableToolCall,
+        dynamicButtons: item.content.dynamicButtons // Load dynamic buttons
       }));
     } else {
       this.messages = [{
@@ -258,7 +293,8 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
           text: message.text,
           suggestedPrompts: message.suggestedPrompts,
           toolCalls: message.toolCalls,
-          humanReadableToolCall: message.humanReadableToolCall
+          humanReadableToolCall: message.humanReadableToolCall,
+          dynamicButtons: message.dynamicButtons // Save dynamic buttons
         }
       });
 

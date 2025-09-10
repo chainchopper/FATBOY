@@ -37,9 +37,11 @@ export class ChatterboxTtsService {
       this.healthApiUrl = '';
       this.isApiAvailable = false;
     } else {
+      // Ensure the base URL is used for derivation, not the full speech endpoint
+      const baseUrl = environment.ttsApiEndpoint.substring(0, environment.ttsApiEndpoint.indexOf('/v1/audio/speech'));
       this.ttsApiUrl = environment.ttsApiEndpoint;
-      this.voicesApiUrl = this.ttsApiUrl.replace('/speech', '/voices');
-      this.healthApiUrl = this.ttsApiUrl.replace('/speech', '/health');
+      this.voicesApiUrl = `${baseUrl}/v1/audio/voices`;
+      this.healthApiUrl = `${baseUrl}/v1/health`;
       this.checkApiHealthAndLoadVoices();
     }
   }

@@ -317,3 +317,33 @@
   margin-top: 5px;
   align-self: flex-start;
 }
+
+/* New: Dynamic Buttons Styling */
+.dynamic-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+  max-width: 100%;
+  align-self: flex-start;
+}
+
+.dynamic-btn {
+  background-color: #f038ff; /* Primary action color */
+  color: #1a1a2e;
+  border: 1px solid #f038ff;
+  padding: 8px 15px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: bold;
+  transition: all 0.3s;
+  white-space: nowrap;
+  box-shadow: 0 0 8px rgba(240, 56, 255, 0.5);
+}
+
+.dynamic-btn:hover {
+  background-color: #9c27b0; /* Darker shade on hover */
+  box-shadow: 0 0 15px rgba(240, 56, 255, 0.7);
+  transform: translateY(-2px);
+}

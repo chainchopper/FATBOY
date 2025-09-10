@@ -3,6 +3,7 @@ import { ShoppingListService } from './shopping-list.service';
 import { FoodDiaryService, MealType } from './food-diary.service';
 import { PreferencesService } from './preferences.service';
 import { Product } from './product-db.service';
+import { Router } from '@angular/router'; // Import Router
 
 @Injectable({
   providedIn: 'root'
@@ -12,7 +13,8 @@ export class ToolExecutorService {
   constructor(
     private shoppingListService: ShoppingListService,
     private foodDiaryService: FoodDiaryService,
-    private preferencesService: PreferencesService
+    private preferencesService: PreferencesService,
+    private router: Router // Inject Router
   ) { }
 
   async executeTool(toolCall: any, lastDiscussedProduct: Product | null): Promise<{ tool_call_id: string; output: string; humanReadableSummary: string; }> {
@@ -94,6 +96,11 @@ export class ToolExecutorService {
         const summary = this.foodDiaryService.getDailySummary(date);
         toolOutput = `DIARY_SUMMARY: Date: ${date}, Total Calories: ${summary.totalCalories}, Flagged Items: ${summary.totalFlaggedItems}, Top Flagged: ${Object.keys(summary.flaggedIngredients).slice(0,3).join(', ')}.`;
         humanReadableSummary = `Summarizing your food diary for ${date}.`;
+        break;
+      case 'open_scanner':
+        this.router.navigate(['/scanner']);
+        toolOutput = `SCANNER_OPENED: Navigated user to the unified scanner.`;
+        humanReadableSummary = `Opening the unified scanner.`;
         break;
       default:
         toolOutput = `Unknown tool: ${functionName}`;

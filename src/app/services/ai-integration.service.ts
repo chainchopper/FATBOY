@@ -192,6 +192,17 @@ export class AiIntegrationService {
           },
         }
       }
+    },
+    {
+      type: "function",
+      function: {
+        name: "open_scanner",
+        description: "Opens the unified scanner to allow the user to scan a barcode or food label.",
+        parameters: {
+          type: "object",
+          properties: {}
+        }
+      }
     }
   ];
 
@@ -249,6 +260,7 @@ export class AiIntegrationService {
     - Use the tool's output to formulate your final "response" message.
     - Always provide 3 helpful "suggestions".
     - If a tool call requires further clarification or a "yes/no" confirmation from the user, generate "dynamicButtons" to guide the interaction. For example, after suggesting to add an item to a list, provide "Yes, add it!" and "No, cancel." buttons.
+    - If the user asks to scan something or open the camera, use the 'open_scanner' tool.
     Here is the current user's context:
     ${userContext}
     `;
