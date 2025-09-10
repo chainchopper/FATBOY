@@ -2,7 +2,7 @@ import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
-import { LogoComponent } from './logo.component'; // Updated import path for LogoComponent
+import { LogoComponent } from './logo.component'; // Corrected import path
 import { UserNotificationService } from './services/user-notification.service';
 import { UiService } from './services/ui.service';
 import { Observable } from 'rxjs';

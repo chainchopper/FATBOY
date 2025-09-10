@@ -18,7 +18,7 @@ import { take } from 'rxjs/operators';
 import { Subscription, Observable } from 'rxjs';
 import { LucideAngularModule } from 'lucide-angular';
 import { UiService } from '../services/ui.service';
-import { LogoComponent } from '../logo.component'; // Corrected import path
+import { LogoComponent } from '../logo.component'; // Corrected import path to go up one level
 import { UserNotificationService } from '../services/user-notification.service';
 import { NotificationsComponent } from '../notifications/notifications.component';
 

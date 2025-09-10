@@ -12,7 +12,7 @@ import { LucideAngularModule } from 'lucide-angular';
 import { UserNotificationService } from './services/user-notification.service';
 import { NotificationsComponent } from './notifications/notifications.component';
 import { UiService } from './services/ui.service';
-import { AppHeaderComponent } from './app-header.component'; // Updated import path
+import { AppHeaderComponent } from './app-header.component';
 
 @Component({
   selector: 'app-root',
