@@ -5,7 +5,7 @@ import { AudioService } from './audio.service';
 import { AiContextService } from './ai-context.service';
 import { ToolExecutorService } from './tool-executor.service';
 
-export interface DynamicButton { // Added 'export' keyword here
+export interface DynamicButton {
   text: string;
   action: string;
   payload?: any;

@@ -203,8 +203,6 @@ export class CameraFeedComponent implements AfterViewInit, OnDestroy {
         this.html5QrcodeScanner.clear();
         this.notificationService.showInfo('Camera stopped.', 'Live Feed');
       } catch (error) {
-        console.error('Error stopping camera:', error);
-        this.notificationService.showError('Failed to stop camera.');
       }
     }
   }
