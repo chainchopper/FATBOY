@@ -73,15 +73,17 @@
 
   <div class="preference-section">
     <h3>Inference Preference</h3>
-    <p class="section-description">Choose whether to use cloud-based AI or run models locally on your device for enhanced privacy and offline use.</p>
     <div class="preference-item">
       <input type="checkbox" id="onDeviceInference" [(ngModel)]="preferences.onDeviceInference">
       <label for="onDeviceInference">Use On-Device AI (Experimental)</label>
     </div>
     <div class="preference-item">
-      <input type="checkbox" id="enableVoiceCommands" [(ngModel)]="preferences.enableVoiceCommands">
+      <input type="checkbox" id="enableVoiceCommands" [(ngModel)]="preferences.enableVoiceCommands" [disabled]="!isSpeechApiSupported">
       <label for="enableVoiceCommands">Enable Voice Commands (Agent Console & Scanner)</label>
     </div>
+    <p *ngIf="!isSpeechApiSupported" class="warning-message">
+      ⚠️ Your browser does not support the Web Speech API for voice commands.
+    </p>
   </div>
 
   <div class="preference-section">
@@ -93,12 +95,15 @@
     </div>
     <div class="preference-item">
       <label for="chatterboxVoice">Nirvana TTS Voice:</label>
-      <select id="chatterboxVoice" [(ngModel)]="preferences.chatterboxVoiceId" class="voice-select">
+      <select id="chatterboxVoice" [(ngModel)]="preferences.chatterboxVoiceId" class="voice-select" [disabled]="ttsVoicesLoadingError || availableTtsVoices.length === 0">
         <option *ngFor="let voice of availableTtsVoices" [value]="voice.id">
           {{ voice.name }} ({{ voice.language }})
         </option>
       </select>
     </div>
+    <p *ngIf="ttsVoicesLoadingError" class="warning-message">
+      ⚠️ Could not load TTS voices. Please check the Chatterbox TTS API server.
+    </p>
   </div>
 
   <div class="preference-section">

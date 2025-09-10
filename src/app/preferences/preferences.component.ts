@@ -8,6 +8,7 @@ import { PreferencesService, UserPreferences } from '../services/preferences.ser
 import { GamificationService } from '../services/gamification.service';
 import { ButtonComponent } from '../button.component';
 import { ChatterboxTtsService, ChatterboxVoice } from '../services/chatterbox-tts.service'; // Import TTS service
+import { SpeechService } from '../services/speech.service'; // Import SpeechService
 
 @Component({
   selector: 'app-preferences',
@@ -21,6 +22,8 @@ export class PreferencesComponent implements OnInit {
   ingredientCategories: { [key: string]: { name: string, items: string[] } };
   newCustomIngredient: string = '';
   availableTtsVoices: ChatterboxVoice[] = [];
+  ttsVoicesLoadingError: boolean = false; // New: Flag for TTS voice loading error
+  isSpeechApiSupported: boolean = true; // New: Flag for Web Speech API support
   private currentUserId: string | null = null;
 
   constructor(
@@ -29,7 +32,8 @@ export class PreferencesComponent implements OnInit {
     private ingredientParser: IngredientParserService,
     private preferencesService: PreferencesService,
     private gamificationService: GamificationService,
-    private chatterboxTtsService: ChatterboxTtsService // Inject ChatterboxTtsService
+    private chatterboxTtsService: ChatterboxTtsService, // Inject ChatterboxTtsService
+    private speechService: SpeechService // Inject SpeechService
   ) {
     this.ingredientCategories = this.ingredientParser.INGREDIENT_DATABASE;
   }
@@ -42,10 +46,27 @@ export class PreferencesComponent implements OnInit {
       });
       this.loadTtsVoices(); // Load voices when component initializes and user is known
     });
+
+    // Subscribe to speech API support status
+    this.speechService.speechApiSupported.subscribe(supported => {
+      this.isSpeechApiSupported = supported;
+      if (!supported) {
+        // If not supported, disable voice commands in preferences
+        this.preferences.enableVoiceCommands = false;
+        this.preferencesService.savePreferences(this.preferences);
+        this.notificationService.showWarning('Voice commands are not supported in your browser.', 'Feature Unavailable');
+      }
+    });
   }
 
   async loadTtsVoices(): Promise<void> {
     this.availableTtsVoices = this.chatterboxTtsService.getAvailableVoices();
+    if (this.availableTtsVoices.length === 0) {
+      this.ttsVoicesLoadingError = true; // Set error flag if no voices loaded
+      this.notificationService.showWarning('Could not load TTS voices. Please check Chatterbox TTS API status.', 'TTS Error');
+    } else {
+      this.ttsVoicesLoadingError = false;
+    }
     // Ensure the selected voice is still valid, or set a default
     if (!this.availableTtsVoices.some(v => v.id === this.preferences.chatterboxVoiceId)) {
       this.preferences.chatterboxVoiceId = 'KEVIN'; // Fallback to KEVIN if selected voice is not found

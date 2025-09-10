@@ -16,6 +16,7 @@ export class SpeechService {
   private recognition: any;
   private isListening = false;
   public commandRecognized = new EventEmitter<string>(); // New EventEmitter
+  public speechApiSupported = new EventEmitter<boolean>(); // New: Emits true if API is supported
 
   constructor(
     private notificationService: NotificationService,
@@ -47,8 +48,10 @@ export class SpeechService {
       this.recognition.onend = () => {
         this.isListening = false;
       };
+      this.speechApiSupported.emit(true); // Emit true if API is supported
     } else {
       console.warn('Web Speech API (SpeechRecognition) is not supported in this browser.');
+      this.speechApiSupported.emit(false); // Emit false if API is not supported
     }
   }
 
