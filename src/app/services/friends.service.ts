@@ -32,6 +32,8 @@ export interface ActivityFeedItem {
   avatar_url: string;
 }
 
+export type FriendshipStatus = 'friends' | 'pending_sent' | 'pending_received' | 'not_friends' | 'self';
+
 @Injectable({
   providedIn: 'root'
 })
@@ -180,5 +182,41 @@ export class FriendsService {
       return [];
     }
     return data as ActivityFeedItem[];
+  }
+
+  // New method to check friendship status
+  async getFriendshipStatus(otherUserId: string): Promise<FriendshipStatus> {
+    const currentUserId = this.authService.getCurrentUserId();
+    if (!currentUserId) return 'not_friends';
+    if (currentUserId === otherUserId) return 'self';
+
+    const { data, error } = await supabase
+      .from('nirvana_friend_requests')
+      .select('requester_id, status')
+      .or(`(requester_id.eq.${currentUserId},addressee_id.eq.${otherUserId}),(requester_id.eq.${otherUserId},addressee_id.eq.${currentUserId})`)
+      .single();
+
+    if (error && error.code !== 'PGRST116') { // PGRST116 means no rows found
+      console.error('Error checking friendship status:', error);
+      return 'not_friends';
+    }
+
+    if (!data) {
+      return 'not_friends';
+    }
+
+    if (data.status === 'accepted') {
+      return 'friends';
+    }
+
+    if (data.status === 'pending') {
+      if (data.requester_id === currentUserId) {
+        return 'pending_sent';
+      } else {
+        return 'pending_received';
+      }
+    }
+
+    return 'not_friends';
   }
 }

@@ -9,8 +9,10 @@ import { LeaderboardService, LeaderboardStats } from '../services/leaderboard.se
 import { switchMap, map } from 'rxjs/operators';
 import { RouterLink, ActivatedRoute } from '@angular/router';
 import { CommunityService } from '../services/community.service';
-import { FriendsService, ActivityFeedItem } from '../services/friends.service';
+import { FriendsService, ActivityFeedItem, FriendshipStatus } from '../services/friends.service';
 import { LucideAngularModule } from 'lucide-angular';
+import { ButtonComponent } from '../button.component';
+import { NotificationService } from '../services/notification.service';
 
 export interface Contribution {
   id: string;
@@ -23,7 +25,7 @@ export interface Contribution {
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, RouterLink, TitleCasePipe, DatePipe, LucideAngularModule],
+  imports: [CommonModule, RouterLink, TitleCasePipe, DatePipe, LucideAngularModule, ButtonComponent],
   templateUrl: './profile.component.html',
   styleUrls: []
 })
@@ -35,6 +37,7 @@ export class ProfileComponent implements OnInit {
   activityFeed$!: Observable<ActivityFeedItem[]>;
   isCurrentUserProfile: boolean = false;
   viewedUserId: string | null = null;
+  friendshipStatus: FriendshipStatus = 'not_friends';
 
   constructor(
     private route: ActivatedRoute,
@@ -43,7 +46,8 @@ export class ProfileComponent implements OnInit {
     private gamificationService: GamificationService,
     private leaderboardService: LeaderboardService,
     private communityService: CommunityService,
-    private friendsService: FriendsService
+    private friendsService: FriendsService,
+    private notificationService: NotificationService
   ) {}
 
   ngOnInit() {
@@ -60,8 +64,27 @@ export class ProfileComponent implements OnInit {
         this.badges$ = from(this.gamificationService.getBadgesForUser(this.viewedUserId));
         this.contributions$ = from(this.communityService.getContributionsByUserId(this.viewedUserId) as Promise<Contribution[]>);
         this.activityFeed$ = from(this.friendsService.getUserActivity(this.viewedUserId));
+        if (!this.isCurrentUserProfile) {
+          this.loadFriendshipStatus();
+        }
       }
     });
+  }
+
+  async loadFriendshipStatus() {
+    if (!this.viewedUserId) return;
+    this.friendshipStatus = await this.friendsService.getFriendshipStatus(this.viewedUserId);
+  }
+
+  async addFriend() {
+    if (!this.viewedUserId) return;
+    const result = await this.friendsService.sendFriendRequest(this.viewedUserId);
+    if (result) {
+      this.notificationService.showSuccess('Friend request sent!');
+      this.friendshipStatus = 'pending_sent'; // Optimistic update
+    } else {
+      this.notificationService.showError('Failed to send friend request.');
+    }
   }
 
   getIconForActivity(type: string): string {
