@@ -6,9 +6,9 @@ import { ProductDbService, Product } from '../services/product-db.service';
 import { NotificationService } from '../services/notification.service';
 import { ModalService } from '../services/modal.service';
 import { supabase } from '../../integrations/supabase/client';
-import { InputComponent } from '../input.component';
-import { TextareaComponent } from '../textarea.component';
-import { ButtonComponent } from '../button.component';
+import { InputComponent } from '../input/input.component';
+import { TextareaComponent } from '../textarea/textarea.component';
+import { ButtonComponent } from '../button/button.component';
 import { ProfileService } from '../services/profile.service';
 import { ProductManagerService } from '../services/product-manager.service';
 
@@ -64,25 +64,16 @@ export class ManualEntryComponent {
     let productImageUrl: string | undefined = 'https://via.placeholder.com/150?text=Manually+Added';
 
     if (this.imageFile) {
-      this.notificationService.showInfo('Uploading product image...', 'Manual Entry');
       const uploadedUrl = await this.profileService.uploadAvatar(this.imageFile);
       if (uploadedUrl) {
         productImageUrl = uploadedUrl;
-        this.notificationService.showSuccess('Product image uploaded!', 'Manual Entry');
-      } else {
-        this.notificationService.showError('Failed to upload product image. Using default.', 'Manual Entry');
       }
     } else {
-      this.notificationService.showInfo('Searching for a product image...', 'AI Assistant');
-      const { data: productsData, error: functionError } = await supabase.functions.invoke('fetch-food-metadata', {
+      const { data: productsData } = await supabase.functions.invoke('fetch-food-metadata', {
           body: { food_names: [`${this.productData.name} ${this.productData.brand}`] }
       });
-
-      if (functionError) {
-          console.warn('Could not fetch metadata for manually added product:', functionError);
-      } else if (productsData && productsData[0]?.product?.image) {
+      if (productsData && productsData[0]?.product?.image) {
           productImageUrl = productsData[0].product.image;
-          this.notificationService.showSuccess('Found a matching product image!', 'AI Assistant');
       }
     }
 

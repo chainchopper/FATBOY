@@ -10,9 +10,9 @@ import { PreferencesService } from '../services/preferences.service';
 import { AuthService } from '../services/auth.service';
 import { NotificationService } from '../services/notification.service';
 import { AiIntegrationService } from '../services/ai-integration.service';
-import { ButtonComponent } from '../button.component'; // Updated import path
-import { InputComponent } from '../input.component';
-import { TextareaComponent } from '../textarea.component';
+import { ButtonComponent } from '../button/button.component';
+import { InputComponent } from '../input/input.component';
+import { TextareaComponent } from '../textarea/textarea.component';
 import { IngredientParserService } from '../services/ingredient-parser.service';
 
 interface CommunityContribution {
@@ -96,7 +96,7 @@ export class CommunityComponent implements OnInit {
       notes: ''
     };
     this.mode = 'manual';
-    this.productDb.setLastViewedProduct(product); // Use ProductDbService
+    this.productDb.setLastViewedProduct(product);
   }
 
   async submitContribution() {
@@ -157,8 +157,7 @@ export class CommunityComponent implements OnInit {
     }
 
     await this.communityService.toggleLike(contribution.id, contribution.likes);
-
-    this.productDb.setLastViewedProduct({ // Use ProductDbService
+    this.productDb.setLastViewedProduct({
       id: contribution.id,
       name: contribution.product_name,
       brand: contribution.brand,
@@ -179,7 +178,7 @@ export class CommunityComponent implements OnInit {
       const contribution = this.communityContributions.find(c => c.id === contributionId);
       if (contribution) {
         contribution.comments.push(newComment);
-        this.productDb.setLastViewedProduct({ // Use ProductDbService
+        this.productDb.setLastViewedProduct({
           id: contribution.id,
           name: contribution.product_name,
           brand: contribution.brand,
@@ -195,7 +194,7 @@ export class CommunityComponent implements OnInit {
   }
 
   onContributionClick(contribution: CommunityContribution) {
-    this.productDb.setLastViewedProduct({ // Use ProductDbService
+    this.productDb.setLastViewedProduct({
       id: contribution.id,
       name: contribution.product_name,
       brand: contribution.brand,

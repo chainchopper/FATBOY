@@ -6,25 +6,25 @@ import { AuthService } from '../services/auth.service';
 import { IngredientParserService } from '../services/ingredient-parser.service';
 import { PreferencesService, UserPreferences } from '../services/preferences.service';
 import { GamificationService } from '../services/gamification.service';
-import { ButtonComponent } from '../button.component';
-import { ChatterboxTtsService, ChatterboxVoice } from '../services/chatterbox-tts.service'; // Import TTS service
-import { SpeechService } from '../services/speech.service'; // Import SpeechService
-import { InputComponent } from '../input.component'; // Import InputComponent
+import { ButtonComponent } from '../button/button.component';
+import { ChatterboxTtsService, ChatterboxVoice } from '../services/chatterbox-tts.service';
+import { SpeechService } from '../services/speech.service';
+import { InputComponent } from '../input/input.component';
 
 @Component({
   selector: 'app-preferences',
   standalone: true,
-  imports: [CommonModule, FormsModule, KeyValuePipe, TitleCasePipe, ButtonComponent, InputComponent], // Add InputComponent
+  imports: [CommonModule, FormsModule, KeyValuePipe, TitleCasePipe, ButtonComponent, InputComponent],
   templateUrl: './preferences.component.html',
   styleUrls: []
 })
 export class PreferencesComponent implements OnInit {
-  preferences!: UserPreferences; // Use definite assignment assertion
+  preferences!: UserPreferences;
   ingredientCategories: { [key: string]: { name: string, items: string[] } };
   newCustomIngredient: string = '';
   availableTtsVoices: ChatterboxVoice[] = [];
-  ttsVoicesLoadingError: boolean = false; // New: Flag for TTS voice loading error
-  isSpeechApiSupported: boolean = true; // New: Flag for Web Speech API support
+  ttsVoicesLoadingError: boolean = false;
+  isSpeechApiSupported: boolean = true;
   private currentUserId: string | null = null;
 
   constructor(
@@ -33,8 +33,8 @@ export class PreferencesComponent implements OnInit {
     private ingredientParser: IngredientParserService,
     private preferencesService: PreferencesService,
     private gamificationService: GamificationService,
-    private chatterboxTtsService: ChatterboxTtsService, // Inject ChatterboxTtsService
-    private speechService: SpeechService // Inject SpeechService
+    private chatterboxTtsService: ChatterboxTtsService,
+    private speechService: SpeechService
   ) {
     this.ingredientCategories = this.ingredientParser.INGREDIENT_DATABASE;
   }
@@ -43,16 +43,14 @@ export class PreferencesComponent implements OnInit {
     this.authService.currentUser$.subscribe(user => {
       this.currentUserId = user?.id || null;
       this.preferencesService.preferences$.subscribe(prefs => {
-        this.preferences = { ...prefs }; // Create a copy to avoid direct mutation
+        this.preferences = { ...prefs };
       });
-      this.loadTtsVoices(); // Load voices when component initializes and user is known
+      this.loadTtsVoices();
     });
 
-    // Subscribe to speech API support status
     this.speechService.speechApiSupported.subscribe(supported => {
       this.isSpeechApiSupported = supported;
       if (!supported) {
-        // If not supported, disable voice commands in preferences
         this.preferences.enableVoiceCommands = false;
         this.preferencesService.savePreferences(this.preferences);
         this.notificationService.showWarning('Voice commands are not supported in your browser.', 'Feature Unavailable');
@@ -63,14 +61,12 @@ export class PreferencesComponent implements OnInit {
   async loadTtsVoices(): Promise<void> {
     this.availableTtsVoices = this.chatterboxTtsService.getAvailableVoices();
     if (this.availableTtsVoices.length === 0) {
-      this.ttsVoicesLoadingError = true; // Set error flag if no voices loaded
-      this.notificationService.showWarning('Could not load TTS voices. Please check Chatterbox TTS API status.', 'TTS Error');
+      this.ttsVoicesLoadingError = true;
     } else {
       this.ttsVoicesLoadingError = false;
     }
-    // Ensure the selected voice is still valid, or set a default
     if (!this.availableTtsVoices.some(v => v.id === this.preferences.chatterboxVoiceId)) {
-      this.preferences.chatterboxVoiceId = 'KEVIN'; // Fallback to KEVIN if selected voice is not found
+      this.preferences.chatterboxVoiceId = 'KEVIN';
     }
   }
 
@@ -105,13 +101,11 @@ export class PreferencesComponent implements OnInit {
     const ingredient = this.newCustomIngredient.trim().toLowerCase();
     if (ingredient && !this.preferences.customAvoidedIngredients.includes(ingredient)) {
       this.preferences.customAvoidedIngredients.push(ingredient);
-      
       const category = this.ingredientParser.categorizeSingleIngredient(ingredient);
       if (category) {
         this.addAvoidedIngredient(ingredient);
         this.notificationService.showInfo(`Added "${ingredient}" and auto-categorized it.`);
       }
-      
       this.newCustomIngredient = '';
     }
   }

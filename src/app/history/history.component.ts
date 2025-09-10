@@ -6,14 +6,14 @@ import { ShoppingListService } from '../services/shopping-list.service';
 import { AppModalService } from '../services/app-modal.service';
 import { ProductCardComponent } from '../product-card/product-card.component';
 import { ShareService } from '../services/share.service';
-import { AiIntegrationService } from '../services/ai-integration.service'; // Import AiIntegrationService
-import { ButtonComponent } from '../button.component'; // Import ButtonComponent
-import { CustomTitleCasePipe } from '../shared/custom-title-case.pipe'; // Import CustomTitleCasePipe
+import { AiIntegrationService } from '../services/ai-integration.service';
+import { ButtonComponent } from '../button/button.component';
+import { CustomTitleCasePipe } from '../shared/custom-title-case.pipe';
 
 @Component({
   selector: 'app-history',
   standalone: true,
-  imports: [CommonModule, ProductCardComponent, ButtonComponent, CustomTitleCasePipe], // Add ButtonComponent and CustomTitleCasePipe
+  imports: [CommonModule, ProductCardComponent, ButtonComponent, CustomTitleCasePipe],
   templateUrl: './history.component.html',
   styleUrls: []
 })
@@ -27,8 +27,8 @@ export class HistoryComponent implements OnInit {
     private shoppingListService: ShoppingListService,
     private appModalService: AppModalService,
     private shareService: ShareService,
-    private aiService: AiIntegrationService, // Inject AiIntegrationService
-    private router: Router // Inject Router
+    private aiService: AiIntegrationService,
+    private router: Router
   ) {}
 
   ngOnInit() {
@@ -72,7 +72,7 @@ export class HistoryComponent implements OnInit {
   }
 
   addToFoodDiary(product: Product) {
-    this.appModalService.open(product); // Still use modal for meal type selection
+    this.appModalService.open(product);
   }
 
   shareProduct(product: Product) {
@@ -87,9 +87,9 @@ export class HistoryComponent implements OnInit {
     this.productDb.toggleFavorite(productId);
   }
 
-  onViewDetails(product: Product) { // New method to handle viewDetails event
-    this.productDb.setLastViewedProduct(product); // Use ProductDbService
-    this.router.navigate(['/products', product.id]); // Navigate to details page
+  onViewDetails(product: Product) {
+    this.productDb.setLastViewedProduct(product);
+    this.router.navigate(['/products', product.id]);
   }
 
   getCategoryIcon(category: string): string {
@@ -103,7 +103,6 @@ export class HistoryComponent implements OnInit {
       natural: '🌿',
       allergens: '⚠️'
     };
-    
     return icons[category] || '📋';
   }
 }

@@ -7,12 +7,12 @@ import { AppModalService } from '../services/app-modal.service';
 import { GamificationService } from '../services/gamification.service';
 import { RouterLink } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
-import { ButtonComponent } from '../button.component'; // Import ButtonComponent
+import { ButtonComponent } from '../button/button.component';
 
 @Component({
   selector: 'app-friends',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, LucideAngularModule, DatePipe, ButtonComponent], // Add ButtonComponent
+  imports: [CommonModule, FormsModule, RouterLink, LucideAngularModule, DatePipe, ButtonComponent],
   templateUrl: './friends.component.html',
   styleUrls: []
 })
@@ -47,14 +47,14 @@ export class FriendsComponent implements OnInit {
   async acceptRequest(requestId: number) {
     await this.friendsService.updateFriendRequest(requestId, 'accepted');
     this.notificationService.showSuccess('Friend request accepted!');
-    this.loadData(); // Refresh the lists
-    this.gamificationService.checkAndUnlockAchievements(); // Check for new badges
+    this.loadData();
+    this.gamificationService.checkAndUnlockAchievements();
   }
 
   async declineRequest(requestId: number) {
     await this.friendsService.removeFriendship(requestId);
     this.notificationService.showInfo('Friend request declined.');
-    this.loadData(); // Refresh the lists
+    this.loadData();
   }
 
   async removeFriend(friendshipId: number) {
@@ -66,7 +66,7 @@ export class FriendsComponent implements OnInit {
       onConfirm: async () => {
         await this.friendsService.removeFriendship(friendshipId);
         this.notificationService.showInfo('Friend removed.');
-        this.loadData(); // Refresh the lists
+        this.loadData();
       }
     });
   }

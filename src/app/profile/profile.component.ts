@@ -11,7 +11,7 @@ import { RouterLink, ActivatedRoute } from '@angular/router';
 import { CommunityService } from '../services/community.service';
 import { FriendsService, ActivityFeedItem, FriendshipStatus } from '../services/friends.service';
 import { LucideAngularModule } from 'lucide-angular';
-import { ButtonComponent } from '../button.component';
+import { ButtonComponent } from '../button/button.component';
 import { NotificationService } from '../services/notification.service';
 
 export interface Contribution {
@@ -81,7 +81,7 @@ export class ProfileComponent implements OnInit {
     const result = await this.friendsService.sendFriendRequest(this.viewedUserId);
     if (result) {
       this.notificationService.showSuccess('Friend request sent!');
-      this.friendshipStatus = 'pending_sent'; // Optimistic update
+      this.friendshipStatus = 'pending_sent';
     } else {
       this.notificationService.showError('Failed to send friend request.');
     }

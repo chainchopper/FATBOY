@@ -4,16 +4,16 @@ import { Product } from '../services/product-db.service';
 import { LucideAngularModule } from 'lucide-angular';
 import { FoodIconComponent } from '../food-icon/food-icon.component';
 import { CustomTitleCasePipe } from '../shared/custom-title-case.pipe';
-import { ButtonComponent } from '../button.component';
-import { ProductDbService } from '../services/product-db.service'; // Import ProductDbService
-import { Router } from '@angular/router'; // Import Router
+import { ButtonComponent } from '../button/button.component';
+import { ProductDbService } from '../services/product-db.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-product-card',
   standalone: true,
   imports: [CommonModule, LucideAngularModule, FoodIconComponent, CustomTitleCasePipe, ButtonComponent],
   templateUrl: './product-card.component.html',
-  styleUrls: [] // Removed reference to .css file
+  styleUrls: []
 })
 export class ProductCardComponent {
   @Input() product!: Product;
@@ -35,41 +35,23 @@ export class ProductCardComponent {
 
   isExpanded: boolean = false;
 
-  constructor(private productDbService: ProductDbService, private router: Router) {} // Inject Router
+  constructor(private productDbService: ProductDbService, private router: Router) {}
 
   toggleExpand() {
     this.isExpanded = !this.isExpanded;
     if (this.isExpanded) {
-      this.productDbService.setLastViewedProduct(this.product); // Use ProductDbService
-      this.router.navigate(['/products', this.product.id]); // Navigate to details page
+      this.productDbService.setLastViewedProduct(this.product);
+      this.router.navigate(['/products', this.product.id]);
     }
   }
 
-  onTogglePurchased() {
-    this.togglePurchased.emit(this.product.id);
-  }
-
-  onRemove() {
-    this.remove.emit(this.product.id);
-  }
-
-  onShare() {
-    this.share.emit(this.product);
-  }
-
-  onAddToShoppingList() {
-    this.addToShoppingList.emit(this.product); // Emit directly
-  }
-
-  onAddToFoodDiary() {
-    this.addToFoodDiary.emit(this.product); // Emit directly
-  }
-
-  onToggleFavorite() {
-    this.toggleFavorite.emit(this.product.id);
-  }
-
-  onViewDetailsClick() { // New method to handle explicit view details click
+  onTogglePurchased() { this.togglePurchased.emit(this.product.id); }
+  onRemove() { this.remove.emit(this.product.id); }
+  onShare() { this.share.emit(this.product); }
+  onAddToShoppingList() { this.addToShoppingList.emit(this.product); }
+  onAddToFoodDiary() { this.addToFoodDiary.emit(this.product); }
+  onToggleFavorite() { this.toggleFavorite.emit(this.product.id); }
+  onViewDetailsClick() {
     this.productDbService.setLastViewedProduct(this.product);
     this.router.navigate(['/products', this.product.id]);
   }

@@ -8,7 +8,7 @@ import { NotificationService } from '../services/notification.service';
 import { ShareService } from '../services/share.service';
 import { ShoppingListService } from '../services/shopping-list.service';
 import { AppModalService } from '../services/app-modal.service';
-import { ButtonComponent } from '../button.component';
+import { ButtonComponent } from '../button/button.component';
 import { CustomTitleCasePipe } from '../shared/custom-title-case.pipe';
 import { firstValueFrom } from 'rxjs';
 import { SpeechService } from '../services/speech.service';
@@ -17,7 +17,7 @@ import { ProductCommentService, ProductComment } from '../services/product-comme
 import { AuthService } from '../services/auth.service';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
-import { TextareaComponent } from '../textarea.component';
+import { TextareaComponent } from '../textarea/textarea.component';
 
 @Component({
   selector: 'app-product-details',
@@ -56,12 +56,10 @@ export class ProductDetailsComponent implements OnInit {
     this.currentUserId = this.authService.getCurrentUserId() || null;
     const productId = this.route.snapshot.paramMap.get('id');
     if (productId) {
-      // Try to get from last viewed first for immediate display
       const lastViewed = this.productDbService.getLastViewedProduct();
       if (lastViewed && lastViewed.id === productId) {
         this.product = lastViewed;
       } else {
-        // Fallback to fetching from DB if not last viewed
         this.product = await this.productDbService.getProductByClientSideId(productId);
       }
 
@@ -70,19 +68,17 @@ export class ProductDetailsComponent implements OnInit {
         this.loadComments();
       } else {
         this.notificationService.showError('Product not found.', 'Error');
-        this.router.navigate(['/history']); // Redirect if product not found
+        this.router.navigate(['/history']);
       }
     } else {
-      this.router.navigate(['/history']); // Redirect if no ID in route
+      this.router.navigate(['/history']);
     }
   }
 
   private evaluateProduct(): void {
     if (!this.product) return;
-
     const preferences = this.preferencesService.getPreferences();
     const evaluation = this.ingredientParser.evaluateProduct(this.product.ingredients, this.product.calories, preferences);
-
     this.verdict = evaluation.verdict;
     this.flaggedItems = evaluation.flaggedIngredients;
   }
@@ -96,7 +92,6 @@ export class ProductDetailsComponent implements OnInit {
 
   async postComment() {
     if (!this.product || !this.newCommentText.trim()) return;
-
     const newComment = await this.productCommentService.addComment(this.product.id, this.newCommentText);
     if (newComment) {
       this.comments.push(newComment);
@@ -116,23 +111,15 @@ export class ProductDetailsComponent implements OnInit {
   }
 
   addToList() {
-    if (this.product) {
-      this.appModalService.open(this.product);
-    } else {
-      this.notificationService.showError('Product data not available to add to a list.');
-    }
+    if (this.product) this.appModalService.open(this.product);
   }
 
   shareProduct() {
-    if (this.product) {
-      this.shareService.shareProduct(this.product);
-    } else {
-      this.notificationService.showError('No product to share.');
-    }
+    if (this.product) this.shareService.shareProduct(this.product);
   }
 
   goBack(): void {
-    this.router.navigate(['/history']); // Or a more dynamic back navigation
+    this.router.navigate(['/history']);
   }
 
   scanAgain() {

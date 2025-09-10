@@ -6,7 +6,7 @@ import { ProfileService, Profile } from '../services/profile.service';
 import { NotificationService } from '../services/notification.service';
 import { AuthService } from '../services/auth.service';
 import { firstValueFrom } from 'rxjs';
-import { ButtonComponent } from '../button.component'; // Updated import path
+import { ButtonComponent } from '../button/button.component';
 
 @Component({
   selector: 'app-profile-editor',

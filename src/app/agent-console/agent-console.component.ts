@@ -16,12 +16,10 @@ import { ProductCardComponent } from '../product-card/product-card.component';
 import { ShareService } from '../services/share.service';
 import { ShoppingListService } from '../services/shopping-list.service';
 import { FoodDiaryService } from '../services/food-diary.service';
-import { ButtonComponent } from '../button.component';
-
-// Import new services
+import { ButtonComponent } from '../button/button.component';
 import { ChatHistoryService, ChatMessage } from '../services/chat-history.service';
 import { ConsoleCameraService } from '../services/console-camera.service';
-import { ProductDbService } from '../services/product-db.service'; // Import ProductDbService
+import { ProductDbService } from '../services/product-db.service';
 import { ConsoleCommandService } from '../services/console-command.service';
 
 interface SlashCommand {
@@ -41,13 +39,13 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
   @ViewChild('messageWindow') private messageWindow!: ElementRef;
   @ViewChild('chatCameraFeed') private chatCameraFeed!: CameraFeedComponent;
 
-  messages: ChatMessage[] = []; // Use ChatMessage from ChatHistoryService
+  messages: ChatMessage[] = [];
   userInput: string = '';
   showSlashCommands = false;
   isAgentTyping = false;
   isListening = false;
   agentStatus: 'online' | 'offline' = 'offline';
-  private lastAgentStatus: 'online' | 'offline' | null = null; // Track previous status
+  private lastAgentStatus: 'online' | 'offline' | null = null;
 
   private speechSubscription!: Subscription;
   private statusSubscription!: Subscription;
@@ -83,10 +81,9 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
     private shareService: ShareService,
     private shoppingListService: ShoppingListService,
     private foodDiaryService: FoodDiaryService,
-    // Inject new services
     private chatHistoryService: ChatHistoryService,
-    public consoleCameraService: ConsoleCameraService, // Public to access showCameraFeed
-    private productDbService: ProductDbService, // Inject ProductDbService
+    public consoleCameraService: ConsoleCameraService,
+    private productDbService: ProductDbService,
     private consoleCommandService: ConsoleCommandService
   ) {}
 
@@ -111,7 +108,6 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
         this.userName = 'You';
         this.userAvatar = 'https://api.dicebear.com/8.x/initials/svg?seed=Anonymous';
       }
-      // Reload chat history if user changes or logs in/out
       if (this.currentUserId !== previousUserId) {
         this.chatHistoryService.loadChatHistory();
       }
@@ -119,7 +115,7 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
 
     this.chatMessagesSubscription = this.chatHistoryService.messages$.subscribe(messages => {
       this.messages = messages;
-      this.cdr.detectChanges(); // Ensure view updates after messages load
+      this.cdr.detectChanges();
       this.executePreloadedCommand();
     });
 
@@ -149,23 +145,19 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
   }
 
   ngOnDestroy() {
-    if (this.speechSubscription) this.speechSubscription.unsubscribe();
-    if (this.statusSubscription) this.statusSubscription.unsubscribe();
-    if (this.authSubscription) this.authSubscription.unsubscribe();
-    if (this.preferencesSubscription) this.preferencesSubscription.unsubscribe();
-    if (this.chatMessagesSubscription) this.chatMessagesSubscription.unsubscribe();
-    if (this.cameraInputProcessedSubscription) this.cameraInputProcessedSubscription.unsubscribe();
-    if (this.cameraClosedSubscription) this.cameraClosedSubscription.unsubscribe();
+    this.speechSubscription?.unsubscribe();
+    this.statusSubscription?.unsubscribe();
+    this.authSubscription?.unsubscribe();
+    this.preferencesSubscription?.unsubscribe();
+    this.chatMessagesSubscription?.unsubscribe();
+    this.cameraInputProcessedSubscription?.unsubscribe();
+    this.cameraClosedSubscription?.unsubscribe();
     this.speechService.stopListening();
-    this.consoleCameraService.closeCamera(); // Ensure camera is stopped on destroy
+    this.consoleCameraService.closeCamera();
   }
 
-  ngAfterViewChecked() {
-    this.scrollToBottom();
-  }
-
+  ngAfterViewChecked() { this.scrollToBottom(); }
   ngAfterViewInit() {
-    // Pass the CameraFeedComponent instance to the service once it's available
     if (this.chatCameraFeed) {
       this.consoleCameraService.setCameraFeedComponent(this.chatCameraFeed);
     }
@@ -182,26 +174,13 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
   async checkStatus() {
     const isOnline = await this.aiService.checkAgentStatus();
     this.agentStatus = isOnline ? 'online' : 'offline';
-
     if (this.agentStatus !== this.lastAgentStatus) {
       if (this.agentStatus === 'offline') {
-        const offlineMessage: ChatMessage = {
-          sender: 'agent',
-          text: 'It looks like my AI brain is currently offline. I cannot process requests right now. Please check the server status.',
-          timestamp: new Date(),
-          avatar: this.agentAvatar,
-          suggestedPrompts: []
-        };
+        const offlineMessage: ChatMessage = { sender: 'agent', text: 'It looks like my AI brain is currently offline. I cannot process requests right now. Please check the server status.', timestamp: new Date(), avatar: this.agentAvatar, suggestedPrompts: [] };
         this.chatHistoryService.addAgentMessage(offlineMessage);
         this.speechService.speak('My AI brain is currently offline. I cannot process requests right now.');
       } else if (this.agentStatus === 'online' && this.lastAgentStatus === 'offline') {
-        const onlineMessage: ChatMessage = {
-          sender: 'agent',
-          text: 'Great news! My AI brain is back online and ready to assist you.',
-          timestamp: new Date(),
-          avatar: this.agentAvatar,
-          suggestedPrompts: []
-        };
+        const onlineMessage: ChatMessage = { sender: 'agent', text: 'Great news! My AI brain is back online and ready to assist you.', timestamp: new Date(), avatar: this.agentAvatar, suggestedPrompts: [] };
         this.chatHistoryService.addAgentMessage(onlineMessage);
         this.speechService.speak('Great news! My AI brain is back online and ready to assist you.');
       }
@@ -233,28 +212,19 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
   async sendMessage() {
     const text = this.userInput.trim();
     if (!text) return;
-
-    this.chatHistoryService.addUserMessage(text); // Add user message via service
-
+    this.chatHistoryService.addUserMessage(text);
     this.userInput = '';
     this.showSlashCommands = false;
     this.isAgentTyping = true;
-
     const messagesHistoryForAi = this.chatHistoryService.getMessages().map(msg => ({
       role: msg.sender === 'agent' ? 'assistant' : msg.sender,
       content: msg.text,
       ...(msg.toolCalls && { tool_calls: msg.toolCalls })
     }));
-
     try {
       const aiResponse: AiResponse = await this.aiService.getChatCompletion(text, messagesHistoryForAi);
-      
-      // Prioritize speech: Speak the response immediately
       this.speechService.speak(aiResponse.text);
-
-      // Then add the message to history (which updates the UI)
       this.chatHistoryService.addAgentMessage(aiResponse); 
-
     } catch (error) {
       const errorMessage: ChatMessage = { sender: 'agent', text: 'Sorry, I encountered an error. Please try again.', timestamp: new Date(), avatar: this.agentAvatar };
       this.chatHistoryService.addAgentMessage(errorMessage);
@@ -287,7 +257,7 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
         simulatedInput = `Add "${payload.product_name}" by "${payload.brand}" to my food diary for ${payload.meal_type}.`;
         break;
       case 'open_scanner':
-        this.consoleCameraService.openCamera(); // Delegate to service
+        this.consoleCameraService.openCamera();
         return;
       default:
         simulatedInput = `User clicked: ${action} with payload: ${JSON.stringify(payload)}`;
@@ -297,32 +267,24 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
     await this.sendMessage();
   }
 
-  // Handlers for actions from dynamically rendered ProductCardComponent
   shareProductFromConsole(product: Product) {
-    this.notificationService.showInfo(`Sharing product: ${product.name}`, 'Console Action');
-    this.speechService.speak(`Sharing ${product.name}.`);
     this.shareService.shareProduct(product);
   }
 
   addToShoppingListFromConsole(product: Product) {
-    this.notificationService.showInfo(`Adding ${product.name} to shopping list.`, 'Console Action');
-    this.speechService.speak(`Adding ${product.name} to shopping list.`);
     this.shoppingListService.addItem(product);
   }
 
   addToFoodDiaryFromConsole(product: Product) {
-    this.notificationService.showInfo(`Adding ${product.name} to food diary.`, 'Console Action');
-    this.speechService.speak(`Adding ${product.name} to food diary.`);
     this.appModalService.open(product);
   }
 
   onViewDetailsFromConsole(product: Product) {
-    this.productDbService.setLastViewedProduct(product); // Use ProductDbService
-    this.router.navigate(['/products', product.id]); // Navigate to details page
+    this.productDbService.setLastViewedProduct(product);
+    this.router.navigate(['/products', product.id]);
   }
 
   handleCameraInputProcessed(product: Product): void {
-    this.speechService.speak(`I found ${product.name} by ${product.brand}. It's a ${product.verdict} choice.`);
     this.userInput = `I just processed "${product.name}" by "${product.brand}". Its verdict is "${product.verdict}". Ingredients: ${product.ingredients.join(', ')}.`;
     this.sendMessage();
   }
@@ -344,11 +306,8 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
       confirmText: 'Clear',
       cancelText: 'Keep Chat',
       onConfirm: async () => {
-        await this.chatHistoryService.clearChatHistory(); // Delegate to service
+        await this.chatHistoryService.clearChatHistory();
         this.speechService.speak('Chat history cleared.');
-      },
-      onCancel: () => {
-        this.speechService.speak('Chat clearing cancelled.');
       }
     });
   }

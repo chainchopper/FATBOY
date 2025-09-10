@@ -2,38 +2,40 @@ import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
-import { LogoComponent } from '../logo/logo.component'; // Updated import path for LogoComponent
 import { UserNotificationService } from '../services/user-notification.service';
 import { UiService } from '../services/ui.service';
 import { Observable } from 'rxjs';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-app-header',
   standalone: true,
-  imports: [CommonModule, RouterLink, LucideAngularModule, LogoComponent],
+  imports: [CommonModule, RouterLink, LucideAngularModule],
   template: `
-    <nav class="main-nav">
-      <div class="header-left">
-        <button class="header-btn" (click)="toggleMenu()" title="Open Menu">
+    <nav class="fixed top-0 left-0 right-0 z-[1001] flex items-center justify-between h-[70px] px-5 bg-gray-900/60 backdrop-blur-lg border-b border-transparent">
+      <div class="flex items-center gap-2.5">
+        <button class="p-2 text-gray-200 transition-colors duration-300 bg-transparent border-none cursor-pointer hover:text-teal-400" (click)="toggleMenu()" title="Open Menu">
           <lucide-icon name="menu" [size]="24"></lucide-icon>
         </button>
-        <button class="header-btn" routerLink="/console" title="Open AI Assistant">
+        <button class="p-2 text-gray-200 transition-colors duration-300 bg-transparent border-none cursor-pointer hover:text-teal-400" routerLink="/console" title="Open AI Assistant">
           <lucide-icon name="message-circle" [size]="24"></lucide-icon>
         </button>
       </div>
 
-      <div class="header-title" (click)="goToHome()">
-        <app-logo></app-logo>
-        <div class="title-text">
-          <span>Fat Boy Time</span>
-          <span class="header-subtitle">Powered by Fanalogy</span>
+      <div class="flex items-center gap-2.5 cursor-pointer" (click)="goToHome()">
+        <div class="flex flex-col items-center">
+          <span class="font-['Righteous',_cursive] text-2xl text-purple-400 drop-shadow-lg shadow-purple-400 animate-neon-flicker flex items-center gap-1.5" [innerHTML]="getAnimatedTitle()"></span>
+          <span class="font-['Inter',_sans-serif] text-xs text-gray-400">Powered by Nirvana</span>
         </div>
       </div>
 
-      <div class="header-right">
-        <button class="notification-btn" (click)="toggleNotifications()" title="Notifications">
+      <div class="flex items-center gap-2.5">
+        <button class="relative p-2 text-gray-200 bg-transparent border-none cursor-pointer" (click)="toggleNotifications()" title="Notifications">
           <lucide-icon name="bell" [size]="24"></lucide-icon>
-          <span *ngIf="(unreadNotifications$ | async) as count" class="notification-badge" [class.visible]="count > 0">
+          <span *ngIf="(unreadNotifications$ | async) as count" 
+                class="absolute top-0 right-0 flex items-center justify-center w-[18px] h-[18px] text-xs font-bold text-gray-900 bg-purple-400 rounded-full transition-transform duration-300 ease-in-out-back"
+                [class.scale-100]="count > 0"
+                [class.scale-0]="count === 0">
             {{ count }}
           </span>
         </button>
@@ -41,126 +43,17 @@ import { Observable } from 'rxjs';
     </nav>
   `,
   styles: [`
-    @keyframes neon-flicker {
-      0%, 100% {
-        text-shadow:
-          0 0 2px #fff,
-          0 0 5px #fff,
-          0 0 8px #fff,
-          0 0 10px #f038ff,
-          0 0 18px #f038ff,
-          0 0 25px #f038ff,
-          0 0 40px #f038ff;
-        color: #f8c3ff;
-      }
-      50% {
-        text-shadow:
-          0 0 2px #fff,
-          0 0 6px #fff,
-          0 0 10px #fff,
-          0 0 15px #0abdc6,
-          0 0 25px #0abdc6,
-          0 0 35px #0abdc6,
-          0 0 50px #0abdc6;
-        color: #c7faff;
-      }
+    @keyframes ease-in-out-back {
+      0% { transform: scale(0); }
+      100% { transform: scale(1); }
     }
-
-    .main-nav {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 15px 20px;
-      background: rgba(26, 26, 46, 0.6);
-      backdrop-filter: blur(10px);
-      border-bottom: 1px solid transparent; /* Changed to transparent */
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      z-index: 1001;
-      height: 70px;
+    .ease-in-out-back {
+      transition-timing-function: cubic-bezier(0.68, -0.55, 0.27, 1.55);
     }
-
-    .header-left, .header-right {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .header-btn {
-      background: transparent;
-      border: none;
-      color: #e0e0e0;
-      cursor: pointer;
-      padding: 8px;
-      transition: color 0.3s;
-    }
-    .header-btn:hover {
-      color: #0abdc6;
-    }
-
-    .header-title {
-      font-family: 'Righteous', cursive;
-      font-size: 1.5rem;
-      color: #f038ff;
-      text-shadow: 0 0 8px #f038ff;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      cursor: pointer;
-      animation: neon-flicker 5s infinite alternate ease-in-out;
-    }
-
-    .header-title .title-text {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    .header-title .title-text span:first-child {
-      font-size: 1.5rem;
-      color: #f038ff;
-      text-shadow: 0 0 8px #f038ff;
-    }
-
-    .header-title .header-subtitle {
-      font-family: 'Inter', sans-serif;
-      font-size: 0.8rem;
-      color: #a0a0c0;
-      text-shadow: none;
-      animation: none;
-    }
-
-    .notification-btn {
-      position: relative;
-      background: transparent;
-      border: none;
-      color: #e0e0e0;
-      cursor: pointer;
-      padding: 8px;
-    }
-
-    .notification-badge {
-      position: absolute;
-      top: 0;
-      right: 0;
-      background-color: #f038ff;
-      color: #1a1a2e;
-      border-radius: 50%;
-      width: 18px;
-      height: 18px;
-      font-size: 12px;
-      font-weight: bold;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transform: scale(0);
-      transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
-    }
-
-    .notification-badge.visible {
-      transform: scale(1);
+    .logo-in-text {
+      height: 1.5em;
+      vertical-align: middle;
+      margin: 0 2px;
     }
   `]
 })
@@ -171,7 +64,8 @@ export class AppHeaderComponent implements OnInit {
   constructor(
     private userNotificationService: UserNotificationService,
     private uiService: UiService,
-    private router: Router
+    private router: Router,
+    private sanitizer: DomSanitizer
   ) {}
 
   ngOnInit(): void {
@@ -188,5 +82,11 @@ export class AppHeaderComponent implements OnInit {
 
   goToHome(): void {
     this.router.navigate(['/scanner']);
+  }
+
+  getAnimatedTitle(): SafeHtml {
+    const logoHtml = `<img src="assets/logo64.png" alt="A" class="logo-in-text">`;
+    const title = `NATUR${logoHtml}LYTE`;
+    return this.sanitizer.bypassSecurityTrustHtml(title);
   }
 }

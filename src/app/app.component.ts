@@ -7,13 +7,13 @@ import { User } from '@supabase/supabase-js';
 import { ProfileService, Profile } from './services/profile.service';
 import { map, filter } from 'rxjs/operators';
 import { AppModalComponent } from './app-modal/app-modal.component';
-import { LogoComponent } from './logo.component';
+import { LogoComponent } from './logo/logo.component';
 import { LucideAngularModule } from 'lucide-angular';
 import { UserNotificationService } from './services/user-notification.service';
 import { NotificationsComponent } from './notifications/notifications.component';
 import { UiService } from './services/ui.service';
-import { AppHeaderComponent } from './app-header.component';
-import { FooterComponent } from './footer/footer.component'; // Re-importing FooterComponent
+import { AppHeaderComponent } from './app-header/app-header.component';
+import { FooterComponent } from './footer/footer.component';
 
 @Component({
   selector: 'app-root',
@@ -31,7 +31,7 @@ import { FooterComponent } from './footer/footer.component'; // Re-importing Foo
     FooterComponent 
   ],
   templateUrl: './app.component.html',
-  styleUrls: [] // Corrected from styleUrl
+  styleUrls: []
 })
 export class AppComponent implements OnInit {
   isMenuOpen = false;

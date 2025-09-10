@@ -9,7 +9,7 @@ import { supabase } from '../../integrations/supabase/client';
 import { NotificationService } from '../services/notification.service';
 import { SpeechService } from '../services/speech.service';
 import { AuthService } from '../services/auth.service';
-import { ButtonComponent } from '../button.component';
+import { ButtonComponent } from '../button/button.component';
 import { ProductManagerService } from '../services/product-manager.service';
 
 interface Suggestion {

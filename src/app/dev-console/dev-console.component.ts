@@ -3,13 +3,13 @@ import { CommonModule, TitleCasePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DevConsoleService, PrepopulationResult } from '../services/dev-console.service';
 import { NotificationService } from '../services/notification.service';
-import { ButtonComponent } from '../button.component'; // Updated import path
-import { TextareaComponent } from '../textarea.component'; // Import TextareaComponent
+import { ButtonComponent } from '../button/button.component';
+import { TextareaComponent } from '../textarea/textarea.component';
 
 @Component({
   selector: 'app-dev-console',
   standalone: true,
-  imports: [CommonModule, FormsModule, TitleCasePipe, ButtonComponent, TextareaComponent], // Add TextareaComponent
+  imports: [CommonModule, FormsModule, TitleCasePipe, ButtonComponent, TextareaComponent],
   templateUrl: './dev-console.component.html',
   styleUrls: []
 })
