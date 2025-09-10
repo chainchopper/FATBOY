@@ -197,7 +197,7 @@ export class CameraFeedComponent implements AfterViewInit, OnDestroy {
   }
 
   private async stopCamera(): Promise<void> {
-    if (this.html5QrcodeScanner && this.html5QrcodeScanner.isScanning) {
+    if (this.html5QrcodeScanner && this.html5QrcodeScanner.isScanning()) { // Corrected to method call
       try {
         await this.html5QrcodeScanner.stop();
         this.html5QrcodeScanner.clear();
@@ -251,14 +251,14 @@ export class CameraFeedComponent implements AfterViewInit, OnDestroy {
     }
   }
 
+  public resumeBarcodeScanning(): void {
+    if (this.html5QrcodeScanner && !this.html5QrcodeScanner.isScanning()) { // Corrected to method call
+      this.html5QrcodeScanner.resume();
+    }
+  }
+
   public closeCamera(): void {
     this.stopCamera();
     this.cameraClosed.emit();
-  }
-
-  public resumeBarcodeScanning(): void {
-    if (this.html5QrcodeScanner && !this.html5QrcodeScanner.isScanning) {
-      this.html5QrcodeScanner.resume();
-    }
   }
 }

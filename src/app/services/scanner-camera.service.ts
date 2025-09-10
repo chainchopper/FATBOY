@@ -85,7 +85,7 @@ export class ScannerCameraService {
   }
 
   public async stopScanning(): Promise<void> {
-    if (this.html5QrcodeScanner && this.html5QrcodeScanner.isScanning) {
+    if (this.html5QrcodeScanner && this.html5QrcodeScanner.isScanning()) { // Corrected to method call
       try {
         await this.html5QrcodeScanner.stop();
         this.html5QrcodeScanner.clear();
@@ -98,13 +98,13 @@ export class ScannerCameraService {
   }
 
   public pauseDetection(): void {
-    if (this.html5QrcodeScanner && this.html5QrcodeScanner.isScanning) {
+    if (this.html5QrcodeScanner && this.html5QrcodeScanner.isScanning()) { // Corrected to method call
       this.html5QrcodeScanner.pause();
     }
   }
 
   public resumeDetection(): void {
-    if (this.html5QrcodeScanner && !(this.html5QrcodeScanner as any).isScanning) { // Added as any
+    if (this.html5QrcodeScanner && !this.html5QrcodeScanner.isScanning()) { // Corrected to method call
       this.html5QrcodeScanner.resume();
     }
   }
@@ -124,8 +124,8 @@ export class ScannerCameraService {
   }
 
   public getLastFrameImageData(): ImageData | null {
-    if (this.html5QrcodeScanner && (this.html5QrcodeScanner as any).isScanning) { // Added as any
-      const videoElement = (this.html5QrcodeScanner as any).getVideoElement(); // Added as any
+    if (this.html5QrcodeScanner && this.html5QrcodeScanner.isScanning()) { // Corrected to method call
+      const videoElement = (this.html5QrcodeScanner as any).getVideoElement(); // Retain as any for internal method
       if (videoElement && videoElement.videoWidth && videoElement.videoHeight) {
         const canvas = document.createElement('canvas');
         canvas.width = videoElement.videoWidth;
@@ -141,13 +141,13 @@ export class ScannerCameraService {
   }
 
   public getVideoElement(): HTMLVideoElement | null {
-    if (this.html5QrcodeScanner && (this.html5QrcodeScanner as any).isScanning) { // Added as any
-      return (this.html5QrcodeScanner as any).getVideoElement(); // Added as any
+    if (this.html5QrcodeScanner && this.html5QrcodeScanner.isScanning()) { // Corrected to method call
+      return (this.html5QrcodeScanner as any).getVideoElement(); // Retain as any for internal method
     }
     return null;
   }
 
   public isScanning(): boolean {
-    return this.html5QrcodeScanner?.isScanning || false;
+    return this.html5QrcodeScanner?.isScanning() || false; // Corrected to method call
   }
 }
