@@ -38,6 +38,7 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
   isVoiceListening = false;
   showExpandedOptions = false;
   screenFlash = false;
+  showNotifications = false; // Declare showNotifications property
 
   public unreadNotifications$!: Observable<number>;
   private voiceCommandSubscription!: Subscription;
