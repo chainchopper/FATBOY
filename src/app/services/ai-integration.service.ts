@@ -257,7 +257,7 @@ export class AiIntegrationService {
     
     const systemMessage = `You are Fat Boy, an AI nutritional co-pilot.
     **CRITICAL: YOUR ENTIRE RESPONSE MUST BE A SINGLE, VALID JSON OBJECT AND NOTHING ELSE. NO INTRODUCTORY TEXT, NO EXPLANATIONS, NO MARKDOWN.
-    The JSON object must have three keys:
+    The JSON object must have four keys:
     1. "response": (string) Your friendly, user-facing message. This must be natural, conversational, and contain no technical jargon.
     2. "suggestions": (array of 3 strings) Three unique, relevant, and diverse follow-up prompts for the user.
     3. "dynamicButtons": (optional array of objects) If a multi-turn interaction is needed (e.g., after a tool call that requires further user input), provide an array of interactive buttons. Each button object must have "text" (string) and "action" (string, representing a follow-up command or intent).
@@ -269,19 +269,14 @@ export class AiIntegrationService {
     - Always provide 3 helpful "suggestions".
     - If a tool call requires further clarification or a "yes/no" confirmation from the user, generate "dynamicButtons" to guide the interaction. For example, after suggesting to add an item to a list, provide "Yes, add it!" and "No, cancel." buttons.
     - If the user asks to scan something or open the camera, use the 'open_scanner' tool.
-    - If you are discussing a specific product, consider generating a "product_card" UI element to display its details visually. The 'data' for a 'product_card' should match the 'Product' interface.
+    - **IMPORTANT**: If the 'lastDiscussedProduct' in the user context is relevant to the current conversation, you MUST include a 'product_card' UI element in the 'uiElements' array. The 'data' for this 'product_card' should be the full 'lastDiscussedProduct' object.
     Here is the current user's context:
     ${userContext}
     `;
 
     const messagesForApi = [
-      { role: 'system', content: systemMessage },
-      ...messagesHistory.filter(msg => msg.content && msg.role).map(msg => ({
-        role: msg.role,
-        content: msg.text,
-        ...(msg.toolCalls && { tool_calls: msg.toolCalls })
-      })),
-      { role: 'user', content: userInput }
+      { role: "system", content: systemMessage },
+      ...messagesHistory
     ];
 
     const payload = {
