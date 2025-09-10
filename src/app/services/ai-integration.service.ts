@@ -45,13 +45,11 @@ export class AiIntegrationService {
     private productDbService: ProductDbService, // Inject ProductDbService
     private notificationService: NotificationService // Inject NotificationService
   ) {
-    if (this.apiKey === 'your_openai_compatible_api_key') {
-      console.warn('WARNING: OpenAI API Key is still a placeholder. Please update environment.ts with your actual key.');
-    }
+    // API Key warning is now handled by environment.ts directly with '111111'
   }
 
   async checkAgentStatus(): Promise<boolean> {
-    const endpoint = `${this.apiBaseUrl}/v1/models`; // Added /v1
+    const endpoint = `${this.apiBaseUrl}/v1/models`;
     try {
       const response = await fetch(endpoint);
       if (!response.ok) {
@@ -61,67 +59,31 @@ export class AiIntegrationService {
         return false;
       }
       const data = await response.json();
-      if (!data || !Array.isArray(data.data)) { // Robust check for data.data
-        console.error(`[AI STATUS CHECK FAILED]: Unexpected response structure for models endpoint:`, data);
-        this.notificationService.showError('AI Service Offline: Invalid response from models endpoint.', 'AI Error');
-        return false;
+      if (!data || !Array.isArray(data.data) || data.data.length === 0) {
+        console.warn(`[AI STATUS CHECK WARNING]: Models endpoint returned empty or invalid data:`, data);
+        this.notificationService.showWarning('AI Service Online, but no models were listed. Chat features may be limited.', 'AI Warning');
+        // Return true here to enable input, but warn the user
+        return true;
       }
+      // If we reach here, the API is reachable and returned some models.
+      // We can still log if specific models are missing, but don't disable the whole console.
       const models = data.data.map((m: any) => m.id);
-      const isOnline = models.includes(this.chatModelName) && models.includes('Moonbeam2');
-      if (!isOnline) {
-        this.notificationService.showWarning('AI Service Online, but required models are not loaded.', 'AI Warning');
+      const hasChatModel = models.includes(this.chatModelName);
+      const hasVisionModel = models.includes('Moonbeam2'); // Assuming 'Moonbeam2' is the vision model name
+
+      if (!hasChatModel) {
+        this.notificationService.showWarning(`AI Chat Model (${this.chatModelName}) not loaded. Chat features may be limited.`, 'AI Warning');
       }
-      return isOnline;
+      if (!hasVisionModel) {
+        this.notificationService.showWarning(`AI Vision Model (Moonbeam2) not loaded. Vision features may be limited.`, 'AI Warning');
+      }
+      // Return true if the API is generally responsive, even if specific models are missing.
+      // This allows the user to type and interact, and the AI can respond with "I can't do that without X model".
+      return true;
     } catch (error) {
       console.error(`[AI STATUS CHECK FAILED]: Could not connect to ${endpoint}. Is the server running?`, error);
       this.notificationService.showError(`AI Service Offline: Could not connect to ${this.apiBaseUrl}. Is the server running?`, 'AI Error');
       return false;
-    }
-  }
-
-  async getEmbeddings(text: string): Promise<number[]> {
-    const endpoint = `${this.apiBaseUrl}/v1/embeddings`; // Added /v1
-    if (!endpoint || !this.embeddingModelName) {
-      console.warn("Embedding endpoint or model name not configured.");
-      this.notificationService.showError('Embedding service not configured.', 'AI Error');
-      return [];
-    }
-
-    const headers: HeadersInit = { 'Content-Type': 'application/json' };
-    if (this.apiKey) {
-      headers['Authorization'] = `Bearer ${this.apiKey}`;
-    }
-
-    const payload = {
-      model: this.embeddingModelName,
-      input: text
-    };
-
-    try {
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: headers,
-        body: JSON.stringify(payload)
-      });
-
-      if (!response.ok) {
-        const errorBody = await response.text();
-        console.error('Embeddings API Error:', response.status, errorBody);
-        this.notificationService.showError(`Embedding API Error: ${response.status} - ${errorBody}`, 'AI Error');
-        return [];
-      }
-
-      const data = await response.json();
-      if (!data || !Array.isArray(data.data) || !data.data[0]?.embedding) { // Robust check for data.data[0].embedding
-        console.error(`Embeddings API Error: Unexpected response structure for embeddings endpoint:`, data);
-        this.notificationService.showError('Embedding API Error: Invalid response structure.', 'AI Error');
-        return [];
-      }
-      return data.data[0].embedding;
-    } catch (error) {
-      console.error('Network or other error calling Embeddings API:', error);
-      this.notificationService.showError('Network error calling Embedding API.', 'AI Error');
-      return [];
     }
   }
 

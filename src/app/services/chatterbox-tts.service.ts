@@ -44,9 +44,7 @@ export class ChatterboxTtsService {
       this.checkApiHealthAndLoadVoices();
     }
 
-    if (environment.ttsApiKey === 'your_tts_api_key_here') {
-      console.warn('WARNING: Chatterbox TTS API Key is still a placeholder. Please update environment.ts with your actual key.');
-    }
+    // API Key warning is now handled by environment.ts directly with '111111'
   }
 
   private async checkApiHealthAndLoadVoices(): Promise<void> {
@@ -54,17 +52,21 @@ export class ChatterboxTtsService {
 
     try {
       const healthResponse = await firstValueFrom(this.http.get<any>(this.healthApiUrl));
-      this.isApiAvailable = healthResponse.status === 'healthy' && healthResponse.model_loaded;
-      if (this.isApiAvailable) {
-        await this.fetchAvailableVoices();
-      } else {
-        console.warn('Chatterbox TTS API is not healthy or model not loaded. Not attempting to fetch voices.'); // Added more specific message
-        this.availableVoices = []; // Clear voices if API is not healthy
+      if (healthResponse.status !== 'healthy') {
+        console.warn(`Chatterbox TTS API health check: Status is '${healthResponse.status}'.`, healthResponse);
+        this.notificationService.showWarning(`Chatterbox TTS API: Status is '${healthResponse.status}'.`, 'TTS Warning');
       }
+      if (!healthResponse.model_loaded) {
+        console.warn('Chatterbox TTS API health check: Model not loaded. Speech generation may be limited.', 'TTS Warning');
+      }
+      // If we reach here, the API is reachable. Set isApiAvailable to true.
+      this.isApiAvailable = true;
+      await this.fetchAvailableVoices();
     } catch (error) {
       console.error('Error checking Chatterbox TTS API health:', error);
       this.isApiAvailable = false;
-      this.availableVoices = []; // Clear voices on error
+      this.availableVoices = [];
+      this.notificationService.showError('Chatterbox TTS API unreachable. Please check the server.', 'TTS Error');
     }
   }
 
