@@ -12,7 +12,9 @@
       <span class="opacity-0 animate-[fadeInUp_0.5s_ease-out_forwards_1.5s] text-teal-400 drop-shadow-lg shadow-teal-400">Choose.</span>
     </div>
     <div class="w-[90vw] max-w-[500px] h-[250px] border-2 border-dashed border-purple-500 shadow-lg shadow-purple-500/50 rounded-lg relative overflow-hidden transition-all duration-500 ease-in-out" [class.border-teal-500]="unifiedScannerService.isStable" [class.shadow-teal-500/50]="unifiedScannerService.isStable">
-      <div *ngIf="unifiedScannerService.isScanningActive && !showExpandedOptions" class="absolute top-0 left-0 w-full h-[3px] bg-gradient-to-r from-transparent via-teal-400 to-transparent shadow-lg shadow-teal-400 animate-[sweep-scanner_2.5s_infinite_ease-in-out]"></div>
+      <ng-container *ngIf="unifiedScannerService.isScanningActive && !showExpandedOptions">
+        <div class="absolute top-0 left-0 w-full h-[3px] bg-gradient-to-r from-transparent via-teal-400 to-transparent shadow-lg shadow-teal-400 animate-[sweep-scanner_2.5s_infinite_ease-in-out]"></div>
+      </ng-container>
     </div>
     <!-- Refined text feedback logic -->
     <p *ngIf="showExpandedOptions" class="text-white text-center bg-black/50 px-4 py-2 rounded-md">Scanner options open.</p>
@@ -20,7 +22,7 @@
     <p *ngIf="!showExpandedOptions && !unifiedScannerService.isProcessingOcr && unifiedScannerService.isScanningActive && !unifiedScannerService.isStable" class="text-white text-center bg-black/50 px-4 py-2 rounded-md">Hold steady to scan a label or barcode.</p>
     <p *ngIf="!showExpandedOptions && !unifiedScannerService.isProcessingOcr && unifiedScannerService.isScanningActive && unifiedScannerService.isStable" class="text-white text-center bg-black/50 px-4 py-2 rounded-md">Analyzing...</p>
     <p *ngIf="!showExpandedOptions && !unifiedScannerService.isProcessingOcr && !unifiedScannerService.isScanningActive" class="text-white text-center bg-black/50 px-4 py-2 rounded-md">Nothing recognized. Hold steady to scan.</p>
-  </div> <!-- Closing tag for the div that starts on line 14 -->
+  </div>
 
   <!-- New Immersive Footer -->
   <div class="absolute bottom-0 left-0 right-0 p-4 bg-[#0f0f1e]/60 backdrop-blur-md border-t border-transparent z-30 flex items-center justify-center text-gray-200 gap-4 h-[90px]">
