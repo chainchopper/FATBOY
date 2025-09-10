@@ -1,37 +1,42 @@
-<div class="daily-summary-section">
-  <h3>Daily Performance</h3>
-  <div class="summary-grid">
-    <div class="summary-item">
-      <span class="summary-value">{{ summary.totalCalories }}</span>
-      <span class="summary-label">Total Calories</span>
+<div class="bg-gray-900/80 border border-purple-700 rounded-xl p-6 mb-8 text-center shadow-lg shadow-purple-500/30">
+  <h3 class="text-2xl font-bold text-purple-400 mb-4 drop-shadow-md shadow-purple-400">Daily Performance</h3>
+  <div class="grid grid-cols-2 gap-4 mb-6">
+    <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
+      <span class="block text-4xl font-extrabold text-teal-400 drop-shadow-lg shadow-teal-400">{{ summary.totalCalories }}</span>
+      <span class="text-sm text-gray-400">Total Calories</span>
     </div>
-    <div class="summary-item">
-      <span class="summary-value">{{ summary.totalFlaggedItems }}</span>
-      <span class="summary-label">Flagged Ingredients</span>
+    <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
+      <span class="block text-4xl font-extrabold text-teal-400 drop-shadow-lg shadow-teal-400">{{ summary.totalFlaggedItems }}</span>
+      <span class="text-sm text-gray-400">Flagged Ingredients</span>
     </div>
   </div>
 
-  <div class="calorie-progress-bar">
-    <div class="progress-track">
+  <div class="mb-6">
+    <div class="w-full h-3 bg-gray-800 rounded-full overflow-hidden border border-gray-700">
       <div 
-        class="progress-fill" 
+        class="h-full rounded-full transition-all duration-500 ease-in-out" 
         [style.width.%]="calorieProgress"
         [style.background-color]="calorieProgressColor">
       </div>
     </div>
-    <div class="progress-label">
+    <div class="text-right text-xs text-gray-400 mt-2">
       <span>{{ summary.totalCalories }} / {{ preferences.dailyCalorieTarget }} kcal</span>
     </div>
   </div>
 
-  <div class="daily-verdict-display" [class]="'verdict-' + verdict">
+  <div class="text-3xl font-bold py-3 px-6 rounded-lg inline-block drop-shadow-lg transition-all duration-300 ease-in-out" [ngClass]="{
+    'bg-teal-900/20 text-teal-400 border border-teal-500 shadow-teal-500/50': verdict === 'excellent',
+    'bg-green-900/20 text-green-400 border border-green-500 shadow-green-500/50': verdict === 'good',
+    'bg-yellow-900/20 text-yellow-400 border border-yellow-500 shadow-yellow-500/50': verdict === 'fair',
+    'bg-purple-900/20 text-purple-400 border border-purple-500 shadow-purple-500/50': verdict === 'poor'
+  }">
     Your Day: <strong>{{ verdict | titlecase }}</strong>
   </div>
 
-  <div *ngIf="summary.totalFlaggedItems > 0" class="flagged-breakdown">
-    <h4>Top Flagged:</h4>
-    <ul>
-      <li *ngFor="let item of (summary.flaggedIngredients | keyvalue | slice:0:3)">
+  <div *ngIf="summary.totalFlaggedItems > 0" class="mt-6 pt-4 border-t border-gray-700 text-left">
+    <h4 class="text-xl font-semibold text-purple-400 mb-3">Top Flagged:</h4>
+    <ul class="list-none p-0">
+      <li *ngFor="let item of (summary.flaggedIngredients | keyvalue | slice:0:3)" class="bg-gray-800 p-3 rounded-md mb-2 text-gray-200 border border-gray-700">
         {{ item.key }} ({{ item.value }} times)
       </li>
     </ul>
