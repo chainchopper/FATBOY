@@ -19,7 +19,7 @@ import { CustomTitleCasePipe } from '../shared/custom-title-case.pipe'; // Impor
   standalone: true,
   imports: [CommonModule, ButtonComponent, CustomTitleCasePipe], // Add CustomTitleCasePipe
   templateUrl: './results.component.html',
-  styleUrls: ['./results.component.css']
+  styleUrls: []
 })
 export class ResultsComponent implements OnInit {
   product: Product | null = null;

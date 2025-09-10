@@ -1,55 +1,54 @@
-<div class="unified-scanner-container" [class.screen-flash]="unifiedScannerService.screenFlash">
-  <div class="camera-preview">
+<div class="fixed inset-0 bg-[#0f0f1e] overflow-hidden transition-colors duration-100 ease-out" [class.bg-white]="unifiedScannerService.screenFlash">
+  <div class="absolute inset-x-0 top-[70px] bottom-[90px] overflow-hidden z-10 flex justify-center items-center">
     <!-- Html5Qrcode will render its video stream inside this div -->
-    <div id="reader" #reader class="barcode-reader-container"></div> 
-    <canvas #canvasElement class="capture-canvas" style="display: none;"></canvas>
+    <div id="reader" #reader class="relative w-full h-full overflow-hidden flex justify-center items-center"></div> 
+    <canvas #canvasElement class="absolute inset-0 w-full h-full object-cover" style="display: none;"></canvas>
   </div>
 
-  <div class="viewfinder">
-    <div class="tagline">
-      <span class="tagline-word">Scan.</span>
-      <span class="tagline-word">Know.</span>
-      <span class="tagline-word">Choose.</span>
+  <div class="absolute inset-x-0 top-[70px] bottom-[90px] flex flex-col justify-center items-center pointer-events-none z-10 gap-5">
+    <div class="flex gap-4 text-4xl font-bold text-white drop-shadow-lg shadow-purple-500/70">
+      <span class="opacity-0 animate-[fadeInUp_0.5s_ease-out_forwards_0.5s]">Scan.</span>
+      <span class="opacity-0 animate-[fadeInUp_0.5s_ease-out_forwards_1s]">Know.</span>
+      <span class="opacity-0 animate-[fadeInUp_0.5s_ease-out_forwards_1.5s] text-teal-400 drop-shadow-lg shadow-teal-400">Choose.</span>
     </div>
-    <div class="scan-area" [class.stable]="unifiedScannerService.isStable">
-      <div *ngIf="unifiedScannerService.isScanningActive && !showExpandedOptions" class="scan-line"></div>
+    <div class="w-[90vw] max-w-[500px] h-[250px] border-2 border-dashed border-purple-500 shadow-lg shadow-purple-500/50 rounded-lg relative overflow-hidden transition-all duration-500 ease-in-out" [class.border-teal-500]="unifiedScannerService.isStable" [class.shadow-teal-500/50]="unifiedScannerService.isStable">
+      <div *ngIf="unifiedScannerService.isScanningActive && !showExpandedOptions" class="absolute top-0 left-0 w-full h-[3px] bg-gradient-to-r from-transparent via-teal-400 to-transparent shadow-lg shadow-teal-400 animate-[sweep-scanner_2.5s_infinite_ease-in-out]"></div>
     </div>
     <!-- Refined text feedback logic -->
-    <p *ngIf="showExpandedOptions">Scanner options open.</p>
-    <p *ngIf="!showExpandedOptions && unifiedScannerService.isProcessingOcr">Processing...</p>
-    <p *ngIf="!showExpandedOptions && !unifiedScannerService.isProcessingOcr && unifiedScannerService.isScanningActive && !unifiedScannerService.isStable">Hold steady to scan a label or barcode.</p>
-    <p *ngIf="!showExpandedOptions && !unifiedScannerService.isProcessingOcr && unifiedScannerService.isScanningActive && unifiedScannerService.isStable">Analyzing...</p>
-    <p *ngIf="!showExpandedOptions && !unifiedScannerService.isProcessingOcr && !unifiedScannerService.isScanningActive">Nothing recognized. Hold steady to scan.</p>
+    <p *ngIf="showExpandedOptions" class="text-white text-center bg-black/50 px-4 py-2 rounded-md">Scanner options open.</p>
+    <p *ngIf="!showExpandedOptions && unifiedScannerService.isProcessingOcr" class="text-white text-center bg-black/50 px-4 py-2 rounded-md">Processing...</p>
+    <p *ngIf="!showExpandedOptions && !unifiedScannerService.isProcessingOcr && unifiedScannerService.isScanningActive && !unifiedScannerService.isStable" class="text-white text-center bg-black/50 px-4 py-2 rounded-md">Hold steady to scan a label or barcode.</p>
+    <p *ngIf="!showExpandedOptions && !unifiedScannerService.isProcessingOcr && unifiedScannerService.isScanningActive && unifiedScannerService.isStable" class="text-white text-center bg-black/50 px-4 py-2 rounded-md">Analyzing...</p>
+    <p *ngIf="!showExpandedOptions && !unifiedScannerService.isProcessingOcr && !unifiedScannerService.isScanningActive" class="text-white text-center bg-black/50 px-4 py-2 rounded-md">Nothing recognized. Hold steady to scan.</p>
   </div>
 
   <!-- New Immersive Footer -->
-  <div class="scanner-footer">
-    <div class="footer-actions-left">
-      <button class="footer-btn" routerLink="/manual-entry" [class.hidden]="!showExpandedOptions">
+  <div class="absolute bottom-0 left-0 right-0 p-4 bg-[#0f0f1e]/60 backdrop-blur-md border-t border-transparent z-30 flex items-center justify-center text-gray-200 gap-4 h-[90px]">
+    <div class="flex items-center gap-4 transition-all duration-300 ease-in-out">
+      <button class="flex flex-col items-center gap-1 text-sm text-gray-400 hover:text-teal-400 transition-all duration-300 w-[60px]" routerLink="/manual-entry" [class.opacity-0]="!showExpandedOptions" [class.translate-y-5]="!showExpandedOptions" [class.pointer-events-none]="!showExpandedOptions">
         <lucide-icon name="edit-3" [size]="24"></lucide-icon>
         <span>Manual</span>
       </button>
-      <button class="footer-btn" (click)="triggerFileUpload()" [class.hidden]="!showExpandedOptions">
+      <button class="flex flex-col items-center gap-1 text-sm text-gray-400 hover:text-teal-400 transition-all duration-300 w-[60px]" (click)="triggerFileUpload()" [class.opacity-0]="!showExpandedOptions" [class.translate-y-5]="!showExpandedOptions" [class.pointer-events-none]="!showExpandedOptions">
         <lucide-icon name="upload" [size]="24"></lucide-icon>
         <span>Upload</span>
       </button>
       <input type="file" #fileInput style="display: none;" accept="image/*" (change)="onFileSelected($event)">
     </div>
 
-    <button class="main-action-btn" (click)="toggleExpandedOptions()">
+    <button class="w-[70px] h-[70px] rounded-full bg-purple-500 border-4 border-white cursor-pointer flex items-center justify-center transition-all duration-300 ease-in-out shadow-lg shadow-purple-500/50 text-gray-900 hover:border-teal-500 hover:shadow-teal-500/50 hover:bg-teal-500" (click)="toggleExpandedOptions()">
       <lucide-icon [name]="showExpandedOptions ? 'x' : 'plus'" [size]="36"></lucide-icon>
     </button>
 
-    <div class="footer-actions-right">
-      <button class="footer-btn" (click)="unifiedScannerService.handleStableFrameCapture()" [class.hidden]="showExpandedOptions">
+    <div class="flex items-center gap-4 transition-all duration-300 ease-in-out">
+      <button class="flex flex-col items-center gap-1 text-sm text-gray-400 hover:text-teal-400 transition-all duration-300 w-[60px]" (click)="unifiedScannerService.handleStableFrameCapture()" [class.opacity-0]="showExpandedOptions" [class.translate-y-5]="showExpandedOptions" [class.pointer-events-none]="showExpandedOptions">
         <lucide-icon name="camera" [size]="24"></lucide-icon>
         <span>Capture</span>
       </button>
-      <button class="footer-btn" (click)="toggleVoiceListening()" [class.active]="isVoiceListening" [class.hidden]="!showExpandedOptions">
+      <button class="flex flex-col items-center gap-1 text-sm text-gray-400 hover:text-teal-400 transition-all duration-300 w-[60px]" (click)="toggleVoiceListening()" [class.text-purple-400]="isVoiceListening" [class.opacity-0]="!showExpandedOptions" [class.translate-y-5]="!showExpandedOptions" [class.pointer-events-none]="!showExpandedOptions">
         <lucide-icon name="mic" [size]="24"></lucide-icon>
         <span>Voice</span>
       </button>
-      <!-- The 'Scan' button is removed as scanning is continuous -->
     </div>
   </div>
 </div>

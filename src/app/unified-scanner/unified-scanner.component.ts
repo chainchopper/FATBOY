@@ -20,7 +20,7 @@ import { CameraFeedComponent } from '../camera-feed/camera-feed.component'; // N
   standalone: true,
   imports: [CommonModule, RouterLink, LucideAngularModule, NotificationsComponent, CameraFeedComponent],
   templateUrl: './unified-scanner.component.html',
-  styleUrls: ['./unified-scanner.component.css']
+  styleUrls: []
 })
 export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
   @ViewChild('canvasElement', { static: false }) canvasElement!: ElementRef<HTMLCanvasElement>;
