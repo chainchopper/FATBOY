@@ -6,26 +6,6 @@
     <app-button variant="link" (onClick)="goBack()" class="text-[#0abdc6] hover:text-[#f038ff]">← Back</app-button>
   </div>
 
-  <div class="text-center p-8 rounded-xl mb-5 animate-fade-in border" [ngClass]="{
-      'border-[#0abdc6] shadow-lg shadow-[#0abdc6]/50': verdict === 'good',
-      'border-[#f038ff] shadow-lg shadow-[#f038ff]/50': verdict === 'bad'
-    }" style="background: rgba(15, 15, 30, 0.8);">
-    <div class="text-6xl mb-4 drop-shadow-lg animate-pop-in" [ngClass]="{
-        'text-[#0abdc6]': verdict === 'good',
-        'text-[#f038ff]': verdict === 'bad'
-      }">
-      <span *ngIf="verdict === 'good'">✓</span>
-      <span *ngIf="verdict === 'bad'">✗</span>
-    </div>
-    <h2 class="text-3xl font-bold" [ngClass]="{
-        'text-[#0abdc6]': verdict === 'good',
-        'text-[#f038ff]': verdict === 'bad'
-      }">
-      <span *ngIf="verdict === 'good'">Fat Boy Approved!</span>
-      <span *ngIf="verdict === 'bad'">Contains Items You Avoid</span>
-    </h2>
-  </div>
-
   <div class="text-center mb-8 text-[#e0e0e0]">
     <img [src]="product.image" alt="{{product.name}}" class="w-36 h-36 object-cover rounded-lg mb-4 mx-auto border-2 border-[#4a4a6e]">
     <h3 class="text-2xl font-semibold mb-1">{{product.name}}</h3>
@@ -33,90 +13,127 @@
     <p class="text-sm text-[#a0a0c0]">Scanned on: {{ product.scanDate | date:'mediumDate' }}</p>
   </div>
 
-  <div class="bg-gray-900/80 p-6 rounded-xl mb-5 border border-[#4a4a6e] text-[#e0e0e0]">
-    <h3 class="text-xl font-semibold text-[#0abdc6] mb-4 pb-3 border-b border-[#2a2a4e]">Product Details</h3>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div class="bg-[#2a2a4e] p-4 rounded-md border border-[#4a4a6e] text-sm">
-        <strong class="block text-[#f038ff] mb-1">Barcode:</strong> <span class="text-[#e0e0e0]">{{ product.barcode || 'N/A' }}</span>
+  <!-- Tab Buttons -->
+  <div class="flex border-b border-[#4a4a6e] mb-6">
+    <button (click)="selectTab('summary')" [ngClass]="{'border-b-2 border-[#f038ff] text-[#f038ff]': selectedTab === 'summary', 'text-[#a0a0c0]': selectedTab !== 'summary'}" class="flex-1 py-3 font-semibold transition-colors">Summary</button>
+    <button (click)="selectTab('ingredients')" [ngClass]="{'border-b-2 border-[#f038ff] text-[#f038ff]': selectedTab === 'ingredients', 'text-[#a0a0c0]': selectedTab !== 'ingredients'}" class="flex-1 py-3 font-semibold transition-colors">Ingredients</button>
+    <button (click)="selectTab('comments')" [ngClass]="{'border-b-2 border-[#f038ff] text-[#f038ff]': selectedTab === 'comments', 'text-[#a0a0c0]': selectedTab !== 'comments'}" class="flex-1 py-3 font-semibold transition-colors">Comments</button>
+    <button *ngIf="product.ocrText" (click)="selectTab('raw')" [ngClass]="{'border-b-2 border-[#f038ff] text-[#f038ff]': selectedTab === 'raw', 'text-[#a0a0c0]': selectedTab !== 'raw'}" class="flex-1 py-3 font-semibold transition-colors">Raw Data</button>
+  </div>
+
+  <!-- Tab Content -->
+  <div [hidden]="selectedTab !== 'summary'">
+    <div class="text-center p-8 rounded-xl mb-5 animate-fade-in border" [ngClass]="{
+        'border-[#0abdc6] shadow-lg shadow-[#0abdc6]/50': verdict === 'good',
+        'border-[#f038ff] shadow-lg shadow-[#f038ff]/50': verdict === 'bad'
+      }" style="background: rgba(15, 15, 30, 0.8);">
+      <div class="text-6xl mb-4 drop-shadow-lg animate-pop-in" [ngClass]="{
+          'text-[#0abdc6]': verdict === 'good',
+          'text-[#f038ff]': verdict === 'bad'
+        }">
+        <span *ngIf="verdict === 'good'">✓</span>
+        <span *ngIf="verdict === 'bad'">✗</span>
       </div>
-      <div class="bg-[#2a2a4e] p-4 rounded-md border border-[#4a4a6e] text-sm">
-        <strong class="block text-[#f038ff] mb-1">Calories:</strong> <span class="text-[#e0e0e0]">{{ product.calories || 'N/A' }} kcal</span>
-      </div>
-      <div class="bg-[#2a2a4e] p-4 rounded-md border border-[#4a4a6e] text-sm col-span-1 md:col-span-2">
-        <strong class="block text-[#f038ff] mb-1">Categories:</strong>
-        <div class="flex flex-wrap gap-2 mt-2">
-          <span *ngFor="let category of product.categories" class="bg-[#1a1a2e] px-3 py-1 rounded-full text-xs text-[#a0a0c0] border border-[#2a2a4e]">
-            {{ category | customTitleCase }}
-          </span>
+      <h2 class="text-3xl font-bold" [ngClass]="{
+          'text-[#0abdc6]': verdict === 'good',
+          'text-[#f038ff]': verdict === 'bad'
+        }">
+        <span *ngIf="verdict === 'good'">Fat Boy Approved!</span>
+        <span *ngIf="verdict === 'bad'">Contains Items You Avoid</span>
+      </h2>
+    </div>
+
+    <div class="bg-gray-900/80 p-6 rounded-xl mb-5 border border-[#4a4a6e] text-[#e0e0e0]">
+      <h3 class="text-xl font-semibold text-[#f038ff] mb-4 pb-3 border-b border-[#2a2a4e]">Why this rating?</h3>
+      <ul class="list-none pl-0">
+        <li *ngFor="let item of flaggedItems" class="mb-2 text-[#f038ff] font-bold">
+          ⚠️ <strong>{{item.ingredient}}:</strong> {{item.reason}}
+        </li>
+        <li *ngIf="flaggedItems.length === 0" class="text-[#0abdc6] font-bold">
+          No ingredients match your avoid list.
+        </li>
+      </ul>
+    </div>
+
+    <div class="bg-gray-900/80 p-6 rounded-xl mb-5 border border-[#4a4a6e] text-[#e0e0e0]">
+      <h3 class="text-xl font-semibold text-[#0abdc6] mb-4 pb-3 border-b border-[#2a2a4e]">Product Details</h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="bg-[#2a2a4e] p-4 rounded-md border border-[#4a4a6e] text-sm">
+          <strong class="block text-[#f038ff] mb-1">Barcode:</strong> <span class="text-[#e0e0e0]">{{ product.barcode || 'N/A' }}</span>
         </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="bg-gray-900/80 p-6 rounded-xl mb-5 border border-[#4a4a6e] text-[#e0e0e0]">
-    <h3 class="text-xl font-semibold text-[#f038ff] mb-4 pb-3 border-b border-[#2a2a4e]">Why this rating?</h3>
-    <ul class="list-none pl-0">
-      <li *ngFor="let item of flaggedItems" class="mb-2 text-[#f038ff] font-bold">
-        ⚠️ <strong>{{item.ingredient}}:</strong> {{item.reason}}
-      </li>
-      <li *ngIf="flaggedItems.length === 0" class="text-[#0abdc6] font-bold">
-        No ingredients match your avoid list.
-      </li>
-    </ul>
-  </div>
-
-  <div class="bg-gray-900/80 p-6 rounded-xl mb-8 border border-[#4a4a6e] text-[#e0e0e0]">
-    <h3 class="text-xl font-semibold text-[#0abdc6] mb-4 pb-3 border-b border-[#2a2a4e]">Full Ingredients List:</h3>
-    <div class="flex flex-wrap gap-2">
-        <span *ngFor="let ingredient of product.ingredients"
-              class="px-3 py-1 rounded-full text-sm border"
-              [ngClass]="{
-                'bg-purple-900/20 border-purple-500 text-purple-300': isIngredientFlagged(ingredient),
-                'bg-gray-800 border-gray-700 text-gray-300': !isIngredientFlagged(ingredient)
-              }">
-          {{ ingredient }}
-        </span>
-    </div>
-  </div>
-
-  <div *ngIf="product.ocrText" class="bg-gray-900/80 p-6 rounded-xl mb-8 border border-[#4a4a6e] text-[#e0e0e0]">
-    <h3 class="text-xl font-semibold text-[#0abdc6] mb-4 pb-3 border-b border-[#2a2a4e]">Raw Scanned Text:</h3>
-    <p class="font-mono text-sm whitespace-pre-wrap break-all text-left text-[#e0e0e0]">{{ product.ocrText }}</p>
-  </div>
-
-  <div class="bg-gray-900/80 p-6 rounded-xl mb-8 border border-[#4a4a6e] text-[#e0e0e0]">
-    <h3 class="text-xl font-semibold text-[#0abdc6] mb-4 pb-3 border-b border-[#2a2a4e]">Comments</h3>
-    
-    <div class="space-y-4 mb-6">
-      <div *ngIf="isLoadingComments" class="text-center text-gray-500">Loading comments...</div>
-      <div *ngIf="!isLoadingComments && comments.length === 0" class="text-center text-gray-500">Be the first to comment!</div>
-      
-      <div *ngFor="let comment of comments; let i = index" class="flex items-start gap-3">
-        <img [src]="comment.profile.avatar_url || 'https://api.dicebear.com/8.x/initials/svg?seed=' + (comment.profile.first_name || 'A')" alt="Avatar" class="w-10 h-10 rounded-full object-cover border border-gray-600">
-        <div class="flex-grow bg-[#2a2a4e] p-3 rounded-lg">
-          <div class="flex justify-between items-center mb-1">
-            <span class="font-bold text-purple-400 text-sm">{{ comment.profile.first_name || 'Anonymous' }}</span>
-            <div class="flex items-center gap-2">
-              <span class="text-xs text-gray-500">{{ comment.created_at | date:'short' }}</span>
-              <button *ngIf="comment.user_id === currentUserId" (click)="deleteComment(comment.id, i)" class="text-gray-500 hover:text-red-500">
-                <lucide-icon name="trash-2" [size]="14"></lucide-icon>
-              </button>
-            </div>
+        <div class="bg-[#2a2a4e] p-4 rounded-md border border-[#4a4a6e] text-sm">
+          <strong class="block text-[#f038ff] mb-1">Calories:</strong> <span class="text-[#e0e0e0]">{{ product.calories || 'N/A' }} kcal</span>
+        </div>
+        <div class="bg-[#2a2a4e] p-4 rounded-md border border-[#4a4a6e] text-sm col-span-1 md:col-span-2">
+          <strong class="block text-[#f038ff] mb-1">Categories:</strong>
+          <div class="flex flex-wrap gap-2 mt-2">
+            <span *ngFor="let category of product.categories" class="bg-[#1a1a2e] px-3 py-1 rounded-full text-xs text-[#a0a0c0] border border-[#2a2a4e]">
+              {{ category | customTitleCase }}
+            </span>
           </div>
-          <p class="text-sm text-gray-300 m-0">{{ comment.comment_text }}</p>
         </div>
-      </div>
-    </div>
-
-    <div>
-      <app-textarea [(ngModel)]="newCommentText" placeholder="Add your comment..." [rows]="3"></app-textarea>
-      <div class="text-right mt-2">
-        <app-button (onClick)="postComment()" [disabled]="!newCommentText.trim()">Post Comment</app-button>
       </div>
     </div>
   </div>
 
-  <div class="flex justify-center gap-4 flex-wrap">
+  <div [hidden]="selectedTab !== 'ingredients'">
+    <div class="bg-gray-900/80 p-6 rounded-xl mb-8 border border-[#4a4a6e] text-[#e0e0e0]">
+      <h3 class="text-xl font-semibold text-[#0abdc6] mb-4 pb-3 border-b border-[#2a2a4e]">Full Ingredients List:</h3>
+      <div class="flex flex-wrap gap-2">
+          <span *ngFor="let ingredient of product.ingredients"
+                class="px-3 py-1 rounded-full text-sm border"
+                [ngClass]="{
+                  'bg-purple-900/20 border-purple-500 text-purple-300': isIngredientFlagged(ingredient),
+                  'bg-gray-800 border-gray-700 text-gray-300': !isIngredientFlagged(ingredient)
+                }">
+            {{ ingredient }}
+          </span>
+      </div>
+    </div>
+  </div>
+
+  <div [hidden]="selectedTab !== 'comments'">
+    <div class="bg-gray-900/80 p-6 rounded-xl mb-8 border border-[#4a4a6e] text-[#e0e0e0]">
+      <h3 class="text-xl font-semibold text-[#0abdc6] mb-4 pb-3 border-b border-[#2a2a4e]">Comments</h3>
+      
+      <div class="space-y-4 mb-6">
+        <div *ngIf="isLoadingComments" class="text-center text-gray-500">Loading comments...</div>
+        <div *ngIf="!isLoadingComments && comments.length === 0" class="text-center text-gray-500">Be the first to comment!</div>
+        
+        <div *ngFor="let comment of comments; let i = index" class="flex items-start gap-3">
+          <img [src]="comment.profile.avatar_url || 'https://api.dicebear.com/8.x/initials/svg?seed=' + (comment.profile.first_name || 'A')" alt="Avatar" class="w-10 h-10 rounded-full object-cover border border-gray-600">
+          <div class="flex-grow bg-[#2a2a4e] p-3 rounded-lg">
+            <div class="flex justify-between items-center mb-1">
+              <span class="font-bold text-purple-400 text-sm">{{ comment.profile.first_name || 'Anonymous' }}</span>
+              <div class="flex items-center gap-2">
+                <span class="text-xs text-gray-500">{{ comment.created_at | date:'short' }}</span>
+                <button *ngIf="comment.user_id === currentUserId" (click)="deleteComment(comment.id, i)" class="text-gray-500 hover:text-red-500">
+                  <lucide-icon name="trash-2" [size]="14"></lucide-icon>
+                </button>
+              </div>
+            </div>
+            <p class="text-sm text-gray-300 m-0">{{ comment.comment_text }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <app-textarea [(ngModel)]="newCommentText" placeholder="Add your comment..." [rows]="3"></app-textarea>
+        <div class="text-right mt-2">
+          <app-button (onClick)="postComment()" [disabled]="!newCommentText.trim()">Post Comment</app-button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div [hidden]="selectedTab !== 'raw'">
+    <div *ngIf="product.ocrText" class="bg-gray-900/80 p-6 rounded-xl mb-8 border border-[#4a4a6e] text-[#e0e0e0]">
+      <h3 class="text-xl font-semibold text-[#0abdc6] mb-4 pb-3 border-b border-[#2a2a4e]">Raw Scanned Text:</h3>
+      <p class="font-mono text-sm whitespace-pre-wrap break-all text-left text-[#e0e0e0]">{{ product.ocrText }}</p>
+    </div>
+  </div>
+
+  <div class="flex justify-center gap-4 flex-wrap mt-8">
     <app-button variant="default" (onClick)="addToList()">Add to...</app-button>
     <app-button variant="outline" (onClick)="findAlternatives()">Find Alternatives</app-button>
     <app-button variant="outline" (onClick)="scanAgain()">Scan Another</app-button>

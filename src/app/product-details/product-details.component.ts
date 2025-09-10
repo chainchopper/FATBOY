@@ -34,6 +34,7 @@ export class ProductDetailsComponent implements OnInit {
   newCommentText: string = '';
   isLoadingComments = true;
   currentUserId: string | null = null;
+  selectedTab: 'summary' | 'ingredients' | 'comments' | 'raw' = 'summary';
 
   constructor(
     private route: ActivatedRoute,
@@ -144,5 +145,9 @@ export class ProductDetailsComponent implements OnInit {
       this.consoleCommandService.setCommand(command);
       this.router.navigate(['/console']);
     }
+  }
+
+  selectTab(tab: 'summary' | 'ingredients' | 'comments' | 'raw') {
+    this.selectedTab = tab;
   }
 }
