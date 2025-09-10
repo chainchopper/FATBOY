@@ -20,11 +20,12 @@ import { AiIntegrationService } from '../services/ai-integration.service';
 import { UiService } from '../services/ui.service';
 import { UserNotificationService } from '../services/user-notification.service';
 import { AudioService } from '../services/audio.service';
+import { NotificationsComponent } from '../notifications/notifications.component'; // Re-import NotificationsComponent
 
 @Component({
   selector: 'app-unified-scanner',
   standalone: true,
-  imports: [CommonModule, RouterLink, LucideAngularModule], // Removed NotificationsComponent
+  imports: [CommonModule, RouterLink, LucideAngularModule, NotificationsComponent], // Re-add NotificationsComponent
   templateUrl: './unified-scanner.component.html',
   styleUrls: ['./unified-scanner.component.css']
 })
@@ -37,6 +38,7 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
   isVoiceListening = false;
   showExpandedOptions = false;
   screenFlash = false;
+  showNotifications = false; // Declare showNotifications property
 
   public unreadNotifications$!: Observable<number>;
   private voiceCommandSubscription!: Subscription;
@@ -120,7 +122,7 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
   }
 
   get isScanningBarcode(): boolean {
-    return this.scannerCameraService.isScanning(); // Using the new public getter
+    return this.scannerCameraService.isScanning();
   }
 
   get isStable(): boolean {
