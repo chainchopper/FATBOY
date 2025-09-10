@@ -231,25 +231,38 @@ export class AiIntegrationService {
   }
 
   private _parseAiResponse(fullResponseText: string): AiResponse {
-    let parsedJson = this._extractJsonFromMarkdown(fullResponseText);
-    if (!parsedJson) {
-      parsedJson = this._extractJson(fullResponseText);
+    let parsedJson: any = null;
+    try {
+        // Try to extract JSON from markdown first
+        parsedJson = this._extractJsonFromMarkdown(fullResponseText);
+        if (!parsedJson) {
+            // If not found in markdown, try to extract raw JSON
+            parsedJson = this._extractJson(fullResponseText);
+        }
+    } catch (e) {
+        console.error("Error during initial JSON extraction:", e);
+        // Fallback to treating the whole thing as text
+        parsedJson = null;
     }
 
     const defaultSuggestions = ["How can I help?", "What's in my shopping list?", "Suggest a healthy dinner."];
-    if (parsedJson && parsedJson.response) {
-      return {
-        text: parsedJson.response,
-        suggestedPrompts: Array.isArray(parsedJson.suggestions) ? parsedJson.suggestions.slice(0, 3) : defaultSuggestions,
-        dynamicButtons: Array.isArray(parsedJson.dynamicButtons) ? parsedJson.dynamicButtons : undefined,
-        uiElements: Array.isArray(parsedJson.uiElements) ? parsedJson.uiElements : undefined // Parse UI elements
-      };
+
+    if (parsedJson && typeof parsedJson === 'object' && parsedJson.response) {
+        return {
+            text: parsedJson.response,
+            suggestedPrompts: Array.isArray(parsedJson.suggestions) ? parsedJson.suggestions.slice(0, 3) : defaultSuggestions,
+            dynamicButtons: Array.isArray(parsedJson.dynamicButtons) ? parsedJson.dynamicButtons : undefined,
+            uiElements: Array.isArray(parsedJson.uiElements) ? parsedJson.uiElements : undefined
+        };
     } else {
-      const cleanedText = fullResponseText.replace(/```json/g, '').replace(/```/g, '').trim();
-      return {
-        text: cleanedText || "I'm sorry, I had trouble formatting my response. Please try again.",
-        suggestedPrompts: defaultSuggestions
-      };
+        // If JSON parsing failed or didn't contain 'response', treat the whole thing as text
+        const cleanedText = fullResponseText.replace(/```json/g, '').replace(/```/g, '').trim();
+        console.warn("AI response did not contain expected JSON structure or 'response' key. Raw response:", fullResponseText);
+        this.notificationService.showWarning("AI response format was unexpected. Displaying raw text.", "AI Response Warning");
+        return {
+            text: cleanedText || "I'm sorry, I had trouble understanding the AI's response. Please try again.",
+            suggestedPrompts: defaultSuggestions
+        };
     }
   }
 
@@ -319,6 +332,8 @@ export class AiIntegrationService {
       stream: false
     };
 
+    console.log('Sending AI chat completion request with payload:', JSON.stringify(payload, null, 2)); // Log full payload
+
     try {
       const response = await fetch(endpoint, { method: 'POST', headers, body: JSON.stringify(payload) });
       if (!response.ok) {
@@ -354,6 +369,7 @@ export class AiIntegrationService {
         ];
 
         const toolResponsePayload = { ...payload, messages: toolResponseMessages };
+        console.log('Sending AI tool response request with payload:', JSON.stringify(toolResponsePayload, null, 2)); // Log tool response payload
         const toolResponse = await fetch(endpoint, { method: 'POST', headers, body: JSON.stringify(toolResponsePayload) });
         if (!toolResponse.ok) {
           const errorText = await toolResponse.text();
