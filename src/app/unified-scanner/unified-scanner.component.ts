@@ -6,8 +6,6 @@ import { LucideAngularModule } from 'lucide-angular';
 
 // Import new services
 import { UnifiedScannerService } from '../services/unified-scanner.service'; // New service
-import { ScannerCameraService } from '../services/scanner-camera.service'; // Still needed for direct camera access
-import { StabilityDetectorService } from '../services/stability-detector.service'; // Still needed for direct stability access
 
 // Import existing services
 import { PreferencesService } from '../services/preferences.service';
@@ -40,8 +38,6 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
   constructor(
     private router: Router,
     public unifiedScannerService: UnifiedScannerService, // Inject the new service
-    private scannerCameraService: ScannerCameraService, // Keep for direct video/image access
-    private stabilityDetectorService: StabilityDetectorService, // Keep for direct stability access
     private preferencesService: PreferencesService,
     private speechService: SpeechService,
     public uiService: UiService,
@@ -53,7 +49,7 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
   async ngAfterViewInit() {
     // Set camera elements for the service
     this.unifiedScannerService.setCameraElements(
-      () => this.scannerCameraService.getVideoElement(),
+      () => this.unifiedScannerService['scannerCameraService'].getVideoElement(), // Access private method via service
       () => this.canvasElement.nativeElement
     );
 
