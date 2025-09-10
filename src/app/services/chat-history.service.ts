@@ -90,11 +90,11 @@ export class ChatHistoryService {
         timestamp: new Date(),
         avatar: this.agentAvatar,
         suggestedPrompts: [
-          'Scan a product for me!',
+          'Can you scan a product for me?',
           'What are my top avoided ingredients?',
-          'Show me my shopping list.',
-          'Suggest a healthy snack.',
-          'Summarize my food diary for today.'
+          'Can you show me my shopping list?',
+          'Can you suggest a healthy snack?',
+          'Can you summarize my food diary for today?'
         ]
       };
       this.messagesSubject.next([initialMessage]);
