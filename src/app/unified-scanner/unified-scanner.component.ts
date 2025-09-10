@@ -206,7 +206,7 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
       if (!productData) {
         this.notificationService.showError('Product not found in any database.', 'Not Found');
         this.audioService.playErrorSound();
-        return;
+        return; // Stop processing here, no flash/sound for failed recognition
       }
 
       const ingredients = productData.ingredients && productData.ingredients.length > 0
@@ -231,9 +231,9 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
 
       const savedProduct = await this.productDb.addProduct(productInfo);
       if (!savedProduct) {
-        this.notificationService.showError('Failed to save product.', 'Error');
-        this.audioService.playErrorSound();
-        return;
+        // productDb.addProduct now handles 'not logged in' and shows notification
+        // No need for flash/sound here as it's a user-related failure, not recognition failure
+        return; // Stop processing
       }
 
       sessionStorage.setItem('scannedProduct', JSON.stringify(savedProduct));
@@ -246,11 +246,11 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
       } else {
         console.error('Barcode processing error:', error);
         this.notificationService.showError('Failed to process barcode.', 'Error');
-        this.audioService.playErrorSound();
+        this.audioService.playErrorSound(); // Play error sound for technical processing failure
       }
     } finally {
       this.isProcessingOcr = false;
-      this.screenFlash = false;
+      this.screenFlash = false; // Clear flash regardless of success/failure
       this.processingAbortController = null;
       this.resumeScanningDetection(); // Resume detection after processing
     }
@@ -362,7 +362,7 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
 
   private async processImageForOcr(imageDataUrl: string, signal: AbortSignal): Promise<void> {
     try {
-      const result = await Tesseract.recognize(imageDataUrl, 'eng', { signal } as any); // Added 'as any'
+      const result = await Tesseract.recognize(imageDataUrl, 'eng', { signal } as any);
       const text = result.data?.text || '';
 
       if (signal.aborted) throw new Error('Operation aborted');
@@ -370,7 +370,7 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
       if (!text || text.trim().length === 0) {
         this.notificationService.showWarning('No text detected. Please try a different image.', 'OCR Failed');
         this.audioService.playErrorSound();
-        return;
+        return; // Stop processing here, no flash/sound for failed recognition
       }
 
       const enhancedIngredients = this.ocrEnhancer.enhanceIngredientDetection(text);
@@ -393,9 +393,9 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
 
       const product = await this.productDb.addProduct(productInfo);
       if (!product) {
-        this.notificationService.showError('Failed to save product.', 'Error');
-        this.audioService.playErrorSound();
-        return;
+        // productDb.addProduct now handles 'not logged in' and shows notification
+        // No need for flash/sound here as it's a user-related failure, not recognition failure
+        return; // Stop processing
       }
 
       sessionStorage.setItem('viewingProduct', JSON.stringify(product));
@@ -408,8 +408,13 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
       } else {
         console.error('OCR processing error:', err);
         this.notificationService.showError('Failed to process the image. Please try again.', 'Error');
-        this.audioService.playErrorSound();
+        this.audioService.playErrorSound(); // Play error sound for technical processing failure
       }
+    } finally {
+      this.isProcessingOcr = false;
+      this.screenFlash = false; // Clear flash regardless of success/failure
+      this.processingAbortController = null;
+      this.resumeScanningDetection(); // Resume detection after processing
     }
   }
 

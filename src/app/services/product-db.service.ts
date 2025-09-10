@@ -122,8 +122,8 @@ export class ProductDbService {
 
   async addProduct(product: Omit<Product, 'id' | 'scanDate'>): Promise<Product | null> {
     if (!this.currentUserId) {
-      this.notificationService.showError('You must be logged in to save products.');
-      return null;
+      this.notificationService.showError('You must be logged in to save products.', 'Login Required');
+      return null; // Return null if not authenticated
     }
 
     const newProduct: Product = {
@@ -142,7 +142,7 @@ export class ProductDbService {
 
     if (error) {
       console.error('Error adding product to Supabase:', error);
-      this.notificationService.showError('Failed to save product.');
+      this.notificationService.showError('Failed to save product.', 'Error');
       return null;
     }
     
