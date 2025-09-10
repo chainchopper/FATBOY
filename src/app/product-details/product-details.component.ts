@@ -13,11 +13,16 @@ import { CustomTitleCasePipe } from '../shared/custom-title-case.pipe';
 import { firstValueFrom } from 'rxjs';
 import { SpeechService } from '../services/speech.service';
 import { ConsoleCommandService } from '../services/console-command.service';
+import { ProductCommentService, ProductComment } from '../services/product-comment.service';
+import { AuthService } from '../services/auth.service';
+import { FormsModule } from '@angular/forms';
+import { LucideAngularModule } from 'lucide-angular';
+import { TextareaComponent } from '../textarea.component';
 
 @Component({
   selector: 'app-product-details',
   standalone: true,
-  imports: [CommonModule, DatePipe, ButtonComponent, CustomTitleCasePipe],
+  imports: [CommonModule, DatePipe, ButtonComponent, CustomTitleCasePipe, FormsModule, LucideAngularModule, TextareaComponent],
   templateUrl: './product-details.component.html',
   styleUrls: []
 })
@@ -25,6 +30,10 @@ export class ProductDetailsComponent implements OnInit {
   product: Product | null = null;
   verdict: 'good' | 'bad' = 'bad';
   flaggedItems: { ingredient: string, reason: string }[] = [];
+  comments: ProductComment[] = [];
+  newCommentText: string = '';
+  isLoadingComments = true;
+  currentUserId: string | null = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -37,10 +46,13 @@ export class ProductDetailsComponent implements OnInit {
     private shoppingListService: ShoppingListService,
     private appModalService: AppModalService,
     private speechService: SpeechService,
-    private consoleCommandService: ConsoleCommandService
+    private consoleCommandService: ConsoleCommandService,
+    private productCommentService: ProductCommentService,
+    private authService: AuthService
   ) {}
 
   async ngOnInit() {
+    this.currentUserId = this.authService.getCurrentUserId() || null;
     const productId = this.route.snapshot.paramMap.get('id');
     if (productId) {
       // Try to get from last viewed first for immediate display
@@ -54,6 +66,7 @@ export class ProductDetailsComponent implements OnInit {
 
       if (this.product) {
         this.evaluateProduct();
+        this.loadComments();
       } else {
         this.notificationService.showError('Product not found.', 'Error');
         this.router.navigate(['/history']); // Redirect if product not found
@@ -71,6 +84,30 @@ export class ProductDetailsComponent implements OnInit {
 
     this.verdict = evaluation.verdict;
     this.flaggedItems = evaluation.flaggedIngredients;
+  }
+
+  async loadComments() {
+    if (!this.product) return;
+    this.isLoadingComments = true;
+    this.comments = await this.productCommentService.getComments(this.product.id);
+    this.isLoadingComments = false;
+  }
+
+  async postComment() {
+    if (!this.product || !this.newCommentText.trim()) return;
+
+    const newComment = await this.productCommentService.addComment(this.product.id, this.newCommentText);
+    if (newComment) {
+      this.comments.push(newComment);
+      this.newCommentText = '';
+    }
+  }
+
+  async deleteComment(commentId: string, index: number) {
+    const success = await this.productCommentService.deleteComment(commentId);
+    if (success) {
+      this.comments.splice(index, 1);
+    }
   }
 
   isIngredientFlagged(ingredient: string): boolean {
@@ -99,11 +136,6 @@ export class ProductDetailsComponent implements OnInit {
 
   scanAgain() {
     this.router.navigate(['/scanner']);
-  }
-
-  addComments() {
-    this.notificationService.showInfo('Adding comments/details functionality is coming soon!', 'Feature Coming');
-    this.speechService.speak('Adding comments or details functionality is coming soon.');
   }
 
   findAlternatives() {

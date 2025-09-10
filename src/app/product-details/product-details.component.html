@@ -75,11 +75,42 @@
     <p class="font-mono text-sm whitespace-pre-wrap break-all text-left text-[#e0e0e0]">{{ product.ocrText }}</p>
   </div>
 
+  <div class="bg-gray-900/80 p-6 rounded-xl mb-8 border border-[#4a4a6e] text-[#e0e0e0]">
+    <h3 class="text-xl font-semibold text-[#0abdc6] mb-4 pb-3 border-b border-[#2a2a4e]">Comments</h3>
+    
+    <div class="space-y-4 mb-6">
+      <div *ngIf="isLoadingComments" class="text-center text-gray-500">Loading comments...</div>
+      <div *ngIf="!isLoadingComments && comments.length === 0" class="text-center text-gray-500">Be the first to comment!</div>
+      
+      <div *ngFor="let comment of comments; let i = index" class="flex items-start gap-3">
+        <img [src]="comment.profile.avatar_url || 'https://api.dicebear.com/8.x/initials/svg?seed=' + (comment.profile.first_name || 'A')" alt="Avatar" class="w-10 h-10 rounded-full object-cover border border-gray-600">
+        <div class="flex-grow bg-[#2a2a4e] p-3 rounded-lg">
+          <div class="flex justify-between items-center mb-1">
+            <span class="font-bold text-purple-400 text-sm">{{ comment.profile.first_name || 'Anonymous' }}</span>
+            <div class="flex items-center gap-2">
+              <span class="text-xs text-gray-500">{{ comment.created_at | date:'short' }}</span>
+              <button *ngIf="comment.user_id === currentUserId" (click)="deleteComment(comment.id, i)" class="text-gray-500 hover:text-red-500">
+                <lucide-icon name="trash-2" [size]="14"></lucide-icon>
+              </button>
+            </div>
+          </div>
+          <p class="text-sm text-gray-300 m-0">{{ comment.comment_text }}</p>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <app-textarea [(ngModel)]="newCommentText" placeholder="Add your comment..." [rows]="3"></app-textarea>
+      <div class="text-right mt-2">
+        <app-button (onClick)="postComment()" [disabled]="!newCommentText.trim()">Post Comment</app-button>
+      </div>
+    </div>
+  </div>
+
   <div class="flex justify-center gap-4 flex-wrap">
     <app-button variant="default" (onClick)="addToList()">Add to...</app-button>
     <app-button variant="outline" (onClick)="findAlternatives()">Find Alternatives</app-button>
     <app-button variant="outline" (onClick)="scanAgain()">Scan Another</app-button>
     <app-button variant="ghost" (onClick)="shareProduct()">Share</app-button>
-    <app-button variant="ghost" (onClick)="addComments()">Add Comments/Details</app-button>
   </div>
 </div>
