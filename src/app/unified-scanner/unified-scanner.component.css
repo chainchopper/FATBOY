@@ -144,7 +144,7 @@
   padding: 15px 20px;
   background: rgba(15, 15, 30, 0.6);
   backdrop-filter: blur(10px);
-  border-top: 1px solid rgba(10, 189, 198, 0.5);
+  border-top: 1px solid transparent; /* Changed to transparent */
   z-index: 30;
   display: flex;
   align-items: center;
