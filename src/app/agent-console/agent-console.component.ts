@@ -17,6 +17,9 @@ import { ProductDbService, Product } from '../services/product-db.service';
 import { NotificationService } from '../services/notification.service';
 import { AudioService } from '../services/audio.service';
 import { ProductCardComponent } from '../product-card/product-card.component';
+import { ShareService } from '../services/share.service'; // Import ShareService
+import { ShoppingListService } from '../services/shopping-list.service'; // Import ShoppingListService
+import { FoodDiaryService } from '../services/food-diary.service'; // Import FoodDiaryService
 
 // Define UI Element interfaces
 interface UiElement {
@@ -94,7 +97,10 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
     private ocrProcessorService: OcrProcessorService,
     private productDb: ProductDbService,
     private notificationService: NotificationService,
-    private audioService: AudioService
+    private audioService: AudioService,
+    private shareService: ShareService, // Inject ShareService
+    private shoppingListService: ShoppingListService, // Inject ShoppingListService
+    private foodDiaryService: FoodDiaryService // Inject FoodDiaryService
   ) {}
 
   ngOnInit() {
@@ -262,25 +268,19 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
   shareProductFromConsole(product: Product) {
     this.notificationService.showInfo(`Sharing product: ${product.name}`, 'Console Action');
     this.speechService.speak(`Sharing ${product.name}.`);
-    // Implement actual sharing logic here, e.g., using ShareService
+    this.shareService.shareProduct(product); // Actual sharing logic
   }
 
   addToShoppingListFromConsole(product: Product) {
-    this.productDb.addProduct(product); // Add to history first if not already there
     this.notificationService.showInfo(`Adding ${product.name} to shopping list.`, 'Console Action');
     this.speechService.speak(`Adding ${product.name} to shopping list.`);
-    // Trigger AI interaction to confirm or ask for more details
-    this.userInput = `Add "${product.name}" by "${product.brand}" to my shopping list.`;
-    this.sendMessage();
+    this.shoppingListService.addItem(product); // Actual add to shopping list logic
   }
 
   addToFoodDiaryFromConsole(product: Product) {
-    this.productDb.addProduct(product); // Add to history first if not already there
     this.notificationService.showInfo(`Adding ${product.name} to food diary.`, 'Console Action');
     this.speechService.speak(`Adding ${product.name} to food diary.`);
-    // Trigger AI interaction to ask for meal type
-    this.userInput = `Add "${product.name}" by "${product.brand}" to my food diary.`;
-    this.sendMessage();
+    this.appModalService.open(product); // Open modal for meal type selection
   }
 
   onViewDetailsFromConsole(product: Product) {
