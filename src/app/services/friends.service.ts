@@ -219,4 +219,39 @@ export class FriendsService {
 
     return 'not_friends';
   }
+
+  async getGlobalActivity(limit = 50): Promise<ActivityFeedItem[]> {
+    const { data, error } = await supabase
+      .from('nirvana_user_activity')
+      .select(`
+        id,
+        user_id,
+        type,
+        description,
+        created_at,
+        profile:profiles (
+          first_name,
+          last_name,
+          avatar_url
+        )
+      `)
+      .order('created_at', { ascending: false })
+      .limit(limit);
+  
+    if (error) {
+      console.error('Error fetching global activity feed:', error);
+      return [];
+    }
+    
+    return data.map((item: any) => ({
+      activity_id: item.id,
+      user_id: item.user_id,
+      activity_type: item.type,
+      activity_description: item.description,
+      created_at: item.created_at,
+      first_name: item.profile.first_name,
+      last_name: item.profile.last_name,
+      avatar_url: item.profile.avatar_url
+    }));
+  }
 }

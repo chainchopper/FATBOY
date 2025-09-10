@@ -14,6 +14,8 @@ import { ButtonComponent } from '../button/button.component';
 import { InputComponent } from '../input/input.component';
 import { TextareaComponent } from '../textarea/textarea.component';
 import { IngredientParserService } from '../services/ingredient-parser.service';
+import { FriendsService, ActivityFeedItem } from '../services/friends.service';
+import { ActivityFeedComponent } from '../activity-feed/activity-feed.component';
 
 interface CommunityContribution {
   id: string;
@@ -36,7 +38,7 @@ interface CommunityContribution {
 @Component({
   selector: 'app-community',
   standalone: true,
-  imports: [CommonModule, FormsModule, TitleCasePipe, ButtonComponent, InputComponent, TextareaComponent],
+  imports: [CommonModule, FormsModule, TitleCasePipe, ButtonComponent, InputComponent, TextareaComponent, ActivityFeedComponent],
   templateUrl: './community.component.html',
   styleUrls: []
 })
@@ -46,6 +48,8 @@ export class CommunityComponent implements OnInit {
   isAddingNewProduct = false;
   communityContributions: CommunityContribution[] = [];
   newCommentText: { [key: string]: string } = {};
+  globalActivityFeed: ActivityFeedItem[] = [];
+  isLoadingActivity = true;
   
   newContribution = {
     product_name: '',
@@ -65,16 +69,24 @@ export class CommunityComponent implements OnInit {
     private authService: AuthService,
     private notificationService: NotificationService,
     private aiService: AiIntegrationService,
-    private ingredientParser: IngredientParserService
+    private ingredientParser: IngredientParserService,
+    private friendsService: FriendsService
   ) {}
 
   ngOnInit() {
     this.scanHistory$ = this.productDb.products$;
     this.loadContributions();
+    this.loadGlobalActivity();
   }
 
   async loadContributions() {
     this.communityContributions = await this.communityService.getContributions() as any;
+  }
+
+  async loadGlobalActivity() {
+    this.isLoadingActivity = true;
+    this.globalActivityFeed = await this.friendsService.getGlobalActivity();
+    this.isLoadingActivity = false;
   }
 
   toggleAddMode() {

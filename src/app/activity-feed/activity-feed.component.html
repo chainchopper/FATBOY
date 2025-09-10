@@ -1,0 +1,17 @@
+<div class="activity-feed-container">
+  <div *ngIf="isLoading" class="loading-state text-center p-10 text-gray-400">
+    <p>Loading feed...</p>
+  </div>
+  <div *ngIf="!isLoading && activityFeed.length === 0" class="empty-state text-center p-10 text-gray-400">
+    <p>{{ emptyMessage }}</p>
+  </div>
+  <div *ngFor="let item of activityFeed" class="activity-item flex gap-4 items-start border-b border-gray-800 py-4 last:border-b-0">
+    <div class="activity-icon bg-gray-800 rounded-full w-10 h-10 flex items-center justify-center text-teal-400 flex-shrink-0">
+      <lucide-icon [name]="getIconForActivity(item.activity_type)" [size]="20"></lucide-icon>
+    </div>
+    <div class="activity-content">
+      <p class="m-0 text-left text-sm"><strong class="text-purple-400">{{ item.first_name || 'A user' }}</strong> {{ item.activity_description }}</p>
+      <span class="timestamp text-xs text-gray-500 mt-1 block">{{ item.created_at | date:'short' }}</span>
+    </div>
+  </div>
+</div>
