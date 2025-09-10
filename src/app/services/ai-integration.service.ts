@@ -283,7 +283,7 @@ export class AiIntegrationService {
     **CRITICAL: YOUR ENTIRE RESPONSE MUST BE A SINGLE, VALID JSON OBJECT AND NOTHING ELSE. NO INTRODUCTORY TEXT, NO EXPLANATIONS, NO MARKDOWN.
     The JSON object must have four keys:
     1. "response": (string) Your friendly, user-facing message. This must be natural, conversational, and contain no technical jargon.
-    2. "suggestions": (array of 3 strings) Three unique, relevant, and diverse follow-up prompts for the user.
+    2. "suggestions": (array of 3 strings) Three unique, relevant, and diverse follow-up prompts for the user. These MUST be phrased as questions or commands from the user's perspective. For example, instead of "I can help summarize your food diary," use "Can you help me summarize my food diary?".
     3. "dynamicButtons": (optional array of objects) If a multi-turn interaction is needed (e.g., after a tool call that requires further user input), provide an array of interactive buttons. Each button object must have "text" (string) and "action" (string, representing a follow-up command or intent).
     4. "uiElements": (optional array of objects) If you want to display rich UI components, provide an array of UI element objects. Each object must have "type" (string, e.g., "product_card") and "data" (object, the data for that UI component).
     **INSTRUCTIONS:**
