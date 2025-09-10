@@ -20,7 +20,7 @@ import { CustomTitleCasePipe } from '../shared/custom-title-case.pipe'; // Impor
   standalone: true,
   imports: [CommonModule, ButtonComponent, CustomTitleCasePipe], // Add CustomTitleCasePipe
   templateUrl: './ocr-results.component.html',
-  styleUrls: ['./ocr-results.component.css']
+  styleUrls: []
 })
 export class OcrResultsComponent implements OnInit {
   product: Product | null = null;
