@@ -2,7 +2,7 @@ import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
-import { LogoComponent } from './logo.component'; // Corrected import path
+import { LogoComponent } from './logo.component'; // This import will no longer be needed in the template, but kept for now.
 import { UserNotificationService } from './services/user-notification.service';
 import { UiService } from './services/ui.service';
 import { Observable } from 'rxjs';
@@ -10,7 +10,7 @@ import { Observable } from 'rxjs';
 @Component({
   selector: 'app-app-header',
   standalone: true,
-  imports: [CommonModule, RouterLink, LucideAngularModule, LogoComponent],
+  imports: [CommonModule, RouterLink, LucideAngularModule, LogoComponent], // LogoComponent is still imported but not used in template
   template: `
     <nav class="main-nav">
       <div class="header-left">
@@ -23,10 +23,10 @@ import { Observable } from 'rxjs';
       </div>
 
       <div class="header-title" (click)="goToHome()">
-        <app-logo></app-logo>
+        <!-- Removed <app-logo></app-logo> as per user's request -->
         <div class="title-text">
-          <span>Fat Boy Time</span>
-          <span class="header-subtitle">Powered by Fanalogy</span>
+          <span>FAT BOY TIME</span> <!-- Corrected main title text -->
+          <span class="header-subtitle">Powered by Nirvana</span> <!-- Corrected subtitle text -->
         </div>
       </div>
 
