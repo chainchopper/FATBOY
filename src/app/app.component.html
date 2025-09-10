@@ -1,4 +1,4 @@
-<app-app-header (toggleNotificationsEvent)="toggleNotifications()"></app-app-header>
+<app-app-header *ngIf="!isScannerPage" (toggleNotificationsEvent)="toggleNotifications()"></app-app-header>
 
 <app-notifications *ngIf="showNotifications" (close)="showNotifications = false"></app-notifications>
 
@@ -80,7 +80,7 @@
   </div>
 </div>
 
-<main class="pt-[70px] pb-[60px]" [class.full-screen]="isScannerPage">
+<main [ngClass]="{'pt-[70px] pb-[60px]': !isScannerPage, 'h-screen w-screen': isScannerPage}">
   <router-outlet></router-outlet>
 </main>
 
