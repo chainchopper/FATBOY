@@ -13,6 +13,7 @@ import { AiIntegrationService } from '../services/ai-integration.service';
 import { ButtonComponent } from '../button.component'; // Updated import path
 import { InputComponent } from '../input.component';
 import { TextareaComponent } from '../textarea.component';
+import { IngredientParserService } from '../services/ingredient-parser.service';
 
 interface CommunityContribution {
   id: string;
@@ -63,7 +64,8 @@ export class CommunityComponent implements OnInit {
     private preferencesService: PreferencesService,
     private authService: AuthService,
     private notificationService: NotificationService,
-    private aiService: AiIntegrationService
+    private aiService: AiIntegrationService,
+    private ingredientParser: IngredientParserService
   ) {}
 
   ngOnInit() {
@@ -212,5 +214,20 @@ export class CommunityComponent implements OnInit {
       ingredients: '',
       notes: ''
     };
+  }
+
+  getIngredientsArray(ingredients: string): string[] {
+    return ingredients.split(',').map(i => i.trim()).filter(i => i);
+  }
+
+  isCommunityIngredientFlagged(ingredient: string): boolean {
+    const preferences = this.preferencesService.getPreferences();
+    const fullAvoidList = [...(preferences.avoidedIngredients || []), ...(preferences.customAvoidedIngredients || [])];
+    const lowerIngredient = ingredient.toLowerCase();
+    
+    return fullAvoidList.some(avoidItem => {
+        if (!avoidItem) return false;
+        return lowerIngredient.includes(avoidItem.toLowerCase());
+    });
   }
 }
