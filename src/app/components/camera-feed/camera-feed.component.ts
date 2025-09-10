@@ -25,7 +25,7 @@ import { AudioService } from '../../services/audio.service';
           <span>{{ isBarcodeScanning ? 'Barcode ON' : 'Barcode OFF' }}</span>
         </button>
         <button (click)="switchCamera()" class="control-btn" title="Switch Camera">
-          <lucide-icon name="rotate-ccw" [size]="24"></lucide-icon>
+          <lucide-icon name="rotate-ccw" [size]="24"></lucide></lucide-icon>
           <span>Switch</span>
         </button>
         <button (click)="closeCamera()" class="control-btn close-btn" title="Close Camera">
@@ -101,16 +101,16 @@ export class CameraFeedComponent implements AfterViewInit, OnDestroy {
   @ViewChild('readerElement') readerElement!: ElementRef;
   @ViewChild('canvasElement') canvasElement!: ElementRef<HTMLCanvasElement>;
 
-  @Input() instanceId: string = 'default'; // Unique ID for multiple instances if needed
+  @Input() instanceId: string = 'default';
   @Output() barcodeScanned = new EventEmitter<string>();
-  @Output() imageCaptured = new EventEmitter<string>(); // Emits base64 image data
+  @Output() imageCaptured = new EventEmitter<string>();
   @Output() cameraClosed = new EventEmitter<void>();
 
   private html5QrcodeScanner: Html5Qrcode | null = null;
   private selectedCameraId: string | null = null;
   private currentCameraIndex = 0;
   public cameras: MediaDeviceInfo[] = [];
-  public isBarcodeScanning = true; // State for toggling barcode scanning
+  public isBarcodeScanning = true;
 
   constructor(
     private notificationService: NotificationService,
@@ -130,7 +130,7 @@ export class CameraFeedComponent implements AfterViewInit, OnDestroy {
     const hasCameraPermission = await this.permissionsService.checkAndRequestCameraPermission();
     if (!hasCameraPermission) {
       this.notificationService.showError('Camera access is required.');
-      this.cameraClosed.emit(); // Emit close if permission denied
+      this.cameraClosed.emit();
       return;
     }
 
@@ -176,16 +176,16 @@ export class CameraFeedComponent implements AfterViewInit, OnDestroy {
     try {
       await this.html5QrcodeScanner.start(
         { deviceId: { exact: this.selectedCameraId } },
-        { fps: 10, qrbox: { width: 200, height: 150 } }, // Smaller QR box for chat window
+        { fps: 10, qrbox: { width: 200, height: 150 } },
         (decodedText, decodedResult) => {
           if (this.isBarcodeScanning) {
             this.barcodeScanned.emit(decodedText);
-            this.audioService.playSuccessSound(); // Play sound on successful scan
-            this.html5QrcodeScanner?.pause(); // Pause after scan to prevent multiple triggers
+            this.audioService.playSuccessSound();
+            this.html5QrcodeScanner?.pause();
           }
         },
         (errorMessage) => {
-          // console.warn('Barcode scan error:', errorMessage); // Suppress frequent errors
+          // console.warn('Barcode scan error:', errorMessage);
         }
       );
       this.notificationService.showInfo('Camera started.', 'Live Feed');
@@ -224,7 +224,7 @@ export class CameraFeedComponent implements AfterViewInit, OnDestroy {
   }
 
   public captureImage(): void {
-    const videoElement = (this.html5QrcodeScanner as any)?.getVideoElement(); // Added type assertion
+    const videoElement = (this.html5QrcodeScanner as any)?.getVideoElement();
     if (videoElement && this.canvasElement) {
       const canvas = this.canvasElement.nativeElement;
       canvas.width = videoElement.videoWidth;
@@ -234,7 +234,7 @@ export class CameraFeedComponent implements AfterViewInit, OnDestroy {
         ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
         const imageDataUrl = canvas.toDataURL('image/png');
         this.imageCaptured.emit(imageDataUrl);
-        this.audioService.playSuccessSound(); // Play sound on capture
+        this.audioService.playSuccessSound();
         this.notificationService.showInfo('Image captured!', 'OCR Ready');
       }
     } else {
@@ -245,10 +245,10 @@ export class CameraFeedComponent implements AfterViewInit, OnDestroy {
   public toggleBarcodeScanning(): void {
     this.isBarcodeScanning = !this.isBarcodeScanning;
     if (this.isBarcodeScanning) {
-      this.html5QrcodeScanner?.resume(); // Ensure scanning is active if toggled on
+      this.html5QrcodeScanner?.resume();
       this.notificationService.showInfo('Barcode scanning enabled.', 'Scanner Mode');
     } else {
-      this.html5QrcodeScanner?.pause(); // Pause barcode detection
+      this.html5QrcodeScanner?.pause();
       this.notificationService.showInfo('Barcode scanning disabled.', 'Scanner Mode');
     }
   }
@@ -259,8 +259,8 @@ export class CameraFeedComponent implements AfterViewInit, OnDestroy {
   }
 
   public resumeBarcodeScanning(): void {
-    if (this.isBarcodeScanning) {
-      this.html5QrcodeScanner?.resume();
+    if (this.html5QrcodeScanner && !this.html5QrcodeScanner.isScanning) {
+      this.html5QrcodeScanner.resume();
     }
   }
 }

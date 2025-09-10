@@ -9,13 +9,13 @@ import { ProfileService } from '../services/profile.service';
 import { AppModalService } from '../services/app-modal.service';
 import { Subscription, interval } from 'rxjs';
 import { supabase } from '../../integrations/supabase/client';
-import { Router } from '@angular/router'; // Import Router
-import { CameraFeedComponent } from '../components/camera-feed/camera-feed.component'; // Import CameraFeedComponent
-import { BarcodeProcessorService } from '../services/barcode-processor.service'; // Import BarcodeProcessorService
-import { OcrProcessorService } from '../services/ocr-processor.service'; // Import OcrProcessorService
-import { ProductDbService, Product } from '../services/product-db.service'; // Import ProductDbService
-import { NotificationService } from '../services/notification.service'; // Import NotificationService
-import { AudioService } from '../services/audio.service'; // Import AudioService
+import { Router } from '@angular/router';
+import { CameraFeedComponent } from '../components/camera-feed/camera-feed.component';
+import { BarcodeProcessorService } from '../services/barcode-processor.service';
+import { OcrProcessorService } from '../services/ocr-processor.service';
+import { ProductDbService, Product } from '../services/product-db.service';
+import { NotificationService } from '../services/notification.service';
+import { AudioService } from '../services/audio.service';
 
 interface Message {
   sender: 'user' | 'agent' | 'tool';
@@ -25,7 +25,7 @@ interface Message {
   suggestedPrompts?: string[];
   toolCalls?: any[];
   humanReadableToolCall?: string;
-  dynamicButtons?: { text: string; action: string; payload?: any }[]; // Add dynamicButtons
+  dynamicButtons?: { text: string; action: string; payload?: any }[];
 }
 
 interface SlashCommand {
@@ -37,12 +37,13 @@ interface SlashCommand {
 @Component({
   selector: 'app-agent-console',
   standalone: true,
-  imports: [CommonModule, FormsModule, CameraFeedComponent], // Add CameraFeedComponent
+  imports: [CommonModule, FormsModule, CameraFeedComponent],
   templateUrl: './agent-console.component.html',
   styleUrls: ['./agent-console.component.css']
 })
 export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecked {
   @ViewChild('messageWindow') private messageWindow!: ElementRef;
+  @ViewChild('chatCameraFeed') private chatCameraFeed!: CameraFeedComponent; // Reference to CameraFeedComponent
 
   messages: Message[] = [];
   userInput: string = '';
@@ -50,8 +51,8 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
   isAgentTyping = false;
   isListening = false;
   agentStatus: 'online' | 'offline' = 'offline';
-  showCameraFeed = false; // New: control camera visibility
-  isProcessingCameraInput = false; // New: indicate camera input processing
+  showCameraFeed = false;
+  isProcessingCameraInput = false;
 
   private speechSubscription!: Subscription;
   private statusSubscription!: Subscription;
@@ -70,7 +71,6 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
   ];
   filteredCommands: SlashCommand[] = [];
 
-  // Track ongoing processing to allow cancellation
   private processingAbortController: AbortController | null = null;
 
   constructor(
@@ -82,11 +82,11 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
     private appModalService: AppModalService,
     private cdr: ChangeDetectorRef,
     private router: Router,
-    private barcodeProcessorService: BarcodeProcessorService, // Inject
-    private ocrProcessorService: OcrProcessorService, // Inject
-    private productDb: ProductDbService, // Inject
-    private notificationService: NotificationService, // Inject
-    private audioService: AudioService // Inject
+    private barcodeProcessorService: BarcodeProcessorService,
+    private ocrProcessorService: OcrProcessorService,
+    private productDb: ProductDbService,
+    private notificationService: NotificationService,
+    private audioService: AudioService
   ) {}
 
   ngOnInit() {
@@ -206,7 +206,7 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
       
       this.messages.push(agentMessage);
       this.saveMessage(agentMessage);
-      this.speechService.speak(aiResponse.text);
+      this.speechService.speak(agentMessage.text); // Use agentMessage.text for speaking
 
     } catch (error) {
       const errorMessage: Message = { sender: 'agent', text: 'Sorry, I encountered an error. Please try again.', timestamp: new Date(), avatar: this.agentAvatar };
@@ -223,8 +223,6 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
   }
 
   async handleDynamicButtonClick(action: string, payload: any = {}): Promise<void> {
-    // This method will simulate a user input based on the button click
-    // and send it back to the AI for further processing.
     let simulatedInput = '';
     switch (action) {
       case 'confirm_add_to_shopping_list':
@@ -240,10 +238,9 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
         simulatedInput = `No, do not add "${payload.product_name}" to my food diary.`;
         break;
       case 'open_scanner':
-        this.showCameraFeed = true; // Open the camera feed directly in the chat
+        this.showCameraFeed = true;
         this.speechService.speak('Opening the camera now. You can scan a barcode or capture a label.');
-        return; // Do not send to AI, handle directly
-      // Add more cases for other dynamic actions
+        return;
       default:
         simulatedInput = `User clicked: ${action} with payload: ${JSON.stringify(payload)}`;
         break;
@@ -252,7 +249,6 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
     await this.sendMessage();
   }
 
-  // New: Handlers for CameraFeedComponent events
   async handleBarcodeScannedFromChat(decodedText: string): Promise<void> {
     if (this.isProcessingCameraInput) return;
     this.isProcessingCameraInput = true;
@@ -278,7 +274,6 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
       this.speechService.speak(`I found ${savedProduct.name} by ${savedProduct.brand}. It's a ${savedProduct.verdict} choice.`);
       this.aiService.setLastDiscussedProduct(savedProduct);
       
-      // Simulate user input to send product info back to AI
       this.userInput = `I just scanned "${savedProduct.name}" by "${savedProduct.brand}". Its verdict is "${savedProduct.verdict}". Ingredients: ${savedProduct.ingredients.join(', ')}.`;
       await this.sendMessage();
 
@@ -293,10 +288,10 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
     } finally {
       this.isProcessingCameraInput = false;
       this.processingAbortController = null;
-      // After processing, resume barcode scanning in the CameraFeedComponent
-      // (assuming CameraFeedComponent has a method to resume its internal barcode scanner)
-      // Or, if we want to close the camera after one scan, we can call handleCameraClosedFromChat() here.
-      // For now, let's keep it open and let the user close it.
+      // Always resume barcode scanning after processing attempt
+      if (this.chatCameraFeed) {
+        this.chatCameraFeed.resumeBarcodeScanning();
+      }
     }
   }
 
@@ -325,7 +320,6 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
       this.speechService.speak(`I processed the label for ${savedProduct.name} by ${savedProduct.brand}. It's a ${savedProduct.verdict} choice.`);
       this.aiService.setLastDiscussedProduct(savedProduct);
 
-      // Simulate user input to send product info back to AI
       this.userInput = `I just captured and processed a label for "${savedProduct.name}" by "${savedProduct.brand}". Its verdict is "${savedProduct.verdict}". Ingredients: ${savedProduct.ingredients.join(', ')}.`;
       await this.sendMessage();
 
@@ -340,6 +334,10 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
     } finally {
       this.isProcessingCameraInput = false;
       this.processingAbortController = null;
+      // Always resume barcode scanning after processing attempt
+      if (this.chatCameraFeed) {
+        this.chatCameraFeed.resumeBarcodeScanning();
+      }
     }
   }
 
@@ -387,7 +385,7 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
         suggestedPrompts: item.content.suggestedPrompts,
         toolCalls: item.content.toolCalls,
         humanReadableToolCall: item.content.humanReadableToolCall,
-        dynamicButtons: item.content.dynamicButtons // Load dynamic buttons
+        dynamicButtons: item.content.dynamicButtons
       }));
     } else {
       this.messages = [{
@@ -418,7 +416,7 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
           suggestedPrompts: message.suggestedPrompts,
           toolCalls: message.toolCalls,
           humanReadableToolCall: message.humanReadableToolCall,
-          dynamicButtons: message.dynamicButtons // Save dynamic buttons
+          dynamicButtons: message.dynamicButtons
         }
       });
 
@@ -443,7 +441,7 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
         if (error) {
           console.error('Error clearing chat history:', error);
         } else {
-          this.loadChatHistory(); // Reload to show the initial greeting
+          this.loadChatHistory();
           this.speechService.speak('Chat history cleared.');
         }
       },
