@@ -17,7 +17,7 @@ import { firstValueFrom } from 'rxjs';
   standalone: true,
   imports: [CommonModule, DatePipe, ButtonComponent, CustomTitleCasePipe],
   templateUrl: './product-details.component.html',
-  styleUrls: ['./product-details.component.css']
+  styleUrls: []
 })
 export class ProductDetailsComponent implements OnInit {
   product: Product | null = null;
