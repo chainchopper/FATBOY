@@ -10,7 +10,7 @@ import { PreferencesService } from '../services/preferences.service';
 import { AuthService } from '../services/auth.service';
 import { NotificationService } from '../services/notification.service';
 import { AiIntegrationService } from '../services/ai-integration.service';
-import { ButtonComponent } from '../button/button.component'; // Corrected import path
+import { ButtonComponent } from '../button.component'; // Updated import path
 
 interface CommunityContribution {
   id: string;

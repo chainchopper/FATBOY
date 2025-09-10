@@ -4,7 +4,7 @@ import { AdminService } from '../services/admin.service';
 import { Profile } from '../services/profile.service';
 import { NotificationService } from '../services/notification.service';
 import { RouterLink } from '@angular/router';
-import { ButtonComponent } from '../button/button.component'; // Corrected import path
+import { ButtonComponent } from '../button.component'; // Updated import path
 
 @Component({
   selector: 'app-admin-users',

@@ -11,7 +11,7 @@ import { FoodDiaryService } from '../services/food-diary.service';
 import { ScanContextService } from '../services/scan-context.service';
 import { ModalService } from '../services/modal.service';
 import { PreferencesService } from '../services/preferences.service';
-import { ButtonComponent } from '../button/button.component'; // Corrected import path
+import { ButtonComponent } from '../button.component'; // Updated import path
 
 @Component({
   selector: 'app-ocr-results',

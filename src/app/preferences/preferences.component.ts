@@ -6,7 +6,7 @@ import { AuthService } from '../services/auth.service';
 import { IngredientParserService } from '../services/ingredient-parser.service';
 import { PreferencesService } from '../services/preferences.service';
 import { GamificationService } from '../services/gamification.service';
-import { ButtonComponent } from '../button/button.component'; // Corrected import path
+import { ButtonComponent } from '../button.component'; // Updated import path
 
 @Component({
   selector: 'app-preferences',

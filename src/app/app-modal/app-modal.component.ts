@@ -7,7 +7,7 @@ import { FoodDiaryService, MealType } from '../services/food-diary.service';
 import { ProductDbService } from '../services/product-db.service';
 import { NotificationService } from '../services/notification.service';
 import { Observable } from 'rxjs';
-import { ButtonComponent } from '../button/button.component'; // Corrected import path
+import { ButtonComponent } from '../button.component'; // Updated import path
 
 @Component({
   selector: 'app-app-modal',

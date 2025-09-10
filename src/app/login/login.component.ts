@@ -4,7 +4,7 @@ import { supabase } from '../../integrations/supabase/client';
 import { Provider } from '@supabase/supabase-js';
 import { Router } from '@angular/router';
 import { NotificationService } from '../services/notification.service';
-import { ButtonComponent } from '../button/button.component'; // Corrected import path
+import { ButtonComponent } from '../button.component'; // Updated import path
 
 @Component({
   selector: 'app-login',

@@ -9,9 +9,9 @@ import { ModalService } from '../services/modal.service';
 import { PreferencesService } from '../services/preferences.service';
 import { AiIntegrationService } from '../services/ai-integration.service';
 import { supabase } from '../../integrations/supabase/client';
-import { InputComponent } from '../input/input.component'; // Corrected import path
-import { TextareaComponent } from '../textarea/textarea.component'; // Corrected import path
-import { ButtonComponent } from '../button/button.component'; // Corrected import path
+import { InputComponent } from '../input.component'; // Correct import path
+import { TextareaComponent } from '../textarea.component'; // Updated import path
+import { ButtonComponent } from '../button.component'; // Correct import path
 
 @Component({
   selector: 'app-manual-entry',

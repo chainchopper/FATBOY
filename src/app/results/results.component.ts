@@ -3,14 +3,14 @@ import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { IngredientParserService } from '../services/ingredient-parser.service';
 import { ProductDbService, Product } from '../services/product-db.service';
-import { AudioService } from '../services/audio.service'; // Corrected import statement
+import { AudioService } from '../services/audio.service';
 import { NotificationService } from '../services/notification.service';
 import { SpeechService } from '../services/speech.service';
 import { ScanContextService } from '../services/scan-context.service';
 import { FoodDiaryService } from '../services/food-diary.service';
 import { ModalService } from '../services/modal.service';
 import { PreferencesService } from '../services/preferences.service';
-import { ButtonComponent } from '../button/button.component';
+import { ButtonComponent } from '../button.component'; // Updated import path
 
 @Component({
   selector: 'app-results',

@@ -7,12 +7,12 @@ import { User } from '@supabase/supabase-js';
 import { ProfileService, Profile } from './services/profile.service';
 import { map, filter } from 'rxjs/operators';
 import { AppModalComponent } from './app-modal/app-modal.component';
-import { LogoComponent } from './logo/logo.component';
+import { LogoComponent } from './logo.component'; // Corrected import path
 import { LucideAngularModule } from 'lucide-angular';
 import { UserNotificationService } from './services/user-notification.service';
 import { NotificationsComponent } from './notifications/notifications.component';
 import { UiService } from './services/ui.service';
-import { AppHeaderComponent } from './app-header/app-header.component'; // Corrected import path
+import { AppHeaderComponent } from './app-header.component'; // Updated import path
 
 @Component({
   selector: 'app-root',

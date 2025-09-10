@@ -18,7 +18,7 @@ import { take } from 'rxjs/operators';
 import { Subscription, Observable } from 'rxjs';
 import { LucideAngularModule } from 'lucide-angular';
 import { UiService } from '../services/ui.service';
-import { LogoComponent } from '../logo/logo.component';
+import { LogoComponent } from '../logo.component'; // Corrected import path
 import { UserNotificationService } from '../services/user-notification.service';
 import { NotificationsComponent } from '../notifications/notifications.component';
 
@@ -108,8 +108,6 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
     const currentPrefs = this.preferencesService.getPreferences();
     this.preferencesService.savePreferences({ ...currentPrefs, enableVoiceCommands: !currentPrefs.enableVoiceCommands });
   }
-
-  // Removed toggleNotifications() as it's now handled by the global HeaderComponent
 
   private handleVoiceCommand(command: string): void {
     if (command.includes('scan label') || command.includes('capture label')) {
