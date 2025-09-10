@@ -87,7 +87,7 @@ export class ScannerCameraService {
   }
 
   public async stopScanning(): Promise<void> {
-    if (this.html5QrcodeScanner && (this.html5QrcodeScanner as Html5Qrcode).isScanning()) { // Corrected with explicit cast
+    if (this.html5QrcodeScanner && (this.html5QrcodeScanner as any).isScanning()) { // Corrected with 'any' cast
       try {
         await this.html5QrcodeScanner.stop();
         this.html5QrcodeScanner.clear();
@@ -101,7 +101,7 @@ export class ScannerCameraService {
   }
 
   public async pauseDetection(): Promise<void> {
-    if (this.html5QrcodeScanner && (this.html5QrcodeScanner as Html5Qrcode).isScanning() && !this.isPausedInternally) { // Corrected with explicit cast
+    if (this.html5QrcodeScanner && (this.html5QrcodeScanner as any).isScanning() && !this.isPausedInternally) { // Corrected with 'any' cast
       await this.stopScanning(); // Stop the camera stream
       this.isPausedInternally = true;
     }
@@ -129,7 +129,7 @@ export class ScannerCameraService {
   }
 
   public getLastFrameImageData(): ImageData | null {
-    if (this.html5QrcodeScanner && (this.html5QrcodeScanner as Html5Qrcode).isScanning()) { // Corrected with explicit cast
+    if (this.html5QrcodeScanner && (this.html5QrcodeScanner as any).isScanning()) { // Corrected with 'any' cast
       const videoElement = (this.html5QrcodeScanner as any).getVideoElement(); // Retain as any for internal method
       if (videoElement && videoElement.videoWidth && videoElement.videoHeight) {
         const canvas = document.createElement('canvas');
@@ -146,13 +146,13 @@ export class ScannerCameraService {
   }
 
   public getVideoElement(): HTMLVideoElement | null {
-    if (this.html5QrcodeScanner && (this.html5QrcodeScanner as Html5Qrcode).isScanning()) { // Corrected with explicit cast
+    if (this.html5QrcodeScanner && (this.html5QrcodeScanner as any).isScanning()) { // Corrected with 'any' cast
       return (this.html5QrcodeScanner as any).getVideoElement(); // Retain as any for internal method
     }
     return null;
   }
 
   public isScanning(): boolean {
-    return (this.html5QrcodeScanner as Html5Qrcode)?.isScanning() || false; // Corrected with explicit cast
+    return (this.html5QrcodeScanner as any)?.isScanning() || false; // Corrected with 'any' cast
   }
 }

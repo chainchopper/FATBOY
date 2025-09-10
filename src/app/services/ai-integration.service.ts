@@ -42,7 +42,11 @@ export class AiIntegrationService {
     private aiContextService: AiContextService,
     private toolExecutorService: ToolExecutorService,
     private productDbService: ProductDbService // Inject ProductDbService
-  ) { }
+  ) {
+    if (this.apiKey === 'your_openai_compatible_api_key') {
+      console.warn('WARNING: OpenAI API Key is still a placeholder. Please update environment.ts with your actual key.');
+    }
+  }
 
   async checkAgentStatus(): Promise<boolean> {
     const endpoint = `${this.apiBaseUrl}/v1/models`; // Added /v1

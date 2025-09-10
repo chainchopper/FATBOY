@@ -43,6 +43,10 @@ export class ChatterboxTtsService {
       this.healthApiUrl = `${environment.ttsApiEndpoint}/v1/health`;
       this.checkApiHealthAndLoadVoices();
     }
+
+    if (environment.ttsApiKey === 'your_tts_api_key_here') {
+      console.warn('WARNING: Chatterbox TTS API Key is still a placeholder. Please update environment.ts with your actual key.');
+    }
   }
 
   private async checkApiHealthAndLoadVoices(): Promise<void> {
