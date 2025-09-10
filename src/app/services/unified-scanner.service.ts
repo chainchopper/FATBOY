@@ -154,62 +154,46 @@ export class UnifiedScannerService {
   private async handleBarcodeScan(decodedText: string): Promise<void> {
     if (this.isProcessingOcr) return;
 
-    this.pauseAllDetectionServices(); // Pause all detection during processing
+    this.pauseAllDetectionServices();
     this.isProcessingOcr = true;
     this.notificationService.showInfo('Barcode detected! Fetching product data...', 'Scanning');
     this.processingAbortController = new AbortController();
 
     try {
-      // Ensure processingAbortController is not null before accessing signal
       if (!this.processingAbortController) throw new Error('Processing aborted unexpectedly.');
-      const productInfo = await this.barcodeProcessorService.processBarcode(decodedText, this.processingAbortController.signal);
+      const savedProduct = await this.barcodeProcessorService.processBarcode(decodedText, this.processingAbortController.signal);
       if (this.processingAbortController.signal.aborted) throw new Error('Operation aborted');
 
-      if (!productInfo) {
-        this.notificationService.showWarning('Product not found or could not be processed.', 'Not Found');
-        this.audioService.playErrorSound();
-        return;
-      }
-
-      const savedProduct = await this.productDb.addProduct(productInfo);
       if (!savedProduct) {
         return;
       }
 
       this.screenFlash = true;
       this.audioService.playSuccessSound();
-      this.productDb.setLastViewedProduct(savedProduct);
       this.router.navigate(['/results']);
       this.productScanned.emit(savedProduct);
 
     } catch (error: any) {
-      if (error.message === 'Operation aborted') {
-        this.notificationService.showInfo('Scan processing cancelled.', 'Cancelled');
-      } else {
+      if (error.message !== 'Operation aborted') {
         console.error('Barcode processing error:', error);
-        this.notificationService.showError('Failed to process barcode.', 'Error');
-        this.audioService.playErrorSound();
       }
     } finally {
       this.isProcessingOcr = false;
       this.screenFlash = false;
       this.processingAbortController = null;
-      this.resumeAllDetectionServices(); // Resume all services after processing
+      this.resumeAllDetectionServices();
     }
   }
 
   public async handleStableFrameCapture(): Promise<void> {
     if (this.isProcessingOcr) return;
 
-    this.pauseAllDetectionServices(); // Pause all detection during processing
+    this.pauseAllDetectionServices();
     this.isProcessingOcr = true;
     this.notificationService.showInfo('Capturing label for OCR...', 'Scanning');
     this.processingAbortController = new AbortController();
 
     try {
-      if (!this.scannerCameraService.getLastFrameImageData()) {
-        throw new Error('Could not capture image from camera.');
-      }
       const imageData = this.scannerCameraService.getLastFrameImageData();
       if (!imageData || !this.canvasElementProvider) throw new Error('Could not capture image or canvas not available.');
 
@@ -221,48 +205,35 @@ export class UnifiedScannerService {
       ctx.putImageData(imageData, 0, 0);
       const dataUrl = canvas.toDataURL('image/png');
 
-      // Ensure processingAbortController is not null before accessing signal
       if (!this.processingAbortController) throw new Error('Processing aborted unexpectedly.');
-      const productInfo = await this.ocrProcessorService.processImageForOcr(dataUrl, this.processingAbortController.signal);
+      const savedProduct = await this.ocrProcessorService.processImageForOcr(dataUrl, this.processingAbortController.signal);
       if (this.processingAbortController.signal.aborted) throw new Error('Operation aborted');
 
-      if (!productInfo) {
-        this.notificationService.showWarning('No product data extracted from image.', 'OCR Failed');
-        this.audioService.playErrorSound();
-        return;
-      }
-
-      const savedProduct = await this.productDb.addProduct(productInfo);
       if (!savedProduct) {
         return;
       }
 
       this.screenFlash = true;
       this.audioService.playSuccessSound();
-      this.productDb.setLastViewedProduct(savedProduct);
       this.router.navigate(['/ocr-results']);
       this.productProcessed.emit(savedProduct);
 
     } catch (err: any) {
-      if (err.message === 'Operation aborted') {
-        this.notificationService.showInfo('OCR processing cancelled.', 'Cancelled');
-      } else {
+      if (err.message !== 'Operation aborted') {
         console.error('OCR capture error:', err);
-        this.notificationService.showError('Failed to capture image for OCR. Please try again.', 'Error');
-        this.audioService.playErrorSound();
       }
     } finally {
       this.isProcessingOcr = false;
       this.screenFlash = false;
       this.processingAbortController = null;
-      this.resumeAllDetectionServices(); // Resume all services after processing
+      this.resumeAllDetectionServices();
     }
   }
 
   public async processUploadedFile(file: File): Promise<void> {
     if (this.isProcessingOcr) return;
 
-    this.pauseAllDetectionServices(); // Pause all detection during processing
+    this.pauseAllDetectionServices();
     this.isProcessingOcr = true;
     this.notificationService.showInfo('Image uploaded, processing for OCR...', 'Upload');
     this.processingAbortController = new AbortController();
@@ -270,41 +241,28 @@ export class UnifiedScannerService {
     const reader = new FileReader();
     reader.onload = async (e: any) => {
       try {
-        // Ensure processingAbortController is not null before accessing signal
         if (!this.processingAbortController) throw new Error('Processing aborted unexpectedly.');
-        const productInfo = await this.ocrProcessorService.processImageForOcr(e.target.result, this.processingAbortController.signal);
+        const savedProduct = await this.ocrProcessorService.processImageForOcr(e.target.result, this.processingAbortController.signal);
         if (this.processingAbortController.signal.aborted) throw new Error('Operation aborted');
 
-        if (!productInfo) {
-          this.notificationService.showWarning('No product data extracted from uploaded image.', 'OCR Failed');
-          this.audioService.playErrorSound();
-          return;
-        }
-
-        const savedProduct = await this.productDb.addProduct(productInfo);
         if (!savedProduct) {
           return;
         }
 
         this.screenFlash = true;
         this.audioService.playSuccessSound();
-        this.productDb.setLastViewedProduct(savedProduct);
         this.router.navigate(['/ocr-results']);
         this.productProcessed.emit(savedProduct);
 
       } catch (err: any) {
-        if (err.message === 'Operation aborted') {
-          this.notificationService.showInfo('Image upload processing cancelled.', 'Cancelled');
-        } else {
+        if (err.message !== 'Operation aborted') {
           console.error('File upload OCR error:', err);
-          this.notificationService.showError('Failed to process uploaded image. Please try again.', 'Error');
-          this.audioService.playErrorSound();
         }
       } finally {
         this.isProcessingOcr = false;
         this.screenFlash = false;
         this.processingAbortController = null;
-        this.resumeAllDetectionServices(); // Resume all services after processing
+        this.resumeAllDetectionServices();
       }
     };
     reader.readAsDataURL(file);

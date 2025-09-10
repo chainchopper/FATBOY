@@ -1,11 +1,10 @@
 import { Injectable } from '@angular/core';
 import { BarcodeLookupService } from './barcode-lookup.service';
 import { OpenFoodFactsService } from './open-food-facts.service';
-import { IngredientParserService } from './ingredient-parser.service';
-import { PreferencesService } from './preferences.service';
 import { NotificationService } from './notification.service';
-import { Product } from '../services/product-db.service'; // Assuming Product interface is here
+import { Product } from '../services/product-db.service';
 import { AudioService } from './audio.service';
+import { ProductManagerService } from './product-manager.service';
 
 @Injectable({
   providedIn: 'root'
@@ -15,13 +14,12 @@ export class BarcodeProcessorService {
   constructor(
     private barcodeLookupService: BarcodeLookupService,
     private offService: OpenFoodFactsService,
-    private ingredientParser: IngredientParserService,
-    private preferencesService: PreferencesService,
     private notificationService: NotificationService,
-    private audioService: AudioService
+    private audioService: AudioService,
+    private productManager: ProductManagerService
   ) { }
 
-  async processBarcode(decodedText: string, signal: AbortSignal): Promise<Omit<Product, 'id' | 'scanDate'> | null> {
+  async processBarcode(decodedText: string, signal: AbortSignal): Promise<Product | null> {
     try {
       let productData = await this.barcodeLookupService.getProductByBarcode(decodedText);
 
@@ -40,32 +38,22 @@ export class BarcodeProcessorService {
         return null;
       }
 
-      const ingredients = productData.ingredients && productData.ingredients.length > 0
-        ? productData.ingredients
-        : ["Ingredients not available"];
-
-      const preferences = this.preferencesService.getPreferences();
-      const categories = this.ingredientParser.categorizeProduct(ingredients);
-      const evaluation = this.ingredientParser.evaluateProduct(ingredients, productData.calories, preferences);
-
-      const productInfo: Omit<Product, 'id' | 'scanDate'> = {
+      // Delegate processing and saving to the ProductManagerService
+      const savedProduct = await this.productManager.processAndAddProduct({
         barcode: decodedText,
         name: productData.name || "Unknown Product",
         brand: productData.brand || "Unknown Brand",
-        ingredients: ingredients,
+        ingredients: productData.ingredients || [],
         calories: productData.calories ?? undefined,
-        image: productData.image || "https://via.placeholder.com/150",
-        categories,
-        verdict: evaluation.verdict,
-        flaggedIngredients: evaluation.flaggedIngredients.map(f => f.ingredient),
+        image: productData.image,
         source: 'scan'
-      };
+      });
 
-      return productInfo;
+      return savedProduct;
 
     } catch (error: any) {
       if (error.message === 'Operation aborted') {
-        throw error; // Re-throw to be caught by the calling function's abort handler
+        throw error;
       } else {
         console.error('Barcode processing error:', error);
         this.notificationService.showError('Failed to process barcode.', 'Error');

@@ -9,7 +9,8 @@ import { supabase } from '../../integrations/supabase/client';
 import { NotificationService } from '../services/notification.service';
 import { SpeechService } from '../services/speech.service';
 import { AuthService } from '../services/auth.service';
-import { ButtonComponent } from '../button.component'; // Import ButtonComponent
+import { ButtonComponent } from '../button.component';
+import { ProductManagerService } from '../services/product-manager.service';
 
 interface Suggestion {
   product: Product;
@@ -32,7 +33,7 @@ interface SuggestionsCache {
 @Component({
   selector: 'app-suggestions',
   standalone: true,
-  imports: [CommonModule, ButtonComponent], // Add ButtonComponent
+  imports: [CommonModule, ButtonComponent],
   templateUrl: './suggestions.component.html',
   styleUrls: []
 })
@@ -49,7 +50,8 @@ export class SuggestionsComponent implements OnInit {
     private preferencesService: PreferencesService,
     private notificationService: NotificationService,
     private speechService: SpeechService,
-    private authService: AuthService
+    private authService: AuthService,
+    private productManager: ProductManagerService
   ) {}
 
   ngOnInit() {
@@ -84,7 +86,7 @@ export class SuggestionsComponent implements OnInit {
   private async fetchSuggestionsFromAI() {
     try {
       const scanHistory = this.productDb.getProductsSnapshot();
-      const approvedProducts = scanHistory.filter(p => p.verdict === 'good').slice(0, 5); // Use up to 5 approved products
+      const approvedProducts = scanHistory.filter(p => p.verdict === 'good').slice(0, 5);
 
       if (approvedProducts.length === 0) {
         this.suggestions = [];
@@ -97,7 +99,6 @@ export class SuggestionsComponent implements OnInit {
       
       const aiResponse = await this.aiService.getChatCompletion(prompt);
       
-      // The AI service now returns a structured object, so we access the 'text' property
       const parsedSuggestions = JSON.parse(aiResponse.text);
       if (!Array.isArray(parsedSuggestions)) {
         throw new Error("AI response is not an array.");
@@ -125,12 +126,11 @@ export class SuggestionsComponent implements OnInit {
             image: 'https://via.placeholder.com/150?text=Suggestion',
             source: 'ai_suggestion'
           },
-          similarity: 0, // Removed random similarity
+          similarity: 0,
           reason: suggestion.reason
         };
       });
 
-      // Save to cache
       const cacheKey = `suggestionsCache_${this.currentUserId}`;
       const newCache: SuggestionsCache = {
         suggestions: this.suggestions,
@@ -167,7 +167,6 @@ export class SuggestionsComponent implements OnInit {
     ]).pipe(take(1)).subscribe(([favoriteProducts, shoppingListItems]) => {
       const newConflicts: Conflict[] = [];
 
-      // Check favorite products
       favoriteProducts.forEach(product => {
         const conflict = avoidList.find(avoided => 
           product.ingredients.some(ing => ing.toLowerCase().includes(avoided.toLowerCase()))
@@ -177,7 +176,6 @@ export class SuggestionsComponent implements OnInit {
         }
       });
 
-      // Check shopping list items
       shoppingListItems.forEach(item => {
         if (item.product) {
           const conflict = avoidList.find(avoided => 
@@ -193,9 +191,26 @@ export class SuggestionsComponent implements OnInit {
     });
   }
 
-  saveSuggestion(suggestionProduct: Product) {
-    this.shoppingListService.addItem(suggestionProduct);
-    this.productDb.setLastViewedProduct(suggestionProduct); // Set last discussed product
+  async saveSuggestion(suggestionProduct: Product) {
+    const existingProduct = this.productDb.getProductById(suggestionProduct.id);
+    let productToAdd: Product | null;
+
+    if (existingProduct) {
+      productToAdd = existingProduct;
+    } else {
+      productToAdd = await this.productManager.processAndAddProduct({
+        name: suggestionProduct.name,
+        brand: suggestionProduct.brand,
+        ingredients: suggestionProduct.ingredients,
+        calories: suggestionProduct.calories,
+        image: suggestionProduct.image,
+        source: 'ai_suggestion'
+      });
+    }
+
+    if (productToAdd) {
+      this.shoppingListService.addItem(productToAdd);
+    }
   }
 
   resolveConflict(conflict: Conflict) {
