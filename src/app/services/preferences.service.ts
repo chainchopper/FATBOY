@@ -53,7 +53,7 @@ export class PreferencesService {
     if (this.currentUserId) {
       // Logic for loading from Supabase
       const { data, error } = await supabase
-        .from('user_preferences')
+        .from('fatboy_user_preferences')
         .select('preferences_data')
         .eq('user_id', this.currentUserId)
         .single();
@@ -136,7 +136,7 @@ export class PreferencesService {
     }
 
     const { error } = await supabase
-      .from('user_preferences')
+      .from('fatboy_user_preferences')
       .upsert(
         { user_id: this.currentUserId, preferences_data: prefs },
         { onConflict: 'user_id' }

@@ -83,7 +83,7 @@ export class ShoppingListService {
     };
     
     const { error } = await supabase
-      .from('shopping_list_items')
+      .from('fatboy_shopping_list_items')
       .insert(newItemData);
 
     if (error) {
@@ -115,7 +115,7 @@ export class ShoppingListService {
     }
 
     const { error } = await supabase
-      .from('shopping_list_items')
+      .from('fatboy_shopping_list_items')
       .delete()
       .eq('id', itemId)
       .eq('user_id', this.currentUserId);
@@ -164,7 +164,7 @@ export class ShoppingListService {
     const newPurchasedStatus = !item.purchased;
 
     const { error } = await supabase
-      .from('shopping_list_items')
+      .from('fatboy_shopping_list_items')
       .update({ purchased: newPurchasedStatus })
       .eq('id', itemId)
       .eq('user_id', this.currentUserId);
@@ -187,7 +187,7 @@ export class ShoppingListService {
     }
 
     const { error } = await supabase
-      .from('shopping_list_items')
+      .from('fatboy_shopping_list_items')
       .delete()
       .eq('user_id', this.currentUserId);
 
@@ -206,7 +206,7 @@ export class ShoppingListService {
     if (!this.currentUserId) return;
 
     const { data, error } = await supabase
-      .from('shopping_list_items')
+      .from('fatboy_shopping_list_items')
       .select('*')
       .eq('user_id', this.currentUserId)
       .order('created_at', { ascending: false });

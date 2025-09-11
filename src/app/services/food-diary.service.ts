@@ -70,7 +70,7 @@ export class FoodDiaryService {
     };
 
     const { error } = await supabase
-      .from('food_diary_entries')
+      .from('fatboy_food_diary_entries')
       .insert({
         user_id: this.currentUserId,
         entry_date: newEntry.date,
@@ -102,7 +102,7 @@ export class FoodDiaryService {
     }
 
     const { error } = await supabase
-      .from('food_diary_entries')
+      .from('fatboy_food_diary_entries')
       .delete()
       .eq('id', entryId)
       .eq('user_id', this.currentUserId);
@@ -244,7 +244,7 @@ export class FoodDiaryService {
     if (!this.currentUserId) return;
 
     const { data, error } = await supabase
-      .from('food_diary_entries')
+      .from('fatboy_food_diary_entries')
       .select('id, entry_date, meal_type, product_data')
       .eq('user_id', this.currentUserId)
       .order('entry_date', { ascending: false })

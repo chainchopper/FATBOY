@@ -56,7 +56,7 @@ export class ChatHistoryService {
     }
 
     const { data, error } = await supabase
-      .from('chat_messages')
+      .from('fatboy_chat_messages')
       .select('sender, content, created_at')
       .eq('user_id', this.currentUserId)
       .order('created_at', { ascending: true });
@@ -121,7 +121,7 @@ export class ChatHistoryService {
     if (!this.currentUserId) return;
 
     const { error } = await supabase
-      .from('chat_messages')
+      .from('fatboy_chat_messages')
       .insert({
         user_id: this.currentUserId,
         sender: message.sender,
@@ -144,7 +144,7 @@ export class ChatHistoryService {
     if (!this.currentUserId) return;
 
     const { error } = await supabase
-      .from('chat_messages')
+      .from('fatboy_chat_messages')
       .delete()
       .eq('user_id', this.currentUserId);
 
