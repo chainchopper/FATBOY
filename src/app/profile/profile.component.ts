@@ -13,6 +13,7 @@ import { FriendsService, ActivityFeedItem, FriendshipStatus } from '../services/
 import { LucideAngularModule } from 'lucide-angular';
 import { ButtonComponent } from '../button/button.component';
 import { NotificationService } from '../services/notification.service';
+import { ActivityFeedComponent } from '../activity-feed/activity-feed.component';
 
 export interface Contribution {
   id: string;
@@ -25,7 +26,7 @@ export interface Contribution {
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, RouterLink, TitleCasePipe, DatePipe, LucideAngularModule, ButtonComponent],
+  imports: [CommonModule, RouterLink, TitleCasePipe, DatePipe, LucideAngularModule, ButtonComponent, ActivityFeedComponent],
   templateUrl: './profile.component.html',
   styleUrls: []
 })

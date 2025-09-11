@@ -75,20 +75,11 @@
       <div class="pt-6 border-t border-gray-800 mt-6 text-left">
         <h3 class="text-2xl font-semibold text-teal-400 mb-4">Recent Activity</h3>
         <div *ngIf="(activityFeed$ | async) as feed; else loadingActivity">
-          <div *ngIf="feed.length > 0" class="space-y-3">
-            <div *ngFor="let item of feed" class="flex items-start gap-4 bg-gray-800 p-4 rounded-lg border border-gray-700">
-              <div class="bg-gray-700 rounded-full w-10 h-10 flex items-center justify-center text-teal-400 flex-shrink-0">
-                <lucide-icon [name]="getIconForActivity(item.activity_type)" [size]="20"></lucide-icon>
-              </div>
-              <div class="flex-grow">
-                <p class="text-gray-200 mb-1">{{ item.activity_description }}</p>
-                <span class="text-xs text-gray-500">{{ item.created_at | date:'short' }}</span>
-              </div>
-            </div>
-          </div>
-          <div *ngIf="feed.length === 0" class="text-center py-4 text-gray-500 italic">
-            <p>This user has no recent activity.</p>
-          </div>
+          <app-activity-feed 
+            [activityFeed]="feed" 
+            [isLoading]="false"
+            emptyMessage="This user has no recent activity.">
+          </app-activity-feed>
         </div>
         <ng-template #loadingActivity>
           <p class="text-center py-4 text-gray-500 italic">Loading activity...</p>
