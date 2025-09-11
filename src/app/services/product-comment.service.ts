@@ -26,7 +26,7 @@ export class ProductCommentService {
 
   async getComments(productClientId: string): Promise<ProductComment[]> {
     const { data, error } = await supabase
-      .from('product_comments')
+      .from('fatboy_product_comments')
       .select(`
         *,
         profile:profiles (
@@ -53,7 +53,7 @@ export class ProductCommentService {
     }
 
     const { data, error } = await supabase
-      .from('product_comments')
+      .from('fatboy_product_comments')
       .insert({
         product_client_id: productClientId,
         user_id: userId,
@@ -80,7 +80,7 @@ export class ProductCommentService {
 
   async deleteComment(commentId: string): Promise<boolean> {
     const { error } = await supabase
-      .from('product_comments')
+      .from('fatboy_product_comments')
       .delete()
       .eq('id', commentId);
 
