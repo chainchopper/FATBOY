@@ -9,18 +9,24 @@ import { ShareService } from '../services/share.service';
 import { AiIntegrationService } from '../services/ai-integration.service';
 import { ButtonComponent } from '../button/button.component';
 import { CustomTitleCasePipe } from '../shared/custom-title-case.pipe';
+import { SemanticSearchService } from '../services/semantic-search.service';
+import { FormsModule } from '@angular/forms';
+import { InputComponent } from '../input/input.component';
 
 @Component({
   selector: 'app-history',
   standalone: true,
-  imports: [CommonModule, ProductCardComponent, ButtonComponent, CustomTitleCasePipe],
+  imports: [CommonModule, ProductCardComponent, ButtonComponent, CustomTitleCasePipe, FormsModule, InputComponent],
   templateUrl: './history.component.html',
   styleUrls: []
 })
 export class HistoryComponent implements OnInit {
   products: Product[] = [];
+  filteredProducts: Product[] = [];
   stats: {ingredient: string, count: number}[] = [];
   selectedCategory: string | null = null;
+  searchQuery: string = '';
+  isSearching: boolean = false;
   
   constructor(
     private productDb: ProductDbService,
@@ -28,27 +34,35 @@ export class HistoryComponent implements OnInit {
     private appModalService: AppModalService,
     private shareService: ShareService,
     private aiService: AiIntegrationService,
-    private router: Router
+    private router: Router,
+    private semanticSearchService: SemanticSearchService
   ) {}
 
   ngOnInit() {
     this.productDb.products$.subscribe((products: Product[]) => {
       this.products = products;
+      this.filteredProducts = products; // Initially show all products
       this.stats = this.productDb.getFlaggedIngredientsStats();
     });
   }
 
-  filterByCategory(category: string | null) {
-    this.selectedCategory = category;
+  async performSearch() {
+    this.isSearching = true;
+    this.selectedCategory = null; // Reset category filter when searching
+    this.filteredProducts = await this.semanticSearchService.search(this.searchQuery);
+    this.isSearching = false;
   }
 
-  get filteredProducts(): Product[] {
+  filterByCategory(category: string | null) {
+    this.selectedCategory = category;
+    this.searchQuery = ''; // Clear search when using category filter
     if (!this.selectedCategory) {
-      return this.products;
+      this.filteredProducts = this.products;
+    } else {
+      this.filteredProducts = this.products.filter(product => 
+        product.categories.includes(this.selectedCategory as string)
+      );
     }
-    return this.products.filter(product => 
-      product.categories.includes(this.selectedCategory as string)
-    );
   }
 
   removeProduct(id: string) {

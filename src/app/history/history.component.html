@@ -4,6 +4,21 @@
     <app-button variant="destructive" (onClick)="clearHistory()" class="clear-btn">Clear All Scans</app-button>
   </div>
 
+  <div class="search-section mb-8">
+    <div class="flex gap-2">
+      <app-input 
+        type="text" 
+        [(ngModel)]="searchQuery" 
+        placeholder="Ask about your products (e.g., 'low calorie snacks')..."
+        (keyup.enter)="performSearch()"
+        class="flex-grow">
+      </app-input>
+      <app-button (onClick)="performSearch()" [disabled]="isSearching">
+        {{ isSearching ? 'Searching...' : 'AI Search' }}
+      </app-button>
+    </div>
+  </div>
+
   <div class="stats-section bg-gray-900/80 p-5 rounded-xl mb-5 border border-gray-700" *ngIf="stats.length > 0">
     <h3 class="text-xl font-semibold text-purple-400 mb-4 border-b border-gray-700 pb-3">Most Frequently Avoided Ingredients</h3>
     <div class="stats-grid grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mt-4">
@@ -48,7 +63,7 @@
     </app-product-card>
     
     <div *ngIf="filteredProducts.length === 0" class="empty-state text-center p-10 text-gray-400 bg-gray-900/80 rounded-xl border border-gray-700 col-span-full">
-      <p>No scan history yet. Start scanning products to build your history!</p>
+      <p>No products found matching your criteria.</p>
     </div>
   </div>
 </div>
