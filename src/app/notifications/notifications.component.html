@@ -8,10 +8,7 @@
       <div *ngIf="notifications.length === 0" class="text-center p-10 text-gray-500">
         <p>You have no new notifications.</p>
       </div>
-      <div *ngFor="let notification of notifications" 
-           class="flex gap-4 p-4 border-b border-gray-800 cursor-pointer transition-colors duration-300 hover:bg-gray-800" 
-           [class.bg-purple-900/20]="!notification.is_read"
-           (click)="handleNotificationClick(notification)">
+      <div *ngFor="let notification of notifications" class="flex gap-4 p-4 border-b border-gray-800 cursor-pointer transition-colors duration-300 hover:bg-gray-800" [class.bg-purple-900/20]="!notification.is_read" (click)="handleNotificationClick(notification)">
         <div class="text-teal-400 flex-shrink-0">
           <lucide-icon [name]="getIconForType(notification.type)" [size]="20"></lucide-icon>
         </div>

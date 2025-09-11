@@ -9,10 +9,7 @@
     </div>
     <button (click)="toggleNotifications()" class="relative p-2 text-gray-200">
       <lucide-icon name="bell" [size]="24"></lucide-icon>
-      <span *ngIf="(unreadNotifications$ | async) as count" 
-            class="absolute top-0 right-0 flex items-center justify-center w-[18px] h-[18px] text-xs font-bold text-gray-900 bg-purple-400 rounded-full transition-transform duration-300"
-            [class.scale-100]="count > 0"
-            [class.scale-0]="count === 0">
+      <span *ngIf="(unreadNotifications$ | async) as count" class="absolute top-0 right-0 flex items-center justify-center w-[18px] h-[18px] text-xs font-bold text-gray-900 bg-purple-400 rounded-full transition-transform duration-300" [class.scale-100]="count > 0" [class.scale-0]="count === 0">
         {{ count }}
       </span>
     </button>
