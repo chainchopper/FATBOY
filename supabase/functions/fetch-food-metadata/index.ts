@@ -105,7 +105,7 @@ serve(async (req: Request) => {
       if (productData) {
         // Check if product already exists to avoid duplicates
         const { data: existingProduct, error: fetchError } = await supabaseClient
-          .from('user_products')
+          .from('fatboy_user_products')
           .select('id')
           .eq('product_data->>name', productData.name)
           .eq('product_data->>brand', productData.brand)
@@ -123,9 +123,9 @@ serve(async (req: Request) => {
           continue;
         }
 
-        // Insert into user_products table
+        // Insert into fatboy_user_products table
         const { error: insertError } = await supabaseClient
-          .from('user_products')
+          .from('fatboy_user_products')
           .insert({
             user_id: '00000000-0000-0000-0000-000000000001', // Special system user ID
             product_data: productData,

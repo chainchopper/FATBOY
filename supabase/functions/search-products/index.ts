@@ -32,7 +32,7 @@ serve(async (req: Request) => {
     const tsQuery = query.trim().split(/\s+/).join(' & ');
 
     const { data, error } = await supabaseClient
-      .from('user_products')
+      .from('fatboy_user_products')
       .select('product_data')
       .textSearch('product_data', tsQuery, {
         type: 'websearch',

@@ -1,3 +1,4 @@
+/* To learn more about this file see: https://angular.io/config/tsconfig. */
 {
   "compileOnSave": false,
   "compilerOptions": {
@@ -18,11 +19,11 @@
     "target": "ES2022",
     "module": "ES2022",
     "useDefineForClassFields": false,
-    "allowSyntheticDefaultImports": true,
     "lib": [
       "ES2022",
       "dom"
-    ]
+    ],
+    "allowSyntheticDefaultImports": true
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,
@@ -31,6 +32,6 @@
     "strictTemplates": true
   },
   "exclude": [
-    "supabase/functions/**/*"
+    "supabase"
   ]
 }

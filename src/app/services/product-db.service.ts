@@ -83,7 +83,7 @@ export class ProductDbService {
     if (!this.currentUserId) return;
 
     const { data, error } = await supabase
-      .from('user_products')
+      .from('fatboy_user_products')
       .select('product_data, type')
       .eq('user_id', this.currentUserId)
       .order('created_at', { ascending: false });
@@ -147,7 +147,7 @@ export class ProductDbService {
     };
 
     const { error } = await supabase
-      .from('user_products')
+      .from('fatboy_user_products')
       .insert({
         user_id: this.currentUserId,
         product_data: newProduct,
@@ -185,7 +185,7 @@ export class ProductDbService {
     };
 
     const { error } = await supabase
-      .from('user_products')
+      .from('fatboy_user_products')
       .insert({
         user_id: this.currentUserId,
         product_data: newProduct,
@@ -210,7 +210,7 @@ export class ProductDbService {
     if (!this.currentUserId) return null;
 
     const { data, error } = await supabase
-      .from('user_products')
+      .from('fatboy_user_products')
       .select('product_data')
       .filter('product_data->>id', 'eq', clientSideId)
       .limit(1)
@@ -253,7 +253,7 @@ export class ProductDbService {
     }
 
     const { error } = await supabase
-      .from('user_products')
+      .from('fatboy_user_products')
       .delete()
       .eq('user_id', this.currentUserId)
       .filter('product_data->>id', 'eq', id);
@@ -273,7 +273,7 @@ export class ProductDbService {
     }
 
     const { error } = await supabase
-      .from('user_products')
+      .from('fatboy_user_products')
       .delete()
       .eq('user_id', this.currentUserId)
       .eq('type', 'saved_avoided')
@@ -294,7 +294,7 @@ export class ProductDbService {
     }
 
     const { error } = await supabase
-      .from('user_products')
+      .from('fatboy_user_products')
       .delete()
       .eq('user_id', this.currentUserId);
 
