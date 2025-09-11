@@ -146,7 +146,7 @@ export class GamificationService {
     this.unlockedBadges.add(id);
     const badge = this.allBadges.find(b => b.id === id);
     if (badge) {
-      supabase.rpc('log_user_activity', { 
+      supabase.rpc('fatboy_log_user_activity', { 
         activity_type: 'achievement', 
         activity_description: `Unlocked the "${badge.name}" badge! 🏆` 
       }).then();

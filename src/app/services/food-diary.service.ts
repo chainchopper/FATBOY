@@ -85,7 +85,7 @@ export class FoodDiaryService {
       return;
     }
     
-    supabase.rpc('log_user_activity', { 
+    supabase.rpc('fatboy_log_user_activity', { 
       activity_type: 'food_diary', 
       activity_description: `Added ${product.name} to their ${meal} diary.` 
     }).then();

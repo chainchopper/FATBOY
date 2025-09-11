@@ -166,7 +166,7 @@ export class FriendsService {
 
   // Fetches the activity feed for the current user's friends
   async getFriendActivity(): Promise<ActivityFeedItem[]> {
-    const { data, error } = await supabase.rpc('get_friends_activity_feed');
+    const { data, error } = await supabase.rpc('fatboy_get_friends_activity_feed');
     if (error) {
       console.error('Error fetching friend activity feed:', error);
       return [];
@@ -176,7 +176,7 @@ export class FriendsService {
 
   // Fetches the activity feed for a specific user
   async getUserActivity(userId: string): Promise<ActivityFeedItem[]> {
-    const { data, error } = await supabase.rpc('get_user_activity_feed', { user_id_param: userId });
+    const { data, error } = await supabase.rpc('fatboy_get_user_activity_feed', { user_id_param: userId });
     if (error) {
       console.error(`Error fetching activity feed for user ${userId}:`, error);
       return [];
@@ -222,7 +222,7 @@ export class FriendsService {
 
   async getGlobalActivity(limit = 50): Promise<ActivityFeedItem[]> {
     const { data, error } = await supabase
-      .from('nirvana_user_activity')
+      .from('fatboy_user_activity')
       .select(`
         id,
         user_id,

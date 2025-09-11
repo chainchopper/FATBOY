@@ -160,7 +160,7 @@ export class ProductDbService {
       return null;
     }
     
-    supabase.rpc('log_user_activity', { 
+    supabase.rpc('fatboy_log_user_activity', { 
       activity_type: 'scan', 
       activity_description: `Scanned: ${newProduct.name}` 
     }).then();
