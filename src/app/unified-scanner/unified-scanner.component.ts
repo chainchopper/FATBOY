@@ -78,13 +78,23 @@ export class UnifiedScannerComponent implements AfterViewInit, OnDestroy {
     this.scannerStateSubscription?.unsubscribe();
   }
 
-  get isVoiceListening(): boolean {
-    return this.speechService.listening; // Get state directly from SpeechService
+  // Expose a simple property the template expects
+  get isListening(): boolean {
+    return this.speechService.listening; // Return listening state from SpeechService
   }
 
   toggleVoiceListening(): void {
     const currentPrefs = this.preferencesService.getPreferences();
     this.preferencesService.savePreferences({ ...currentPrefs, enableVoiceCommands: !currentPrefs.enableVoiceCommands });
+  }
+
+  // New method required by template
+  toggleNotifications(): void {
+    this.showNotifications = !this.showNotifications;
+    // Optionally close the menu when opening notifications
+    if (this.showNotifications) {
+      this.uiService.closeMenu();
+    }
   }
 
   private handleVoiceCommand(command: string): void {
