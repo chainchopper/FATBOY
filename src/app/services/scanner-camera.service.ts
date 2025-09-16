@@ -1,5 +1,5 @@
 import { Injectable, EventEmitter } from '@angular/core';
-import { Html5Qrcode, Html5QrcodeResult } from 'html5-qrcode';
+import { Html5Qrcode } from 'html5-qrcode';
 import { NotificationService } from './notification.service';
 import { PermissionsService } from './permissions.service';
 import { AudioService } from './audio.service';
@@ -13,6 +13,8 @@ export class ScannerCameraService {
   private currentCameraIndex = 0;
   public cameras: MediaDeviceInfo[] = [];
   private isPausedInternally: boolean = false; // New flag to track internal pause state
+
+  private _isScanning: boolean = false; // Internal scanning flag
 
   public barcodeScanned = new EventEmitter<string>();
   public barcodeScanError = new EventEmitter<string>();
@@ -75,6 +77,7 @@ export class ScannerCameraService {
         (decodedText, decodedResult) => this.barcodeScanned.emit(decodedText),
         (errorMessage) => this.barcodeScanError.emit(errorMessage)
       );
+      this._isScanning = true;
       this.isPausedInternally = false; // Ensure not paused when starting
       this.cameraStarted.emit(true);
       return true;
@@ -82,34 +85,51 @@ export class ScannerCameraService {
       console.error('Error starting camera for scanning:', error);
       this.notificationService.showError('Failed to start camera for scanning.');
       this.cameraStarted.emit(false);
+      this._isScanning = false;
       return false;
     }
   }
 
   public async stopScanning(): Promise<void> {
-    if (this.html5QrcodeScanner && (this.html5QrcodeScanner as any).isScanning()) { // Corrected with 'any' cast
-      try {
-        await this.html5QrcodeScanner.stop();
-        this.html5QrcodeScanner.clear();
-        this.isPausedInternally = true; // Mark as paused when stopped
-        this.cameraStopped.emit();
-      } catch (error) {
-        console.error('Error stopping scanner:', error);
-        this.notificationService.showError('Failed to stop scanner.');
+    try {
+      // Prefer library's stop if available
+      if (this.html5QrcodeScanner) {
+        // Some versions may not expose isScanning(), so rely on internal flag as fallback
+        const libHasIsScanning = typeof (this.html5QrcodeScanner as any).isScanning === 'function';
+        const libIsScanning = libHasIsScanning ? (this.html5QrcodeScanner as any).isScanning() : this._isScanning;
+
+        if (libIsScanning) {
+          await this.html5QrcodeScanner.stop();
+          this.html5QrcodeScanner.clear();
+        }
       }
+      this._isScanning = false;
+      this.isPausedInternally = true; // Mark as paused when stopped
+      this.cameraStopped.emit();
+    } catch (error) {
+      console.error('Error stopping scanner:', error);
+      this.notificationService.showError('Failed to stop scanner.');
     }
   }
 
   public async pauseDetection(): Promise<void> {
-    if (this.html5QrcodeScanner && (this.html5QrcodeScanner as any).isScanning() && !this.isPausedInternally) { // Corrected with 'any' cast
-      await this.stopScanning(); // Stop the camera stream
-      this.isPausedInternally = true;
+    try {
+      const libHasIsScanning = typeof (this.html5QrcodeScanner as any)?.isScanning === 'function';
+      const libIsScanning = libHasIsScanning ? (this.html5QrcodeScanner as any).isScanning() : this._isScanning;
+
+      if (this.html5QrcodeScanner && libIsScanning && !this.isPausedInternally) {
+        // stop() can be used to pause in many implementations; preserve internal flag
+        await this.stopScanning();
+        this.isPausedInternally = true;
+      }
+    } catch (error) {
+      console.error('Error pausing detection:', error);
     }
   }
 
   public async resumeDetection(): Promise<void> {
     if (this.html5QrcodeScanner && this.isPausedInternally) {
-      await this.startScanning('reader'); // Corrected to pass 'reader' directly
+      await this.startScanning('reader'); // Restart scanning with same reader Id
       this.isPausedInternally = false;
     }
   }
@@ -129,30 +149,55 @@ export class ScannerCameraService {
   }
 
   public getLastFrameImageData(): ImageData | null {
-    if (this.html5QrcodeScanner && (this.html5QrcodeScanner as any).isScanning()) { // Corrected with 'any' cast
-      const videoElement = (this.html5QrcodeScanner as any).getVideoElement(); // Retain as any for internal method
-      if (videoElement && videoElement.videoWidth && videoElement.videoHeight) {
-        const canvas = document.createElement('canvas');
-        canvas.width = videoElement.videoWidth;
-        canvas.height = videoElement.videoHeight;
-        const ctx = canvas.getContext('2d');
-        if (ctx) {
-          ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
-          return ctx.getImageData(0, 0, canvas.width, canvas.height);
+    try {
+      const isScanning = (typeof (this.html5QrcodeScanner as any)?.isScanning === 'function')
+        ? (this.html5QrcodeScanner as any).isScanning()
+        : this._isScanning;
+
+      if (this.html5QrcodeScanner && isScanning) {
+        const videoElement = (this.html5QrcodeScanner as any).getVideoElement?.() || (this.html5QrcodeScanner as any).getRunningTrack?.();
+        if (videoElement && videoElement.videoWidth && videoElement.videoHeight) {
+          const canvas = document.createElement('canvas');
+          canvas.width = videoElement.videoWidth;
+          canvas.height = videoElement.videoHeight;
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+            return ctx.getImageData(0, 0, canvas.width, canvas.height);
+          }
         }
       }
+    } catch (e) {
+      console.warn('getLastFrameImageData fallback triggered:', e);
     }
     return null;
   }
 
   public getVideoElement(): HTMLVideoElement | null {
-    if (this.html5QrcodeScanner && (this.html5QrcodeScanner as any).isScanning()) { // Corrected with 'any' cast
-      return (this.html5QrcodeScanner as any).getVideoElement(); // Retain as any for internal method
+    try {
+      const isScanning = (typeof (this.html5QrcodeScanner as any)?.isScanning === 'function')
+        ? (this.html5QrcodeScanner as any).isScanning()
+        : this._isScanning;
+
+      if (this.html5QrcodeScanner && isScanning) {
+        // Many versions provide getVideoElement() internally; use it if available
+        const fn = (this.html5QrcodeScanner as any).getVideoElement;
+        if (typeof fn === 'function') {
+          return fn.call(this.html5QrcodeScanner) as HTMLVideoElement;
+        } else {
+          // Try to access internal region where video element exists
+          const el = (this.html5QrcodeScanner as any).cameraConfig?.videoElement || (this.html5QrcodeScanner as any).videoElement;
+          return el || null;
+        }
+      }
+    } catch (e) {
+      console.warn('getVideoElement fallback triggered:', e);
     }
     return null;
   }
 
   public isScanning(): boolean {
-    return (this.html5QrcodeScanner as any)?.isScanning() || false; // Corrected with 'any' cast
+    const libHasIsScanning = typeof (this.html5QrcodeScanner as any)?.isScanning === 'function';
+    return libHasIsScanning ? (this.html5QrcodeScanner as any).isScanning() : this._isScanning;
   }
 }

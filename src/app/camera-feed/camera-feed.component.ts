@@ -28,6 +28,8 @@ export class CameraFeedComponent implements AfterViewInit, OnDestroy {
   public cameras: MediaDeviceInfo[] = [];
   public isBarcodeScanning = true; // State for toggling barcode scanning
 
+  private _isScanning: boolean = false; // internal scanning flag
+
   constructor(
     private notificationService: NotificationService,
     private permissionsService: PermissionsService,
@@ -97,29 +99,44 @@ export class CameraFeedComponent implements AfterViewInit, OnDestroy {
           if (this.isBarcodeScanning) {
             this.barcodeScanned.emit(decodedText);
             this.audioService.playSuccessSound(); // Play sound on successful scan
-            this.html5QrcodeScanner?.pause(); // Pause after scan to prevent multiple triggers
+            // pause the scanner: some library versions expose pause(), others do not
+            if (typeof (this.html5QrcodeScanner as any).pause === 'function') {
+              (this.html5QrcodeScanner as any).pause();
+            } else if (typeof (this.html5QrcodeScanner as any).stop === 'function') {
+              (this.html5QrcodeScanner as any).stop();
+            }
+            this._isScanning = false;
           }
         },
         (errorMessage) => {
           // console.warn('Barcode scan error:', errorMessage); // Suppress frequent errors
         }
       );
+      this._isScanning = true;
       this.notificationService.showInfo('Camera started.', 'Live Feed');
     } catch (error) {
       console.error('Error starting camera:', error);
       this.notificationService.showError('Failed to start camera feed.');
       this.cameraClosed.emit();
+      this._isScanning = false;
     }
   }
 
   private async stopCamera(): Promise<void> {
-    if (this.html5QrcodeScanner && (this.html5QrcodeScanner as any).isScanning()) { // Corrected with 'any' cast
-      try {
-        await this.html5QrcodeScanner.stop();
-        this.html5QrcodeScanner.clear();
-        this.notificationService.showInfo('Camera stopped.', 'Live Feed');
-      } catch (error) {
+    try {
+      const libHasIsScanning = typeof (this.html5QrcodeScanner as any)?.isScanning === 'function';
+      const libIsScanning = libHasIsScanning ? (this.html5QrcodeScanner as any).isScanning() : this._isScanning;
+
+      if (this.html5QrcodeScanner && libIsScanning) {
+        if (typeof (this.html5QrcodeScanner as any).stop === 'function') {
+          await this.html5QrcodeScanner.stop();
+          this.html5QrcodeScanner.clear();
+        }
       }
+      this._isScanning = false;
+      this.notificationService.showInfo('Camera stopped.', 'Live Feed');
+    } catch (error) {
+      // silent
     }
   }
 
@@ -138,52 +155,73 @@ export class CameraFeedComponent implements AfterViewInit, OnDestroy {
   }
 
   public captureImage(): void {
-    const videoElement = (this.html5QrcodeScanner as any)?.getVideoElement();
-    if (videoElement && this.canvasElement) {
-      const canvas = this.canvasElement.nativeElement;
-      canvas.width = videoElement.videoWidth;
-      canvas.height = videoElement.videoHeight;
-      const ctx = canvas.getContext('2d');
-      if (ctx) {
-        ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
-        const imageDataUrl = canvas.toDataURL('image/png');
-        this.imageCaptured.emit(imageDataUrl);
-        this.audioService.playSuccessSound(); // Play sound on capture
-        this.notificationService.showInfo('Image captured!', 'OCR Ready');
+    try {
+      const videoElement = (this.html5QrcodeScanner as any)?.getVideoElement?.() || (this.html5QrcodeScanner as any)?.videoElement;
+      if (videoElement && this.canvasElement) {
+        const canvas = this.canvasElement.nativeElement;
+        canvas.width = videoElement.videoWidth;
+        canvas.height = videoElement.videoHeight;
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+          const imageDataUrl = canvas.toDataURL('image/png');
+          this.imageCaptured.emit(imageDataUrl);
+          this.audioService.playSuccessSound(); // Play sound on capture
+          this.notificationService.showInfo('Image captured!', 'OCR Ready');
+        }
+      } else {
+        this.notificationService.showError('Camera not active for image capture.');
       }
-    } else {
-      this.notificationService.showError('Camera not active for image capture.');
+    } catch (e) {
+      console.error('captureImage error:', e);
+      this.notificationService.showError('Capture failed.');
     }
   }
 
   public toggleBarcodeScanning(): void {
     this.isBarcodeScanning = !this.isBarcodeScanning;
     if (this.isBarcodeScanning) {
-      // When enabling barcode scanning, if camera is already running, resume it.
-      // If it's not running, the startCamera() call in initializeCamera() will handle it.
-      if (this.html5QrcodeScanner && !(this.html5QrcodeScanner as any).isScanning()) { // Corrected with 'any' cast
-        this.html5QrcodeScanner.resume();
+      // Try to resume using library resume() if present, else restart
+      if (this.html5QrcodeScanner && typeof (this.html5QrcodeScanner as any).resume === 'function') {
+        (this.html5QrcodeScanner as any).resume();
+        this._isScanning = true;
+      } else if (this.html5QrcodeScanner && !this._isScanning) {
+        this.startCamera();
       }
       this.notificationService.showInfo('Barcode scanning enabled.', 'Scanner Mode');
     } else {
-      // When disabling barcode scanning, pause the scanner if it's running.
-      if (this.html5QrcodeScanner && (this.html5QrcodeScanner as any).isScanning()) { // Corrected with 'any' cast
-        this.html5QrcodeScanner.pause();
+      // When disabling barcode scanning, pause/stop the scanner
+      if (this.html5QrcodeScanner && typeof (this.html5QrcodeScanner as any).pause === 'function') {
+        (this.html5QrcodeScanner as any).pause();
+      } else if (this.html5QrcodeScanner && typeof (this.html5QrcodeScanner as any).stop === 'function') {
+        this.html5QrcodeScanner.stop();
       }
+      this._isScanning = false;
       this.notificationService.showInfo('Barcode scanning disabled.', 'Scanner Mode');
     }
   }
 
   public resumeBarcodeScanning(): void {
-    // This method is specifically for resuming barcode scanning if it was paused.
-    // It should only resume if the camera is actually active and barcode scanning is enabled.
-    if (this.html5QrcodeScanner && !(this.html5QrcodeScanner as any).isScanning() && this.isBarcodeScanning) { // Corrected with 'any' cast
-      this.html5QrcodeScanner.resume();
+    // Resume only if barcode scanning is enabled
+    if (!this.isBarcodeScanning) return;
+
+    if (this.html5QrcodeScanner && !this._isScanning) {
+      if (typeof (this.html5QrcodeScanner as any).resume === 'function') {
+        (this.html5QrcodeScanner as any).resume();
+        this._isScanning = true;
+      } else {
+        this.startCamera();
+      }
     }
   }
 
   public closeCamera(): void {
     this.stopCamera();
     this.cameraClosed.emit();
+  }
+
+  public isScanning(): boolean {
+    const libHasIsScanning = typeof (this.html5QrcodeScanner as any)?.isScanning === 'function';
+    return libHasIsScanning ? (this.html5QrcodeScanner as any).isScanning() : this._isScanning;
   }
 }
