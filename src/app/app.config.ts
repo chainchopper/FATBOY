@@ -4,7 +4,11 @@ import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideToastr } from 'ngx-toastr';
 import { routes } from './app.routes';
 import { provideHttpClient } from '@angular/common/http';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideAngularModule,
+  Camera, Menu, Bell, MessageCircle, BookOpen, BarChart2, Heart, History, ShoppingCart,
+  Award, Users, Lightbulb, Globe, Settings, User, LogIn, LogOut, Edit3, Upload, Plus, Mic,
+  Barcode, RotateCcw, Twitter, Instagram, Github
+} from 'lucide-angular';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -16,7 +20,36 @@ export const appConfig: ApplicationConfig = {
       positionClass: 'toast-bottom-right',
       preventDuplicates: true,
     }),
-    // Provide lucide module (icons can be registered later if needed)
-    importProvidersFrom(LucideAngularModule),
+    // Register only the icons we use (avoids missing-icon runtime errors)
+    importProvidersFrom(
+      LucideAngularModule.pick({
+        Camera,
+        Menu,
+        Bell,
+        MessageCircle,
+        BookOpen,
+        BarChart2,
+        Heart,
+        History,
+        ShoppingCart,
+        Award,
+        Users,
+        Lightbulb,
+        Globe,
+        Settings,
+        User,
+        LogIn,
+        LogOut,
+        Edit3,
+        Upload,
+        Plus,
+        Mic,
+        Barcode,
+        RotateCcw,
+        Twitter,
+        Instagram,
+        Github
+      })
+    )
   ]
 };
