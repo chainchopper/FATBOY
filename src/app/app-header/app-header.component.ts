@@ -1,77 +1,98 @@
-import { Component, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink, Router } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
 import { UserNotificationService } from '../services/user-notification.service';
-import { UiService } from '../services/ui.service';
 import { Observable } from 'rxjs';
 import { LogoComponent } from '../logo/logo.component';
 
 @Component({
   selector: 'app-app-header',
   standalone: true,
-  imports: [CommonModule, RouterLink, LucideAngularModule, LogoComponent],
+  imports: [CommonModule, RouterLink, RouterLinkActive, LucideAngularModule, LogoComponent],
   template: `
-    <nav class="fixed top-0 left-0 right-0 z-[1001] flex items-center justify-between h-[70px] px-5 bg-gray-900/60 backdrop-blur-lg border-b border-gray-700/50">
-      <div class="flex items-center gap-2.5 w-1/3">
-        <button class="p-2 text-gray-200 transition-colors duration-300 bg-transparent border-none cursor-pointer hover:text-teal-400" (click)="toggleMenu()" title="Open Menu">
-          <lucide-icon name="menu" [size]="24"></lucide-icon>
-        </button>
-        <button class="p-2 text-gray-200 transition-colors duration-300 bg-transparent border-none cursor-pointer hover:text-teal-400" routerLink="/console" title="Open AI Assistant">
-          <lucide-icon name="message-circle" [size]="24"></lucide-icon>
-        </button>
+    <header class="w-full fixed top-0 left-0 right-0 z-50 bg-gray-900/80 backdrop-blur-sm border-b border-gray-800 h-[70px]">
+      <div class="max-w-7xl mx-auto h-full flex items-center justify-between px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center gap-4">
+          <a routerLink="/scanner" class="flex items-center gap-3 no-underline">
+            <app-logo></app-logo>
+            <span class="hidden sm:inline-block text-lg font-semibold text-purple-300">Fat Boy</span>
+          </a>
+        </div>
+
+        <nav class="hidden md:flex items-center gap-2">
+          <a routerLink="/scanner" routerLinkActive="text-teal-400" class="px-3 py-2 text-gray-200 hover:text-teal-400">Scanner</a>
+          <a routerLink="/console" routerLinkActive="text-teal-400" class="px-3 py-2 text-gray-200 hover:text-teal-400">Assistant</a>
+          <a routerLink="/history" routerLinkActive="text-teal-400" class="px-3 py-2 text-gray-200 hover:text-teal-400">History</a>
+          <a routerLink="/favorites" routerLinkActive="text-teal-400" class="px-3 py-2 text-gray-200 hover:text-teal-400">Favorites</a>
+          <a routerLink="/shopping-list" routerLinkActive="text-teal-400" class="px-3 py-2 text-gray-200 hover:text-teal-400">Shopping</a>
+          <a routerLink="/food-diary" routerLinkActive="text-teal-400" class="px-3 py-2 text-gray-200 hover:text-teal-400">Diary</a>
+          <a routerLink="/suggestions" routerLinkActive="text-teal-400" class="px-3 py-2 text-gray-200 hover:text-teal-400">Suggestions</a>
+          <a routerLink="/community" routerLinkActive="text-teal-400" class="px-3 py-2 text-gray-200 hover:text-teal-400">Community</a>
+          <a routerLink="/preferences" routerLinkActive="text-teal-400" class="px-3 py-2 text-gray-200 hover:text-teal-400">Preferences</a>
+        </nav>
+
+        <div class="flex items-center gap-3">
+          <button (click)="toggleNotifications()" class="relative p-2 rounded-md text-gray-200 hover:text-teal-400">
+            <lucide-icon name="bell" [size]="20"></lucide-icon>
+            <span *ngIf="(unread$ | async) as c" class="absolute -top-1 -right-1 inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-gray-900 bg-purple-400 rounded-full" [class.hidden]="c === 0">{{ c }}</span>
+          </button>
+
+          <button (click)="goToProfile()" class="hidden sm:inline-flex items-center gap-2 text-sm text-gray-200 px-3 py-2 rounded-md hover:bg-gray-800">
+            <lucide-icon name="user" [size]="18"></lucide-icon>
+            <span>Profile</span>
+          </button>
+
+          <button (click)="openMenu()" class="md:hidden p-2 text-gray-200 hover:text-teal-400">
+            <lucide-icon name="menu" [size]="22"></lucide-icon>
+          </button>
+        </div>
       </div>
 
-      <div class="flex items-center justify-center w-1/3 cursor-pointer" (click)="goToHome()">
-        <app-logo></app-logo>
+      <!-- Mobile dropdown -->
+      <div *ngIf="mobileOpen" class="md:hidden bg-gray-900 border-t border-gray-800">
+        <div class="px-4 py-3 flex flex-col gap-1">
+          <a routerLink="/scanner" (click)="closeMenu()" class="block px-2 py-2 text-gray-200 hover:text-teal-400">Scanner</a>
+          <a routerLink="/console" (click)="closeMenu()" class="block px-2 py-2 text-gray-200 hover:text-teal-400">Assistant</a>
+          <a routerLink="/history" (click)="closeMenu()" class="block px-2 py-2 text-gray-200 hover:text-teal-400">History</a>
+          <a routerLink="/favorites" (click)="closeMenu()" class="block px-2 py-2 text-gray-200 hover:text-teal-400">Favorites</a>
+          <a routerLink="/shopping-list" (click)="closeMenu()" class="block px-2 py-2 text-gray-200 hover:text-teal-400">Shopping</a>
+          <a routerLink="/food-diary" (click)="closeMenu()" class="block px-2 py-2 text-gray-200 hover:text-teal-400">Diary</a>
+          <a routerLink="/suggestions" (click)="closeMenu()" class="block px-2 py-2 text-gray-200 hover:text-teal-400">Suggestions</a>
+          <a routerLink="/community" (click)="closeMenu()" class="block px-2 py-2 text-gray-200 hover:text-teal-400">Community</a>
+          <a routerLink="/preferences" (click)="closeMenu()" class="block px-2 py-2 text-gray-200 hover:text-teal-400">Preferences</a>
+          <a routerLink="/profile" (click)="closeMenu()" class="block px-2 py-2 text-gray-200 hover:text-teal-400">Profile</a>
+        </div>
       </div>
-
-      <div class="flex items-center justify-end gap-2.5 w-1/3">
-        <button class="relative p-2 text-gray-200 bg-transparent border-none cursor-pointer" (click)="toggleNotifications()" title="Notifications">
-          <lucide-icon name="bell" [size]="24"></lucide-icon>
-          <span *ngIf="(unreadNotifications$ | async) as count" 
-                class="absolute top-0 right-0 flex items-center justify-center w-[18px] h-[18px] text-xs font-bold text-gray-900 bg-purple-400 rounded-full transition-transform duration-300 ease-in-out-back"
-                [class.scale-100]="count > 0"
-                [class.scale-0]="count === 0">
-            {{ count }}
-          </span>
-        </button>
-      </div>
-    </nav>
+    </header>
   `,
-  styles: [`
-    @keyframes ease-in-out-back {
-      0% { transform: scale(0); }
-      100% { transform: scale(1); }
-    }
-    .ease-in-out-back {
-      transition-timing-function: cubic-bezier(0.68, -0.55, 0.27, 1.55);
-    }
-  `]
+  styles: []
 })
 export class AppHeaderComponent implements OnInit {
-  unreadNotifications$!: Observable<number>;
   @Output() toggleNotificationsEvent = new EventEmitter<void>();
+  unread$!: Observable<number>;
+  mobileOpen = false;
 
-  constructor(
-    private userNotificationService: UserNotificationService,
-    private uiService: UiService,
-    private router: Router
-  ) {}
+  constructor(private userNotificationService: UserNotificationService, private router: Router) {}
 
   ngOnInit(): void {
-    this.unreadNotifications$ = this.userNotificationService.unreadCount$;
+    this.unread$ = this.userNotificationService.unreadCount$;
   }
 
-  toggleMenu(): void {
-    this.uiService.toggleMenu();
-  }
-
-  toggleNotifications(): void {
+  toggleNotifications() {
     this.toggleNotificationsEvent.emit();
   }
 
-  goToHome(): void {
-    this.router.navigate(['/scanner']);
+  openMenu() {
+    this.mobileOpen = !this.mobileOpen;
+  }
+
+  closeMenu() {
+    this.mobileOpen = false;
+  }
+
+  goToProfile() {
+    this.router.navigate(['/profile']);
+    this.closeMenu();
   }
 }
