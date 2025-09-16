@@ -1,3 +1,13 @@
+/**
+ * Polyfills required by the application.
+ *
+ * core-js provides modern JS polyfills (Promise, Array methods, etc.).
+ * regenerator-runtime supports generator/async transformations used by some compiled code.
+ * zone.js is required by Angular.
+ */
+
+import 'core-js/stable';
+import 'regenerator-runtime/runtime';
 import 'zone.js'; // Included with Angular CLI.
 
 /***************************************************************************************************
