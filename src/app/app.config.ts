@@ -5,7 +5,6 @@ import { provideToastr } from 'ngx-toastr';
 import { routes } from './app.routes';
 import { provideHttpClient } from '@angular/common/http';
 import { LucideAngularModule } from 'lucide-angular';
-// import { CameraFeedComponent } from './camera-feed/camera-feed.component'; // Removed global import
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -17,8 +16,7 @@ export const appConfig: ApplicationConfig = {
       positionClass: 'toast-bottom-right',
       preventDuplicates: true,
     }),
-    // Provide lucide module (using module directly to avoid missing-icon provider errors)
+    // Provide lucide module (icons can be registered later if needed)
     importProvidersFrom(LucideAngularModule),
-    // importProvidersFrom(CameraFeedComponent) // Removed global import for CameraFeedComponent
   ]
 };
