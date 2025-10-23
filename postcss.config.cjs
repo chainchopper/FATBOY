@@ -1,10 +1,9 @@
 /**
- * CommonJS PostCSS configuration favored by some Angular toolchains.
- * This file explicitly requires the new @tailwindcss/postcss plugin (Tailwind v4).
+ * PostCSS config for Tailwind v3 (works reliably with Angular CLI 17).
  */
 module.exports = {
-  plugins: [
-    require('@tailwindcss/postcss'),
-    require('autoprefixer')
-  ]
+  plugins: {
+    tailwindcss: {},
+    autoprefixer: {}
+  }
 };
