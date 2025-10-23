@@ -28,6 +28,8 @@ export class ShoppingListService {
   
   public list$ = this.listSubject.asObservable();
   private currentUserId: string | null = null;
+  private realtimeSubscribed = false;
+  private channel: ReturnType<typeof supabase.channel> | null = null;
 
   constructor(
     private authService: AuthService,
@@ -37,8 +39,12 @@ export class ShoppingListService {
     private productDbService: ProductDbService
   ) {
     this.authService.currentUser$.subscribe(user => {
+      const prev = this.currentUserId;
       this.currentUserId = user?.id || null;
       this.loadData();
+      if (prev !== this.currentUserId) {
+        this.setupRealtime();
+      }
     });
   }
 
@@ -48,7 +54,32 @@ export class ShoppingListService {
     } else {
       this.shoppingList = [];
       this.listSubject.next([]);
+      this.teardownRealtime();
     }
+  }
+
+  private setupRealtime() {
+    this.teardownRealtime();
+    if (!this.currentUserId) return;
+
+    this.channel = supabase.channel(`shopping-list-${this.currentUserId}`)
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'fatboy_shopping_list_items', filter: `user_id=eq.${this.currentUserId}` },
+        (_payload) => {
+          // Refresh list on any change
+          this.loadFromSupabase();
+        }
+      ).subscribe();
+    this.realtimeSubscribed = true;
+  }
+
+  private teardownRealtime() {
+    if (this.channel) {
+      this.channel.unsubscribe();
+      this.channel = null;
+    }
+    this.realtimeSubscribed = false;
   }
 
   public isItemOnList(productId: string): boolean {
@@ -185,21 +216,18 @@ export class ShoppingListService {
       this.notificationService.showError('Please log in to clear your shopping list.');
       return;
     }
-
     const { error } = await supabase
       .from('fatboy_shopping_list_items')
       .delete()
       .eq('user_id', this.currentUserId);
-
     if (error) {
       console.error('Error clearing shopping list in Supabase:', error);
       this.notificationService.showError('Failed to clear shopping list.');
       return;
     }
-    
     await this.loadData();
-    this.notificationService.showInfo('Shopping list cleared.', 'Cleared');
-    this.speechService.speak('Shopping list cleared.');
+    this.notificationService.showSuccess('Your shopping list has been cleared.', 'Cleared');
+    this.speechService.speak('Your shopping list has been cleared.');
   }
 
   private async loadFromSupabase(): Promise<void> {

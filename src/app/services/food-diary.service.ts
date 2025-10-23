@@ -33,6 +33,7 @@ export class FoodDiaryService {
   private diarySubject = new BehaviorSubject<Map<string, DiaryEntry[]>>(this.diary);
   public diary$ = this.diarySubject.asObservable();
   private currentUserId: string | null = null;
+  private channel: ReturnType<typeof supabase.channel> | null = null;
 
   constructor(
     private notificationService: NotificationService,
@@ -41,8 +42,12 @@ export class FoodDiaryService {
     private preferencesService: PreferencesService
   ) {
     this.authService.currentUser$.subscribe(user => {
+      const prev = this.currentUserId;
       this.currentUserId = user?.id || null;
       this.loadData();
+      if (prev !== this.currentUserId) {
+        this.setupRealtime();
+      }
     });
   }
 
@@ -52,6 +57,28 @@ export class FoodDiaryService {
     } else {
       this.diary = new Map();
       this.diarySubject.next(new Map());
+      this.teardownRealtime();
+    }
+  }
+
+  private setupRealtime() {
+    this.teardownRealtime();
+    if (!this.currentUserId) return;
+
+    this.channel = supabase.channel(`food-diary-${this.currentUserId}`)
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'fatboy_food_diary_entries', filter: `user_id=eq.${this.currentUserId}` },
+        (_payload) => {
+          this.loadFromSupabase();
+        }
+      ).subscribe();
+  }
+
+  private teardownRealtime() {
+    if (this.channel) {
+      this.channel.unsubscribe();
+      this.channel = null;
     }
   }
 

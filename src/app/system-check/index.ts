@@ -1,0 +1,1 @@
+export { SystemCheckComponent } from './system-check.component';
