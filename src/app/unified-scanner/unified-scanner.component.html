@@ -42,8 +42,8 @@
     <p *ngIf="!showExpandedOptions && !unifiedScannerService.isProcessingOcr && !unifiedScannerService.isScanningActive" class="text-white text-center bg-black/50 px-4 py-2 rounded-md">Nothing recognized. Hold steady to scan.</p>
   </div>
 
-  <!-- Footer controls -->
-  <div class="absolute bottom-0 left-0 right-0 p-4 bg-[#0f0f1e]/60 backdrop-blur-md border-t border-transparent z-30 flex items-center justify-center text-gray-200 gap-4 h-[90px]">
+  <!-- Footer controls (raised above global footer) -->
+  <div class="absolute left-0 right-0 bottom-[60px] p-4 bg-[#0f0f1e]/60 backdrop-blur-md border-t border-transparent z-30 flex items-center justify-center text-gray-200 gap-4 h-[90px]">
     <div class="flex items-center gap-4 transition-all duration-300 ease-in-out">
       <button class="flex flex-col items-center gap-1 text-sm text-gray-400 hover:text-teal-400 transition-all duration-300 w-[60px]" routerLink="/manual-entry" [class.opacity-0]="!showExpandedOptions" [class.translate-y-5]="!showExpandedOptions" [class.pointer-events-none]="!showExpandedOptions">
         <lucide-icon name="edit-3" [size]="24"></lucide-icon>
