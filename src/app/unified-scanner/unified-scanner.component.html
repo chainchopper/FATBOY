@@ -1,21 +1,5 @@
 <div class="fixed inset-0 bg-[#0f0f1e] overflow-hidden transition-colors duration-100 ease-out" [class.bg-white]="unifiedScannerService.screenFlash">
-  <!-- Header -->
-  <div class="absolute top-0 left-0 right-0 p-4 bg-[#0f0f1e]/60 backdrop-blur-md z-30 flex items-center justify-between text-gray-200 h-[70px]">
-    <button (click)="uiService.toggleMenu()" class="p-2 text-gray-200 transition-colors duration-300 hover:text-teal-400">
-      <lucide-icon name="menu" [size]="24"></lucide-icon>
-    </button>
-
-    <div class="text-center">
-      <span class="font-['Righteous',_cursive] text-xl text-purple-400 animate-neon-flicker">SCANNER</span>
-    </div>
-
-    <button (click)="toggleNotifications()" class="relative p-2 text-gray-200">
-      <lucide-icon name="bell" [size]="24"></lucide-icon>
-      <span *ngIf="(unreadNotifications$ | async) as count" class="absolute top-0 right-0 flex items-center justify-center w-[18px] h-[18px] text-xs font-bold text-gray-900 bg-purple-400 rounded-full transition-transform duration-300" [class.scale-100]="count > 0" [class.scale-0]="count === 0">{{ count }}</span>
-    </button>
-  </div>
-
-  <!-- Camera viewport -->
+  <!-- Camera viewport bounded by global header/footer -->
   <div class="absolute inset-x-0 top-[70px] bottom-[60px] overflow-hidden z-10 flex justify-center items-center">
     <div id="reader" #reader class="relative w-full h-full overflow-hidden flex justify-center items-center"></div>
     <canvas #canvasElement class="absolute inset-0 w-full h-full object-cover" style="display:none;"></canvas>
@@ -42,7 +26,7 @@
     <p *ngIf="!showExpandedOptions && !unifiedScannerService.isProcessingOcr && !unifiedScannerService.isScanningActive" class="text-white text-center bg-black/50 px-4 py-2 rounded-md">Nothing recognized. Hold steady to scan.</p>
   </div>
 
-  <!-- Footer controls (raised above global footer) -->
+  <!-- Footer controls raised above global footer (60px) -->
   <div class="absolute left-0 right-0 bottom-[60px] p-4 bg-[#0f0f1e]/60 backdrop-blur-md border-t border-transparent z-30 flex items-center justify-center text-gray-200 gap-4 h-[90px]">
     <div class="flex items-center gap-4 transition-all duration-300 ease-in-out">
       <button class="flex flex-col items-center gap-1 text-sm text-gray-400 hover:text-teal-400 transition-all duration-300 w-[60px]" routerLink="/manual-entry" [class.opacity-0]="!showExpandedOptions" [class.translate-y-5]="!showExpandedOptions" [class.pointer-events-none]="!showExpandedOptions">
@@ -72,5 +56,6 @@
     </div>
   </div>
 
+  <!-- Notifications drawer (optional) -->
   <app-notifications *ngIf="showNotifications" (close)="showNotifications = false"></app-notifications>
 </div>

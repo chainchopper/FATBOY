@@ -59,7 +59,9 @@
             ],
             "scripts": [],
             "allowedCommonJsDependencies": [
-              "tesseract.js"
+              "tesseract.js",
+              "core-js",
+              "regenerator-runtime"
             ]
           },
           "configurations": {
