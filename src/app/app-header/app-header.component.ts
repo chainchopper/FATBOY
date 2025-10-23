@@ -18,7 +18,7 @@ import { ProfileService } from '../services/profile.service';
         <div class="flex items-center gap-3">
           <a routerLink="/scanner" class="flex items-center gap-3 no-underline">
             <app-logo></app-logo>
-            <span class="hidden sm:inline-block text-lg font-semibold text-purple-300">Fat Boy</span>
+            <span class="hidden sm:inline-block text-lg font-semibold text-purple-300">NATURALYTE</span>
           </a>
           <span class="inline-flex items-center gap-1 text-xs text-gray-400">
             <span class="w-2.5 h-2.5 rounded-full border-2"
@@ -59,7 +59,6 @@ import { ProfileService } from '../services/profile.service';
         </div>
       </div>
 
-      <!-- Mobile dropdown -->
       <div *ngIf="mobileOpen" class="md:hidden bg-gray-900 border-t border-gray-800">
         <div class="px-4 py-3 flex flex-col gap-1">
           <a routerLink="/scanner" (click)="closeMenu()" class="block px-2 py-2 text-gray-200 hover:text-teal-400">Scanner</a>
