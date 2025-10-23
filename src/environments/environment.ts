@@ -10,7 +10,7 @@ export const environment = {
   metadataApiKey: "your_metadata_api_key_here",
   
   // OpenAI-like service config (replace with your actual values)
-  openaiApiBaseUrl: "http://api.blacknation.io:8981",
+  openaiApiBaseUrl: "http://api.blacknation.io:8189",
   openaiApiKey: "111111", // Set to 111111 as requested
   chatModelName: "rstar-coder-qwen3-0.6b@bf16",
   embeddingModelName: "fatboy-embeddings-v4-text-retrieval",
