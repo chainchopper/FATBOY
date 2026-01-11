@@ -1,5 +1,6 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { UiSoundDirective } from '../directives/ui-sound.directive';
 
 type ButtonVariant = 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link';
 type ButtonSize = 'default' | 'sm' | 'lg' | 'icon';
@@ -14,12 +15,14 @@ const sizeClasses: Record<ButtonSize, string> = {
 @Component({
   selector: 'app-button',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, UiSoundDirective],
   template: `
     <button 
       [type]="type"
       [disabled]="disabled"
       [ngClass]="getClasses()"
+      [appUiSound]="getSoundType()"
+      [soundOnHover]="!disabled"
       (click)="onClick.emit($event)">
       <ng-content></ng-content>
     </button>
@@ -60,5 +63,14 @@ export class ButtonComponent {
     }
 
     return [baseClasses, mappedVariantClasses, sizeClasses[this.size]];
+  }
+
+  getSoundType(): 'click' | 'success' | 'error' {
+    if (this.variant === 'destructive') {
+      return 'error';
+    } else if (this.variant === 'default') {
+      return 'success';
+    }
+    return 'click';
   }
 }

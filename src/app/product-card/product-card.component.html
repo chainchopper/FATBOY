@@ -1,10 +1,11 @@
-<div class="rounded-xl p-5 transition-all duration-500 ease-out border-l-4 glass-morphism card-3d glow-border animate-slide-up hover:shadow-2xl"
+<div class="rounded-xl p-5 transition-all duration-500 ease-out border-l-4 glass-morphism card-3d card-interactive glow-border animate-slide-up hover:shadow-2xl"
+  appUiSound="click"
   [ngClass]="{
     'border-teal-400 shadow-teal-500/30': product.verdict === 'good',
     'border-purple-400 shadow-purple-500/30': product.verdict === 'bad',
     'opacity-60 scale-95': isPurchased
   }">
-  <div class="flex items-center gap-4 cursor-pointer group" (click)="onViewDetailsClick()">
+  <div class="flex items-center gap-4 cursor-pointer group" (click)="onViewDetailsClick()" appUiSound="whoosh" [soundOnHover]="true">
     <img [src]="product.image" alt="{{product.name}}" 
       class="w-16 h-16 object-cover rounded-xl border-2 border-gray-600 shadow-lg transform group-hover:scale-110 transition-transform duration-300">
     <div class="flex-grow">
