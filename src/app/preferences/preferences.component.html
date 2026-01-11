@@ -91,14 +91,66 @@
   </div>
 
   <div class="preference-section mb-8 p-6 bg-gray-900/80 border border-gray-700 rounded-xl shadow-lg">
-    <h3 class="mb-5 text-xl font-semibold text-teal-400 border-b border-gray-700 pb-2.5">Text-to-Speech (TTS) Preferences</h3>
-    <p class="section-description text-sm text-gray-400 mb-5">Configure how the AI assistant speaks to you.</p>
+    <h3 class="mb-5 text-xl font-semibold text-teal-400 border-b border-gray-700 pb-2.5">Intelligence System Voice</h3>
+    <p class="section-description text-sm text-gray-400 mb-5">Customize how Fat Boy speaks to you through the Nirvana intelligence system.</p>
+    
+    <div class="preference-item mb-4">
+      <label for="nirvanaVoice" class="block mb-2 text-sm font-medium">Voice Character:</label>
+      <select id="nirvanaVoice" [(ngModel)]="preferences.nirvanaVoice" class="voice-select w-full bg-gray-800 border border-gray-700 rounded-md p-2 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500">
+        <option value="Puck">Puck - Friendly and energetic</option>
+        <option value="Charon">Charon - Deep and authoritative</option>
+        <option value="Kore">Kore - Warm and empathetic</option>
+        <option value="Fenrir">Fenrir - Bold and confident</option>
+        <option value="Aoede">Aoede - Melodic and soothing</option>
+      </select>
+    </div>
+    
+    <div class="preference-item mb-4">
+      <label for="nirvanaLanguage" class="block mb-2 text-sm font-medium">Language:</label>
+      <select id="nirvanaLanguage" [(ngModel)]="preferences.nirvanaLanguage" class="voice-select w-full bg-gray-800 border border-gray-700 rounded-md p-2 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500">
+        <option value="en-US">English (US)</option>
+        <option value="en-GB">English (UK)</option>
+        <option value="es-ES">Spanish (Spain)</option>
+        <option value="es-MX">Spanish (Mexico)</option>
+        <option value="fr-FR">French</option>
+        <option value="de-DE">German</option>
+        <option value="it-IT">Italian</option>
+        <option value="pt-BR">Portuguese (Brazil)</option>
+        <option value="ja-JP">Japanese</option>
+        <option value="ko-KR">Korean</option>
+        <option value="zh-CN">Chinese (Simplified)</option>
+      </select>
+    </div>
+    
+    <div class="preference-item flex items-center mb-4">
+      <input type="checkbox" id="nirvanaEnableAudio" [(ngModel)]="preferences.nirvanaEnableAudio" class="form-checkbox h-5 w-5 text-purple-500 bg-gray-800 border-gray-600 rounded focus:ring-purple-500">
+      <label for="nirvanaEnableAudio" class="ml-3">Enable Voice Responses</label>
+    </div>
+    
+    <div class="preference-item flex items-center mb-4">
+      <input type="checkbox" id="nirvanaEnableThinking" [(ngModel)]="preferences.nirvanaEnableThinking" class="form-checkbox h-5 w-5 text-purple-500 bg-gray-800 border-gray-600 rounded focus:ring-purple-500">
+      <label for="nirvanaEnableThinking" class="ml-3">Show Thinking Process (Advanced)</label>
+    </div>
+    
+    <div class="preference-item flex items-center">
+      <input type="checkbox" id="nirvanaEnableGrounding" [(ngModel)]="preferences.nirvanaEnableGrounding" class="form-checkbox h-5 w-5 text-purple-500 bg-gray-800 border-gray-600 rounded focus:ring-purple-500">
+      <label for="nirvanaEnableGrounding" class="ml-3">Enable Web Search for Enhanced Responses</label>
+    </div>
+    
+    <p class="info-message mt-4 text-xs text-gray-500">
+      💡 Nirvana provides real-time, expressive voice responses powered by advanced AI. Configure your preferences above for a personalized experience.
+    </p>
+  </div>
+
+  <div class="preference-section mb-8 p-6 bg-gray-900/80 border border-gray-700 rounded-xl shadow-lg">
+    <h3 class="mb-5 text-xl font-semibold text-teal-400 border-b border-gray-700 pb-2.5">Legacy TTS Preferences</h3>
+    <p class="section-description text-sm text-gray-400 mb-5">Fallback text-to-speech settings (used only if Nirvana is unavailable).</p>
     <div class="preference-item flex items-center mb-4">
       <input type="checkbox" id="useOnDeviceTts" [(ngModel)]="preferences.useOnDeviceTts" class="form-checkbox h-5 w-5 text-purple-500 bg-gray-800 border-gray-600 rounded focus:ring-purple-500">
-      <label for="useOnDeviceTts" class="ml-3">Prefer On-Device TTS (Fallback to Nirvana TTS)</label>
+      <label for="useOnDeviceTts" class="ml-3">Use Browser TTS (Fallback)</label>
     </div>
     <div class="preference-item flex items-center">
-      <label for="chatterboxVoice" class="mr-3">Nirvana TTS Voice:</label>
+      <label for="chatterboxVoice" class="mr-3">Chatterbox Voice (Legacy):</label>
       <select id="chatterboxVoice" [(ngModel)]="preferences.chatterboxVoiceId" class="voice-select bg-gray-800 border border-gray-700 rounded-md p-2 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500" [disabled]="ttsVoicesLoadingError || availableTtsVoices.length === 0">
         <option *ngFor="let voice of availableTtsVoices" [value]="voice.id">
           {{ voice.name }} ({{ voice.language }})
@@ -106,7 +158,7 @@
       </select>
     </div>
     <p *ngIf="ttsVoicesLoadingError" class="warning-message mt-2 text-sm text-yellow-400">
-      ⚠️ Could not load TTS voices. Please check the Chatterbox TTS API server.
+      ⚠️ Could not load legacy TTS voices.
     </p>
   </div>
 
