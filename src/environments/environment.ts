@@ -1,7 +1,11 @@
 export const environment = {
   production: false,
   
-  // Specialized services
+  // Nirvana - Primary AI Intelligence System (Gemini Live API)
+  geminiApiKey: "your_gemini_api_key_here",
+  geminiLiveApiEndpoint: "wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1alpha.GenerativeService.BidiGenerateContent",
+  
+  // Legacy services (being phased out)
   ttsApiEndpoint: "http://api.blacknation.io:4123",
   ttsApiKey: "111111",
 
@@ -10,7 +14,7 @@ export const environment = {
   metadataApiEndpoint: "https://your-metadata-scraper.com/fetch",
   metadataApiKey: "your_metadata_api_key_here",
   
-  // OpenAI-like service config
+  // OpenAI-like service config (deprecated - kept for backward compatibility)
   openaiApiBaseUrl: "http://api.blacknation.io:8189",
   openaiApiKey: "111111",
   chatModelName: "rstar-coder-qwen3-0.6b@bf16",

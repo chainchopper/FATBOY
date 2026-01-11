@@ -6,6 +6,7 @@ import { AiContextService } from './ai-context.service';
 import { ToolExecutorService, ToolExecutionResult } from './tool-executor.service'; // Import ToolExecutionResult
 import { firstValueFrom } from 'rxjs'; // Import firstValueFrom
 import { NotificationService } from './notification.service'; // Import NotificationService
+import { NirvanaAdapterService } from './nirvana-adapter.service'; // Import Nirvana adapter
 
 export interface DynamicButton {
   text: string;
@@ -33,56 +34,59 @@ export interface AiResponse {
 })
 export class AiIntegrationService {
 
+  // Legacy API configuration (deprecated)
   private apiBaseUrl = environment.openaiApiBaseUrl;
   private apiKey = environment.openaiApiKey;
   private chatModelName = environment.chatModelName;
   private embeddingModelName = environment.embeddingModelName;
+  
+  // Use Nirvana by default if API key is configured
+  private useNirvana = !!environment.geminiApiKey && environment.geminiApiKey !== 'your_gemini_api_key_here';
 
   constructor(
     private audioService: AudioService,
     private aiContextService: AiContextService,
     private toolExecutorService: ToolExecutorService,
     private productDbService: ProductDbService, // Inject ProductDbService
-    private notificationService: NotificationService // Inject NotificationService
+    private notificationService: NotificationService, // Inject NotificationService
+    private nirvanaAdapter: NirvanaAdapterService // Inject Nirvana adapter
   ) {
-    // API Key warning is now handled by environment.ts directly with '111111'
+    console.log(`[Intelligence System] Using ${this.useNirvana ? 'Nirvana' : 'Legacy API'}`);
   }
 
   async checkAgentStatus(): Promise<boolean> {
+    // Use Nirvana if available
+    if (this.useNirvana) {
+      try {
+        const status = await this.nirvanaAdapter.checkAgentStatus();
+        if (!status) {
+          console.warn('[Intelligence System] Nirvana unavailable, falling back to legacy API');
+          this.useNirvana = false;
+        }
+        return status;
+      } catch (error) {
+        console.error('[Intelligence System] Nirvana check failed, falling back to legacy API:', error);
+        this.useNirvana = false;
+      }
+    }
+
+    // Fallback to legacy API check
     const endpoint = `${this.apiBaseUrl}/v1/models`;
     try {
       const response = await fetch(endpoint);
       if (!response.ok) {
         const errorText = await response.text();
-        console.error(`[AI STATUS CHECK FAILED]: Server responded with status ${response.status}: ${errorText}`);
-        this.notificationService.showError(`AI Service Offline: Could not connect to models endpoint (${response.status}).`, 'AI Error');
+        console.error(`[Intelligence System] Legacy API check failed: ${response.status}: ${errorText}`);
         return false;
       }
       const data = await response.json();
       if (!data || !Array.isArray(data.data) || data.data.length === 0) {
-        console.warn(`[AI STATUS CHECK WARNING]: Models endpoint returned empty or invalid data:`, data);
-        this.notificationService.showWarning('AI Service Online, but no models were listed. Chat features may be limited.', 'AI Warning');
-        // Return true here to enable input, but warn the user
-        return true;
+        console.warn(`[Intelligence System] Legacy API returned empty model list`);
+        return true; // Allow interaction even if model list is empty
       }
-      // If we reach here, the API is reachable and returned some models.
-      // We can still log if specific models are missing, but don't disable the whole console.
-      const models = data.data.map((m: any) => m.id);
-      const hasChatModel = models.includes(this.chatModelName);
-      const hasVisionModel = models.includes('Moonbeam2'); // Assuming 'Moonbeam2' is the vision model name
-
-      if (!hasChatModel) {
-        this.notificationService.showWarning(`AI Chat Model (${this.chatModelName}) not loaded. Chat features may be limited.`, 'AI Warning');
-      }
-      if (!hasVisionModel) {
-        this.notificationService.showWarning(`AI Vision Model (Moonbeam2) not loaded. Vision features may be limited.`, 'AI Warning');
-      }
-      // Return true if the API is generally responsive, even if specific models are missing.
-      // This allows the user to type and interact, and the AI can respond with "I can't do that without X model".
       return true;
     } catch (error) {
-      console.error(`[AI STATUS CHECK FAILED]: Could not connect to ${endpoint}. Is the server running?`, error);
-      this.notificationService.showError(`AI Service Offline: Could not connect to ${this.apiBaseUrl}. Is the server running?`, 'AI Error');
+      console.error(`[Intelligence System] Could not connect to legacy API at ${endpoint}`, error);
       return false;
     }
   }
@@ -301,6 +305,19 @@ export class AiIntegrationService {
   }
 
   async getChatCompletion(userInput: string, messagesHistory: any[] = []): Promise<AiResponse> {
+    // Use Nirvana if available
+    if (this.useNirvana) {
+      try {
+        const lastDiscussedProduct = this.productDbService.getLastViewedProduct();
+        return await this.nirvanaAdapter.getChatCompletion(userInput, messagesHistory, lastDiscussedProduct);
+      } catch (error) {
+        console.error('[Intelligence System] Nirvana request failed, falling back to legacy API:', error);
+        this.useNirvana = false;
+        // Fall through to legacy implementation
+      }
+    }
+
+    // Legacy implementation below
     const endpoint = `${this.apiBaseUrl}/v1/chat/completions`; // Added /v1
     if (!endpoint || !this.chatModelName) {
       this.notificationService.showError('AI Chat service not configured.', 'AI Error');
