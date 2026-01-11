@@ -5,6 +5,7 @@ import { ToolExecutorService, ToolExecutionResult } from './tool-executor.servic
 import { AudioService } from './audio.service';
 import { Product } from './product-db.service';
 import { NotificationService } from './notification.service';
+import { PreferencesService } from './preferences.service';
 import { AiResponse, DynamicButton, UiElement } from './ai-integration.service';
 import { firstValueFrom } from 'rxjs';
 
@@ -29,7 +30,8 @@ export class NirvanaAdapterService {
     private aiContextService: AiContextService,
     private toolExecutorService: ToolExecutorService,
     private audioService: AudioService,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private preferencesService: PreferencesService
   ) {
     // Subscribe to Nirvana responses
     this.nirvanaService.responses.subscribe(response => {
@@ -73,12 +75,17 @@ export class NirvanaAdapterService {
    */
   async checkAgentStatus(): Promise<boolean> {
     try {
+      // Get user preferences for Nirvana configuration
+      const prefs = this.preferencesService.getPreferences();
+      
       // Attempt to connect if not already connected
       if (!this.nirvanaService.isReady()) {
         const connected = await this.nirvanaService.connect({
-          enableAudio: true,
-          enableThinkingMode: false,
-          enableGrounding: false
+          enableAudio: prefs.nirvanaEnableAudio ?? true,
+          enableThinkingMode: prefs.nirvanaEnableThinking ?? false,
+          enableGrounding: prefs.nirvanaEnableGrounding ?? false,
+          voice: prefs.nirvanaVoice ?? 'Puck',
+          language: prefs.nirvanaLanguage ?? 'en-US'
         });
         
         if (!connected) {
@@ -483,6 +490,13 @@ When analyzing products, focus on:
     this.nirvanaService.updateConfig({
       voice: voiceName
     });
+    
+    // Save to preferences
+    const prefs = this.preferencesService.getPreferences();
+    this.preferencesService.savePreferences({
+      ...prefs,
+      nirvanaVoice: voiceName
+    });
   }
 
   /**
@@ -491,6 +505,13 @@ When analyzing products, focus on:
   setAudioEnabled(enabled: boolean): void {
     this.nirvanaService.updateConfig({
       enableAudio: enabled
+    });
+    
+    // Save to preferences
+    const prefs = this.preferencesService.getPreferences();
+    this.preferencesService.savePreferences({
+      ...prefs,
+      nirvanaEnableAudio: enabled
     });
   }
 
@@ -501,6 +522,13 @@ When analyzing products, focus on:
     this.nirvanaService.updateConfig({
       enableThinkingMode: enabled
     });
+    
+    // Save to preferences
+    const prefs = this.preferencesService.getPreferences();
+    this.preferencesService.savePreferences({
+      ...prefs,
+      nirvanaEnableThinking: enabled
+    });
   }
 
   /**
@@ -509,6 +537,13 @@ When analyzing products, focus on:
   setGroundingEnabled(enabled: boolean): void {
     this.nirvanaService.updateConfig({
       enableGrounding: enabled
+    });
+    
+    // Save to preferences
+    const prefs = this.preferencesService.getPreferences();
+    this.preferencesService.savePreferences({
+      ...prefs,
+      nirvanaEnableGrounding: enabled
     });
   }
 
