@@ -18,7 +18,7 @@ export const environment = {
   openaiApiBaseUrl: "http://api.blacknation.io:8189",
   openaiApiKey: "111111",
   chatModelName: "rstar-coder-qwen3-0.6b@bf16",
-  embeddingModelName: "fatboy-embedings-v4-text-retrieval",
+  embeddingModelName: "fatboy-embeddings-v4-text-retrieval",
   visionModelName: "Moonbeam2",
 
   // Barcode Lookup
