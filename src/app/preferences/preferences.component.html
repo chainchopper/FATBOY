@@ -76,23 +76,16 @@
   </div>
 
   <div class="preference-section mb-8 p-6 bg-gray-900/80 border border-gray-700 rounded-xl shadow-lg">
-    <h3 class="mb-5 text-xl font-semibold text-teal-400 border-b border-gray-700 pb-2.5">Inference Preference</h3>
+    <h3 class="mb-5 text-xl font-semibold text-teal-400 border-b border-gray-700 pb-2.5">Voice & Intelligence</h3>
+    <p class="section-description text-sm text-gray-400 mb-5">Customize how Fat Boy interacts with you. All AI features powered by advanced multimodal intelligence.</p>
+    
     <div class="preference-item flex items-center mb-4">
-      <input type="checkbox" id="onDeviceInference" [(ngModel)]="preferences.onDeviceInference" class="form-checkbox h-5 w-5 text-purple-500 bg-gray-800 border-gray-600 rounded focus:ring-purple-500">
-      <label for="onDeviceInference" class="ml-3">Use On-Device AI (Experimental)</label>
-    </div>
-    <div class="preference-item flex items-center">
       <input type="checkbox" id="enableVoiceCommands" [(ngModel)]="preferences.enableVoiceCommands" [disabled]="!isSpeechApiSupported" class="form-checkbox h-5 w-5 text-purple-500 bg-gray-800 border-gray-600 rounded focus:ring-purple-500">
-      <label for="enableVoiceCommands" class="ml-3">Enable Voice Commands (Agent Console & Scanner)</label>
+      <label for="enableVoiceCommands" class="ml-3">Enable Voice Commands</label>
     </div>
-    <p *ngIf="!isSpeechApiSupported" class="warning-message mt-2 text-sm text-yellow-400">
-      ⚠️ Your browser does not support the Web Speech API for voice commands.
+    <p *ngIf="!isSpeechApiSupported" class="warning-message mt-2 text-sm text-yellow-400 mb-4">
+      ⚠️ Your browser does not support voice commands.
     </p>
-  </div>
-
-  <div class="preference-section mb-8 p-6 bg-gray-900/80 border border-gray-700 rounded-xl shadow-lg">
-    <h3 class="mb-5 text-xl font-semibold text-teal-400 border-b border-gray-700 pb-2.5">Intelligence System Voice</h3>
-    <p class="section-description text-sm text-gray-400 mb-5">Customize how Fat Boy speaks to you through the Nirvana intelligence system.</p>
     
     <div class="preference-item mb-4">
       <label for="nirvanaVoice" class="block mb-2 text-sm font-medium">Voice Character:</label>
@@ -138,27 +131,7 @@
     </div>
     
     <p class="info-message mt-4 text-xs text-gray-500">
-      💡 Nirvana provides real-time, expressive voice responses powered by advanced AI. Configure your preferences above for a personalized experience.
-    </p>
-  </div>
-
-  <div class="preference-section mb-8 p-6 bg-gray-900/80 border border-gray-700 rounded-xl shadow-lg">
-    <h3 class="mb-5 text-xl font-semibold text-teal-400 border-b border-gray-700 pb-2.5">Legacy TTS Preferences</h3>
-    <p class="section-description text-sm text-gray-400 mb-5">Fallback text-to-speech settings (used only if Nirvana is unavailable).</p>
-    <div class="preference-item flex items-center mb-4">
-      <input type="checkbox" id="useOnDeviceTts" [(ngModel)]="preferences.useOnDeviceTts" class="form-checkbox h-5 w-5 text-purple-500 bg-gray-800 border-gray-600 rounded focus:ring-purple-500">
-      <label for="useOnDeviceTts" class="ml-3">Use Browser TTS (Fallback)</label>
-    </div>
-    <div class="preference-item flex items-center">
-      <label for="chatterboxVoice" class="mr-3">Chatterbox Voice (Legacy):</label>
-      <select id="chatterboxVoice" [(ngModel)]="preferences.chatterboxVoiceId" class="voice-select bg-gray-800 border border-gray-700 rounded-md p-2 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500" [disabled]="ttsVoicesLoadingError || availableTtsVoices.length === 0">
-        <option *ngFor="let voice of availableTtsVoices" [value]="voice.id">
-          {{ voice.name }} ({{ voice.language }})
-        </option>
-      </select>
-    </div>
-    <p *ngIf="ttsVoicesLoadingError" class="warning-message mt-2 text-sm text-yellow-400">
-      ⚠️ Could not load legacy TTS voices.
+      💡 All AI features including vision, speech, and reasoning are powered by advanced multimodal intelligence. Settings are configured via environment variables for optimal performance.
     </p>
   </div>
 

@@ -2,17 +2,32 @@
 
 ## Overview
 
-**Nirvana** is the codename for the Gemini Live API integration that powers all intelligence features in the FATBOY application. This document provides a complete overview of the integration for developers and maintainers.
+**Nirvana** is the codename for the Gemini Live API integration that powers ALL intelligence features in the FATBOY application. This document provides a complete overview of the integration for developers and maintainers.
 
 ## What is Nirvana?
 
-Nirvana represents a complete overhaul of the app's AI capabilities, replacing the previous OpenAI-compatible API with Google's Gemini Live API. The system provides:
+Nirvana is the ONLY AI provider in this application - a complete intelligence system powered by Google's Gemini Live API. The system provides:
 
 - **Real-time bidirectional streaming** for audio and text
 - **Natural voice synthesis** in 30+ languages with 5 distinct voice personalities
+- **Multimodal capabilities** - text, audio, and vision (image analysis)
 - **Advanced function calling** for app integration
-- **Multimodal capabilities** (text, audio, and future vision support)
 - **Optional web grounding** for enhanced responses with real-time data
+
+## Default Configuration
+
+**Nirvana is hardwired as the default and only AI provider.** All settings are configured via environment variables:
+
+```env
+# Primary Intelligence System (Required)
+GEMINI_API_KEY="your_gemini_api_key_here"
+
+# Optional fallback endpoints (if needed)
+OPENAI_API_BASE_URL="http://your-fallback-api:8189/v1"
+OPENAI_API_KEY="fallback_key"
+```
+
+**NO UI-based provider selection** - everything is configured at deployment time.
 
 ## Architecture
 

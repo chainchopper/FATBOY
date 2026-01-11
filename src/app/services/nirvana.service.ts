@@ -218,6 +218,45 @@ export class NirvanaService {
   }
 
   /**
+   * Send an image to Nirvana for vision analysis
+   * @param imageData - Base64 encoded image data
+   * @param mimeType - Image MIME type (e.g., 'image/jpeg', 'image/png')
+   * @param text - Optional text prompt to accompany the image
+   */
+  async sendImage(imageData: string, mimeType: string, text?: string): Promise<void> {
+    if (!this.isConnected$.value) {
+      await this.connect();
+    }
+
+    const parts: Array<{ text?: string; inline_data?: { mime_type: string; data: string } }> = [];
+    
+    if (text) {
+      parts.push({ text });
+    }
+    
+    parts.push({
+      inline_data: {
+        mime_type: mimeType,
+        data: imageData
+      }
+    });
+
+    const message: GeminiClientContentMessage = {
+      client_content: {
+        turns: [
+          {
+            role: 'user',
+            parts
+          }
+        ],
+        turn_complete: true
+      }
+    };
+
+    this.sendMessage(message);
+  }
+
+  /**
    * Send audio data to Nirvana (real-time streaming)
    * @param audioData - PCM audio data (16-bit, 16kHz)
    */
