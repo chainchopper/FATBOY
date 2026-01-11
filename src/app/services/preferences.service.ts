@@ -15,7 +15,13 @@ export interface UserPreferences {
   shareGoal: boolean;
   shareLeaderboardStatus: boolean;
   useOnDeviceTts: boolean; // New: Prefer on-device TTS
-  chatterboxVoiceId: string; // New: Selected Chatterbox voice ID
+  chatterboxVoiceId: string; // Legacy: Chatterbox voice ID
+  // Nirvana (Gemini Live API) settings
+  nirvanaVoice: string; // Nirvana voice name (e.g., 'Puck', 'Charon', 'Kore', 'Fenrir', 'Aoede')
+  nirvanaLanguage: string; // Language code (e.g., 'en-US', 'es-ES')
+  nirvanaEnableAudio: boolean; // Enable audio responses
+  nirvanaEnableThinking: boolean; // Enable thinking mode
+  nirvanaEnableGrounding: boolean; // Enable Google Search grounding
 }
 
 @Injectable({
@@ -33,8 +39,14 @@ export class PreferencesService {
     shareUsername: true,
     shareGoal: true,
     shareLeaderboardStatus: true,
-    useOnDeviceTts: false, // Default to Chatterbox TTS
-    chatterboxVoiceId: 'KEVIN' // Default voice
+    useOnDeviceTts: false,
+    chatterboxVoiceId: 'KEVIN', // Legacy
+    // Nirvana defaults
+    nirvanaVoice: 'Puck', // Default Gemini voice
+    nirvanaLanguage: 'en-US',
+    nirvanaEnableAudio: true,
+    nirvanaEnableThinking: false,
+    nirvanaEnableGrounding: false
   };
 
   private preferencesSubject = new BehaviorSubject<UserPreferences>(this.defaultPreferences);

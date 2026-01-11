@@ -12,6 +12,7 @@ import {
   MessageSquare, UserPlus, Activity, Apple, Carrot, Fish, Bird, Cookie, Wheat, CupSoda, Milk, HelpCircle, ScanLine
 } from 'lucide-angular';
 import { secureHttpInterceptor } from './core/secure-http.interceptor';
+import { UiSoundService } from './services/ui-sound.service';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -23,6 +24,7 @@ export const appConfig: ApplicationConfig = {
       positionClass: 'toast-bottom-right',
       preventDuplicates: true,
     }),
+    UiSoundService, // Add UI sound service globally
     importProvidersFrom(
       LucideAngularModule.pick({
         Camera, Menu, Bell, MessageCircle, BookOpen, BarChart2, Heart, History, ShoppingCart,
