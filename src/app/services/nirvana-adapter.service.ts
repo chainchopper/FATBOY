@@ -125,7 +125,7 @@ export class NirvanaAdapterService {
 
     try {
       // Build context-enriched message
-      const userContext = await this.aiContextService.buildUserContext(lastDiscussedProduct);
+      const userContext = await this.aiContextService.buildUserContext(lastDiscussedProduct || null);
       const enrichedMessage = `${userInput}\n\nContext: ${userContext}`;
 
       // Send message to Nirvana
