@@ -7,15 +7,15 @@
 
   <!-- Center overlay -->
   <div class="absolute inset-x-0 top-[70px] bottom-[60px] flex flex-col justify-center items-center pointer-events-none z-10 gap-5">
-    <div class="flex gap-4 text-4xl font-bold text-white drop-shadow-lg shadow-purple-500/70">
-      <span class="opacity-0 animate-[fadeInUp_0.5s_ease-out_forwards_0.5s]">Scan.</span>
-      <span class="opacity-0 animate-[fadeInUp_0.5s_ease-out_forwards_1s]">Know.</span>
-      <span class="opacity-0 animate-[fadeInUp_0.5s_ease-out_forwards_1.5s] text-teal-400 drop-shadow-lg shadow-teal-400">Choose.</span>
+    <div class="flex gap-4 text-4xl font-bold text-white drop-shadow-lg shadow-purple-500/70 animate-float">
+      <span class="opacity-0 animate-[fadeInUp_0.5s_ease-out_forwards_0.5s] text-gradient-animated">Scan.</span>
+      <span class="opacity-0 animate-[fadeInUp_0.5s_ease-out_forwards_1s] text-gradient-animated">Know.</span>
+      <span class="opacity-0 animate-[fadeInUp_0.5s_ease-out_forwards_1.5s] text-gradient-animated animate-neon-flicker">Choose.</span>
     </div>
 
     <div
-      class="w-[90vw] max-w-[500px] h-[250px] border-2 border-dashed border-purple-500 shadow-lg shadow-purple-500/50 rounded-lg relative overflow-hidden transition-all duration-500 ease-in-out"
-      [ngClass]="{'border-teal-500': unifiedScannerService.isStable, 'shadow-teal-500/50': unifiedScannerService.isStable}">
+      class="w-[90vw] max-w-[500px] h-[250px] border-2 border-dashed border-purple-500 shadow-lg shadow-purple-500/50 rounded-lg relative overflow-hidden transition-all duration-500 ease-in-out glass-morphism animate-glow-pulse"
+      [ngClass]="{'border-teal-500': unifiedScannerService.isStable, 'shadow-teal-500/50': unifiedScannerService.isStable, 'glow-border': unifiedScannerService.isStable}">
       <div *ngIf="unifiedScannerService.isScanningActive && !showExpandedOptions" class="absolute top-0 left-0 w-full h-[3px] bg-gradient-to-r from-transparent via-teal-400 to-transparent shadow-lg shadow-teal-400 animate-[sweep-scanner_2.5s_infinite_ease-in-out]"></div>
     </div>
 
@@ -27,29 +27,29 @@
   </div>
 
   <!-- Footer controls raised above global footer (60px) -->
-  <div class="absolute left-0 right-0 bottom-[60px] p-4 bg-[#0f0f1e]/60 backdrop-blur-md border-t border-transparent z-30 flex items-center justify-center text-gray-200 gap-4 h-[90px]">
+  <div class="absolute left-0 right-0 bottom-[60px] p-4 glass-morphism border-t border-purple-500/30 z-30 flex items-center justify-center text-gray-200 gap-4 h-[90px]">
     <div class="flex items-center gap-4 transition-all duration-300 ease-in-out">
-      <button class="flex flex-col items-center gap-1 text-sm text-gray-400 hover:text-teal-400 transition-all duration-300 w-[60px]" routerLink="/manual-entry" [class.opacity-0]="!showExpandedOptions" [class.translate-y-5]="!showExpandedOptions" [class.pointer-events-none]="!showExpandedOptions">
+      <button appUiSound="click" class="flex flex-col items-center gap-1 text-sm text-gray-400 hover:text-teal-400 transition-smooth w-[60px] hover-lift" routerLink="/manual-entry" [class.opacity-0]="!showExpandedOptions" [class.translate-y-5]="!showExpandedOptions" [class.pointer-events-none]="!showExpandedOptions">
         <lucide-icon name="edit-3" [size]="24"></lucide-icon>
         <span>Manual</span>
       </button>
-      <button class="flex flex-col items-center gap-1 text-sm text-gray-400 hover:text-teal-400 transition-all duration-300 w-[60px]" (click)="triggerFileUpload()" [class.opacity-0]="!showExpandedOptions" [class.translate-y-5]="!showExpandedOptions" [class.pointer-events-none]="!showExpandedOptions">
+      <button appUiSound="click" class="flex flex-col items-center gap-1 text-sm text-gray-400 hover:text-teal-400 transition-smooth w-[60px] hover-lift" (click)="triggerFileUpload()" [class.opacity-0]="!showExpandedOptions" [class.translate-y-5]="!showExpandedOptions" [class.pointer-events-none]="!showExpandedOptions">
         <lucide-icon name="upload" [size]="24"></lucide-icon>
         <span>Upload</span>
       </button>
       <input type="file" #fileInput style="display:none" accept="image/*" (change)="onFileSelected($event)">
     </div>
 
-    <button class="w-[70px] h-[70px] rounded-full bg-purple-500 border-4 border-white cursor-pointer flex items-center justify-center transition-all duration-300 ease-in-out shadow-lg shadow-purple-500/50 text-gray-900 hover:border-teal-500 hover:shadow-teal-500/50 hover:bg-teal-500" (click)="toggleExpandedOptions()">
+    <button appUiSound="whoosh" class="w-[70px] h-[70px] rounded-full bg-gradient-to-br from-purple-500 to-pink-500 border-4 border-white cursor-pointer flex items-center justify-center transition-bounce shadow-lg shadow-purple-500/50 text-white hover:border-teal-500 hover:shadow-teal-500/70 hover:shadow-2xl hover:scale-110 animate-glow-pulse btn-interactive" (click)="toggleExpandedOptions()">
       <lucide-icon [name]="showExpandedOptions ? 'x' : 'plus'" [size]="36"></lucide-icon>
     </button>
 
     <div class="flex items-center gap-4 transition-all duration-300 ease-in-out">
-      <button class="flex flex-col items-center gap-1 text-sm text-gray-400 hover:text-teal-400 transition-all duration-300 w-[60px]" (click)="unifiedScannerService.handleStableFrameCapture()" [class.opacity-0]="showExpandedOptions" [class.translate-y-5]="showExpandedOptions" [class.pointer-events-none]="showExpandedOptions">
+      <button appUiSound="scan" class="flex flex-col items-center gap-1 text-sm text-gray-400 hover:text-teal-400 transition-smooth w-[60px] hover-lift" (click)="unifiedScannerService.handleStableFrameCapture()" [class.opacity-0]="showExpandedOptions" [class.translate-y-5]="showExpandedOptions" [class.pointer-events-none]="showExpandedOptions">
         <lucide-icon name="camera" [size]="24"></lucide-icon>
         <span>Capture</span>
       </button>
-      <button class="flex flex-col items-center gap-1 text-sm text-gray-400 hover:text-teal-400 transition-all duration-300 w-[60px]" (click)="toggleVoiceListening()" [class.text-purple-400]="isListening" [class.opacity-0]="!showExpandedOptions" [class.translate-y-5]="!showExpandedOptions" [class.pointer-events-none]="!showExpandedOptions">
+      <button appUiSound="click" class="flex flex-col items-center gap-1 text-sm text-gray-400 hover:text-teal-400 transition-smooth w-[60px] hover-lift" (click)="toggleVoiceListening()" [class.text-purple-400]="isListening" [class.opacity-0]="!showExpandedOptions" [class.translate-y-5]="!showExpandedOptions" [class.pointer-events-none]="!showExpandedOptions">
         <lucide-icon name="mic" [size]="24"></lucide-icon>
         <span>Voice</span>
       </button>
