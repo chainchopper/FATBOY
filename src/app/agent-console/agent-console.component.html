@@ -1,6 +1,6 @@
-<div class="flex flex-col h-[calc(100vh-130px)] bg-[#0f0f1e] text-gray-100">
-  <div class="flex justify-between items-center p-4 bg-gray-900/60 backdrop-blur-lg z-10">
-    <h2 class="m-0 text-2xl font-bold text-teal-400 drop-shadow-lg shadow-teal-400">🤖 Fat Boy Assistant</h2>
+<div class="flex flex-col h-[calc(100vh-130px)] text-gray-100">
+  <div class="flex justify-between items-center p-4 glass-morphism border-b border-purple-500/30 z-10 animate-slide-down">
+    <h2 class="m-0 text-2xl font-bold text-gradient-animated drop-shadow-lg animate-float">🤖 Nirvana Assistant</h2>
     <app-button variant="destructive" (onClick)="clearChatHistory()">Clear Chat</app-button>
   </div>
   <div class="flex-grow overflow-y-auto p-5 flex flex-col gap-4" #messageWindow>
@@ -17,11 +17,11 @@
           }"></div>
         </div>
         <div class="flex flex-col items-start">
-          <div class="p-3 px-4 rounded-2xl relative bg-gray-800 border border-gray-700 rounded-bl-lg mb-1.5">
-            <p class="m-0 whitespace-pre-wrap">{{ msg.text }}</p>
-            <span class="text-xs text-gray-500 block text-right mt-1.5 opacity-70">{{ msg.timestamp | date:'shortTime' }}</span>
+          <div class="p-3 px-4 rounded-2xl relative glass-morphism-light border border-teal-500/30 rounded-bl-lg mb-1.5 hover-lift transition-smooth">
+            <p class="m-0 whitespace-pre-wrap text-gray-100">{{ msg.text }}</p>
+            <span class="text-xs text-gray-400 block text-right mt-1.5 opacity-70">{{ msg.timestamp | date:'shortTime' }}</span>
           </div>
-          <div *ngIf="msg.humanReadableToolCall" class="bg-teal-900/20 border border-teal-500 text-teal-400 px-3 py-2 rounded-lg text-sm mt-1.5 self-start">
+          <div *ngIf="msg.humanReadableToolCall" class="glass-morphism border border-teal-500 text-teal-400 px-3 py-2 rounded-lg text-sm mt-1.5 self-start animate-pulse-glow">
             ⚙️ {{ msg.humanReadableToolCall }}
           </div>
           <div *ngIf="msg.dynamicButtons && msg.dynamicButtons.length > 0" class="flex flex-wrap gap-2 mt-2.5 max-w-full self-start">
@@ -46,7 +46,7 @@
             </ng-container>
           </div>
           <div *ngIf="msg.suggestedPrompts && msg.suggestedPrompts.length > 0" class="flex flex-wrap gap-2 mt-2.5 max-w-full self-start">
-            <button *ngFor="let prompt of msg.suggestedPrompts" (click)="submitSuggestedPrompt(prompt)" class="bg-gray-700 border border-teal-500 text-gray-100 px-4 py-2 rounded-full cursor-pointer text-sm transition-all hover:bg-teal-900/20 hover:shadow-lg hover:shadow-teal-500/50 hover:text-teal-400 whitespace-nowrap">
+            <button appUiSound="click" *ngFor="let prompt of msg.suggestedPrompts" (click)="submitSuggestedPrompt(prompt)" class="glass-morphism-light border border-teal-500/50 text-gray-100 px-4 py-2 rounded-full cursor-pointer text-sm transition-bounce hover:bg-teal-500/20 hover:shadow-lg hover:shadow-teal-500/50 hover:text-teal-400 hover:scale-105 whitespace-nowrap">
               {{ prompt }}
             </button>
           </div>
