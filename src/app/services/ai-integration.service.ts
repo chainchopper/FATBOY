@@ -55,38 +55,15 @@ export class AiIntegrationService {
   }
 
   async checkAgentStatus(): Promise<boolean> {
-    // Use Nirvana if available
-    if (this.useNirvana) {
-      try {
-        const status = await this.nirvanaAdapter.checkAgentStatus();
-        if (!status) {
-          console.warn('[Intelligence System] Nirvana unavailable, falling back to legacy API');
-          this.useNirvana = false;
-        }
-        return status;
-      } catch (error) {
-        console.error('[Intelligence System] Nirvana check failed, falling back to legacy API:', error);
-        this.useNirvana = false;
-      }
-    }
-
-    // Fallback to legacy API check
-    const endpoint = `${this.apiBaseUrl}/v1/models`;
+    // Nirvana is hardwired - only check Nirvana status
     try {
-      const response = await fetch(endpoint);
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error(`[Intelligence System] Legacy API check failed: ${response.status}: ${errorText}`);
-        return false;
+      const status = await this.nirvanaAdapter.checkAgentStatus();
+      if (!status) {
+        console.warn('[Intelligence System] Nirvana unavailable. Please configure GEMINI_API_KEY in .env');
       }
-      const data = await response.json();
-      if (!data || !Array.isArray(data.data) || data.data.length === 0) {
-        console.warn(`[Intelligence System] Legacy API returned empty model list`);
-        return true; // Allow interaction even if model list is empty
-      }
-      return true;
+      return status;
     } catch (error) {
-      console.error(`[Intelligence System] Could not connect to legacy API at ${endpoint}`, error);
+      console.error('[Intelligence System] Nirvana connection failed:', error);
       return false;
     }
   }
@@ -305,162 +282,16 @@ export class AiIntegrationService {
   }
 
   async getChatCompletion(userInput: string, messagesHistory: any[] = []): Promise<AiResponse> {
-    // Use Nirvana if available
-    if (this.useNirvana) {
-      try {
-        const lastDiscussedProduct = this.productDbService.getLastViewedProduct();
-        return await this.nirvanaAdapter.getChatCompletion(userInput, messagesHistory, lastDiscussedProduct);
-      } catch (error) {
-        console.error('[Intelligence System] Nirvana request failed, falling back to legacy API:', error);
-        this.useNirvana = false;
-        // Fall through to legacy implementation
-      }
-    }
-
-    // Legacy implementation below
-    const endpoint = `${this.apiBaseUrl}/v1/chat/completions`; // Added /v1
-    if (!endpoint || !this.chatModelName) {
-      this.notificationService.showError('AI Chat service not configured.', 'AI Error');
-      return { text: "AI endpoint is not configured.", suggestedPrompts: [] };
-    }
-
-    const headers: HeadersInit = { 'Content-Type': 'application/json' };
-    if (this.apiKey) headers['Authorization'] = `Bearer ${this.apiKey}`;
-
-    const lastDiscussedProduct = this.productDbService.getLastViewedProduct(); // Get from ProductDbService
-    const userContext = await this.aiContextService.buildUserContext(lastDiscussedProduct);
-    
-    const systemMessage = `You are Fat Boy, an AI nutritional co-pilot.
-    **CRITICAL: YOUR ENTIRE RESPONSE MUST BE A SINGLE, VALID JSON OBJECT AND NOTHING ELSE. NO INTRODUCTORY TEXT, NO EXPLANATIONS, NO MARKDOWN.
-    The JSON object must have four keys:
-    1. "response": (string) Your friendly, user-facing message. This must be natural, conversational, and contain no technical jargon.
-    2. "suggestions": (array of 3 strings) Three unique, relevant, and diverse follow-up prompts for the user. These MUST be phrased as questions or commands from the user's perspective. For example, instead of "I can help summarize your food diary," use "Can you help me summarize my food diary?". These suggestions should be highly contextual to the current conversation and the user's profile/preferences.
-    3. "dynamicButtons": (optional array of objects) If a multi-turn interaction is needed (e.g., after a tool call that requires further user input), provide an array of interactive buttons. Each button object must have "text" (string) and "action" (string, representing a follow-up command or intent).
-    4. "uiElements": (optional array of objects) If you want to display rich UI components, provide an array of UI element objects. Each object must have "type" (string, e.g., "product_card") and "data" (object, the data for that UI component).
-    **INSTRUCTIONS:**
-    - Analyze the user's query and the provided context.
-    - If the user's intent matches a tool, call the tool.
-    - Use the tool's output to formulate your final "response" message.
-    - Always provide 3 helpful "suggestions".
-    - If a tool call requires further clarification or a "yes/no" confirmation from the user, generate "dynamicButtons" to guide the interaction. For example, after suggesting to add an item to a list, provide "Yes, add it!" and "No, cancel." buttons.
-    - If the 'add_to_food_diary' tool is called without a 'meal_type', you MUST respond with dynamic buttons for meal selection (Breakfast, Lunch, Dinner, Snack, Drinks) and include the product_card UI element for context. The action for these buttons should be 'add_to_food_diary_meal_select' with the product details and selected meal_type in the payload.
-    - If the user asks to scan something or open the camera, use the 'open_scanner' tool.
-    - When a user asks for product alternatives or to find products, use the 'search_products' tool first. If it returns no results, you should then offer to search a wider, public database by calling the 'search_external_database' tool.
-    - When the 'search_products' or 'search_external_database' tools return results, you MUST display them to the user using a 'product_card' UI element for each result. Formulate a response that introduces these results.
-    - **IMPORTANT**: CONSIDER including a 'product_card' UI element in the 'uiElements' array if a specific product is the primary subject of the conversation or is being suggested. The 'data' for this 'product_card' should be the full 'Product' object.
-    Example of a 'product_card' UI element:
-    {
-      "type": "product_card",
-      "data": {
-        "id": "some-product-id",
-        "name": "Organic Apple",
-        "brand": "Fresh Farms",
-        "barcode": "1234567890",
-        "ingredients": ["Organic Apple"],
-        "calories": 95,
-        "image": "https://example.com/apple.jpg",
-        "verdict": "good",
-        "flaggedIngredients": [],
-        "scanDate": "2023-10-27T10:00:00.000Z",
-        "ocrText": "ORGANIC APPLE",
-        "categories": ["natural", "fruit"]
-      }
-    }
-    Here is the current user's context:
-    ${userContext}
-    `;
-
-    const messagesForApi = [
-      { role: "system", content: systemMessage },
-      ...messagesHistory
-    ];
-
-    const payload = {
-      model: this.chatModelName,
-      messages: messagesForApi,
-      tools: this.tools,
-      tool_choice: "auto",
-      temperature: 0.7,
-      max_tokens: 1024,
-      stream: false
-    };
-
-    console.log('Sending AI chat completion request with payload:', JSON.stringify(payload, null, 2)); // Log full payload
-
+    // Nirvana is hardwired - only use Nirvana
     try {
-      const response = await fetch(endpoint, { method: 'POST', headers, body: JSON.stringify(payload) });
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error(`API Error: ${response.status} ${errorText}`);
-        this.notificationService.showError(`AI Chat Error: ${response.status} - ${errorText}`, 'AI Error');
-        throw new Error(`API Error: ${response.status} ${errorText}`);
-      }
-      
-      const data = await response.json();
-      if (!data || !Array.isArray(data.choices) || data.choices.length === 0) { // Robust check for data.choices
-        console.error(`Chat Completion API Error: Unexpected response structure for chat completions endpoint:`, data);
-        this.notificationService.showError('AI Chat Error: Invalid response structure.', 'AI Error');
-        throw new Error('Invalid response from chat completion API.');
-      }
-      const choice = data.choices[0];
-
-      if (choice.message.tool_calls && choice.message.tool_calls.length > 0) {
-        const toolExecutionResults: ToolExecutionResult[] = await Promise.all( // Specify type
-          choice.message.tool_calls.map((tc: any) => this.toolExecutorService.executeTool(tc, lastDiscussedProduct))
-        );
-
-        if (toolExecutionResults.some(r => !r.output.startsWith('FAILED'))) this.audioService.playSuccessSound();
-
-        const toolResponseMessages = [
-          ...messagesForApi,
-          choice.message,
-          ...toolExecutionResults.map(result => ({
-            role: "tool",
-            tool_call_id: result.tool_call_id,
-            content: result.output
-          }))
-        ];
-
-        const toolResponsePayload = { ...payload, messages: toolResponseMessages };
-        console.log('Sending AI tool response request with payload:', JSON.stringify(toolResponsePayload, null, 2)); // Log tool response payload
-        const toolResponse = await fetch(endpoint, { method: 'POST', headers, body: JSON.stringify(toolResponsePayload) });
-        if (!toolResponse.ok) {
-          const errorText = await toolResponse.text();
-          console.error(`Tool Response API Error: ${toolResponse.status} ${errorText}`);
-          this.notificationService.showError(`AI Tool Response Error: ${toolResponse.status} - ${errorText}`, 'AI Error');
-          throw new Error(`Tool Response API Error: ${toolResponse.status} ${errorText}`);
-        }
-
-        const toolData = await toolResponse.json();
-        if (!toolData || !Array.isArray(toolData.choices) || toolData.choices.length === 0) { // Robust check for toolData.choices
-          console.error(`Tool Response API Error: Unexpected response structure for tool response endpoint:`, toolData);
-          this.notificationService.showError('AI Tool Response Error: Invalid response structure.', 'AI Error');
-          throw new Error('Invalid response from tool response API.');
-        }
-        const toolResponseMessage = toolData.choices[0].message.content;
-        const parsedToolResponse = this._parseAiResponse(toolResponseMessage);
-        
-        // Combine dynamic buttons and UI elements from tool execution results with AI's parsed response
-        const combinedDynamicButtons = toolExecutionResults.flatMap(res => res.dynamicButtons || []);
-        const combinedUiElements = toolExecutionResults.flatMap(res => res.uiElements || []);
-
-        return { 
-          ...parsedToolResponse, 
-          toolCalls: choice.message.tool_calls, 
-          humanReadableToolCall: toolExecutionResults[0]?.humanReadableSummary || 'Performing an action...',
-          dynamicButtons: combinedDynamicButtons.length > 0 ? combinedDynamicButtons : parsedToolResponse.dynamicButtons,
-          uiElements: combinedUiElements.length > 0 ? combinedUiElements : parsedToolResponse.uiElements
-        };
-      }
-
-      const parsedResponse = this._parseAiResponse(choice.message.content);
-      return parsedResponse;
+      const lastDiscussedProduct = this.productDbService.getLastViewedProduct();
+      return await this.nirvanaAdapter.getChatCompletion(userInput, messagesHistory, lastDiscussedProduct);
     } catch (error) {
-      console.error('Error in getChatCompletion:', error);
-      // A generic error message is already handled by the AgentConsoleComponent
-      return {
-        text: "Sorry, I couldn't connect to the AI service. Please ensure the model server is running and accessible.",
-        suggestedPrompts: []
+      console.error('[Intelligence System] Nirvana request failed:', error);
+      this.notificationService.showError('Unable to connect to intelligence system.', 'Connection Error');
+      return { 
+        text: "I'm having trouble connecting. Please ensure GEMINI_API_KEY is configured in .env", 
+        suggestedPrompts: [] 
       };
     }
   }
