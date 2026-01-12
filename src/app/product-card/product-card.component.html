@@ -1,23 +1,26 @@
-<div class="rounded-xl p-4 transition-all duration-300 ease-in-out border-l-4"
+<div class="rounded-xl p-5 transition-all duration-500 ease-out border-l-4 glass-morphism card-3d card-interactive glow-border animate-slide-up hover:shadow-2xl"
+  appUiSound="click"
   [ngClass]="{
-    'bg-gray-900/80 border border-gray-700 shadow-lg shadow-gray-500/20': true,
-    'border-teal-500': product.verdict === 'good',
-    'border-purple-500': product.verdict === 'bad',
-    'opacity-60 bg-gray-800': isPurchased
+    'border-teal-400 shadow-teal-500/30': product.verdict === 'good',
+    'border-purple-400 shadow-purple-500/30': product.verdict === 'bad',
+    'opacity-60 scale-95': isPurchased
   }">
-  <div class="flex items-center gap-4 cursor-pointer" (click)="onViewDetailsClick()">
-    <img [src]="product.image" alt="{{product.name}}" class="w-14 h-14 object-cover rounded-lg border border-gray-600">
+  <div class="flex items-center gap-4 cursor-pointer group" (click)="onViewDetailsClick()" appUiSound="whoosh" [soundOnHover]="true">
+    <img [src]="product.image" alt="{{product.name}}" 
+      class="w-16 h-16 object-cover rounded-xl border-2 border-gray-600 shadow-lg transform group-hover:scale-110 transition-transform duration-300">
     <div class="flex-grow">
-      <h4 class="text-lg font-semibold text-gray-100 mb-1">{{product.name}}</h4>
-      <p class="text-sm text-gray-400">{{product.brand}}</p>
+      <h4 class="text-lg font-semibold text-gray-100 mb-1 group-hover:text-gradient transition-all duration-300">
+        {{product.name}}
+      </h4>
+      <p class="text-sm text-gray-400 group-hover:text-gray-300 transition-colors">{{product.brand}}</p>
     </div>
-    <div class="text-3xl font-bold"
+    <div class="text-4xl font-bold animate-scale-in"
       [ngClass]="{
-        'text-teal-400 drop-shadow-md shadow-teal-400': product.verdict === 'good',
-        'text-purple-400 drop-shadow-md shadow-purple-400': product.verdict === 'bad'
+        'text-teal-400 drop-shadow-[0_0_8px_rgba(20,184,166,0.5)]': product.verdict === 'good',
+        'text-purple-400 drop-shadow-[0_0_8px_rgba(168,85,247,0.5)]': product.verdict === 'bad'
       }">
-      <span *ngIf="product.verdict === 'good'">✓</span>
-      <span *ngIf="product.verdict === 'bad'">✗</span>
+      <span *ngIf="product.verdict === 'good'" class="animate-pulse-glow">✓</span>
+      <span *ngIf="product.verdict === 'bad'" class="animate-pulse-glow">✗</span>
     </div>
   </div>
 

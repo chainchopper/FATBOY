@@ -25,14 +25,17 @@ In a world saturated with confusing food labels and hidden ingredients, Fat Boy 
 
 ## ✨ Features Deep Dive
 
-### 🤖 The Command Center: Your AI Agent Console
-Interact directly with the app's AI through a sleek, chat-like interface. Use intuitive **slash commands** or **voice commands** to get instant insights and perform powerful actions.
--   **Intelligent Conversational AI**: Powered by `rstar-coder-qwen3-0.6b@bf16` (LLM with tool/function calling) and `fatboy-embeddings-v4-text-retrieval` (multi-modal embedding model).
+### 🤖 The Command Center: Nirvana Intelligence System
+Interact with your personal nutritional co-pilot through a sleek, chat-like interface powered by cutting-edge AI. Use intuitive **slash commands** or **voice commands** to get instant insights and perform powerful actions.
+-   **Real-Time Intelligence**: Powered by **Nirvana** (Gemini Live API) with seamless real-time audio and text streaming for natural conversations.
+-   **Expressive Voice Responses**: Choose from multiple natural-sounding voices with affective dialog that adapts to context.
 -   **Personalized Context**: The AI is fed comprehensive user data including your profile, health preferences, recent scan history, shopping list, food diary summary, and unlocked achievements for highly relevant responses.
 -   **AI Tool Calling**: Directly command the AI to perform actions like "Add this to my shopping list" or "Put this in my dinner diary." The AI executes these commands within the app, providing instant audio/visual confirmation.
--   **Contextual Follow-up Questions**: After each AI response, receive 3 clickable follow-up questions to guide your conversation. The initial greeting also provides helpful starting questions.
--   **Voice Commands**: Seamlessly interact with the AI using your voice, with a toggle in preferences to enable/disable.
--   **Persistent Chat History**: Your conversations with Fat Boy are saved locally (user-specific) and can be cleared via a custom modal.
+-   **Contextual Follow-up Questions**: After each AI response, receive 3 clickable follow-up questions to guide your conversation.
+-   **Voice Commands**: Seamlessly interact using your voice with advanced Voice Activity Detection (VAD).
+-   **Thinking Mode**: Optionally see the AI's reasoning process for complex decisions.
+-   **Web-Enhanced Responses**: When enabled, AI can ground responses with real-time web data.
+-   **Persistent Chat History**: Your conversations are saved and can be exported with audio for future reference.
 
 ### 📱 The Core Loop: Unified Intelligent Scanner
 The heart of Fat Boy is a powerful, full-screen scanning experience. The intelligent camera automatically detects what you're pointing at—be it a **barcode, an ingredient label, or a full receipt**—and analyzes it in real-time.
@@ -72,7 +75,7 @@ graph TD
 
     subgraph "Cloud Services"
         B(Supabase)
-        C(AI Services / LM Studio)
+        C(Nirvana Intelligence System)
         D[Open Food Facts API]
     end
 
@@ -82,13 +85,15 @@ graph TD
         B3[Edge Functions]
     end
 
-    subgraph "AI Endpoints"
-        C1[LLM Chat Model]
-        C2[Embedding Model]
+    subgraph "Nirvana (Gemini Live API)"
+        C1[Real-time AI Chat]
+        C2[Voice Synthesis]
+        C3[Function Calling]
+        C4[Search Grounding]
     end
 
     A -- "Auth, DB Queries" --> B
-    A -- "AI Chat & Embeddings" --> C
+    A -- "WebSocket: Real-time AI" --> C
     A -- "Barcode Lookups" --> D
     
     B -- Manages --> B1
@@ -98,9 +103,27 @@ graph TD
     B3 -- "Server-side Logic" --> B2
     B3 -- "Can call external APIs" --> D
 
-    C -- Hosts --> C1
-    C -- Hosts --> C2
+    C -- Powers --> C1
+    C -- Powers --> C2
+    C -- Powers --> C3
+    C -- Optional --> C4
 ```
+
+### Key Components
+
+- **Angular Frontend**: Single-page application with real-time WebSocket connection to Nirvana
+- **Nirvana**: Primary intelligence system (Gemini Live API) for all AI features
+- **Supabase**: Authentication, PostgreSQL database, and serverless functions
+- **Open Food Facts API**: Public database for barcode lookups and product information
+
+### Data Flow
+
+1. User interacts with UI (voice/text)
+2. Request sent to Nirvana via WebSocket
+3. Nirvana processes with function calling
+4. App executes functions (update DB, search, etc.)
+5. Response streams back to user in real-time
+6. Audio/text rendered in UI
 
 ---
 
@@ -111,8 +134,9 @@ graph TD
 -   **Authentication & DB:** Supabase (now centralizing most user data)
 -   **OCR:** Tesseract.js
 -   **Notifications:** ngx-toastr
+-   **Intelligence System:** **Nirvana** powered by Gemini Live API (real-time multimodal AI)
 -   **On-Device AI:** ONNX Runtime Web (for future on-device inference)
--   **Cloud AI:** LM Studio (OpenAI-compatible API) for `rstar-coder-qwen3-0.6b@bf16` (LLM) and `fatboy-embeddings-v4-text-retrieval` (Multi-modal Embeddings)
+-   **Legacy AI:** LM Studio (OpenAI-compatible API, being phased out)
 -   **Deployment:** Docker & Nginx
 
 ## 🏁 Getting Started
@@ -145,7 +169,7 @@ This is the easiest way to get the app running in a consistent environment.
 **Prerequisites:**
 *   Node.js (v18 or newer)
 *   Angular CLI (`npm install -g @angular/cli`)
-*   **LM Studio**: For running the AI models locally. Ensure `rstar-coder-qwen3-0.6b@bf16` and `fatboy-embeddings-v4-text-retrieval` are loaded and served via the OpenAI-compatible API endpoint (default: `http://localhost:1234/v1`). Update `src/environments/environment.ts` if your endpoint differs.
+*   **Gemini API Key**: Get your free API key from [Google AI Studio](https://aistudio.google.com). This powers the Nirvana intelligence system.
 
 **Steps:**
 1.  **Clone the repository:**
@@ -157,7 +181,21 @@ This is the easiest way to get the app running in a consistent environment.
     ```bash
     npm install
     ```
-3.  **Launch the development server:**
+3.  **Configure Nirvana (Intelligence System):**
+    
+    Create a `.env` file in the root directory (copy from `.env.example`):
+    ```bash
+    cp .env.example .env
+    ```
+    
+    Edit `.env` and add your Gemini API key:
+    ```
+    GEMINI_API_KEY="your_actual_gemini_api_key_here"
+    ```
+    
+    **That's it!** Nirvana will automatically initialize when you start the app.
+
+4.  **Launch the development server:**
     ```bash
     npm start
     ```

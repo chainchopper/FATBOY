@@ -7,11 +7,12 @@ import { CustomTitleCasePipe } from '../shared/custom-title-case.pipe';
 import { ButtonComponent } from '../button/button.component';
 import { ProductDbService } from '../services/product-db.service';
 import { Router } from '@angular/router';
+import { UiSoundDirective } from '../directives/ui-sound.directive';
 
 @Component({
   selector: 'app-product-card',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, FoodIconComponent, CustomTitleCasePipe, ButtonComponent],
+  imports: [CommonModule, LucideAngularModule, FoodIconComponent, CustomTitleCasePipe, ButtonComponent, UiSoundDirective],
   templateUrl: './product-card.component.html',
   styleUrls: []
 })

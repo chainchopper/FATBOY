@@ -1,157 +1,274 @@
-# AI & TTS Implementation Guide
+# AI & Intelligence Implementation Guide
 
-This document provides a comprehensive overview of the AI and Text-to-Speech (TTS) services used in this application. It is intended for developers who need to understand, replicate, or extend the AI functionalities.
+This document provides a comprehensive overview of the **Nirvana Intelligence System** powered by Google's Gemini Live API, as well as the legacy AI and TTS services. This is intended for developers who need to understand, replicate, or extend the AI functionalities.
 
 ---
 
-## 🤖 AI Service Endpoints and Usage (OpenAI-like)
+## 🌟 Nirvana: The Primary Intelligence System
 
-The application interacts with OpenAI-like API endpoints for chat, embeddings, and vision models. These endpoints typically follow a `/v1/` prefix.
+**Nirvana** is the app's codename for the Gemini Live API integration. It provides real-time, multimodal AI capabilities with seamless voice and text interactions.
 
-**Base URL:** `http://api.blacknation.io:8981` (as configured in `src/environments/environment.ts`)
+### Key Features
 
-### 1. List Models
+- **Real-time Bidirectional Streaming**: Low-latency audio and text communication
+- **Function Calling**: AI can execute app functions (add to shopping list, search products, etc.)
+- **Voice Synthesis**: Natural, affective voice responses in 30+ languages
+- **Thinking Mode**: Optional visible reasoning process
+- **Google Search Grounding**: Enhanced responses with real-time web data
+- **Audio Export**: Conversation history with audio files for RAG pipelines
 
--   **Endpoint:** `/v1/models`
--   **Method:** `GET`
--   **Description:** Lists the available AI models. This is used by the application's `checkAgentStatus()` method to verify that the AI service is online and the required models are loaded.
+### Architecture
 
-**Curl Example:**
-
-```bash
-curl http://api.blacknation.io:8981/v1/models
+```
+User Input (Text/Audio)
+    ↓
+NirvanaAdapterService (Adapter Layer)
+    ↓
+NirvanaService (WebSocket Connection)
+    ↓
+Gemini Live API (wss://generativelanguage.googleapis.com)
+    ↓
+Streaming Response (Text/Audio/Tool Calls)
+    ↓
+UI Components + Audio Playback
 ```
 
-### 2. Chat Completions (LLM)
+### Configuration
 
--   **Endpoint:** `/v1/chat/completions`
--   **Method:** `POST`
--   **Description:** Used for all conversational AI interactions, including the powerful "tool calling" feature that allows the AI to command the application to perform actions.
--   **Model Used:** `rstar-coder-qwen3-0.6b@bf16`
+All Nirvana settings are configured in `environment.ts` and stored in user preferences:
 
-**Request Body Example (JSON):**
+```typescript
+// Environment configuration
+geminiApiKey: "your_gemini_api_key_here"
+geminiLiveApiEndpoint: "wss://generativelanguage.googleapis.com/ws/..."
 
-```json
+// User preferences (stored in Supabase)
+nirvanaVoice: "Puck"  // Voice options: Puck, Charon, Kore, Fenrir, Aoede
+nirvanaLanguage: "en-US"
+nirvanaEnableAudio: true
+nirvanaEnableThinking: false
+nirvanaEnableGrounding: false
+```
+
+### Available Voices
+
+Gemini Live API supports multiple expressive voices:
+- **Puck**: Friendly and energetic
+- **Charon**: Deep and authoritative  
+- **Kore**: Warm and empathetic
+- **Fenrir**: Bold and confident
+- **Aoede**: Melodic and soothing
+
+### Setup Instructions
+
+1. **Get API Key**: Obtain a Gemini API key from [Google AI Studio](https://aistudio.google.com)
+
+2. **Configure Environment**: Add the key to your `.env` file:
+   ```
+   GEMINI_API_KEY="your_actual_api_key_here"
+   ```
+
+3. **Auto-Initialization**: Nirvana automatically initializes when the app starts if the API key is configured. No additional setup required!
+
+4. **Verify Connection**: The system automatically checks connectivity and falls back to legacy APIs if needed.
+
+### Usage in Code
+
+The `NirvanaAdapterService` provides a compatible interface with the existing `AiIntegrationService`:
+
+```typescript
+// Check if Nirvana is ready
+const isReady = await nirvanaAdapter.checkAgentStatus();
+
+// Send a message (text or audio)
+const response = await nirvanaAdapter.getChatCompletion(
+  userInput, 
+  conversationHistory,
+  lastProduct
+);
+
+// Update voice settings
+nirvanaAdapter.updateVoice('Charon');
+
+// Enable/disable features
+nirvanaAdapter.setAudioEnabled(true);
+nirvanaAdapter.setThinkingMode(false);
+nirvanaAdapter.setGroundingEnabled(false);
+```
+
+### Function Calling
+
+Nirvana supports all existing app functions through automatic tool registration:
+
+- `add_to_food_diary` - Add items to food diary
+- `add_to_shopping_list` - Add items to shopping list
+- `remove_from_shopping_list` - Remove items from list
+- `update_avoided_ingredients` - Update avoid lists
+- `summarize_food_diary` - Get diary summaries
+- `open_scanner` - Launch the barcode scanner
+- `search_products` - Search local database
+- `search_external_database` - Search Open Food Facts
+
+Tools are automatically converted from OpenAI format to Gemini format by the adapter.
+
+### Audio Handling
+
+**Input Audio**: 16-bit PCM, 16kHz (automatically captured from microphone)
+
+**Output Audio**: 24kHz PCM (played through Web Audio API)
+
+The service includes:
+- Audio queue management for smooth playback
+- Automatic resampling if needed
+- Voice Activity Detection (VAD)
+- Conversation audio export for history
+
+### Error Handling
+
+Nirvana includes robust error handling:
+- Automatic reconnection on connection loss (up to 5 attempts)
+- Graceful fallback to legacy API if Nirvana unavailable
+- Silent error handling (no debug info shown to users)
+- User-friendly error messages
+
+### Privacy & Security
+
+- API key stored securely in environment variables
+- No "Gemini" or "Google" branding visible to users
+- All references use "Nirvana" or "Fat Boy" in UI
+- No technical debugging information exposed in frontend
+
+---
+
+## 🔧 Legacy AI Services (Deprecated)
+
+The following services are maintained for backward compatibility but will be phased out:
+
+### OpenAI-Compatible Chat API
+
+**Base URL:** `http://api.blacknation.io:8189` (as configured in `src/environments/environment.ts`)
+
+#### Chat Completions Endpoint
+
+```bash
+POST http://api.blacknation.io:8189/v1/chat/completions
 {
   "model": "rstar-coder-qwen3-0.6b@bf16",
-  "messages": [
-    {
-      "role": "system",
-      "content": "You are Fat Boy, an AI nutritional co-pilot..."
-    },
-    {
-      "role": "user",
-      "content": "Can you add milk to my shopping list?"
-    }
-  ],
-  "tools": [
-    {
-      "type": "function",
-      "function": {
-        "name": "add_to_shopping_list",
-        "description": "Adds a food product to the user's shopping list.",
-        "parameters": {
-          "type": "object",
-          "properties": {
-            "product_name": { "type": "string" },
-            "brand": { "type": "string" }
-          },
-          "required": ["product_name", "brand"]
-        }
-      }
-    }
-  ],
-  "tool_choice": "auto",
-  "temperature": 0.7,
-  "max_tokens": 1024
+  "messages": [...],
+  "tools": [...],
+  "temperature": 0.7
 }
 ```
 
-### 3. Embeddings
+### Chatterbox TTS API (Legacy)
 
--   **Endpoint:** `/v1/embeddings`
--   **Method:** `POST`
--   **Description:** Generates vector embeddings for text input. This is planned for use in a future Retrieval-Augmented Generation (RAG) pipeline to provide the AI with highly relevant context from the user's history and preferences.
--   **Model Used:** `fatboy-embeddings-v4-text-retrieval`
+**Base URL:** `http://api.blacknation.io:4123`
 
-**Request Body Example (JSON):**
+#### Text-to-Speech Endpoint
 
-```json
+```bash
+POST http://api.blacknation.io:4123/v1/audio/speech
 {
-  "model": "fatboy-embeddings-v4-text-retrieval",
-  "input": "Your text string to embed"
+  "input": "Text to speak",
+  "voice": "KEVIN"
 }
 ```
 
----
-
-## 🗣️ Chatterbox TTS API Endpoints and Usage
-
-The application uses the Chatterbox TTS API for all text-to-speech functionality, giving the AI its voice.
-
-**Base URL:** `http://api.blacknation.io:4123` (as configured in `src/environments/environment.ts`)
-
-### 1. Text-to-Speech Conversion
-
--   **Endpoint:** `/v1/audio/speech`
--   **Method:** `POST`
--   **Description:** Converts a string of text into speech audio.
--   **Request Body Parameters:**
-    -   `input` (string, required): The text to be converted to speech (1-3000 characters).
-    -   `voice` (string, optional): The name of the voice to use (e.g., "KEVIN"). Defaults to the one set in user preferences.
-    -   `exaggeration` (float, optional): 0.25 - 2.0.
-    -   `cfg_weight` (float, optional): 0.0 - 1.0.
-    -   `temperature` (float, optional): 0.05 - 5.0.
--   **Response:** The raw audio data with `Content-Type: audio/wav`.
-
-**Curl Example (Basic):**
-
-```bash
-curl -X POST http://api.blacknation.io:4123/v1/audio/speech \
-  -H "Content-Type: application/json" \
-  -d '{"input": "Hello, this is a test of the text to speech system."}' \
-  --output speech.wav
-```
-
-**Curl Example (With Custom Parameters):**
-
-```bash
-curl -X POST http://api.blacknation.io:4123/v1/audio/speech \
-  -H "Content-Type: application/json" \
-  -d '{"input": "This is a very dramatic reading!", "exaggeration": 1.5, "voice": "KEVIN"}' \
-  --output dramatic_speech.wav
-```
-
-### 2. Health Check
-
--   **Endpoint:** `/v1/health`
--   **Method:** `GET`
--   **Description:** Checks if the TTS API is running and if the underlying speech model is loaded correctly.
-
-### 3. List Voices
-
--   **Endpoint:** `/v1/audio/voices`
--   **Method:** `GET`
--   **Description:** Returns a JSON array of available voices that can be used for TTS.
+**Note**: When Nirvana is active, Chatterbox TTS is bypassed in favor of Gemini's native voice synthesis.
 
 ---
 
-## ⚠️ CORS Configuration
+## 🎯 Migration Guide
 
-For the frontend application to successfully communicate with these backend services, **Cross-Origin Resource Sharing (CORS)** must be properly configured on the servers hosting the AI and TTS APIs.
+### For Developers
 
-It is recommended to either:
+If you're updating code that uses the old `AiIntegrationService`:
 
--   Set `Access-Control-Allow-Origin: *` (less secure, suitable for development).
--   Explicitly whitelist your frontend's domain (e.g., `http://localhost:3000` or your deployed domain) in the `Access-Control-Allow-Origin` header on the backend services.
+1. **No Code Changes Required**: The service automatically uses Nirvana when configured
+2. **Optional**: Use `NirvanaAdapterService` directly for advanced features
+3. **Testing**: Ensure `GEMINI_API_KEY` is set in your `.env` for testing
+
+### For Users
+
+1. **Seamless Transition**: Users experience better AI with zero configuration
+2. **Settings Available**: Voice preferences accessible in Settings → Preferences
+3. **Privacy Maintained**: All AI features work exactly as before, just better
+
+---
+
+## 📊 Performance Considerations
+
+### Latency
+- **Nirvana**: ~200-500ms first token latency
+- **Legacy API**: ~1-2s first token latency
+- **Audio Streaming**: Real-time with <100ms buffering
+
+### Bandwidth
+- Text messages: <1KB per request
+- Audio streaming: ~16KB/s (16kHz PCM)
+- Recommended: 1Mbps+ connection for smooth audio
+
+### Rate Limits
+- Gemini API: Varies by tier (check Google AI Studio)
+- Automatic backoff on rate limit errors
+- Fallback to legacy API if quota exceeded
+
+---
+
+## 🐛 Troubleshooting
+
+### "Intelligence System Unavailable"
+- **Cause**: API key not configured or invalid
+- **Solution**: Check `GEMINI_API_KEY` in `.env` file
+- **Fallback**: System will use legacy API automatically
+
+### Audio Not Playing
+- **Cause**: Browser doesn't support Web Audio API
+- **Solution**: Use a modern browser (Chrome, Firefox, Safari)
+- **Fallback**: Text responses still work
+
+### Connection Keeps Dropping
+- **Cause**: Network instability or firewall blocking WebSocket
+- **Solution**: Check firewall settings, ensure stable connection
+- **Note**: Service auto-reconnects up to 5 times
+
+### Voice Not Changing
+- **Cause**: Settings not saved or API doesn't support selected voice
+- **Solution**: Save preferences, try a different voice
+- **Available**: Puck, Charon, Kore, Fenrir, Aoede
+
+---
+
+## 🔗 Additional Resources
+
+- [Gemini Live API Documentation](https://ai.google.dev/gemini-api/docs/live)
+- [Google AI Studio](https://aistudio.google.com/live)
+- [Function Calling Guide](https://ai.google.dev/gemini-api/docs/function-calling)
+- [Audio Capabilities](https://ai.google.dev/gemini-api/docs/audio)
 
 ---
 
 ## 💻 Frontend Integration Overview
 
-The AI and TTS features are integrated into the Angular application via a set of specialized services:
+The AI and TTS features are integrated into the Angular application via specialized services:
 
--   **`AiIntegrationService`**: The central hub for communicating with the AI. It handles checking the agent's status, constructing the final prompt with user context, sending requests to the `/v1/chat/completions` endpoint, and processing the AI's response.
--   **`ChatterboxTtsService`**: Manages all text-to-speech functionality. It checks the TTS API health, fetches available voices, and sends text to the `/v1/audio/speech` endpoint to be converted into audio, which is then played in the browser.
--   **`AiContextService`**: Responsible for gathering and compiling all relevant user data (profile, preferences, scan history, etc.) into a concise context string that is injected into the AI's system prompt.
--   **`ToolExecutorService`**: When the AI's response includes a "tool call," this service is responsible for executing the corresponding function within the Angular app (e.g., adding an item to the `ShoppingListService`).
+-   **`NirvanaService`**: Core WebSocket connection to Gemini Live API. Handles all low-level communication.
+-   **`NirvanaAdapterService`**: Adapter layer that maintains compatibility with existing app interfaces while providing Nirvana capabilities.
+-   **`AiIntegrationService`**: Main AI service that automatically uses Nirvana when available, falls back to legacy API otherwise.
+-   **`AiContextService`**: Compiles user context for AI prompts (profile, preferences, history, etc.)
+-   **`ToolExecutorService`**: Executes function calls within the app (add to lists, search, etc.)
+-   **`ChatterboxTtsService`**: Legacy TTS service (bypassed when Nirvana is active)
+
+### Service Hierarchy
+
+```
+AgentConsoleComponent
+    ↓
+AiIntegrationService (Auto-routing)
+    ├→ NirvanaAdapterService (Primary)
+    │     ↓
+    │  NirvanaService (WebSocket)
+    │     ↓
+    │  Gemini Live API
+    └→ Legacy OpenAI API (Fallback)
+```
