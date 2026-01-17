@@ -105,7 +105,7 @@ export class NirvanaService {
   private responses$ = new Subject<NirvanaResponse>();
 
   private currentConfig: NirvanaConfig = {
-    model: 'models/gemini-2.5-flash-native-audio-preview-12-2025',
+    model: 'models/gemini-2.5-flash',
     voice: 'Puck',
     temperature: 0.7,
     enableAudio: true,
@@ -407,16 +407,14 @@ export class NirvanaService {
         model: this.currentConfig.model!,
         generation_config: {
           temperature: this.currentConfig.temperature,
-          response_modalities: this.currentConfig.enableAudio ? ['TEXT', 'AUDIO'] : ['TEXT'],
-          ...(this.currentConfig.enableAudio && {
-            speech_config: {
-              voice_config: {
-                prebuilt_voice_config: {
-                  voice_name: this.currentConfig.voice!
-                }
+          response_modalities: ['TEXT', 'AUDIO'], // Always include AUDIO for native audio model
+          speech_config: {
+            voice_config: {
+              prebuilt_voice_config: {
+                voice_name: this.currentConfig.voice!
               }
             }
-          })
+          }
         }
       }
     };

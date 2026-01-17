@@ -1,10 +1,10 @@
-// Full test with actual message sending
+// Full test with TEXT+AUDIO modalities
 const WebSocket = require('ws');
 
 const API_KEY = 'AIzaSyC88mmYOUadI2bRj3_mo2-R1QFTvUMOWTw';
 const WS_URL = `wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContent?key=${API_KEY}`;
 
-console.log('=== FULL GEMINI 2.5 NATIVE AUDIO TEST ===\n');
+console.log('=== GEMINI 2.5 NATIVE AUDIO TEST (WITH AUDIO MODALITY) ===\n');
 
 const ws = new WebSocket(WS_URL);
 
@@ -15,8 +15,15 @@ ws.on('open', () => {
         setup: {
             model: 'models/gemini-2.5-flash-native-audio-preview-12-2025',
             generation_config: {
-                response_modalities: ['TEXT'],
-                temperature: 0.7
+                response_modalities: ['TEXT', 'AUDIO'],
+                temperature: 0.7,
+                speech_config: {
+                    voice_config: {
+                        prebuilt_voice_config: {
+                            voice_name: 'Puck'
+                        }
+                    }
+                }
             },
             input_audio_transcription: {},
             output_audio_transcription: {}
@@ -39,7 +46,7 @@ ws.on('message', (data) => {
                 turns: [
                     {
                         role: 'user',
-                        parts: [{ text: 'Say hello and confirm you can hear me.' }]
+                        parts: [{ text: 'Say "Hello, Nirvana is now operational!" in a short sentence.' }]
                     }
                 ],
                 turn_complete: true
@@ -52,10 +59,12 @@ ws.on('message', (data) => {
     if (msg.serverContent?.modelTurn?.parts) {
         const text = msg.serverContent.modelTurn.parts[0]?.text;
         if (text) {
-            console.log('\n🎉 MODEL RESPONDED:', text);
-            console.log('\n✅ SUCCESS! Nirvana is working correctly.');
-            ws.close();
-            process.exit(0);
+            console.log('\n🎉 MODEL TEXT RESPONSE:', text);
+            console.log('\n✅✅✅ SUCCESS! Nirvana is FULLY WORKING! ✅✅✅');
+            setTimeout(() => {
+                ws.close();
+                process.exit(0);
+            }, 1000);
         }
     }
 });
@@ -67,11 +76,10 @@ ws.on('error', (error) => {
 
 ws.on('close', (code, reason) => {
     console.log('\n🔌 Closed:', code, reason.toString());
-    if (code !== 1000) process.exit(1);
 });
 
 setTimeout(() => {
-    console.log('\n⏱️ Timeout - no response received');
+    console.log('\n⏱️ Timeout - no response received in 30 seconds');
     ws.close();
     process.exit(1);
 }, 30000);

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { NirvanaService, NirvanaResponse, NirvanaConfig } from './nirvana.service';
+import { GeminiSdkService, GeminiConfig, GeminiResponse } from './gemini-sdk.service';
 import { AiContextService } from './ai-context.service';
 import { ToolExecutorService, ToolExecutionResult } from './tool-executor.service';
 import { AudioService } from './audio.service';
@@ -12,9 +12,9 @@ import { firstValueFrom } from 'rxjs';
 /**
  * NirvanaAdapterService
  * 
- * This service adapts the existing AI integration interface to use Nirvana.
+ * This service adapts the existing AI integration interface to use Gemini SDK.
  * It maintains backward compatibility with the existing application while providing
- * enhanced real-time capabilities.
+ * enhanced real-time multimodal capabilities.
  */
 @Injectable({
   providedIn: 'root'
@@ -29,27 +29,28 @@ export class NirvanaAdapterService {
   private canvas: HTMLCanvasElement | null = null;
 
   constructor(
-    private nirvanaService: NirvanaService,
+    private geminiSdk: GeminiSdkService,
     private aiContextService: AiContextService,
     private toolExecutorService: ToolExecutorService,
     private audioService: AudioService,
     private notificationService: NotificationService,
     private preferencesService: PreferencesService
   ) {
-    // Subscribe to Nirvana responses
-    this.nirvanaService.responses.subscribe(response => {
-      this.handleNirvanaResponse(response);
+    // Subscribe to Gemini SDK responses
+    this.geminiSdk.responses.subscribe(response => {
+      this.handleGeminiResponse(response);
     });
 
     // Subscribe to connection status
-    this.nirvanaService.connectionStatus$.subscribe(connected => {
+    this.geminiSdk.connectionStatus$.subscribe(connected => {
       if (connected && !this.isInitialized) {
-        this.initializeSession();
+        this.isInitialized = true;
+        console.log('[NirvanaAdapter] SDK session initialized');
       }
     });
 
     // Subscribe to errors
-    this.nirvanaService.errors$.subscribe(error => {
+    this.geminiSdk.errors$.subscribe(error => {
       console.error('[NirvanaAdapter] Error:', error);
     });
   }

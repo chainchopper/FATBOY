@@ -1,0 +1,8 @@
+=== GEMINI 2.5 NATIVE AUDIO TEST (WITH AUDIO MODALITY) ===
+
+Γ£à WebSocket OPEN
+≡ƒôñ Sending setup...
+
+≡ƒöî Closed: 1007 Request contains an invalid argument.
+
+ΓÅ▒∩╕Å Timeout - no response received in 30 seconds
