@@ -10,9 +10,10 @@ Nirvana is the ONLY AI provider in this application - a complete intelligence sy
 
 - **Real-time bidirectional streaming** for audio and text
 - **Natural voice synthesis** in 30+ languages with 5 distinct voice personalities
-- **Multimodal capabilities** - text, audio, and vision (image analysis)
-- **Advanced function calling** for app integration
-- **Optional web grounding** for enhanced responses with real-time data
+- **Multimodal Real-Time Streaming**: Bidirectional audio and video/screen capture.
+- **Advanced Function Calling**: Native support for application control and data management.
+- **Multimodal Perception**: Ability to "see" and process frames from camera or screen sharing.
+- **High-Fidelity TTS**: Multiple expressive voices with low-latency synthesis.
 
 ## Default Configuration
 
@@ -20,7 +21,8 @@ Nirvana is the ONLY AI provider in this application - a complete intelligence sy
 
 ```env
 # Primary Intelligence System (Required)
-GEMINI_API_KEY="your_gemini_api_key_here"
+NIRVANA_API_KEY="your_nirvana_api_key_here"
+NIRVANA_LIVE_API_ENDPOINT="wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1alpha.GenerativeService.BidiGenerateContent"
 
 # Optional fallback endpoints (if needed)
 OPENAI_API_BASE_URL="http://your-fallback-api:8189/v1"

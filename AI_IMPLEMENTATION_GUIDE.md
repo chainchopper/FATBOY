@@ -10,11 +10,12 @@ This document provides a comprehensive overview of the **Nirvana Intelligence Sy
 
 ### Key Features
 
-- **Real-time Bidirectional Streaming**: Low-latency audio and text communication
-- **Function Calling**: AI can execute app functions (add to shopping list, search products, etc.)
-- **Voice Synthesis**: Natural, affective voice responses in 30+ languages
-- **Thinking Mode**: Optional visible reasoning process
-- **Google Search Grounding**: Enhanced responses with real-time web data
+- **Real-Time Multimodal Streaming**: Low-latency bidirectional audio and video streaming.
+- **Video & Screen Intelligence**: NIRVANA can "see" what's in front of the camera or on your screen in real-time.
+- **Function Calling**: AI can interact with the app via pre-defined tools.
+- **Voice Synthesis**: Multiple high-quality voices (Puck, Charon, Kore, Fenrir, Aoede).
+- **Thinking Mode**: (Optional) Visible AI reasoning process.
+- **Web Grounding**: (Optional) Enhanced accuracy with Google Search.
 - **Audio Export**: Conversation history with audio files for RAG pipelines
 
 ### Architecture
@@ -35,13 +36,15 @@ UI Components + Audio Playback
 
 ### Configuration
 
-All Nirvana settings are configured in `environment.ts` and stored in user preferences:
-
+### 1. Configure Nirvana API Details
+Edit `src/environments/environment.ts`:
 ```typescript
-// Environment configuration
-geminiApiKey: "your_gemini_api_key_here"
-geminiLiveApiEndpoint: "wss://generativelanguage.googleapis.com/ws/..."
-
+export const environment = {
+  production: false,
+  nirvanaApiKey: "YOUR_API_KEY",
+  nirvanaLiveApiEndpoint: "wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1alpha.GenerativeService.BidiGenerateContent"
+};
+```
 // User preferences (stored in Supabase)
 nirvanaVoice: "Puck"  // Voice options: Puck, Charon, Kore, Fenrir, Aoede
 nirvanaLanguage: "en-US"

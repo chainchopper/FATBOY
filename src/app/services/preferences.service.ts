@@ -16,7 +16,7 @@ export interface UserPreferences {
   shareLeaderboardStatus: boolean;
   useOnDeviceTts: boolean; // New: Prefer on-device TTS
   chatterboxVoiceId: string; // Legacy: Chatterbox voice ID
-  // Nirvana (Gemini Live API) settings
+  // Nirvana settings
   nirvanaVoice: string; // Nirvana voice name (e.g., 'Puck', 'Charon', 'Kore', 'Fenrir', 'Aoede')
   nirvanaLanguage: string; // Language code (e.g., 'en-US', 'es-ES')
   nirvanaEnableAudio: boolean; // Enable audio responses
@@ -42,7 +42,7 @@ export class PreferencesService {
     useOnDeviceTts: false,
     chatterboxVoiceId: 'KEVIN', // Legacy
     // Nirvana defaults
-    nirvanaVoice: 'Puck', // Default Gemini voice
+    nirvanaVoice: 'Puck', // Default Nirvana voice
     nirvanaLanguage: 'en-US',
     nirvanaEnableAudio: true,
     nirvanaEnableThinking: false,
@@ -127,7 +127,7 @@ export class PreferencesService {
   public removeAvoidedIngredient(ingredient: string): void {
     const prefs = this.getPreferences();
     const lowerIngredient = ingredient.trim().toLowerCase();
-    
+
     let index = prefs.avoidedIngredients.indexOf(lowerIngredient);
     if (index > -1) {
       prefs.avoidedIngredients.splice(index, 1);
@@ -137,7 +137,7 @@ export class PreferencesService {
     if (index > -1) {
       prefs.customAvoidedIngredients.splice(index, 1);
     }
-    
+
     this.savePreferences(prefs);
   }
 

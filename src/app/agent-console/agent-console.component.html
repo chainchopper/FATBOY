@@ -109,7 +109,17 @@
         class="flex-grow bg-transparent border-none p-2 text-gray-100 resize-none max-h-24 outline-none placeholder-gray-500"
         [disabled]="agentStatus === 'offline'">
       </textarea>
-      <button (click)="toggleVoiceListening()" class="bg-transparent border-none text-gray-400 w-10 h-10 rounded-full text-2xl cursor-pointer transition-all hover:text-teal-400 flex items-center justify-center" [class.text-purple-400]="isListening" title="Use Voice" [disabled]="agentStatus === 'offline'">🎤</button>
+      <button 
+        (click)="toggleVoiceListening()" 
+        class="bg-transparent border-none text-gray-400 w-10 h-10 rounded-full text-2xl cursor-pointer transition-all flex items-center justify-center relative" 
+        [class.text-teal-400]="isListening" 
+        [style.box-shadow]="isListening ? '0 0 ' + (audioLevel * 20) + 'px rgba(45, 212, 191, 0.5)' : 'none'"
+        [style.transform]="isListening ? 'scale(' + (1 + audioLevel * 0.2) + ')' : 'scale(1)'"
+        title="Nirvana Live Voice" 
+        [disabled]="agentStatus === 'offline'">
+        🎤
+        <div *ngIf="isListening" class="absolute -top-1 -right-1 w-3 h-3 bg-teal-400 rounded-full animate-ping"></div>
+      </button>
       <button (click)="sendMessage()" class="bg-transparent border-none text-teal-400 w-10 h-10 rounded-full text-2xl cursor-pointer transition-all hover:text-teal-300 flex items-center justify-center" [disabled]="!userInput.trim() || agentStatus === 'offline'">→</button>
     </div>
   </div>

@@ -1,13 +1,13 @@
 export const environment = {
   production: true,
 
-  // Nirvana - Primary AI Intelligence System (Gemini Live API)
-  // This is the ONLY AI provider used - handles text, audio, vision, TTS, STT
-  geminiApiKey: "your_gemini_api_key_here",
-  geminiLiveApiEndpoint: "wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1alpha.GenerativeService.BidiGenerateContent",
-  
-  // DEPRECATED: Legacy services (not used - kept for reference only)
-  // TTS is now handled by Gemini Live API directly
+  // Nirvana - Primary AI Intelligence System
+  // This is the ONLY AI provider
+  nirvanaApiKey: "your_nirvana_api_key_here",
+  nirvanaLiveApiEndpoint: "wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1alpha.GenerativeService.BidiGenerateContent",
+
+  // DEPRECATED: Legacy services
+  // TTS is now handled by Nirvana directly
   ttsApiEndpoint: "",  // Not used
   ttsApiKey: "",       // Not used
   openaiApiBaseUrl: "",  // Not used

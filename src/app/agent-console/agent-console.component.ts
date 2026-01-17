@@ -44,6 +44,7 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
   showSlashCommands = false;
   isAgentTyping = false;
   isListening = false;
+  audioLevel = 0;
   agentStatus: 'online' | 'offline' = 'offline';
   private lastAgentStatus: 'online' | 'offline' | null = null;
 
@@ -59,12 +60,14 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
   public userAvatar: string = 'https://api.dicebear.com/8.x/initials/svg?seed=Anonymous';
   public userName: string = 'You';
   private currentUserId: string | null = null;
-  
+
   availableCommands: SlashCommand[] = [
     { command: '/suggest', description: 'Get a personalized product suggestion.', usage: '/suggest' },
     { command: '/summarize', description: 'Summarize your recent activity.', usage: '/summarize' },
     { command: '/find', description: 'Find products with a specific ingredient.', usage: '/find <ingredient>' },
-    { command: '/playwright', description: 'Run a Playwright test.', usage: '/playwright <test_name>' }
+    { command: '/camera', description: 'Start camera streaming to Nirvana.', usage: '/camera' },
+    { command: '/screen', description: 'Start screen share streaming to Nirvana.', usage: '/screen' },
+    { command: '/stop', description: 'Stop all video streaming.', usage: '/stop' }
   ];
   filteredCommands: SlashCommand[] = [];
 
@@ -85,7 +88,7 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
     public consoleCameraService: ConsoleCameraService,
     private productDbService: ProductDbService,
     private consoleCommandService: ConsoleCommandService
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.checkStatus();
@@ -120,19 +123,30 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
     });
 
     this.preferencesSubscription = this.preferencesService.preferences$.subscribe(prefs => {
-      if (prefs.enableVoiceCommands) {
-        this.speechService.startListening();
-        this.isListening = true;
-      } else {
-        this.speechService.stopListening();
-        this.isListening = false;
+      // Legacy voice toggle - we can keep it for now but handle with aiService
+      if (prefs.enableVoiceCommands && !this.isListening) {
+        this.aiService.startLiveVoice();
+      } else if (!prefs.enableVoiceCommands && this.isListening) {
+        this.aiService.stopLiveVoice();
       }
     });
 
+    this.aiService.isVoiceCapturing$.subscribe(capturing => {
+      this.isListening = capturing;
+      this.cdr.detectChanges();
+    });
+
+    this.aiService.audioLevel$.subscribe(level => {
+      this.audioLevel = level;
+      this.cdr.detectChanges();
+    });
+
     this.speechSubscription = this.speechService.commandRecognized.subscribe(transcript => {
-      this.userInput = transcript;
-      this.sendMessage();
-      this.isListening = false;
+      // Still allow legacy voice input fallback if active
+      if (!this.isListening) {
+        this.userInput = transcript;
+        this.sendMessage();
+      }
     });
 
     this.cameraInputProcessedSubscription = this.consoleCameraService.cameraInputProcessed.subscribe(product => {
@@ -190,8 +204,18 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
   }
 
   toggleVoiceListening() {
-    const currentPrefs = this.preferencesService.getPreferences();
-    this.preferencesService.savePreferences({ ...currentPrefs, enableVoiceCommands: !currentPrefs.enableVoiceCommands });
+    if (this.isListening) {
+      this.aiService.stopLiveVoice();
+      const currentPrefs = this.preferencesService.getPreferences();
+      this.preferencesService.savePreferences({ ...currentPrefs, enableVoiceCommands: false });
+    } else {
+      this.aiService.startLiveVoice().then(success => {
+        if (success) {
+          const currentPrefs = this.preferencesService.getPreferences();
+          this.preferencesService.savePreferences({ ...currentPrefs, enableVoiceCommands: true });
+        }
+      });
+    }
   }
 
   handleInput() {
@@ -212,6 +236,24 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
   async sendMessage() {
     const text = this.userInput.trim();
     if (!text) return;
+
+    // Handle internal UI commands
+    if (text === '/camera') {
+      this.userInput = '';
+      await this.aiService.startCamera();
+      return;
+    }
+    if (text === '/screen') {
+      this.userInput = '';
+      await this.aiService.startScreen();
+      return;
+    }
+    if (text === '/stop') {
+      this.userInput = '';
+      this.aiService.stopVideo();
+      return;
+    }
+
     this.chatHistoryService.addUserMessage(text);
     this.userInput = '';
     this.showSlashCommands = false;
@@ -224,7 +266,7 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
     try {
       const aiResponse: AiResponse = await this.aiService.getChatCompletion(text, messagesHistoryForAi);
       this.speechService.speak(aiResponse.text);
-      this.chatHistoryService.addAgentMessage(aiResponse); 
+      this.chatHistoryService.addAgentMessage(aiResponse);
     } catch (error) {
       const errorMessage: ChatMessage = { sender: 'agent', text: 'Sorry, I encountered an error. Please try again.', timestamp: new Date(), avatar: this.agentAvatar };
       this.chatHistoryService.addAgentMessage(errorMessage);
@@ -296,7 +338,7 @@ export class AgentConsoleComponent implements OnInit, OnDestroy, AfterViewChecke
   private scrollToBottom(): void {
     try {
       this.messageWindow.nativeElement.scrollTop = this.messageWindow.nativeElement.scrollHeight;
-    } catch(err) { }
+    } catch (err) { }
   }
 
   clearChatHistory(): void {

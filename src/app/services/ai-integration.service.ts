@@ -7,6 +7,7 @@ import { ToolExecutorService, ToolExecutionResult } from './tool-executor.servic
 import { firstValueFrom } from 'rxjs'; // Import firstValueFrom
 import { NotificationService } from './notification.service'; // Import NotificationService
 import { NirvanaAdapterService } from './nirvana-adapter.service'; // Import Nirvana adapter
+import { NirvanaAudioService } from './nirvana-audio.service'; // Import Nirvana audio service
 
 export interface DynamicButton {
   text: string;
@@ -39,9 +40,9 @@ export class AiIntegrationService {
   private apiKey = environment.openaiApiKey;
   private chatModelName = environment.chatModelName;
   private embeddingModelName = environment.embeddingModelName;
-  
+
   // Use Nirvana by default if API key is configured
-  private useNirvana = !!environment.geminiApiKey && environment.geminiApiKey !== 'your_gemini_api_key_here';
+  private useNirvana = !!environment.nirvanaApiKey && environment.nirvanaApiKey !== 'your_nirvana_api_key_here';
 
   constructor(
     private audioService: AudioService,
@@ -49,7 +50,8 @@ export class AiIntegrationService {
     private toolExecutorService: ToolExecutorService,
     private productDbService: ProductDbService, // Inject ProductDbService
     private notificationService: NotificationService, // Inject NotificationService
-    private nirvanaAdapter: NirvanaAdapterService // Inject Nirvana adapter
+    private nirvanaAdapter: NirvanaAdapterService, // Inject Nirvana adapter
+    private nirvanaAudio: NirvanaAudioService // Inject Nirvana audio service
   ) {
     console.log(`[Intelligence System] Using ${this.useNirvana ? 'Nirvana' : 'Legacy API'}`);
   }
@@ -59,7 +61,7 @@ export class AiIntegrationService {
     try {
       const status = await this.nirvanaAdapter.checkAgentStatus();
       if (!status) {
-        console.warn('[Intelligence System] Nirvana unavailable. Please configure GEMINI_API_KEY in .env');
+        console.warn('[Intelligence System] Nirvana unavailable. Please configure NIRVANA_API_KEY in .env');
       }
       return status;
     } catch (error) {
@@ -248,36 +250,36 @@ export class AiIntegrationService {
   private _parseAiResponse(fullResponseText: string): AiResponse {
     let parsedJson: any = null;
     try {
-        // Try to extract JSON from markdown first
-        parsedJson = this._extractJsonFromMarkdown(fullResponseText);
-        if (!parsedJson) {
-            // If not found in markdown, try to extract raw JSON
-            parsedJson = this._extractJson(fullResponseText);
-        }
+      // Try to extract JSON from markdown first
+      parsedJson = this._extractJsonFromMarkdown(fullResponseText);
+      if (!parsedJson) {
+        // If not found in markdown, try to extract raw JSON
+        parsedJson = this._extractJson(fullResponseText);
+      }
     } catch (e) {
-        console.error("Error during initial JSON extraction:", e);
-        // Fallback to treating the whole thing as text
-        parsedJson = null;
+      console.error("Error during initial JSON extraction:", e);
+      // Fallback to treating the whole thing as text
+      parsedJson = null;
     }
 
     const defaultSuggestions = ["How can I help?", "What's in my shopping list?", "Suggest a healthy dinner."];
 
     if (parsedJson && typeof parsedJson === 'object' && parsedJson.response) {
-        return {
-            text: parsedJson.response,
-            suggestedPrompts: Array.isArray(parsedJson.suggestions) ? parsedJson.suggestions.slice(0, 3) : defaultSuggestions,
-            dynamicButtons: Array.isArray(parsedJson.dynamicButtons) ? parsedJson.dynamicButtons : undefined,
-            uiElements: Array.isArray(parsedJson.uiElements) ? parsedJson.uiElements : undefined
-        };
+      return {
+        text: parsedJson.response,
+        suggestedPrompts: Array.isArray(parsedJson.suggestions) ? parsedJson.suggestions.slice(0, 3) : defaultSuggestions,
+        dynamicButtons: Array.isArray(parsedJson.dynamicButtons) ? parsedJson.dynamicButtons : undefined,
+        uiElements: Array.isArray(parsedJson.uiElements) ? parsedJson.uiElements : undefined
+      };
     } else {
-        // If JSON parsing failed or didn't contain 'response', treat the whole thing as text
-        const cleanedText = fullResponseText.replace(/```json/g, '').replace(/```/g, '').trim();
-        console.warn("AI response did not contain expected JSON structure or 'response' key. Raw response:", fullResponseText);
-        this.notificationService.showWarning("AI response format was unexpected. Displaying raw text.", "AI Response Warning");
-        return {
-            text: cleanedText || "I'm sorry, I had trouble understanding the AI's response. Please try again.",
-            suggestedPrompts: defaultSuggestions
-        };
+      // If JSON parsing failed or didn't contain 'response', treat the whole thing as text
+      const cleanedText = fullResponseText.replace(/```json/g, '').replace(/```/g, '').trim();
+      console.warn("AI response did not contain expected JSON structure or 'response' key. Raw response:", fullResponseText);
+      this.notificationService.showWarning("AI response format was unexpected. Displaying raw text.", "AI Response Warning");
+      return {
+        text: cleanedText || "I'm sorry, I had trouble understanding the AI's response. Please try again.",
+        suggestedPrompts: defaultSuggestions
+      };
     }
   }
 
@@ -289,10 +291,70 @@ export class AiIntegrationService {
     } catch (error) {
       console.error('[Intelligence System] Nirvana request failed:', error);
       this.notificationService.showError('Unable to connect to intelligence system.', 'Connection Error');
-      return { 
-        text: "I'm having trouble connecting. Please ensure GEMINI_API_KEY is configured in .env", 
-        suggestedPrompts: [] 
+      return {
+        text: "I'm having trouble connecting. Please ensure NIRVANA_API_KEY is configured in .env",
+        suggestedPrompts: []
       };
     }
+  }
+
+  /**
+   * Start streaming camera to Nirvana
+   */
+  async startCamera(): Promise<boolean> {
+    return this.nirvanaAdapter.startCameraStream();
+  }
+
+  /**
+   * Start streaming screen share to Nirvana
+   */
+  async startScreen(): Promise<boolean> {
+    return this.nirvanaAdapter.startScreenStream();
+  }
+
+  /**
+   * Stop all video streaming
+   */
+  stopVideo(): void {
+    this.nirvanaAdapter.stopVideoStream();
+  }
+
+  /**
+   * Start native multimodal voice session
+   */
+  async startLiveVoice(): Promise<boolean> {
+    const status = await this.checkAgentStatus();
+    if (!status) return false;
+
+    return this.nirvanaAudio.startCapture();
+  }
+
+  /**
+   * Stop native multimodal voice session
+   */
+  stopLiveVoice(): void {
+    this.nirvanaAudio.stopCapture();
+  }
+
+  /**
+   * Get voice capture state
+   */
+  get isVoiceCapturing$() {
+    return this.nirvanaAudio.isCapturing$;
+  }
+
+  /**
+   * Get audio level for visualization
+   */
+  get audioLevel$() {
+    return this.nirvanaAudio.audioLevel$;
+  }
+
+  /**
+   * Disconnect and cleanup
+   */
+  disconnect(): void {
+    this.stopLiveVoice();
+    this.nirvanaAdapter.disconnect();
   }
 }

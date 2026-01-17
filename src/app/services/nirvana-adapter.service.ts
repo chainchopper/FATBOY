@@ -12,7 +12,7 @@ import { firstValueFrom } from 'rxjs';
 /**
  * NirvanaAdapterService
  * 
- * This service adapts the existing AI integration interface to use Gemini Live API (Nirvana).
+ * This service adapts the existing AI integration interface to use Nirvana.
  * It maintains backward compatibility with the existing application while providing
  * enhanced real-time capabilities.
  */
@@ -24,6 +24,9 @@ export class NirvanaAdapterService {
   private conversationHistory: Array<{ role: 'user' | 'model'; content: string }> = [];
   private currentResponse: Partial<AiResponse> = {};
   private isProcessingResponse = false;
+  private videoStream: MediaStream | null = null;
+  private frameCaptureInterval: any = null;
+  private canvas: HTMLCanvasElement | null = null;
 
   constructor(
     private nirvanaService: NirvanaService,
@@ -57,15 +60,15 @@ export class NirvanaAdapterService {
   private async initializeSession(): Promise<void> {
     if (this.isInitialized) return;
 
-    // Define tools in Gemini format (converted from existing tools)
-    const tools = this.convertToolsToGeminiFormat();
-    
+    // Define tools in Nirvana format (converted from existing tools)
+    const tools = this.convertToolsToNirvanaFormat();
+
     // Build system instruction
     const systemInstruction = this.buildSystemInstruction();
 
     // Register tools with Nirvana
     this.nirvanaService.registerTools(tools, systemInstruction);
-    
+
     this.isInitialized = true;
     console.log('[NirvanaAdapter] Session initialized');
   }
@@ -77,7 +80,7 @@ export class NirvanaAdapterService {
     try {
       // Get user preferences for Nirvana configuration
       const prefs = this.preferencesService.getPreferences();
-      
+
       // Attempt to connect if not already connected
       if (!this.nirvanaService.isReady()) {
         const connected = await this.nirvanaService.connect({
@@ -87,12 +90,12 @@ export class NirvanaAdapterService {
           voice: prefs.nirvanaVoice ?? 'Puck',
           language: prefs.nirvanaLanguage ?? 'en-US'
         });
-        
+
         if (!connected) {
           return false;
         }
       }
-      
+
       return this.nirvanaService.isReady();
     } catch (error) {
       console.error('[NirvanaAdapter] Status check failed:', error);
@@ -133,7 +136,7 @@ export class NirvanaAdapterService {
 
       // Wait for complete response (with timeout)
       const response = await this.waitForCompleteResponse(30000); // 30 second timeout
-      
+
       return response;
     } catch (error) {
       console.error('[NirvanaAdapter] Chat completion error:', error);
@@ -141,7 +144,7 @@ export class NirvanaAdapterService {
         'Unable to process your request. Please try again.',
         'Intelligence System'
       );
-      
+
       return {
         text: "I'm having trouble connecting right now. Please check your connection and try again.",
         suggestedPrompts: ['Try again', 'Check system status', 'View help']
@@ -200,6 +203,40 @@ export class NirvanaAdapterService {
    */
   private async executeToolCall(toolCall: { id: string; name: string; args: any }): Promise<void> {
     try {
+      // Handle streaming control tools directly
+      if (toolCall.name === 'enable_camera_stream') {
+        const success = await this.startCameraStream();
+        await this.nirvanaService.sendToolResponse(toolCall.id, toolCall.name, {
+          success,
+          output: success ? 'Camera streaming started.' : 'Failed to start camera stream.'
+        });
+        return;
+      }
+      if (toolCall.name === 'disable_camera_stream') {
+        this.stopVideoStream();
+        await this.nirvanaService.sendToolResponse(toolCall.id, toolCall.name, {
+          success: true,
+          output: 'Camera streaming stopped.'
+        });
+        return;
+      }
+      if (toolCall.name === 'enable_screen_share_stream') {
+        const success = await this.startScreenStream();
+        await this.nirvanaService.sendToolResponse(toolCall.id, toolCall.name, {
+          success,
+          output: success ? 'Screen sharing started.' : 'Failed to start screen share.'
+        });
+        return;
+      }
+      if (toolCall.name === 'disable_screen_share_stream') {
+        this.stopVideoStream();
+        await this.nirvanaService.sendToolResponse(toolCall.id, toolCall.name, {
+          success: true,
+          output: 'Screen sharing stopped.'
+        });
+        return;
+      }
+
       // Convert to format expected by ToolExecutorService
       const toolCallFormatted = {
         function: {
@@ -243,7 +280,7 @@ export class NirvanaAdapterService {
 
     } catch (error) {
       console.error('[NirvanaAdapter] Tool execution error:', error);
-      
+
       // Send error back to Nirvana
       await this.nirvanaService.sendToolResponse(toolCall.id, toolCall.name, {
         success: false,
@@ -310,9 +347,9 @@ export class NirvanaAdapterService {
   }
 
   /**
-   * Convert existing tools to Gemini format
+   * Convert existing tools to Nirvana format
    */
-  private convertToolsToGeminiFormat(): any[] {
+  private convertToolsToNirvanaFormat(): any[] {
     // These match the existing tools from ai-integration.service.ts
     return [
       {
@@ -437,6 +474,38 @@ export class NirvanaAdapterService {
           },
           required: ['query']
         }
+      },
+      {
+        name: 'enable_camera_stream',
+        description: 'Starts the camera and streams the video to Nirvana for real-time visual recognition.',
+        parameters: {
+          type: 'object',
+          properties: {}
+        }
+      },
+      {
+        name: 'disable_camera_stream',
+        description: 'Stops the camera stream.',
+        parameters: {
+          type: 'object',
+          properties: {}
+        }
+      },
+      {
+        name: 'enable_screen_share_stream',
+        description: 'Starts screen sharing and streams the video to Nirvana for real-time visual recognition of the screen.',
+        parameters: {
+          type: 'object',
+          properties: {}
+        }
+      },
+      {
+        name: 'disable_screen_share_stream',
+        description: 'Stops the screen share stream.',
+        parameters: {
+          type: 'object',
+          properties: {}
+        }
       }
     ];
   }
@@ -490,7 +559,7 @@ When analyzing products, focus on:
     this.nirvanaService.updateConfig({
       voice: voiceName
     });
-    
+
     // Save to preferences
     const prefs = this.preferencesService.getPreferences();
     this.preferencesService.savePreferences({
@@ -506,7 +575,7 @@ When analyzing products, focus on:
     this.nirvanaService.updateConfig({
       enableAudio: enabled
     });
-    
+
     // Save to preferences
     const prefs = this.preferencesService.getPreferences();
     this.preferencesService.savePreferences({
@@ -522,7 +591,7 @@ When analyzing products, focus on:
     this.nirvanaService.updateConfig({
       enableThinkingMode: enabled
     });
-    
+
     // Save to preferences
     const prefs = this.preferencesService.getPreferences();
     this.preferencesService.savePreferences({
@@ -538,7 +607,7 @@ When analyzing products, focus on:
     this.nirvanaService.updateConfig({
       enableGrounding: enabled
     });
-    
+
     // Save to preferences
     const prefs = this.preferencesService.getPreferences();
     this.preferencesService.savePreferences({
@@ -548,9 +617,103 @@ When analyzing products, focus on:
   }
 
   /**
+   * Start streaming camera video to Nirvana
+   */
+  async startCameraStream(): Promise<boolean> {
+    try {
+      this.videoStream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          facingMode: 'environment',
+          width: { ideal: 640 },
+          height: { ideal: 480 }
+        }
+      });
+      this.startFrameCapture();
+      this.notificationService.showSuccess('Camera streaming to Nirvana started', 'Video Intelligence');
+      return true;
+    } catch (error) {
+      console.error('[NirvanaAdapter] Failed to start camera stream:', error);
+      this.notificationService.showError('Could not access camera for streaming.', 'Video Error');
+      return false;
+    }
+  }
+
+  /**
+   * Start streaming screen share to Nirvana
+   */
+  async startScreenStream(): Promise<boolean> {
+    try {
+      this.videoStream = await (navigator.mediaDevices as any).getDisplayMedia({
+        video: true
+      });
+      this.startFrameCapture();
+      this.notificationService.showSuccess('Screen share streaming to Nirvana started', 'Screen Intelligence');
+      return true;
+    } catch (error) {
+      console.error('[NirvanaAdapter] Failed to start screen stream:', error);
+      this.notificationService.showError('Could not start screen share for streaming.', 'Screen Error');
+      return false;
+    }
+  }
+
+  /**
+   * Stop all video streaming
+   */
+  stopVideoStream(): void {
+    if (this.frameCaptureInterval) {
+      clearInterval(this.frameCaptureInterval);
+      this.frameCaptureInterval = null;
+    }
+
+    if (this.videoStream) {
+      this.videoStream.getTracks().forEach(track => track.stop());
+      this.videoStream = null;
+    }
+
+    this.notificationService.showInfo('Video streaming stopped.', 'Intelligence');
+  }
+
+  /**
+   * Start capturing frames from the stream and sending them to Nirvana
+   */
+  private startFrameCapture(): void {
+    if (!this.videoStream) return;
+
+    if (!this.canvas) {
+      this.canvas = document.createElement('canvas');
+    }
+
+    const video = document.createElement('video');
+    video.srcObject = this.videoStream;
+    video.play();
+
+    // Capture a frame every 1 second (Live API recommends low frequency for video)
+    this.frameCaptureInterval = setInterval(() => {
+      if (!this.videoStream || !this.videoStream.active) {
+        this.stopVideoStream();
+        return;
+      }
+
+      const context = this.canvas!.getContext('2d');
+      if (context && video.videoWidth > 0) {
+        this.canvas!.width = 640;
+        this.canvas!.height = 480;
+        context.drawImage(video, 0, 0, 640, 480);
+
+        // Get JPEG base64 (remove data:image/jpeg;base64, prefix)
+        const dataUrl = this.canvas!.toDataURL('image/jpeg', 0.6);
+        const base64Data = dataUrl.split(',')[1];
+
+        this.nirvanaService.sendVideoFrame(base64Data);
+      }
+    }, 1000);
+  }
+
+  /**
    * Disconnect and cleanup
    */
   disconnect(): void {
+    this.stopVideoStream();
     this.nirvanaService.disconnect();
     this.isInitialized = false;
     this.conversationHistory = [];

@@ -3,8 +3,8 @@ import { environment } from '../../environments/environment';
 import { BehaviorSubject, Subject, Observable } from 'rxjs';
 import { NotificationService } from './notification.service';
 
-// Gemini Live API Message Types
-export interface GeminiSetupMessage {
+// Nirvana Message Types
+export interface NirvanaSetupMessage {
   setup: {
     model: string;
     generation_config?: {
@@ -29,10 +29,12 @@ export interface GeminiSetupMessage {
         parameters: any;
       }>;
     }>;
+    input_audio_transcription?: {};
+    output_audio_transcription?: {};
   };
 }
 
-export interface GeminiClientContentMessage {
+export interface NirvanaClientContentMessage {
   client_content: {
     turns: Array<{
       role: 'user' | 'model';
@@ -48,7 +50,7 @@ export interface GeminiClientContentMessage {
   };
 }
 
-export interface GeminiToolResponseMessage {
+export interface NirvanaToolResponseMessage {
   tool_response: {
     function_responses: Array<{
       id: string;
@@ -60,7 +62,7 @@ export interface GeminiToolResponseMessage {
   };
 }
 
-export interface GeminiRealtimeInputMessage {
+export interface NirvanaRealtimeInputMessage {
   realtime_input: {
     media_chunks: Array<{
       mime_type: string;
@@ -101,9 +103,9 @@ export class NirvanaService {
   private isConnected$ = new BehaviorSubject<boolean>(false);
   private connectionError$ = new Subject<string>();
   private responses$ = new Subject<NirvanaResponse>();
-  
+
   private currentConfig: NirvanaConfig = {
-    model: 'models/gemini-2.0-flash-exp',
+    model: 'models/gemini-2.5-flash-native-audio-preview-12-2025',
     voice: 'Puck',
     temperature: 0.7,
     enableAudio: true,
@@ -117,23 +119,23 @@ export class NirvanaService {
   private reconnectDelay = 2000;
   private sessionActive = false;
   private pendingToolCalls: Map<string, any> = new Map();
-  
+
   // Audio handling
   private audioContext: AudioContext | null = null;
   private audioQueue: Float32Array[] = [];
   private isPlayingAudio = false;
 
   constructor(private notificationService: NotificationService) {
-    this.apiKey = environment.geminiApiKey || '';
-    this.wsEndpoint = environment.geminiLiveApiEndpoint;
-    
-    if (!this.apiKey || this.apiKey === 'your_gemini_api_key_here') {
+    this.apiKey = environment.nirvanaApiKey || '';
+    this.wsEndpoint = environment.nirvanaLiveApiEndpoint;
+
+    if (!this.apiKey || this.apiKey === 'your_nirvana_api_key_here') {
       console.warn('[Nirvana] API key not configured. Intelligence features will be unavailable.');
     }
   }
 
   /**
-   * Initialize connection to Gemini Live API
+   * Initialize connection to Nirvana
    */
   async connect(config?: Partial<NirvanaConfig>): Promise<boolean> {
     if (this.isConnected$.value) {
@@ -156,20 +158,45 @@ export class NirvanaService {
     try {
       // Build WebSocket URL with API key
       const wsUrl = `${this.wsEndpoint}?key=${this.apiKey}`;
-      
-      this.ws = new WebSocket(wsUrl);
-      
-      this.ws.onopen = () => this.handleConnectionOpen();
-      this.ws.onmessage = (event) => this.handleMessage(event);
-      this.ws.onerror = (error) => this.handleError(error);
-      this.ws.onclose = () => this.handleConnectionClose();
+      console.log('[Nirvana] Connecting to:', this.wsEndpoint);
 
-      // Initialize audio context if audio is enabled
-      if (this.currentConfig.enableAudio) {
-        this.initializeAudioContext();
-      }
+      return new Promise<boolean>((resolve, reject) => {
+        this.ws = new WebSocket(wsUrl);
 
-      return true;
+        this.ws.onopen = () => {
+          this.handleConnectionOpen();
+          resolve(true);
+        };
+
+        this.ws.onmessage = (event) => this.handleMessage(event);
+
+        this.ws.onerror = (error) => {
+          console.error('[Nirvana] WebSocket error during connection:', error);
+          this.handleError(error);
+          reject(new Error('WebSocket connection failed'));
+        };
+
+        this.ws.onclose = () => this.handleConnectionClose();
+
+        // Timeout after 10 seconds
+        setTimeout(() => {
+          if (this.ws && this.ws.readyState !== WebSocket.OPEN) {
+            console.error('[Nirvana] Connection timeout');
+            this.ws.close();
+            reject(new Error('Connection timeout'));
+          }
+        }, 10000);
+      }).then(() => {
+        // Initialize audio context if audio is enabled
+        if (this.currentConfig.enableAudio) {
+          this.initializeAudioContext();
+        }
+        return true;
+      }).catch(error => {
+        console.error('[Nirvana] Connection failed:', error);
+        this.connectionError$.next(`Connection failed: ${error.message}`);
+        return false;
+      });
     } catch (error) {
       console.error('[Nirvana] Connection failed:', error);
       this.connectionError$.next(`Connection failed: ${error}`);
@@ -178,7 +205,7 @@ export class NirvanaService {
   }
 
   /**
-   * Disconnect from Gemini Live API
+   * Disconnect from Nirvana
    */
   disconnect(): void {
     if (this.ws) {
@@ -187,7 +214,7 @@ export class NirvanaService {
       this.ws = null;
     }
     this.isConnected$.next(false);
-    
+
     if (this.audioContext) {
       this.audioContext.close();
       this.audioContext = null;
@@ -202,7 +229,7 @@ export class NirvanaService {
       await this.connect();
     }
 
-    const message: GeminiClientContentMessage = {
+    const message: NirvanaClientContentMessage = {
       client_content: {
         turns: [
           {
@@ -229,11 +256,11 @@ export class NirvanaService {
     }
 
     const parts: Array<{ text?: string; inline_data?: { mime_type: string; data: string } }> = [];
-    
+
     if (text) {
       parts.push({ text });
     }
-    
+
     parts.push({
       inline_data: {
         mime_type: mimeType,
@@ -241,7 +268,7 @@ export class NirvanaService {
       }
     });
 
-    const message: GeminiClientContentMessage = {
+    const message: NirvanaClientContentMessage = {
       client_content: {
         turns: [
           {
@@ -267,13 +294,34 @@ export class NirvanaService {
 
     // Convert audio to base64
     const base64Audio = this.arrayBufferToBase64(audioData);
+    this.sendMediaChunk('audio/pcm', base64Audio);
+  }
 
-    const message: GeminiRealtimeInputMessage = {
+  /**
+   * Send a video frame to Nirvana (real-time streaming)
+   * @param imageData - Base64 encoded JPEG data
+   */
+  async sendVideoFrame(imageData: string): Promise<void> {
+    if (!this.isConnected$.value) {
+      return;
+    }
+    this.sendMediaChunk('image/jpeg', imageData);
+  }
+
+  /**
+   * Send media chunks to Nirvana (real-time streaming)
+   */
+  private async sendMediaChunk(mimeType: string, data: string): Promise<void> {
+    if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
+      return;
+    }
+
+    const message: NirvanaRealtimeInputMessage = {
       realtime_input: {
         media_chunks: [
           {
-            mime_type: 'audio/pcm',
-            data: base64Audio
+            mime_type: mimeType,
+            data: data
           }
         ]
       }
@@ -283,10 +331,10 @@ export class NirvanaService {
   }
 
   /**
-   * Send tool execution results back to Gemini
+   * Send tool execution results back to Nirvana
    */
   async sendToolResponse(toolCallId: string, functionName: string, result: any): Promise<void> {
-    const message: GeminiToolResponseMessage = {
+    const message: NirvanaToolResponseMessage = {
       tool_response: {
         function_responses: [
           {
@@ -309,7 +357,7 @@ export class NirvanaService {
    */
   updateConfig(config: Partial<NirvanaConfig>): void {
     this.currentConfig = { ...this.currentConfig, ...config };
-    
+
     // If already connected, send updated config
     if (this.isConnected$.value) {
       this.sendSetupMessage();
@@ -345,7 +393,7 @@ export class NirvanaService {
     console.log('[Nirvana] Connected successfully');
     this.isConnected$.next(true);
     this.reconnectAttempts = 0;
-    
+
     // Send initial setup message
     this.sendSetupMessage();
   }
@@ -354,7 +402,7 @@ export class NirvanaService {
    * Private: Send setup/configuration message
    */
   private sendSetupMessage(tools?: any[], systemInstruction?: string): void {
-    const setupMessage: GeminiSetupMessage = {
+    const setupMessage: NirvanaSetupMessage = {
       setup: {
         model: this.currentConfig.model!,
         generation_config: {
@@ -384,15 +432,16 @@ export class NirvanaService {
     if (tools && tools.length > 0) {
       setupMessage.setup.tools = [
         {
-          function_declarations: tools.map(tool => ({
-            name: tool.function.name,
-            description: tool.function.description,
-            parameters: tool.function.parameters
-          }))
+          function_declarations: tools
         }
       ];
     }
 
+    // Enable audio transcriptions for better debugging and visibility
+    setupMessage.setup.input_audio_transcription = {};
+    setupMessage.setup.output_audio_transcription = {};
+
+    console.log('[Nirvana] Sending setup message:', JSON.stringify(setupMessage, null, 2));
     this.sendMessage(setupMessage);
     this.sessionActive = true;
   }
@@ -403,12 +452,13 @@ export class NirvanaService {
   private handleMessage(event: MessageEvent): void {
     try {
       const data = JSON.parse(event.data);
-      
+      console.log('[Nirvana] Received message:', JSON.stringify(data, null, 2));
+
       // Handle server content (model responses)
       if (data.serverContent) {
         this.handleServerContent(data.serverContent);
       }
-      
+
       // Handle tool calls
       if (data.toolCall) {
         this.handleToolCall(data.toolCall);
@@ -421,6 +471,7 @@ export class NirvanaService {
 
     } catch (error) {
       console.error('[Nirvana] Error parsing message:', error);
+      console.error('[Nirvana] Raw message:', event.data);
     }
   }
 
@@ -438,12 +489,12 @@ export class NirvanaService {
         if (part.text) {
           response.text = part.text;
         }
-        
+
         // Handle inline audio data
         if (part.inlineData && part.inlineData.mimeType === 'audio/pcm') {
           const audioData = this.base64ToArrayBuffer(part.inlineData.data);
           response.audioData = audioData;
-          
+
           // Queue audio for playback
           if (this.currentConfig.enableAudio) {
             this.queueAudioPlayback(audioData);
@@ -461,7 +512,7 @@ export class NirvanaService {
   }
 
   /**
-   * Private: Handle tool call requests from Gemini
+   * Private: Handle tool call requests from Nirvana
    */
   private handleToolCall(toolCall: any): void {
     const toolCallData = {
@@ -500,7 +551,7 @@ export class NirvanaService {
     if (this.reconnectAttempts < this.maxReconnectAttempts) {
       this.reconnectAttempts++;
       console.log(`[Nirvana] Reconnecting (attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts})...`);
-      
+
       setTimeout(() => {
         this.connect();
       }, this.reconnectDelay * this.reconnectAttempts);
@@ -528,7 +579,7 @@ export class NirvanaService {
   private initializeAudioContext(): void {
     if (!this.audioContext) {
       this.audioContext = new (window.AudioContext || (window as any).webkitAudioContext)({
-        sampleRate: 24000 // Gemini outputs at 24kHz
+        sampleRate: 24000 // Nirvana outputs at 24kHz
       });
     }
   }
@@ -540,7 +591,7 @@ export class NirvanaService {
     // Convert PCM data to Float32Array for Web Audio API
     const int16Array = new Int16Array(audioData);
     const float32Array = new Float32Array(int16Array.length);
-    
+
     for (let i = 0; i < int16Array.length; i++) {
       float32Array[i] = int16Array[i] / 32768.0; // Convert to -1.0 to 1.0 range
     }
